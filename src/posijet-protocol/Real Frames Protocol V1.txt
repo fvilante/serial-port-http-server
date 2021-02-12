@@ -1,0 +1,454 @@
+Memo0
+L=1920 H=1080
+L=33 H=55
+Enviando Bloco
+1B 02 C1 50 61 02 1B 03 87 
+Recebendo Bloco
+1B 06 C1 50 00 00 1B 03 E6 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 51 D5 14 1B 03 00 
+Recebendo Bloco
+1B 06 C1 51 00 00 1B 03 E5 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 52 53 4B 1B 03 4A 
+Recebendo Bloco
+1B 06 C1 52 00 00 1B 03 E4 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 53 53 4B 1B 03 49 
+Recebendo Bloco
+1B 06 C1 53 00 00 1B 03 E3 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 54 4D 0B 1B 03 8E 
+Recebendo Bloco
+1B 06 C1 54 00 00 1B 03 E2 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 55 4D 0B 1B 03 8D 
+Recebendo Bloco
+1B 06 C1 55 00 00 1B 03 E1 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 56 05 05 1B 03 DA 
+Recebendo Bloco
+1B 06 C1 56 00 00 1B 03 E0 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 57 E2 03 1B 03 FE 
+Recebendo Bloco
+1B 06 C1 57 00 00 1B 03 DF 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 58 8F 0F 1B 03 44 
+Recebendo Bloco
+1B 06 C1 58 00 00 1B 03 DE 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 59 2F 0F 1B 03 A3 
+Recebendo Bloco
+1B 06 C1 59 00 00 1B 03 DD 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 5A 43 04 1B 03 99 
+Recebendo Bloco
+1B 06 C1 5A 00 00 1B 03 DC 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 5B 0B 00 1B 03 D4 
+Recebendo Bloco
+1B 06 C1 5B 00 00 1B 03 DB 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 5C 0A 00 1B 03 D4 
+Recebendo Bloco
+1B 06 C1 5C 00 00 1B 03 DA 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 5D 14 00 1B 03 C9 
+Recebendo Bloco
+1B 06 C1 5D 00 00 1B 03 D9 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 5E 09 00 1B 03 D3 
+Recebendo Bloco
+1B 06 C1 5E 00 00 1B 03 D8 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 5F 22 00 1B 03 B9 
+Recebendo Bloco
+1B 06 C1 5F 00 00 1B 03 D7 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 60 46 00 1B 03 94 
+Recebendo Bloco
+1B 06 C1 60 00 00 1B 03 D6 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 61 17 00 1B 03 C2 
+Recebendo Bloco
+1B 06 C1 61 00 00 1B 03 D5 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 62 04 00 1B 03 D4 
+Recebendo Bloco
+1B 06 C1 62 00 00 1B 03 D4 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 63 32 00 1B 03 A5 
+Recebendo Bloco
+1B 06 C1 63 00 00 1B 03 D3 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 64 90 01 1B 03 45 
+Recebendo Bloco
+1B 06 C1 64 00 00 1B 03 D2 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 65 37 02 1B 03 9C 
+Recebendo Bloco
+1B 06 C1 65 00 00 1B 03 D1 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 66 88 13 1B 03 39 
+Recebendo Bloco
+1B 06 C1 66 00 00 1B 03 D0 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 67 F4 01 1B 03 DE 
+Recebendo Bloco
+1B 06 C1 67 00 00 1B 03 CF 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C1 68 00 04 1B 03 CE 
+Recebendo Bloco
+1B 06 C1 68 00 00 1B 03 CE 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 C2 50 31 02 1B 03 B6 
+Recebendo Bloco
+(25/1)	Saida por "TimerIn" e nada recebido Pacote: 
+	- - - Bloco Recebido Com Erro - - -
+Enviando Bloco
+1B 02 01 80 30 31 1B 03 19 
+Recebendo Bloco
+1B 06 01 80 11 0C 1B 03 59 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 81 32 33 1B 03 14 
+Recebendo Bloco
+1B 06 01 81 06 0C 1B 03 63 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 82 34 35 1B 03 0F 
+Recebendo Bloco
+1B 06 01 82 1B 03 1B 03 56 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 83 36 37 1B 03 0A 
+Recebendo Bloco
+1B 06 01 83 1B 03 1B 03 55 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 84 38 39 1B 03 05 
+Recebendo Bloco
+1B 06 01 84 1B 03 1B 03 54 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 85 3A 3B 1B 03 00 
+Recebendo Bloco
+1B 06 01 85 1B 1B 1B 03 3B 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 86 3C 3D 1B 03 FB 
+Recebendo Bloco
+1B 06 01 86 03 1B 1B 03 52 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 87 3E 3F 1B 03 F6 
+Recebendo Bloco
+1B 06 01 87 01 86 1B 03 E8 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 88 40 41 1B 03 F1 
+Recebendo Bloco
+1B 06 01 88 03 1B 1B 03 50 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 89 42 43 1B 03 EC 
+Recebendo Bloco
+1B 06 01 89 14 00 1B 03 59 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 8A 44 45 1B 03 E7 
+Recebendo Bloco
+1B 06 01 8A 13 00 1B 03 59 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 8B 46 47 1B 03 E2 
+Recebendo Bloco
+1B 06 01 8B 06 08 1B 03 5D 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 8C 48 49 1B 03 DD 
+Recebendo Bloco
+1B 06 01 8C 01 33 1B 03 36 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 8D 4A 4B 1B 03 D8 
+Recebendo Bloco
+1B 06 01 8D 00 01 1B 03 68 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 8E 4C 4D 1B 03 D3 
+Recebendo Bloco
+1B 06 01 8E 8E 8E 1B 03 4C 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 8F 4E 4F 1B 03 CE 
+Recebendo Bloco
+1B 06 01 8F 4F 49 1B 03 CF 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 90 50 51 1B 03 C9 
+Recebendo Bloco
+1B 06 01 90 49 24 1B 03 F9 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 91 52 53 1B 03 C4 
+Recebendo Bloco
+1B 06 01 91 1B 03 1B 03 47 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 92 54 55 1B 03 BF 
+Recebendo Bloco
+1B 06 01 92 C9 1B 1B 03 80 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 93 56 57 1B 03 BA 
+Recebendo Bloco
+1B 06 01 93 02 01 1B 03 60 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 94 58 59 1B 03 B5 
+Recebendo Bloco
+1B 06 01 94 91 52 1B 03 7F 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 95 5A 5B 1B 03 B0 
+Recebendo Bloco
+1B 06 01 95 53 1B 1B 03 F3 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 96 5C 5D 1B 03 AB 
+Recebendo Bloco
+1B 06 01 96 AB C4 1B 03 F1 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 97 5E 5F 1B 03 A6 
+Recebendo Bloco
+1B 06 01 97 02 01 1B 03 5C 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 98 60 61 1B 03 A1 
+Recebendo Bloco
+1B 06 01 98 97 5E 1B 03 69 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 99 62 63 1B 03 9C 
+Recebendo Bloco
+1B 06 01 99 5F 1B 1B 03 E3 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 9A 64 65 1B 03 97 
+Recebendo Bloco
+1B 06 01 9A 03 A6 1B 03 B3 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 9B 66 67 1B 03 92 
+Recebendo Bloco
+1B 06 01 9B 1B 02 1B 03 3E 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 9C 68 69 1B 03 8D 
+Recebendo Bloco
+1B 06 01 9C 01 98 1B 03 C1 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 9D 6A 6B 1B 03 88 
+Recebendo Bloco
+1B 06 01 9D 6B 1B 1B 03 D3 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 9E 6C 6D 1B 03 83 
+Recebendo Bloco
+1B 06 01 9E 03 88 1B 03 CD 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 9F 6E 6F 1B 03 7E 
+Recebendo Bloco
+1B 06 01 9F 1B 02 1B 03 3A 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 A0 70 71 1B 03 79 
+Recebendo Bloco
+1B 06 01 A0 01 9E 1B 03 B7 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 A1 72 73 1B 03 74 
+Recebendo Bloco
+1B 06 01 A1 6C 6D 1B 03 7C 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 A2 74 75 1B 03 6F 
+Recebendo Bloco
+1B 06 01 A2 1B 03 1B 03 36 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 A3 76 77 1B 03 6A 
+Recebendo Bloco
+1B 06 01 A3 83 1B 1B 03 B5 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 A4 78 79 1B 03 65 
+Recebendo Bloco
+1B 06 01 A4 01 A4 1B 03 AD 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 A5 7A 7B 1B 03 60 
+Recebendo Bloco
+1B 06 01 A5 78 79 1B 03 60 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 A6 7C 7D 1B 03 5B 
+Recebendo Bloco
+1B 06 01 A6 1B 03 1B 03 32 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 A7 7E 7F 1B 03 56 
+Recebendo Bloco
+1B 06 01 A7 65 1B 1B 03 CF 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 A8 80 81 1B 03 51 
+Recebendo Bloco
+1B 06 01 A8 00 00 1B 03 4E 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 A9 82 83 1B 03 4C 
+Recebendo Bloco
+1B 06 01 A9 00 00 1B 03 4D 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 AA 84 85 1B 03 47 
+Recebendo Bloco
+1B 06 01 AA 00 00 1B 03 4C 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 AB 86 87 1B 03 42 
+Recebendo Bloco
+1B 06 01 AB 00 00 1B 03 4B 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 AC 88 89 1B 03 3D 
+Recebendo Bloco
+1B 06 01 AC 00 00 1B 03 4A 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 AD 8A 8B 1B 03 38 
+Recebendo Bloco
+1B 06 01 AD 00 00 1B 03 49 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 AE 8C 8D 1B 03 33 
+Recebendo Bloco
+1B 06 01 AE 00 00 1B 03 48 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 AF 8E 8F 1B 03 2E 
+Recebendo Bloco
+1B 06 01 AF 00 00 1B 03 47 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 B0 90 91 1B 03 29 
+Recebendo Bloco
+1B 06 01 B0 00 00 1B 03 46 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 B1 92 93 1B 03 24 
+Recebendo Bloco
+1B 06 01 B1 00 00 1B 03 45 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 B2 94 95 1B 03 1F 
+Recebendo Bloco
+1B 06 01 B2 00 00 1B 03 44 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 B3 96 97 1B 03 1A 
+Recebendo Bloco
+1B 06 01 B3 00 00 1B 03 43 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 B4 98 99 1B 03 15 
+Recebendo Bloco
+1B 06 01 B4 00 00 1B 03 42 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 B5 9A 9B 1B 03 10 
+Recebendo Bloco
+1B 06 01 B5 00 00 1B 03 41 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 B6 9C 9D 1B 03 0B 
+Recebendo Bloco
+1B 06 01 B6 00 00 1B 03 40 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 B7 9E 9F 1B 03 06 
+Recebendo Bloco
+1B 06 01 B7 00 00 1B 03 3F 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 B8 A0 A1 1B 03 01 
+Recebendo Bloco
+1B 06 01 B8 00 00 1B 03 3E 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 B9 A2 A3 1B 03 FC 
+Recebendo Bloco
+1B 06 01 B9 00 00 1B 03 3D 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 BA A4 A5 1B 03 F7 
+Recebendo Bloco
+1B 06 01 BA 00 00 1B 03 3C 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 BB A6 A7 1B 03 F2 
+Recebendo Bloco
+1B 06 01 BB 00 00 1B 03 3B 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 BC A8 A9 1B 03 ED 
+Recebendo Bloco
+1B 06 01 BC 00 00 1B 03 3A 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 BD AA AB 1B 03 E8 
+Recebendo Bloco
+1B 06 01 BD 00 00 1B 03 39 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 BE AC AD 1B 03 E3 
+Recebendo Bloco
+1B 06 01 BE 00 00 1B 03 38 
+	- - - Bloco Recebido OK - - -
+Enviando Bloco
+1B 02 01 BF AE AF 1B 03 DE 
+Recebendo Bloco
+1B 06 01 BF 00 00 1B 03 37 
+	- - - Bloco Recebido OK - - -
+	- - - Dados OK - - -

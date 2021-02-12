@@ -1,0 +1,7157 @@
+;****************************************************************
+; - Para ser usado em conjunto com ves�es de software de placa	*
+; de motor mais recente que Cmpp09Af e que utilizem protocolo	*
+; antigo de comunica��o.					*
+;****************************************************************
+;		RESULTANTE DO PROGRAMA DosVol19			*
+; - Trocado os bits de envios de RFSTARX e RFSTARY com o bit de	*
+; envio StaTec que estavam errados, Ou seja StaTec deve atuar	*
+; no bit4 e n�o no 7, pois no bit7 que deve atuar s�o RFSTARX	*
+; e RFSTARY.							*
+;****************************************************************
+;		RESULTANTE DO PROGRAMA DosVol04			*
+; - Colocar o divisor de taco no menu				*
+; - Definir o que fazer com as variaveis DivMotX e DivMotY	*
+; - Fazer o parametro RFSTART, referencia pelo start externo	*
+; funcionar corretamente.					*
+; - Colocar '*' nas opcoes com problemas.			*
+;****************************************************************
+; - Passar o parametro StaTecX e StaTecY de start via teclado e	*
+; externo do menu de configuracao de eixo para o programa.	*
+; - Passar o parametro RFSTART, referencia pelo start externo	*
+; do programa para o menu de configuracao de eixo.		*
+; - Eliminar por completo o erro +44				*
+; - Eliminar o controle (IORS+4) que habilita/desabilita o DTR	*
+; e RTS que � desnecessario pois possue um buffer muito grande	*
+; - Erro +102 e 103 cotaX e cotaY respetivamente s� pode	*
+; acontecer se estiver referenciado.				*
+;****************************************************************
+; - Eliminado os controle de HandShake da comunicac�o serial	*
+; - Eliminado os erros de transmissao da comunica��o 45-(DCD) e	*
+; 46-(CTS).							*
+; - Ampliado o tamanho de BUFCOM ate o final do seu do segmento	*
+; de 256 bytes sultando em 76 bytes totais 71 util		*
+; - A rotina RdBlk e a rotina ComBlk nao identifica mais Erro	*
+; 54 'Start byte STX invalido' ele s� � identificado na rotina	*
+; sParamN e sParamC.						*
+; - Sa ouver comunicacao da placa CPU com canal zero a placa	*
+; do motor pode responder o seu proprio canal.			*
+;****************************************************************
+;****************************************************************
+;		RESULTANTE DO PROGRAMA DosVol01			*
+; - compactado os parametros de programa na Ram de usuario para	*
+;   caber mais parametros, para a compactacao foi trocado o	*
+;   include Menupor2.inc pelo Menupor6.inc.			*
+;****************************************************************
+;		RESULTANTE DO PROGRAMA CPUZ05EA			*
+; - Envia os bits extendidos X e Y (isto ja estava em CPUZ05EA)	*
+; - Modificado as rotinas MOSTRP e CONVMM0 para funcionar	*
+;   corretamento com espoente negativo do fator.		*
+; - Acrescentado os fatores para o dosador 1064mg/volta e 211.7	*
+;   (decimo de milimetro)/volta					*
+; - Falta:							*
+; - Os erros de MOSTRP so valem se o eixo estiver referenciado	*
+;****************************************************************
+;	Comatibildade com o software cmpp00LG			*
+; - TEMPPT =$2C, Retardo para o sinal de impressao possue o	*
+;   mesmo endereco de Fimprg que nao pode ser modificado	*
+;   enquanto estiver fazendo algum acesso a eprom que apenas	*
+;   sujar� esta posicao.					*
+; - TEMPPP =$2E, Retardo para o start entre eixo � vago em	*
+;   cmpp0Lg por isso nao interfere.				*
+; - FLAGPE =$30 Flag especial de intertravamento, possue o	*
+;   mesmo endereco de ConfC no programa cmpp00lg, como esta	*
+;   posicao � lida modificado os bits conforme programacao nao	*
+;   influencia desde que nao se modifique o bit5 que indica a	*
+;   logica do fim de curso, os demais bits nao sao usado em	*
+;   cmpp00lg.							*
+;****************************************************************
+;		RESULTANTE DO PROGRAMA CPUZ04EA			*
+; - Ascresentado alguns e concertado outros comentarios.	*
+; - Trocado o arquivo include MENUPOR1.INC por MENUPOR2.INC	*
+; - Acrescentado o parametro para chavear para o modo turbo,	*
+;   para isso foi reposicionado alguns parametros.		*
+; - Acrescentado a rotina DTurbo que desliga o modo turbo todas	*
+;   vezes que o equipamento e� ligado.				*
+; - Apagado a rotina THLDE pois ja estava como comentario e nao	*
+;   estava sendo mais usada.					*
+; - Apagado a rotina MOSTRP que estava como comentario e ja	*
+;   tinha outra em seu lugar.					*
+; - Modificado as rotinas MOSTRP e CONVMM0 para funcionar	*
+;   corretamento com 0 no espoente do fator e acrescentado as	*
+;   mensagens 102 e 103	MOSTRP.					*
+; - Acrescentado na rotina CALCFAT e na linha MENFAT os fatores	*
+;   para polia de 6 e 60 dentes.				*
+; - Da rotina GPARAM0 e GPARAM3 foi eliminados Pushs e pops	*
+;   desnecessarios e acresentados o envio do bit de 		*
+;   configuracao do modo turbo para a placa do motor.
+;****************************************************************
+
+;****************************************************************
+; - Apagado a rotina MOSTRP e THLDE pois nao 
+; - Acrecentado os fatores de 6, 60 e 120 dentes		*
+; - Concertado as rotinas dos fatores para admitir espoente 0	*
+;   nas polias com mais de 78.74136 dendes			*
+; - Acrescentado os erros abaixo.				*
+;   'Erro 102- Posicao real X muito grande   '			*
+;   'Erro 103- Posicao real Y muito grande   '			*
+;****************************************************************
+;	Diferencas do programa CPUZ04EA para CPUZ03DA 		*
+; - Trocado o arquivo include MENUPOR0.INC por MENUPOR1.INC	*
+; - Acresentado os seguites parametros para o modo passo a	*
+;   passo:							*
+; - Start automatico passo a passo				*
+; - Saida de start passo a passo				*
+; - Retardo de impressao passo a passo				*
+; - Retardo do start passo a passo				*
+; - Subdividido o erro de parametros nos erros abaixo		*
+;   'Erro 97 - Parametros de movimento       '			*
+;   'Erro 98 - Parametros de impressao       '			*
+;   'Erro 99 - Parametros de configura. ciclo'			*
+;   'Erro 100- Parametros config. impressora '			*
+;   'Erro 101- Parametros intertravamento    '			*
+;****************************************************************
+;
+;----------------------------------------------------------------
+; - Fator para transforma tempo em mseg em clock de interrup�ao	;
+;   da placa de motor com microcontrolador Atmel, cuja		;
+;   frequencia e de 1024 interrup�oes/seg ou seja 1024 Hz.	;
+; - Fator = (1024/1000 -1)*256*256				;
+FATTMP	EQU	1573	;Espoente base2=(0)			;
+; - Obs a placa antiga sem processador era de 488,28 Hz		;
+;----------------------------------------------------------------
+;
+	ORG 0
+;****************************************************************
+;*		Distribuicao da memoria RAM			*
+;****************************************************************
+RAMSYS	EQU	7800h		;Primeiro endereco da Ram do sistema
+RAMUSU	EQU	8000h		;Primeiro endereco da Ram de usuario
+;Buffer de 256 Bytes utilizado
+BUFUSO	EQU	RAMSYS+200h	;Buffer dos parametro transformado
+BUFRX	EQU	RAMSYS+300h	;Buffer de recepcao da interface serial
+BUFTX	EQU	RAMSYS+400h	;Buffer de transmissao da interface serial
+BUFCOM	EQU	RAMSYS+500h	;Buffer dos comando serial de entrada 256 bytes
+
+MVERSA	EQU	0FF00h		;Versao da eprom na memoria do usuario
+ChkCpu	Equ	0FF29h		;Endereco do CheckSum da eprom na memoria do usuario
+;
+;****************************************************************
+;		Parametros de hardware da placa cpu		*
+;****************************************************************
+STAK	EQU	RAMUSU
+TMPBP	EQU	4		;Tempo do bip tecla
+TMPDBC	EQU	30		;Tempo de debunc do teclado 61 mS
+TESPERA	EQU	244		;Tempo de espera para repeticao 500 mS 
+TREPET	EQU	122		;Tempo de repeticao do teclado 250 mS
+CharErr	Equ	'*'
+;
+;Comandos do display
+CLSDIS	EQU	01h		;Limpa display e retorna cursor
+RETCUR	EQU	02h		;cursor para primeira posicao do display
+DESCUR	EQU	0Ch		;Desliga o cursor
+PISLET	EQU	0Dh		;Cursor desligado e Letra piscando
+PISCUR	EQU	0Eh		;Cursor ligado e Letra fixa
+PISTUD	EQU	0Fh		;Cursor fixo e Letra piscando
+CURESQ	EQU	10h		;cursor para esquerda
+CURDIR	EQU	14h		;cursor para direita
+NLINHA	EQU	2		;Numero de linha do display
+NCOLUN	EQU	40		;Numero de coluna por linha do display
+;
+;Constantes
+TPALAR	EQU	1000		;Tempo do bip alarme
+REFZER	EQU	200h		;Posicao zero da referencia = 104mm
+TSEGUN	EQU	488		;Valor de tempo de 1 Segundos
+NNIVEL	EQU	4		;Numero maximo do nivel de protecao
+CR	EQU	0Dh
+
+;Constante do protocolo de comunica��o
+ESC	EQU	1Bh
+STX	EQU	02h
+ETX	EQU	03h
+ACK	EQU	06h
+NACK	EQU	15h
+LF	EQU	0Dh
+;
+;Endereco serial dos parametros da placa do motor
+sEeArL	Equ	1Fh ;(=31)	;(3Eh)	;EeProm Address register Low
+sEeDr	Equ	1Eh ;(=30)	;(3Dh)	;EeProm Data register
+sEeCr	Equ	1Eh ;(=30)	;(3Ch)	;EeProm Control register
+SPosAtu	Equ	30h ;(=48)	;(60h)	;Posicao atual
+sMaskEr	Equ	45h ;(=69)	;(8Ah)	;Macara de erro
+sStatus	Equ	49h ;(=73)	;(92h)	;Macara de erro
+sPosIni	Equ	50h ;(=80)	;(A0h)	;Posicao inicial programada
+sPosFim	Equ	51h ;(=81)	;(A2h)	;Posicao final programada
+sAcevan	Equ	52h ;(=82)	;(A4h)	;Aceleracao de avanco programada
+sAceret	Equ	53h ;(=83)	;(A6h)	;Aceleracao de retorno programada
+sVelAva	Equ	54h ;(=84)	;(A8h)	;Velocidade de avanco programada
+sVelRet	Equ	55h ;(=85)	;(AAh)	;Velocidade de retorno programada
+snMenAv	Equ	56h ;(=86)	;(ACh)	;Numero de mensagem no avanco
+snMenRt	Equ	56h ;(=86)	;(ADh)	;Numero de mensagem no retorno
+spPrtAv	Equ	57h ;(=87)	;(AEh)	;posicao da primeira impressao no avanco
+spPrtRt	Equ	58h ;(=88)	;(B0h)	;posicao da primeira impressao no retorno
+sUprtAV	Equ	59h ;(=89)	;(B2h)	;Posicao da ultima mensagem no avanco
+sUprtRT	Equ	5Ah ;(=90)	;(B4h)	;Posicao da ultima mensagem no retorno
+slaSiPr	Equ	5Bh ;(=91)	;(B6h)	;Largura do sinal de impressao
+sStaAut	Equ	5Ch ;(=92)	;(B8h)	;Tempo para o start automatico
+sStaExt	Equ	5Dh ;(=93)	;(BAh)	;Tempo para o start externo
+sCotAnt	Equ	5Eh ;(=94)	;(BCh)	;Cota de antecipacao do start entre eixos (pinelmatico)
+sRetApp	Equ	5Fh ;(=95)	;(BEh)	;Retardo para o start automatico passo a passo
+sFlgPrg	Equ	60h ;(=96)	;(C0h)	;Bits de configura�ao do programa
+sRetImp	Equ	61h ;(=97)	;(C2h)	;Retardo para o sinal de impressao
+sPtaco	Equ	62h ;(=98)	;(C4h)	;Divisor programado do taco
+sJanela	Equ	63h ;(=99)	;(C6h)	;Janela de prote��o
+snPulso	Equ	64h ;(=100)	;(C8h)	;Numero de pulso por Volta
+sValRef	Equ	65h ;(=101)	;(CAh)	;Valor da referencia
+sAceRef	Equ	66h ;(=102)	;(CCh)	;Acelera��o da referencia
+sVelRef	Equ	67h ;(=103)	;(CEh)	;Velocidade da referencia
+sFlgPrE	Equ	68h ;(=104)	;(D0h)	;Flags de controle especial
+sPmotor	Equ	68h ;(=104)	;(D1h)	;Divisor programado do motor
+sComSer	Equ	69h ;(=105)	;(D2h)   Registro de controle via serial
+bStart	Equ	0	;(sComSer) 		;start
+bStop	Equ	1	;(sComSer) 		;Stop
+bPausa	Equ	2	;(sComSer) 		;pausa
+bManua	Equ	3	;(sComSer) 		;Manual
+bTstImp	Equ	4	;(sComSer) 		;Teste de impressao
+bSavPar	Equ	6	;(sComSer) 		;bit para salvar parametros
+bResErr	Equ	7	;(sStatus) 		;Bit de erro do status
+vEndCo2	Equ	23h					;Endere�o do canal da com2 na eeprom
+;
+;--------------------------------------------------------------------
+;                  Entradas e saidas da placa cpu.                  -
+;--------------------------------------------------------------------
+IDISP1	EQU	00h		;Instrucao para o diplay linha 1 e 2
+MDISP1	EQU	01h		;Mostra no display linha 1 e 2
+IDISP2	EQU	02h		;Instrucao para o diplay linha 3 e 4
+MDISP2	EQU	03h		;Mostra no display linha 3 e 4
+IOTEC	EQU	10h		;Diversos
+;	Entrada			Saida
+;D0	coluna 0		Teclado	A0
+;D1	coluna 1		Teclado	A1
+;D2	coluna 2		Teclado	A2
+;D3	coluna 3		Nao usado
+;D4	coluna 4		Ld3	Estava errado	Ld1
+;D5	coluna 5		Ld2
+;D6	coluna 6		Ld1	Estava errado	Ld3
+;D7	coluna 7		Nao usado
+CTRCPU	EQU	11h		;Controle diversos da cpu
+;	Entrada			Saida
+;D0	start avanco		Bip, Ld4
+;D1	okbat			FA1
+;D2	start retorno 		Fa2
+;D3	badram			Fa3, direcao do movimento (liga/desliga pistao)
+;D4	cnt4-?			Fa4, Ld5 posicao alcancada
+;D5	control			Fa5, Ld6 indicacao de erro
+;D6	cnt4-?			Nao usado
+;D7	shift			Nao usado
+IORS	EQU	20h		;Interface serial
+;IORS1	EQU	21h		;Interface serial
+;IORS2	EQU	22h		;Interface serial
+;IORS3	EQU	23h		;Interface serial
+;IORS4	EQU	24h		;Interface serial
+;IORS5	EQU	25h		;Interface serial
+;IORS6	EQU	26h		;Interface serial
+;IORS7	EQU	27h		;Interface serial
+;
+BADRAM	EQU	30h		;Reseta aviso de power off
+IOCAO	EQU	40h		;Reset de interrupcao atendida
+IOINT	EQU	50h		;So entrada
+;D0 Interrupcao Externa			D4 Nao conectado
+;D1 Interrupcao interface serial	D5 Nao conectado
+;D2 Interrupcao do relogio		D6 Nao conectado
+;D3 Interrupcao pendente		D7 Nao conectado
+;
+;****************************************************************
+;		Inicializa o sistema operacional		*
+;****************************************************************
+INICIO	DI
+	LD	SP,STAK
+	IM	1
+	XOR	A
+	OUT	(CTRCPU),A	;Apaga os demais Leds e o bip,
+	LD	(BUFCPU),A	;buffer de controle da placa cpu
+	LD	(BUFMTX),A	;Inicializa buffer de controle X
+	CPL
+	OUT	(IOTEC),A	;Apaga os Leds das teclas de modo.
+	IN	A,(CTRCPU)	;Verifica okbat, control e power off.
+	CPL
+	LD	E,A		;Salva porta CtrCpu
+	OUT	(BADRAM),A	;Reseta aviso de power off.
+	LD	A,38H
+	OUT	(IDISP1),A	;Acorda o display
+	JP	TSINT		;Pula area da interrupcao
+;
+INTM01	DEFS	32H-INTM01	;Configuracoes iniciais
+CONFIG	DEFB	4		;Taxa da comunica��o (2400)
+	DEFB	3		;Numero de bits (8)
+	DEFB	0		;Stop Bit (1)
+	DEFB	0		;Paridade (desligada)
+	DEFB	0		;Tipo da paridade (Odd)
+	DEFB	0		;Break (Desligado)
+;----------------------------------------------------------------
+;		Configuracao do eixos				-
+; (CONFIG)			(CONFIG+1)			-
+; (D0) EIXO X			(D0) EIXO Y			-
+; (D1) MODO CONTINUO X		(D1) MODO CONTINUO Y		-
+; (D2) START EXTERNO X		(D2) START ESTERNO Y		-
+; (D3) START DO EIXO Y		(D3) START DO EIXO X		-
+; (D4) REFERENCIA X		(D4) REFERENCIA Y		-
+; (D5) Nao usado X		(D5) Nao usado Y		-
+; (D6) Nao usado X		(D6) Nao usado Y		-
+; (D7) Nao usado X		(D7) Nao usado Y		-
+;----------------------------------------------------------------
+;
+;****************************************************************
+;* Programa principal de interrupcao		 822/ 536 estad	*
+;* RS232C  Se interrupcao serial leitura         201/  84 estad *
+;* RS232C  Se interrupcao serial escrita         181/  86 estad *
+;* BADINT  Tratamento de interrupcao ruim	  82/  82 estad	*
+;* Total Comum					1533/1005 estad	*
+;*								*
+;****************************************************************
+;*		Tratamento das interrupcoes	150/135		*
+;*	Desabilitado interrupcao esterna	D0		*
+;*	Desabilitado interrupcao da serial	D1		*
+;*	Desabilitado interrupcao relogio	D2		*
+;*	Interrupcao pendente em			D3		*
+;****************************************************************
+INT38H	EXX
+	EX	AF,AF'
+	IN	A,(IOINT)	;Verifica status da interrupcao
+	LD	E,A		;Salva IOINT
+	AND	00000110B
+	JR	Z,BADXX		;(42)(51) Se interrupcao esterna, pendente ou desconhecida
+	BIT	2,E
+	JR	Z,INTSER	;(57)(69) Sem interrupcao relogio, certamente � interrup��o serial
+INT38H1	OUT	(IOCAO),A	;Reseta cao de guarda se relogio.
+	BIT	1,E
+	CALL	NZ,RS232C	;(173/180) Se interrupcao relogio e serial
+	LD	A,E
+	AND	00001001B
+	LD	E,A
+	CALL	NZ,BADINT	;(194/208)
+	LD	HL,(TMPSYS)
+	INC	HL
+	LD	(TMPSYS),HL
+	LD	A,L
+	OR	H
+	JR	NZ,INT38H2
+	LD	A,10H
+	LD	(CNTINT),A	;Zera contador de erro de interrupcao
+INT38H2	CALL	INTTEC
+
+;
+;Controle do bip
+INT38H3	LD	HL,(TMPBIP)	;temporizador o bip
+	DEC	HL
+	LD	(TMPBIP),HL	;temporizador o bip
+	LD	A,H
+	OR	L
+	LD	A,(BUFCPU)	;buffer de controle da placa cpu
+	JR	NZ,INT38H4	;(167)
+	AND	11111110B	;Desliga o BIP
+	LD	(BUFCPU),A	;buffer de controle da placa cpu
+INT38H4	OUT	(CTRCPU),A
+INTFIM	EX	AF,AF'
+	EXX
+	EI
+	RETI			;216/201
+;
+INTSER	CALL	RS232C
+	IN	A,(IOINT)	;Verifica status da interrupcao
+	OR	E
+	RES	1,A		;Interrupcao serial ja atendida, n�o atende novamente
+	LD	E,A		;Salva IOINT
+	BIT	2,E
+	JR	NZ,INT38H1	;Se interrupcao relogio bit 2 ligado
+	AND	00001001B
+	JR	Z,INTFIM
+;
+;----------------------------------------------------------------
+;-	Tratamento de falha das interrupcoes via interrupcao	-
+;-	BADINT 82 estados	BADXX=109 estados		-
+;----------------------------------------------------------------
+BADXX	BIT	3,E
+	JR	NZ,BADXX0	;Se interrupcao pendente
+	BIT	0,E
+	JR	NZ,BADXX1	;Se interrupcao externa
+	SET	4,E		;Indica interrupcao nao identificada
+	JR	BADXX1
+BADXX0	OUT	(IOCAO),A	;Reseta cao de guarda se pendente.
+BADXX1	CALL	BADINT
+	JR	INTFIM
+BADINT	LD	A,(ERINT)
+	OR	E		;Soma erro, ao erro atual
+	AND	0Fh
+	LD	(ERINT),A
+	LD	D,A
+	LD	A,(CNTINT)	;Contador de erro de interrupcao
+	DEC	A
+	LD	(CNTINT),A
+	RET	NZ		;Contador de erro de interrupcao nao terminado
+	POP	HL
+	LD	A,CLSDIS
+	OUT	(IDISP1),A	;Limpa display e retorna cursor
+	LD	HL,eMenIni+41*7
+	JP	RETORW		;Erro cao de guarda
+;
+;------------------------------------------------------------------------
+;-	Rotina de interrupcao de tratamento do teclado	MAX/MIN=???/???	-
+;-	Varre o teclado, e se ouve mudanca com a correspondente leitura	-
+;- anterior, apos o tempo do debunc decodifica as teclas apertada em	-
+;- funcao de sua posicao matricial colocando no	buffer do teclado.	-
+;-	Quando o programa principal ler este buffer devera decofificar	-
+;- em funcao da tabela TABTEC para facilitar o uso			-
+;------------------------------------------------------------------------
+INTTEC	LD	A,(CONTEC)	;Contador de linha do teclado
+	AND	00000111B
+	LD	L,A
+	LD	H,VARTEC/100H
+	IN	A,(IOTEC)
+	LD	E,A
+	XOR	(HL)
+	JR	Z,INTTEC6	;Sem mudanca na linha atual, Verifica seguinte
+	LD	D,A
+	LD	A,(FLGTEC)	;Verifica se mesma mudanca anterior
+	CP	D		;Mesma mudanca ?
+	JR	NZ,INTTEC7	;Nao, inicializa do debunc
+	LD	A,(TIMTEC)	;Sim, Verifica o debunc
+	DEC	A		;Fim do debunc ?
+	JR	NZ,INTTEC8	;Nao
+	LD	(FLGTEC),A	;Zera flag do teclado, [A] contem zero
+	LD	(HL),E		;Sim Desativa a coluna
+	LD	A,L
+	AND	07h		;Apenas oito linha
+	RLCA			;0000 1110
+	RLCA			;0001 1100
+	RLCA			;0011 1000
+	LD	C,A
+	IN	A,(CTRCPU)	;Verifica se control apertado
+	BIT	5,A
+	JR	NZ,INTTEC0
+	SET	6,C		;Indica control apertado
+INTTEC0	EX	DE,HL
+	LD	A,(PONtecW)	;Ponteiros de escrita do buffer do teclado
+	LD	E,A
+	LD	D,BUFTEC/100H
+	LD	B,8
+INTTEC1	ADD	HL,HL
+	JR	NC,INTTEC5
+	LD	A,B
+	DEC	A
+	OR	C
+	BIT	0,H		;Tecla ativada ou desativada ?
+	JR	Z,INTTEC2	;Se tecla ativada
+	SET	7,A		;Indica codigo de tecla desativada
+INTTEC2	LD	(DE),A
+	INC	E
+	LD	A,E
+	CP	.LOW.BUFTEC+16
+	LD	A,(PONtecR)	;Ponteiros de leitura do buffer do teclado
+	JR	C,INTTEC3
+	LD	E,.LOW.BUFTEC
+	CP	E
+	JR	NZ,INTTEC5
+	INC	A
+	JR	INTTEC4
+INTTEC3	CP	E
+	JR	NZ,INTTEC5
+	INC	A
+	CP	.LOW.BUFTEC+16
+	JR	C,INTTEC4
+	LD	A,.LOW.BUFTEC
+INTTEC4	LD	(PONtecR),A	;Ponteiros de leitura do buffer do teclado
+	PUSH	HL
+	LD	HL,2*TPALAR	;Tempo do bip alarme
+	LD	(TMPBIP),HL	;temporizador o bip
+	POP	HL
+	LD	A,(BUFCPU)	;buffer de controle da placa cpu
+	OR	00000001B	;Liga o BIP
+	LD	(BUFCPU),A	;buffer de controle da placa cpu
+INTTEC5	DJNZ	INTTEC1
+	LD	A,E
+	LD	(PONtecW),A	;Ponteiros de escrita do buffer do teclado
+	XOR	A
+INTTEC6	LD	(FLGTEC),A	;Zera flag do teclado, [A] contem zero
+	LD	A,(CONTEC)
+	INC	A
+	AND	01110111B
+	OUT	(IOTEC),A
+	LD	(CONTEC),A
+	RET
+INTTEC7	LD	A,D
+	LD	(FLGTEC),A	;Nao, inicializa do debunc
+	LD	A,TMPDBC	;Tempo de debunc do teclado 61 mS
+INTTEC8	LD	(TIMTEC),A	;nao
+	RET
+;
+;****************************************************************
+;-		Testa interrupcoes relogio erint rs e esterna	-
+;****************************************************************
+;
+TSINT	IN	A,(IOINT)	;Verifica status da interrupcao
+	OUT	(IOCAO),A	;Reseta cao de guarda.
+	BIT	2,A		;Interrupcao do relogio ?
+	JR	Z,TSINT1	;Verifica o proximo passo
+	RES	2,A		;Erro invalido
+	LD	D,A
+	IN	A,(IOINT)	;Verifica status da interrupcao
+	OUT	(IOCAO),A	;Reseta cao de guarda.
+	OR	D
+TSINT1	AND	00001111B	;Elimina sujeira
+	LD	D,A		;Salva
+	RLCA
+	RLCA
+	CPL
+	OUT	(IOTEC),A	;Mostra status nos leds/teclado.
+				;Ld3 =Interrupcao do relogio
+				;Ld2 =Interrupcao pendente
+				;Teclado A2 Interrupcao Externa
+;
+;----------------------------------------------------------------
+;-			Configura display			-
+;----------------------------------------------------------------
+;
+	EXX
+	LD	C,3		;Numero de caracter para configuracao
+	LD	B,0		;***
+	LD	HL,CNFDIS
+NDISP	IN	A,(IDISP1)
+	RLCA
+	DEC	B	;Ultima tentativa de leitura
+	JR	Z,ERDISP	;Sim, Erro do display
+	JR	C,NDISP		;N�o, Aguarda display estabilizar
+	LD	A,(HL)
+	OUT	(IDISP1),A
+	INC	HL
+	DEC	C		;Configura��o do display terminada ?
+	JR	NZ,NDISP	;N�o
+	;Coloca mensagem inicial
+	LD	HL,PMENSA
+	LD	C,1
+NMENSA	IN	A,(IDISP1)
+	RLCA
+	DEC	B
+	JR	NZ,CMENSA	;Contador ainda nao terminado
+	DEC	C
+	JR	Z,ERDISP	;Erro do display
+CMENSA	JR	C,NMENSA	;Aguarda display estabilizar
+	LD	A,(HL)
+	CP	0Dh
+	JR	Z,OKDISP
+	OUT	(MDISP1),A
+	INC	HL
+	JR	NMENSA
+;
+CNFDIS	DEFB	38H,0CH,06H
+;Display duas linha 5x7
+;Display aceso sem cursor
+;Escreve e desloca cursor p/ direira
+;
+PMENSA	DEFM	'   POSIJET Industria e Comercio Ltda.   '
+	DEFB	0Dh
+ERDISP	EXX
+	SET	4,D	;Indica erro do display	em LD1
+	LD	A,D
+	RLCA
+	RLCA
+	CPL
+	OUT	(IOTEC),A	;Mostra status nos leds/teclado.
+	EXX
+OKDISP	EXX
+;
+;----------------------------------------------------------------
+;-   Conclue teste de interrupcoes relogio erint rs e esterna	-
+;----------------------------------------------------------------
+	LD	HL,3FFH
+AGUAR1	DEC	HL
+	LD	A,H
+	OR	L
+	JR	NZ,AGUAR1	;Aguarda at� ocorrer a interrupcao Relogio e Pendente
+;
+	IN	A,(CTRCPU)	;Verifica okbat, control e power off.
+	OUT	(BADRAM),A	;Reseta aviso de power off.
+	XOR	11110111B	;Iverte	exeto power off
+	OR	E
+	LD	E,A		;Salva porta CtrCpu
+;
+	IN	A,(IOINT)	;Verifica status da interrupcao
+	OUT	(IOCAO),A	;Reseta cao de guarda.
+	XOR	00001100B	;Inverte relogio e pendente
+	AND	00001111B	;Elimina sujeira
+	OR	D
+	LD	D,A
+;
+	IN	A,(IOINT)	;Verifica status da interrupcao
+	OUT	(IOCAO),A	;Reseta cao de guarda.
+	BIT	2,A
+	JR	Z,TSINT2	;Verifica o proximo passo
+	RES	2,A		;Erro invalido
+	LD	C,A
+	IN	A,(IOINT)	;Verifica status da interrupcao
+	OUT	(IOCAO),A	;Reseta cao de guarda.
+	OR	C
+TSINT2	AND	00001111B	;Elimina sujeira
+	OR	D
+	LD	D,A		;Salva
+	RLCA
+	RLCA
+	CPL
+	OUT	(IOTEC),A	;Mostra status nos leds/teclado.
+;
+;----------------------------------------------------------------
+;-			Teste de ram do sistema			-
+;----------------------------------------------------------------
+	EXX
+	LD	HL,RAMUSU
+	LD	D,0		;Para ja limpar a ram em caso de boa
+TRAMS1	DEC	HL
+	LD	A,(HL)
+	LD	B,A
+	CPL
+	LD	(HL),A
+	LD	A,(HL)
+	LD	(HL),D		;Limpa a ram de sistema
+	CPL
+	CP	B
+	OUT	(IOCAO),A	;Reseta cao de guarda.
+	JR	Z,TRAMS1
+	LD	DE,RAMSYS-1
+	AND	A
+	SBC	HL,DE
+	EXX
+	JR	Z,RAMOK
+	SET	5,D
+	LD	A,D
+	RLCA		;Essas duas linhas foi acresentada
+	RLCA
+	CPL
+	OUT	(IOTEC),A	;Indica erro ram.
+RAMOK	NOP
+;
+;----------------------------------------------------------------
+;Verifica erros criticos em [D] bit a bit.			-
+;D0 - Erro interrupcao externa		Teclado	A2		-
+;D1 - Erro interrupcao serial		Nao usado		-
+;D2 - Erro interrupcao relogio		Ld3 (Estava errado Ld1)	-
+;D3 - Erro interrupcao pendente		Ld2			-
+;D4 - Erro display			Ld1 (Estava errado Ld3) -
+;D5 - Erro ram sitema			Nao usado		-
+;D6 - badram power off			Teclado	A0		-
+;D7 - Nao usado				Teclado	A1		-
+;----------------------------------------------------------------
+	BIT	3,E		;Verifica badram
+	JR	Z,PULBAD
+	SET	6,D		;Tranfere badram p/ [D6]
+	RES	3,E
+PULBAD	;LD	E,A
+	LD	A,D
+	AND	7FH
+	JP	Z,TestOk	;Se somente erro de bateria
+;
+;-----------------------------------------------------------------
+;- Mostra erros no display sem utilisar subrotinas e interrupcao -
+;-----------------------------------------------------------------
+;Configura display
+	LD	C,3		;Numero de caracter para configuracao
+	LD	HL,CNFDIS
+XDISP	LD	A,(HL)
+	OUT	(IDISP1),A
+	LD	A,0FFH		;delay para o display ***
+DDISP	DEC	A
+	JR	NZ,DDISP
+	OUT	(IOCAO),A	;Reseta cao de guarda.
+	INC	HL
+	DEC	C
+	JR	NZ,XDISP
+	LD	A,CLSDIS
+	OUT	(IDISP1),A	;Limpa display e retorna cursor
+;
+;Procura erros para mostrar
+	LD	HL,eMenIni
+RETORW	SRL	D
+	JR	C,SAIER
+	LD	A,D
+	AND	D
+	JR	Z,FIMDI		;Loop de erro
+RETORH	LD	A,(HL)
+	INC	HL
+	CP	0Dh
+	JR	NZ,RETORH
+RETORT	OUT	(IOCAO),A	;Reseta cao de guarda.
+	JR	RETORW
+;
+;retardo entre mensagens de aproximadamente 2,1Seg
+SAIER	LD	BC,7FFH		;Retardo entre mensagens
+TMPMEN	DEC	BC
+	LD	A,0FFH		;***
+TMPM1	DEC	A
+	JR	NZ,TMPM1
+	OUT	(IOCAO),A	;Reseta cao de guarda.
+	LD	A,B
+	OR	C
+	JR	NZ,TMPMEN
+;
+;Mostra mensagens
+RETORG	LD	A,(HL)
+	INC	HL
+	CP	0Dh
+	JR	Z,RETORT	;Mensagem terminada
+	OUT	(MDISP1),A
+	OUT	(IOCAO),A	;Reseta cao de guarda.
+	LD	A,0FFH		;***
+RETORK	DEC	A
+	JR	Z,RETORG
+	JR	RETORK
+;
+;retardo final so para testes
+FIMDI	LD	BC,7FFH		;Retardo final so p/ teste
+FFFF	DEC	BC
+	LD	A,0FFH		;***
+FFFY	DEC	A
+	JR	NZ,FFFY
+	OUT	(IOCAO),A	;Reseta cao de guarda.
+	LD	A,B
+	OR	C
+	JR	NZ,FFFF
+ABCD	JR	ABCD		;Loop de erro *** FATAL ***
+;
+;----------------------------------------------------------------
+;- Inicio dos testes nao criticos com subrotinas e interrupcoes -
+;----------------------------------------------------------------
+;- bateria descarregada erro 11					-
+;- Eprom defeito        erro 12					-
+;- Memoria perdida	erro 13					-
+;- Memoria defeito	erro 14					-
+;----------------------------------------------------------------
+;Apartir daqui nao usar a instrucao [EXX] ou [EX AF,AF']
+;
+TestOk	LD	A,0FFH
+	LD	(FLGRFX),A	;Indica a falta da referencia X
+	LD	(FLGRFY),A	;Indica a falta da referencia Y
+	LD	(FLGGEX),A	;Indica a falta dos parameros exenciais
+	LD	(FLGGEY),A	;Indica a falta dos parameros exenciais
+	LD	(TECMAT),A	;Posicao matricial da tecla apertada
+	LD	(PonErrW),A	;Ultimo erro
+	LD	A,11110000B
+	LD	(CONTEC),A	;Apaga os led de modo
+	LD	A,10H
+	LD	(CNTINT),A	;Zera contador de erro de interrupcao
+	LD	HL,TSTMACR
+	LD	(ENDMACR),HL
+	LD	HL,REFZER
+	LD	(POSICX),HL	;Posicao atual X
+	LD	(POSICY),HL	;Posicao atual Y
+	LD	HL,MENNUL	;Mensagem em branco
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	BIT	1,E		;Verifica ok bat
+	LD	A,80H+11	;Erro de bateria descarregada
+	;PonErrW=0 e PonErrR=0 pela rotina de teste de ram do sistema
+	CALL	NZ,BUFERR	;Buferisa erro (O bip s� ira ter efeito quando se ligar a interrup��o)
+	;Preenche com FFh os buffers do teclado VARTEC, BUFTEC, TECMAT
+	LD	HL,VARTEC
+	LD	DE,VARTEC+1
+	LD	(HL),0FFH
+	LD	BC,18H-1
+	LDIR			;Limpa o buffer do teclado
+	LD	A,.LOW.BUFTEC
+	LD	(PONtecR),A	;inicializa o ponteiro de leitura do buffer do teclado
+	INC	A
+	LD	(PONtecW),A	;inicializa o ponteiro de escrita do buffer do teclado
+	CALL	cParSer		;Limpa os parametros esenciais da interface serial
+;
+	EI			;Habilit a interrupcao
+	CALL	Nsimbol		;Define alguns simbolos na CG
+	CALL	TSTEPR		;Testa eprom
+	CALL	C,BUFERR	;Buferisa erro
+	CALL	TSTARQ		;Testa arquivo do usuario
+	JR	NC,TestOk1	;Se nao erro de arquivo de usuario
+	LD	B,A	;Salva erro
+	CALL	TSRAMU		;Testa ram do usuario ???
+	JR	NC,TestOk0	;Se s� erro de arquivo de usuario
+	CALL	BUFERR	;Buferisa erro
+	CALL	ConfEpr		;Checa a configurac�ao da eprom
+	JR	TestOk2		;N�o
+TestOk0	LD	A,B	;Restaura erro
+	CALL	BUFERR	;Buferisa erro
+	CALL	ConfEpr		;Checa a configurac�ao da eprom
+	CALL	C,BUFERR	;Buferisa erro
+	JR	TestOk2		;N�o
+TestOk1	CALL	ConfEpr		;Checa a configurac�ao da eprom
+	JR	NC,TestOk2	;Se nao erro de arquivo de usuario
+	CALL	BUFERR	;Buferisa erro
+	CALL	TSRAMU		;Testa ram do usuario ???
+	CALL	C,BUFERR	;Buferisa erro
+TestOk2	CALL	INICRAM		;Carrega parametros gerais na ram de sistema
+	CALL	TSTRS		;Testa UART
+	CALL	C,BUFERR	;Buferisa erro
+	LD	A,PISTUD
+	CALL	COMDIS
+	CALL	DELAY
+	LD	HL,0FD60h	;Endereco do parametro do turbo X
+	CALL	DTurbo		;Desliga o turbo
+	LD	HL,0FE60h	;Endereco do parametro do turbo X
+	CALL	DTurbo
+	CALL	VEREIXX
+	JR	NZ,SELMOD9	;Se eixo X desabilitado
+	LD	HL,1.SHL.bManua+1.SHL.bPausa	;Modo manual e pausa para
+	LD	DE,sComSer	;Endere�o da placa = Comando serial
+	LD	C,80h		;Seta o bit
+	CALL	sParamX
+SELMOD9	CALL	VEREIXY
+	JR	NZ,SELMOD0	;Se eixo Y desabilitado
+	LD	HL,1.SHL.bManua+1.SHL.bPausa	;Modo manual e pausa para
+	LD	DE,sComSer	;Endere�o da placa = Comando serial
+	LD	C,80h		;Seta o bit
+	CALL	sParamY
+;
+SELMOD0	CALL	TSSENHA		;Testa a senha
+	CALL	C,BUFERR	;Buferisa erro
+SELMOD	CALL	FBSENHA	;Atualiza a nova senha de fabricante (@@@@@ Checar nao sei o seu efeito @@@@@)
+
+
+	;4704-5522 Italo
+	;OK at� aqui	Tratado os erros 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,...,35,...,61,63,64,...,+106,+107,+108
+	;Acrescentar no erro 11 o erro "interrupcao nao identificada" e passar o erro 11 de bateria descarregada para outro
+	;Checar os erros +104,+105
+	;Se for o erro 14 (Ram de usuario defeito) sempre forcar esse erro a cada operacao
+	;Eliminado dos erro 44, 45 e 46
+	;Erros para desmembrar em erroX e erroY: +54, 44, 59 
+
+
+
+	CALL	RPARAM	;Calcula e envia os parametros de programa para a placa do motor
+	CALL	GPARAM	;Envia as configurac�es dos eixos para as placas dos motores
+	LD	HL,SELMOD
+	PUSH	HL
+	LD	HL,CONTEC
+	SET	4,(HL)		;Apaga o led LD1
+	SET	5,(HL)		;Apaga o led LD2
+	SET	6,(HL)		;Apaga o led LD3
+	LD	A,CLSDIS
+	OUT	(IDISP1),A	;Limpa display e retorna cursor
+	LD	HL,MENINI
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	CALL	DISPL
+SELMO1	LD	HL,CONTEC
+	CALL	TECLAW
+	CP	'm'
+	JP	Z,MANUAL
+	CP	'M'
+	JP	Z,XHARD
+	CP	'p'
+	JR	Z,PROG
+	CP	'x'
+	JP	Z,SEXEC
+	CP	'@'		;'F2' ?
+	JR	Z,SELMO2	;Sim
+	CP	'$'		;'F4' ?
+	JR	Z,SELMO3	;Sim
+	CALL	MosErro		;Se F1, Mostra erro existente
+	JR	SELMO1
+;
+SELMO3	CALL	SALVEEP		;Sim, Salva os parametros do programa na EEprom
+	JR	SELMO1
+SELMO2	CALL	TSTPRT		;Teste de impressao
+	JR	SELMO1
+;
+;----------------------------------------------------------------
+;- 	Calculo do acertos dos parametro X e Y			-
+; SEMPRE	SE (PFIM-PINIC)<0 inverte PFIM e PINIC		-
+; MODO PAS/PAS	PASSO=(PFIM-PINIC)/NMRET se NMRET>0		-
+; MODO PAS/PAS	PASSO=(PFIM-PINIC)/NMAVS se NMRET=0 e NMAVS>0	-
+;----------------------------------------------------------------
+PASPAS	LD	BC,(POSINI)
+	LD	DE,(POSFIM)
+	PUSH	DE
+	POP	HL
+	AND	A
+	SBC	HL,BC
+	RET	NC
+	LD	(POSINI),DE
+	LD	(POSFIM),BC
+	AND	A
+	RET
+;
+;****************************************************************
+;- 	Modo programacao - selecao de mensagens de parametros	-
+;-	[H] Linha do display	[L] Coluna do display		-
+;****************************************************************
+PROG	RES	4,(HL)		;Acende o led LD1
+	XOR	A
+	LD	(NPROG),A
+	LD	A,CLSDIS	;Limpa o display e cursor na linha 0 coluna 0
+	CALL	COMDIS
+	LD	IY,MENPRIN	;Indexador da mensagem
+	LD	HL,MENNUL	;Mensagem em branco
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	CALL	THARD		;Menu de programa
+	RET
+;
+EXECUX	LD	A,(NSENHA)
+	CP	NNIVEL		;Nivel maximo de protecao ?
+	RET	NC		;Sim
+	CALL	SELPARP		;Edita numero de programa para execucao
+	RET	C		;Se saida com a tecla scape
+	LD	A,(EspoenX)
+	LD	(Espoent),A
+	LD	HL,(FatPulX)	;Fator do eixo X para transformacao de mm p/pulso
+	LD	(FatPuls),HL	;Fator de uso para transformacao de mm p/pulso
+	LD	A,(BfParTp)	;Novo programa para execucao X em [A]
+	LD	DE,(XPROG)	;Programa atual para execucao X em [E]
+	CP	E
+	JR	Z,PROG0		;Se mesmo programa
+	LD	(XPROG),A	;Salva o novo numero do programa X
+	LD	A,0EEH
+	LD	(FLGRFX),A	;Indica a falta da referencia x
+	LD	A,(XPROG)	;Restaura o numero do programa X
+	JR	PROG0
+;
+EXECUY	LD	A,(NSENHA)
+	CP	NNIVEL		;Nivel maximo de protecao ?
+	RET	NC		;Sim
+	CALL	SELPARP		;Edita numero de programa para execucao
+	RET	C		;Se saida com a tecla scape
+	LD	A,(EspoenY)
+	LD	(Espoent),A
+	LD	HL,(FatPulY)	;Fator do eixo Y para transformacao de mm p/pulso
+	LD	(FatPuls),HL	;Fator de uso para transformacao de mm p/pulso
+	LD	A,(BfParTp)	;Novo programa para execucao Y em [A]
+	LD	DE,(YPROG)	;Programa atual para execucao Y em [E]
+	CP	E
+	JR	Z,PROG0		;Se mesmo programa
+	LD	(YPROG),A	;Salva o novo numero do programa Y
+	LD	A,0EEH
+	LD	(FLGRFY),A	;Indica a falta da referencia Y
+	LD	A,(YPROG)	;Restaura o numero do programa X
+	JR	PROG0
+;
+REDICAO	LD	A,(NSENHA)
+	CP	NNIVEL-1	;Nivel maximo de protecao ?
+	RET	NC		;Sim
+	CALL	SELPARM		;Edita numero de programa para edicao
+	RET	C		;Se saida com a tecla scape
+	LD	A,(EPROG)
+PROG0	LD	HL,MEDICAO	;Menu de edicao
+	LD	(NPROG),A	;Numero do programa a editar
+	PUSH	HL
+	XOR	A
+	LD	(FLGPRG),A	;Flag de entrada de parametros de programa
+	LD	HL,MENNUL	;Mensagem em branco
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	POP	IY		;Endereco inicial do menu
+	CALL	THARD
+;
+	LD	A,(FLGPRG)	;Flag de entrada de parametros de programa
+	AND	A
+	JR	Z,VRFREF1	;Se nenhun parametro do menu alterado
+	LD	A,(NPROG)
+VRFREF	LD	D,A
+	LD	A,(XPROG)
+	CP	D
+	JR	NZ,VRFREF0	;Se nao e' o programa em execucao X
+	LD	A,0AAH
+	LD	(FLGRFX),A	;Indica a falta da referencia X
+VRFREF0	LD	A,(YPROG)
+	CP	D
+	JR	NZ,VRFREF1	;Se nao e' o programa em execucao Y
+	LD	A,0AAH
+	LD	(FLGRFY),A	;Indica a falta da referencia Y
+VRFREF1	XOR	A
+	LD	(NPROG),A
+	RET
+;
+COPIPRG	LD	A,(NSENHA)
+	CP	NNIVEL-1		;Nivel maximo de protecao ?
+	RET	NC		;Sim
+	CALL	SELPARM		;Edita numero de programa para execucao
+	RET	C		;Se saida com a tecla scape
+	CALL	LINHALT		;Procura uma linha alternativa sem ser a atual
+	LD	HL,MENCOPI	;Mensagem de confirmacao
+	CALL	DISPL
+	CALL	ALARME		;Toca o alarme 2 segundo
+	CALL	TECLAW
+	CP	'e'
+	RET	Z		;Se nao confirmado, abortado
+	LD	L,(IX+48)	;Endereco do parametro na ram de systema
+	LD	H,(IX+49)
+	LD	E,(HL)		;programa fonte
+	INC	HL
+	LD	A,(HL)
+	INC	HL
+	AND	A
+	RET	NZ		;Byte hight tem que ser = a zero
+	LD	D,(HL)		;programa destino
+	INC	HL
+	LD	A,(HL)
+	AND	A
+	RET	NZ		;Byte hight tem que ser = a zero
+	LD	A,E
+	CP	D
+	RET	Z		;Aborta se copia para ele mesmo
+	LD	A,D
+	PUSH	AF		;Salva o programa destino
+	LD	BC,RAMUSU
+	LD	H,E		;Programa fonte
+	LD	L,0
+	LD	E,L
+	EX	DE,HL
+	ADD	HL,BC
+	EX	DE,HL
+	ADD	HL,BC
+	LD	BC,100h
+	LDIR			;(DE) <-- (HL)
+	POP	AF
+	JR	VRFREF		;Verifica a falta de referencia
+;
+;****************************************************************
+;* 		Rotinas de entrada do teclado			*
+;****************************************************************
+;
+;Entrada de dois byte em hexadecimal, O valor retorna em DE
+INPHEXD	CALL	INPHEX
+	LD	D,A	;Byte high
+	RET	NC
+	CALL	INPHEX
+	RET	NC
+	LD	E,A	;Byte low
+	RET
+;
+;Entrada de um byte em hexadecimal
+INPHEX	LD	B,0
+	CALL	INPHE0
+	RET	NC
+	LD	B,A
+	CALL	INPHE0
+	RET	NC
+	RRC	B
+	RRC	B
+	RRC	B
+	RRC	B
+	OR	B
+	SCF
+	RET
+;
+;Entrada de um caracter em hexadecimal
+INPHE0	CALL	TECLAW
+	CP	0Dh
+	RET	Z
+	CP	'e'
+	RET	Z
+	CP	'0'
+	JR	C,INPHE0
+	CP	'9'+1
+	JR	NC,INPHE1	;Se letras
+	CALL	DISPA
+	SUB	'0'
+	SCF
+	RET
+INPHE1	CP	'A'
+	JR	C,INPHE0
+	CP	'F'+1
+	JR	NC,INPHE0
+	CALL	DISPA
+	SUB	'A'-10
+	SCF
+	RET
+;
+;----------------------------------------------------------------
+;-		Espera ate' uma tecla ser apertada		-
+;----------------------------------------------------------------
+TECLAW	CALL	TECLAD
+	JR	NC,TECLAW
+	RET
+;----------------------------------------------------------------
+;- 		Le o teclado					-
+;- Sem parametros de entrada	Parametros de saida:		-
+;- Se  C em A=tecla valida	Se NC em A=qualquer		-
+;----------------------------------------------------------------
+TECLAD	PUSH	HL
+	PUSH	BC
+	PUSH	DE
+	CALL	TECLAVF
+	JR	NC,TECLAD0	;Nao repecicao, verifica se tecla apertada
+	CCF
+	JR	Z,TECINV	;Se tecla invalida
+;
+;Se repeticao ok reinicializa o tempo
+	LD	HL,(TMPSYS)	;Inicializa o tempo para repeticao
+	LD	DE,TMPBP+2	;Tempo do bip
+	LD	A,(ULTTEC)	;Ultima tecla apertada
+	JR	TECLAD1
+TECLAD0	LD	D,C		;Ponteiros de leitura do buffer do teclado em D
+	LD	(TECMAT),DE	;Posicao matricial da tecla apertada em E
+	LD	(ULTTEC),A	;Tecla apertada
+	JR	Z,TECINV	;Se tecla invalida
+	BIT	7,E
+	JR	NZ,TECVAL	;Se tecla desapertada desativa a repeticao
+	LD	HL,(TMPSYS)	;Inicializa o tempo para repeticao
+	LD	BC,TESPERA	;Tempo de espera para repeticao
+	AND	A
+	ADD	HL,BC
+	LD	DE,TMPBP	;Tempo do bip
+TECLAD1	LD	(CESPREP),HL	;Contador de espera de repeticao
+	LD	(TMPBIP),DE	;temporizador o bip
+	LD	HL,BUFCPU	;buffer de controle da placa cpu
+	SET	0,(HL)		;liga o bip
+TECVAL	SCF			;Retorna c/ tecla apertada valida
+TECINV	POP	DE
+	POP	BC
+	POP	HL
+	RET			;Tecla invalida
+;
+;----------------------------------------------------------------
+;- 		Apenas verifica se tem tecla apertada		-
+;- Sem parametros de entrada	Parametros de saida:		-
+;- Se NC e NZ	A=tecla valida,   E=TECMAT e C=PONtecR		-
+;-	    Z	A=tecla invalida, E=TECMAT e C=PONtecR		-
+;- Se  C e NZ	(ULTTEC)=tecla valida por repeticao		-
+;-	    Z	nenhuma tecla apertada ou aguardando tempo	-
+;----------------------------------------------------------------
+TECLAVF	LD	A,(PONtecW)	;Ponteiros de escrita do buffer do teclado
+	LD	L,A
+	LD	A,(PONtecR)	;Ponteiros de leitura do buffer do teclado
+	INC	A
+	CP	.LOW.BUFTEC+16
+	JR	C,TECLAV0
+	LD	A,.LOW.BUFTEC
+TECLAV0	CP	L
+	LD	L,A
+	JR	Z,TECLAV2	;Sem tecla apertada verifica se repeticao ?
+	LD	C,A		;Ponteiros de leitura do buffer do teclado em C
+	LD	H,BUFTEC/100H
+	LD	E,(HL)		;Posicao matricial da tecla apertada em E
+	LD	D,0
+	LD	HL,TABTEC	;Tabela do teclado
+	ADD	HL,DE
+	LD	A,(HL)		;Ultima tecla apertada em (HL)
+	CP	'?'		;Tecla valida ?
+	JR	Z,TECLAV1	;Nao
+	RET	NC		;Sim
+	CCF
+	RET
+TECLAV1	SET	7,E		;Nao, desativa repeticao bit 7 de TECMAT
+	RET
+;Sem tecla apertada verifica se repeticao ?
+TECLAV2	LD	A,(TECMAT)	;Posicao matricial da tecla apertada
+	BIT	7,A
+	JR	NZ,TECLAV3	;Sem repeticao
+	LD	DE,(CESPREP)	;Contador de espera de repeticao
+	LD	HL,(TMPSYS)	;Inicializa o tempo para repeticao
+	AND	A
+	SBC	HL,DE
+	AND	A
+	BIT	7,H
+	JR	NZ,TECLAV3	;Ainda tempo de espera
+	EX	DE,HL
+	LD	BC,TREPET	;Tempo de repeticao do teclado
+	CALL	TIMER
+	JR	NC,TECLAV3	;Se nao fim do debunc
+	RET	NZ
+	INC	L
+	RET
+TECLAV3	XOR	A
+	SCF
+	RET
+;
+;----------------------------------------------------------------
+;-		Tabela de leitura do teclado			-
+;-	(s) Seta p/ cima	(b) Seta p/ baixo		-
+;-	([) Seta p/ esquerda	(]) Seta p/ direita		-
+;-	(<) Cursor p/ esquerda	(>) Cursor p/ direita		-
+;-	(m) Modo manual		(a) Modo automatico		-
+;-	(p) Modo programacao	0Dh Tecla enter			-
+;-	(E) Scap		(C) Clear			-
+;-	(A) Anula						-
+;-	00H Tecla nao usada ou nao existe			-
+;----------------------------------------------------------------
+;Tecla apertada sem o control apertado
+TABTEC	DEFB	'!','7','8','9','x','I','e',0FFh	;L0
+	DEFB	'@','4','5','6','+','<','s','{'		;L1
+	DEFB	'#','1','2','3','>','b','>','m'		;L2
+	DEFB	'$','0','.',0Dh,'<','D','}','p'		;L3
+	DEFB	'?','?','?','?','?','?','?','?'		;L4
+	DEFB	'?','?','?','?','?','?','?','?'		;L5
+	DEFB	'?','?','?','?','?','?','?','?'		;L6
+	DEFB	'?','?','?','?','?','?','?','?'		;L7
+;Tecla apertada com o control apertado
+	DEFB	'!','H','I','J','x','I','e',0FFh	;L0
+	DEFB	'@','E','F','G','+','<','s','{'		;L1
+	DEFB	'#','B','C','D','>','b','>','M'		;L2
+	DEFB	'$','A','.',0Dh,'<','D','}','P'		;L3
+	DEFB	'?','?','?','?','?','?','?','?'		;L4
+	DEFB	'?','?','?','?','?','?','?','?'		;L5
+	DEFB	'?','?','?','?','?','?','?','?'		;L6
+	DEFB	'?','?','?','?','?','?','?','?'		;L7
+;
+;Tecla desapertada sem o control apertado
+	DEFB	'?','?','?','?','?','?','?','?'		;L0
+	DEFB	'?','?','?','?','?','X','Y','?'		;L1
+	DEFB	'?','?','?','?','?','Y','X','?'		;L2
+	DEFB	'?','?','?','?','?','?','?','?'		;L3
+	DEFB	'?','?','?','?','?','?','?','?'		;L4
+	DEFB	'?','?','?','?','?','?','?','?'		;L5
+	DEFB	'?','?','?','?','?','?','?','?'		;L6
+	DEFB	'?','?','?','?','?','?','?','?'		;L7
+;Tecla desapertada com o control apertado
+	DEFB	'?','?','?','?','?','?','?','?'		;L0
+	DEFB	'?','?','?','?','?','X','Y','?'		;L1
+	DEFB	'?','?','?','?','?','Y','X','?'		;L2
+	DEFB	'?','?','?','?','?','?','?','?'		;L3
+	DEFB	'?','?','?','?','?','?','?','?'		;L4
+	DEFB	'?','?','?','?','?','?','?','?'		;L5
+	DEFB	'?','?','?','?','?','?','?','?'		;L6
+	DEFB	'?','?','?','?','?','?','?','?'		;L7
+;
+;Observacao:	15 seta p/ esquerda	26 seta p / direita
+;
+;----------------------------------------------------------------
+;-	Temporisador <HL>=Tempo anterior <BC>=Valor do tempo	-
+;----------------------------------------------------------------
+TIMER	LD	DE,(TMPSYS)
+	AND	A
+	SBC	HL,DE
+	RET	Z
+	ADD	HL,BC
+	CCF
+	RET			;Se carry fim de tempo
+;
+;---------------------------------------------------------------
+;	Retardo da ligada inicial 2 segundos			-
+;----------------------------------------------------------------
+DELAY	PUSH	AF
+	PUSH	BC
+	PUSH	DE
+	PUSH	HL
+	LD	HL,(TMPSYS)
+	LD	(TIMFRE),HL	;Seta temporisador do freio
+DELAY1	LD	HL,(TIMFRE)	;indica temporisador do freio
+	LD	BC,2*TSEGUN	;Valor do tempo ( 3 Seg )
+	CALL	TIMER
+	JR	NC,DELAY1	;Se nao fim do debunc
+	POP	HL
+	POP	DE
+	POP	BC
+	POP	AF
+	RET
+;
+;****************************************************************
+;- 	Rotinas de de calculos aritimetrico			-
+;****************************************************************
+;
+;----------------------------------------------------------------
+;	Multiplica <HL> por <DE>	HL,DE = DE*HL		;
+;	Retorna em <HL> os dois byte Mais significativo		;
+;	E <DE> os dois bytes menos significativo		;
+;	Nc cliclo	maximo=189+844=1033 minimo=189+812=1001	;
+;----------------------------------------------------------------
+MULTHL	PUSH	AF
+	PUSH	BC
+	LD	B,E
+	LD	C,L
+	CALL	MULTBC		;E*L
+	LD	E,C		;Salva o menos significativo
+	LD	C,H
+	CALL	MULTB0		;A+E*H
+	LD	B,D
+	LD	D,A		;Salva o mais significativo
+	LD	A,C
+	LD	C,L
+	CALL	MULTB0		;A+D*L
+	ADD	A,D
+	LD	D,C		;Salva o menos significativo
+	LD	C,H
+	CALL	MULTB0		;A+D*H
+	LD	L,C
+	ADC	A,0
+	LD	H,A
+	POP	BC
+	POP	AF
+	RET
+;
+;----------------------------------------------------------------
+;	Multiplica <B> por <C>	A,C = B*C			;
+;	Retorna em <A> o byte Mais significativo		;
+;	Em <C> o bytes menos significativo			;
+;	Numero de cliclo p/ execucao	maximo=214 minimo=206	;
+;----------------------------------------------------------------
+MULTBC	XOR	A
+MULTB0	RR	C		;Verifica bit
+	JR	NC,MULTB1
+	ADD	A,B
+MULTB1	RRA			;Roda para direita
+	RR	C		;Verifica bit
+	JR	NC,MULTB2
+	ADD	A,B
+MULTB2	RRA			;Roda para direita
+	RR	C		;Verifica bit
+	JR	NC,MULTB3
+	ADD	A,B
+MULTB3	RRA			;Roda para direita
+	RR	C		;Verifica bit
+	JR	NC,MULTB4
+	ADD	A,B
+MULTB4	RRA			;Roda para direita
+	RR	C		;Verifica bit
+	JR	NC,MULTB5
+	ADD	A,B
+MULTB5	RRA			;Roda para direita
+	RR	C		;Verifica bit
+	JR	NC,MULTB6
+	ADD	A,B
+MULTB6	RRA			;Roda para direita
+	RR	C		;Verifica bit
+	JR	NC,MULTB7
+	ADD	A,B
+MULTB7	RRA			;Roda para direita
+	RR	C		;Verifica bit
+	JR	NC,MULTB8
+	ADD	A,B
+MULTB8	RRA			;Roda para direita
+	RR	C
+	RET
+;
+;****************************************************************
+;- 	Rotinas de testes de HARDWARE  e configuracao		-
+;****************************************************************
+;
+;----------------------------------------------------------------
+;	Programa principal do teste de hardware			-
+;----------------------------------------------------------------
+XHARD	LD	A,(NSENHA)
+	CP	NNIVEL-2	;Nivel de protecao minima � manutencao ?
+	RET	NC		;N�o
+	RES	6,(HL)		;Acende o led LD2
+	CALL	TECLAW
+	CP	'm'
+	RET	NZ
+	LD	A,CLSDIS
+	OUT	(IDISP1),A	;Limpa display e retorna cursor
+	CALL	TECLAW
+	CP	'm'
+	RET	NZ
+	XOR	A
+	LD	(NPROG),A
+	LD	HL,MENNUL	;Mensagem em branco
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	LD	IY,MENTST	;Endereco inicial do menu
+THARD	LD	HL,0		;H=linha0 L=coluna0
+	CALL	THARDE		;Numero da mensagem do menu
+THARD0	LD	DE,THARD0
+	PUSH	DE
+	CALL	LINCOL		;Ajuste/cursor/display em H=linha e L=coluna
+THARD1	CALL	TECLAW
+	CP	'b'
+	JR	Z,THARD6
+	CP	's'
+	JR	Z,THARD3
+	CP	0Dh
+	JR	Z,THARD2	;Executa a opcao escolhida
+	CP	'e'
+	JR	NZ,THARD1	;Tecla invalida
+	PUSH	AF
+	LD	A,(NUMEM)
+	LD	E,(IY+1)
+	LD	D,(IY+2)
+	LD	(DE),A		;Salva o numero atual da mensagem
+	POP	AF
+	POP	DE
+	RET			;Sai se scape
+;
+;Executa a opcao
+THARD2	LD	A,(NUMEM)
+	LD	L,(IY+1)
+	LD	H,(IY+2)
+	LD	(HL),A		;Salva o numero atual da mensagem
+	CALL	ENDMEN		;IX=IY+A*(52)+3
+	LD	HL,(ENDCUR)	;H=linha L=coluna
+	PUSH	HL
+	PUSH	IY
+	PUSH	IX
+	LD	HL,THARDD
+	PUSH	HL
+	LD	L,(IX+42)	;Endereco de chamada da subrotina
+	LD	H,(IX+43)
+	PUSH	HL
+	RET			;Chama a rotina
+THARDD	POP	IX
+	POP	IY
+	POP	HL		;H=linha L=coluna
+	JR	THARDE		;Retorna atualizando a tela
+;
+;Decrementa a mensagem
+THARD3	LD	A,(NUMEM)
+	AND	A
+	JR	NZ,THARD5
+	JR	THARD1		;Mensagem de parametros inicial, Tecla invalida
+	LD	A,(IY)		;Numero de mensagem de parametros
+THARD5	DEC	A
+	LD	(NUMEM),A
+	LD	HL,(ENDCUR)	;H=linha L=coluna
+	LD	A,H
+	AND	A
+	JR	Z,THARD9	;Se ja na linha zero
+	DEC	H		;linha anterior
+	JR	THARD8
+;
+;Incrementa a mensagem
+THARD6	LD	A,(NUMEM)
+	INC	A
+	CP	(IY)		;Numero de mensagem de parametros
+	JR	C,THARD7
+	JR	THARD1		;Mensagem de parametros Final, Tecla invalida
+	XOR	A
+THARD7	LD	(NUMEM),A
+	LD	HL,(ENDCUR)	;H=linha L=coluna
+	INC	H		;Proxima linha
+	LD	A,H
+	CP	NLINHA		;Numero de linha do display	
+	JR	NC,THARD9	;Se numero maximo de linha
+THARD8	LD	(ENDCUR),HL	;H=linha L=coluna
+	RET
+;
+;Atualiza a posicao do dislplay e menu
+THARDE	PUSH	HL		;H=linha L=coluna
+	LD	L,(IY+1)
+	LD	H,(IY+2)
+	LD	A,(HL)
+	CP	(IY)
+	JR	C,THARDF
+	XOR	A
+THARDF	LD	(NUMEM),A
+	POP	HL		;H=linha L=coluna
+	INC	A
+	CP	(IY)
+	JR	C,THARDG	;Nao e' a ultima mensagem
+	LD	H,1		;Coloca na ultima linha
+THARDG	LD	(ENDCUR),HL	;H=linha L=coluna
+;
+;Atualiza a tela
+THARD9	LD	A,PISTUD	;Cursor fixo e Letra piscando
+	CALL	COMDIS
+	LD	HL,(ENDCUR)	;H=linha L=coluna
+	LD	A,(NUMEM)
+	SUB	H
+	JR	NC,THARDA
+	ADD	A,(IY)		;Numero de mensagem de parametros
+THARDA	LD	HL,0		;linha 0 Coluna 0 do display
+THARDB	PUSH	AF
+	PUSH	HL
+	CALL	MOSMEN		;Mostra mensagem sem parametros no display
+	POP	HL
+	INC	H		;Proxima linha
+	LD	A,H
+	CP	NLINHA		;Numero de linha do display
+	JR	NC,THARDC	;Se numero maximo de linha
+	POP	AF
+	INC	A
+	CP	(IY)		;Numero de mensagem de parametros
+	JR	C,THARDB
+	XOR	A
+	JR	THARDB
+THARDC	POP	AF
+	LD	HL,(ENDCUR)	;H=linha L=coluna
+	RET
+;
+;----------------------------------------------------------------
+;-	Mostra mensagem sem parametros no display		-
+;-	[H] numero da linha do cursor				-
+;-	[L] numero da coluna do cursor				-
+;	[A)] numero da mensagem					-
+;----------------------------------------------------------------
+;Mostra mensagem e parametros no display
+MOSMEN	PUSH	AF
+	LD	L,0		;Linha zero
+	CALL	LINCOL		;Ajuste/cursor/display em H=linha e L=coluna
+	POP	AF
+	PUSH	HL
+	CALL	ENDMEN		;IX=IY+A*(52)+3
+	CALL	LDPARM		;Carrega parametro no buffer de edicao
+	CALL	DISPMEN		;Mostra linha de mensagem e parametros
+	POP	HL
+	RET
+;
+;----------------------------------------------------------------
+;	Calculo do endereco da mensagem	HL=A*(43+4)	152	-
+;Entr:	 A=Numero da mesagem					-
+;	HL=Endereco inicial da mesagem zero			-
+;Said:	HL=Endereco inicial da mesagem A			-
+;----------------------------------------------------------------
+ENDMEN	PUSH	DE
+	LD	E,A
+	LD	D,0
+	LD	L,E
+	LD	H,D
+	ADD	HL,HL		;*2
+	ADD	HL,DE		;*(2+1)
+	ADD	HL,HL		;*6
+	ADD	HL,HL		;*12
+	ADD	HL,DE		;*(12+1)=*13
+	ADD	HL,HL		;*26
+	ADD	HL,HL		;*(2*26)=52
+	PUSH	IY		;Endereco inicial do menu
+	POP	DE
+	ADD	HL,DE		;+(IY+A*52)
+	INC	HL
+	INC	HL		;Acrecentado o endereco do numero da mensagem
+	INC	HL		;Acrecentado o endereco do numero da mensagem
+	PUSH	HL
+	POP	IX		;Endereco inicial da mensagem
+	POP	DE
+	RET
+;
+;----------------------------------------------------------------
+;-			Teste de eprom				-
+;----------------------------------------------------------------
+TSTEPR	XOR	A
+	LD	HL,0
+	LD	B,-8
+TSEPR1	ADD	A,(HL)
+	JR	NC,TSEPR2
+	INC	B
+TSEPR2	INC	L
+	JR	NZ,TSEPR1	;Proximo byte
+	LD	C,A	;Salva o checkSum
+	INC	H
+	LD	A,H
+	CP	RAMSYS/100h	;Ender. final+1 da eprom
+	LD	A,C	;Restaura o checkSum
+	JR	C,TSEPR1	;Proximo byte
+	LD	(CHEQSYS),BC
+	AND	A
+	JR	Z,TSEPR3	;Eprom ok
+	CALL	ConfEp3		;Atualiza a ram de usuario com o novo checksum
+	SCF
+	LD	A,80H+12	;Eprom defeito
+TSEPR3	RET
+;
+WdToHex	LD	D,A		;Salva o acumulador
+	CALL	WdToHe0
+	LD	E,A	;Valor menos significativo
+	LD	A,D
+	RLCA
+	RLCA
+	RLCA
+	RLCA
+	CALL	WdToHe0
+	LD	D,A
+	RET
+WdToHe0	AND	0Fh
+	ADD	A,'0'
+	CP	'9'+1
+	RET	C
+	ADD	A,7
+	RET
+;
+;--------------------------------------------------------
+; - Os ultimo byte de cada setor de 256 byte da ram de	;
+;   usuario � resevado para o checksum, e o penultimo	;
+;   � reservado para o status do setor que � descrito	;
+;   abaixo:						;
+;	00 ARQUIVO FORMATADO OK				;
+;	01 ARQUIVO FORMATADO COM ERRO DE CHEQSUM	;
+;	02 ARQUIVO PROGRAMADO OK			;
+;	03 ARQUIVO PROGRAMADO COM ERRO DE CHEQSUM	;
+;	04 ARQUIVO DETONADO				;
+;--------------------------------------------------------
+TSTARQ	LD	HL,RAMUSU	;Primeiro ender. de usuario
+	XOR	A
+	LD	E,A		;Numero de paginas com erro
+	LD	D,A		;Numero da ultima pagina com erro
+TSARQ0	ADD	A,(HL)
+	INC	L
+	JR	NZ,TSARQ0	;Proximo byte
+	AND	A
+	CALL	NZ,TSARQ1	;Se erro de cheqsum
+	INC	H
+	JR	NZ,TSARQ0	;Proximo byte
+	LD	(sTstArq),DE
+	LD	A,E
+	AND	A		;Numero de paginas com erro
+	RET	Z
+	LD	A,80H+13	;Memoria perdida
+	SCF			;Versao corrigida
+	RET
+	;Ajusta o cheqsum da pagina
+TSARQ1	INC	E		;Numero de paginas com erro
+	LD	D,H		;Numero da ultima pagina com erro
+	DEC	L
+	SUB	(HL)
+	DEC	L
+	SUB	(HL)
+	LD	C,A		;Salva o cheqsum
+	LD	A,(HL)
+	OR	1		;Seta o bit 0 para indicar erro de cheqsum
+	CP	4
+	JR	C,TSARQ2	;Se arquivo padronizado
+	LD	A,5		;Indica arquivo detonado e erro de cheqsum
+TSARQ2	LD	(HL),A
+	ADD	A,C
+	INC	L
+	NEG
+	LD	(HL),A
+	INC	L
+	XOR	A		;Inicializa o cheqsum do proxima pagina
+	RET
+;
+;Checa a configurac�ao da eprom
+ConfEpr	LD	DE,VERSAO
+	LD	HL,MVERSA
+	;Verifica a versao da eprom Em <A> o valor do cheqsum
+ConfEp0	LD	A,(DE)
+	CP	0Dh
+	JR	Z,ConfEp3	;Fim da comparacao OK, verifica o checsum da eprom
+	CP	(HL)
+	JR	NZ,ConfEp1	;Erro na comparacao
+	INC	DE
+	INC	HL
+	JR	ConfEp0
+ConfEp1	CALL	SalByte
+	INC	DE
+	INC	HL
+	LD	A,(DE)
+	CP	0Dh
+	JR	NZ,ConfEp1	;Continua
+	CALL	ConfEp3
+	;Inicializa as senhas
+	LD	HL,PRISENH+8
+	LD	B,NNIVEL-1
+ConfEp2	LD	DE,INISENH
+	CALL	TSSENH6	;Copia 8 byte de (DE) para (HL) [HL Aponta para a ram de usuario]
+	DJNZ	ConfEp2
+	LD	A,80h+108	;Vers�o do Sistema operacional foi trocado
+	JR	ConfEp4
+	;Atualiza a ram de usuario com o novo checksum
+ConfEp3	LD	A,(CHEQSYS+1)
+	LD	HL,ChkCpu	;Endereco do CheckSum da eprom na memoria do usuario
+	LD	B,0
+	CALL	ConfEp5
+	LD	A,(CHEQSYS)
+	CALL	ConfEp5
+	LD	A,B
+ConfEp4	AND	A
+	RET	Z
+	SCF
+	RET
+ConfEp5	CALL	WdToHex		;DE = WordToHex(A)
+	LD	A,D
+	CP	(HL)
+	JR	NZ,ConfEp6
+	INC	HL
+	LD	A,E
+	CP	(HL)
+	JR	NZ,ConfEp7
+	JR	ConfEp8
+ConfEp6	CALL	SALBYTE
+	LD	A,E
+	INC	HL
+ConfEp7	CALL	SALBYTE
+	LD	B,80H+107	;Sistema operacional foi trocado
+ConfEp8	INC	HL
+	RET
+;
+;----------------------------------------------------------------
+;-			Teste de ram de usuario			-
+;----------------------------------------------------------------
+TSRAMU	LD	HL,RAMUSU-1	;Memoria de usuario
+TRAMU0	INC	HL
+	LD	A,(HL)
+	LD	C,A
+	CPL
+	LD	(HL),A
+	LD	A,(HL)
+	LD	(HL),C
+	CPL
+	CP	C
+	JR	Z,TRAMU0
+	LD	A,H
+	OR	L
+	RET	Z		;Ram de usuario ok
+	LD	A,80H+14	;Memoria defeito
+	SCF
+	RET
+;
+;----------------------------------------------------------------
+;	Configuracao do sistema					-
+;----------------------------------------------------------------
+;
+;Salva o acumulador na memoria de usuario (HL) e ajuste do cheqsum para endere�o acima de 7FFFh
+SALBYTE	BIT	7,H
+	JR	Z,SalByt0	;Endere�o < que 8000h nao tem checkSum (7800h a 7FFFh)
+	CP	(HL)
+	RET	Z		;Se ja' com o valor
+	PUSH	DE
+	LD	D,H		;DE endere�o do cheSum no segmento
+	LD	E,0FFh
+	LD	C,A		;Salva nova configuracao
+	LD	A,(DE)		;Cheqsum da memoria
+	ADD	A,(HL)		;Configuracao atual
+	SUB	C
+	LD	(DE),A		;Cheqsum da memoria
+	LD	(HL),C		;Atualiza a nova configuracao
+	POP	DE
+	RET
+SalByt0	LD	(HL),A		;Atualiza a nova configuracao
+	RET
+;
+;----------------------------------------------------------------
+;	Entra com o endececo da porta em hexadecimal o o valor	-
+;	para ser enviado para o endereco escolhido		-
+;----------------------------------------------------------------
+TSOUT	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+	LD	HL,MENTSA
+	CALL	DISPL
+	CALL	INPHEX
+	RET	NC
+	LD	C,A		;Salva endereco da porta
+TSOUT1	PUSH	BC
+	LD	A,0C0h		;Posiciona na segunda linha
+	CALL	COMDIS
+	LD	HL,MENTS1
+	CALL	DISPL
+	POP	BC
+	PUSH	BC
+	IN	A,(C)
+	CALL	ACHEX
+	LD	A,'='
+	CALL	DISPA
+	CALL	INPHEX
+	POP	BC
+	JR	NC,TSOUT
+	OUT	(C),A
+	JR	TSOUT1
+;
+;----------------------------------------------------------------
+;	Entra com o endececo da porta em hexadecimal e mostra	-
+;	continuamento em binario o valor contido na porta	-
+;----------------------------------------------------------------
+TSINP	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+	LD	HL,MENTSA
+	CALL	DISPL
+	CALL	INPHEX
+	RET	NC
+	LD	C,A		;Salva endereco da porta
+TSINP1	LD	A,0C0h		;Posiciona na segunda linha
+	CALL	COMDIS
+	IN	A,(C)
+	CALL	ACBIN		;Mostra o acumulador em binario
+	CALL	TECLAD
+	JR	NC,TSINP1
+	RET
+;
+;----------------------------------------------------------------
+;	Mostra a tecla apertada e a linha/coluna da		-
+;	posicao da tecla na matriz				-
+;----------------------------------------------------------------
+TSTEC	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+TSTEC0	CALL	TECLAW
+TSTEC1	PUSH	AF
+	CALL	DISPA
+	LD	A,'='
+	CALL	DISPA
+	LD	A,(TECMAT)	;Posicao matricial da tecla apertada
+	CALL	ACOCTA
+	LD	A,' '
+	CALL	DISPA
+	CALL	DISPA
+	CALL	DISPA
+	POP	AF
+	CP	'e'
+	JR	NZ,TSTEC0
+TSTEC2	CALL	TECLAW
+	CP	'e'
+	JR	NZ,TSTEC1
+	RET
+;
+;****************************************************************
+;-			Operacoes com o display			-
+;****************************************************************
+;
+;----------------------------------------------------------------
+;	Coloca uma linha no display indicada por (HL)		-
+;----------------------------------------------------------------
+DISPL	LD	A,(HL)
+DISPL1	CALL	DISPA
+	INC	HL
+	LD	A,(HL)
+	CP	0Dh
+	JR	NZ,DISPL1
+	INC	HL
+	RET
+;
+;----------------------------------------------------------------
+;	Mostra B bytes no display apartir HL em hexa		-
+;----------------------------------------------------------------
+DISPH	LD	A,(HL)
+	CALL	ACHEX
+	INC	HL
+	DJNZ	DISPH
+	RET
+;
+;----------------------------------------------------------------
+;	Coloca o acumulador na posicao do cursor no display	-
+;----------------------------------------------------------------
+DISPA	PUSH	BC
+	LD	C,A
+	LD	B,0
+DISPA1	IN	A,(IDISP1)
+	RLCA
+	DEC	B
+	JR	Z,DISPA2	;Se Erro no display
+	JR	C,DISPA1	;Aguarda display estabilizar
+	LD	A,C
+	OUT	(MDISP1),A
+	POP	BC
+	RET			;Tempo 109+39*(255-B) estados
+DISPA2	SCF
+	LD	A,C
+	POP	BC
+	RET			;Tempo maximo 10044 estados
+;
+;----------------------------------------------------------------
+;	Mostra o valor do acumulador em hexadecimal		;
+;----------------------------------------------------------------
+ACHEX	PUSH	AF
+	RLCA
+	RLCA
+	RLCA
+	RLCA
+	AND	0FH
+	CALL	DISPHEX		;Mostra <A> em hexadecimal
+	POP	AF
+	AND	0FH
+;
+DISPHEX	ADD	A,'0'
+	CP	'9'+1
+	JR	C,DISPA		;Se numeros
+	ADD	A,7
+	JR	DISPA		;Mostra <A>
+;
+;	Mostra o valor do acumulador em Octal			;
+ACOCTA	PUSH	BC
+	RLCA
+	RLCA
+	LD	B,A
+	AND	03H
+	ADD	A,'0'
+	CALL	DISPA
+	LD	A,B
+	RLCA
+	RLCA
+	RLCA
+	LD	B,A
+	AND	07H
+	ADD	A,'0'
+	CALL	DISPA
+	LD	A,B
+	POP	BC
+	RLCA
+	RLCA
+	RLCA
+	AND	07H
+	ADD	A,'0'
+	JR	DISPA		;Mostra <A>
+;
+;----------------------------------------------------------------
+;	Mostra o valor do acumulador em binario			;
+;----------------------------------------------------------------
+ACBIN	PUSH	BC
+	PUSH	AF
+	LD	C,A
+	LD	B,8
+ACBIN2	LD	A,'0'
+	RLC	C
+	JR	NC,ACBIN1
+	LD	A,'1'
+ACBIN1	CALL	DISPA
+	DEC	B
+	JR	NZ,ACBIN2
+	POP	AF		;????? Nao tem condicao de erro
+	POP	BC
+	RET
+;
+;----------------------------------------------------------------
+;	Ajusta o enderecamento do display			-
+;	em [A] onde [H]=linha e [L]=coluna			-
+;----------------------------------------------------------------
+LINCOL	LD	A,L
+	SET	7,A		;Endereca display
+	BIT	0,H
+	JR	Z,COMDIS	;Comando p/display, se linha 0
+	SET	6,A
+	JR	COMDIS		;Comando p/display, se linha 1
+;
+;----------------------------------------------------------------
+;-	Envia comando do acumulador para o display		-
+;-	Se o acumulador for zero somente le posicao do cursor	-
+;----------------------------------------------------------------
+COMDIS	PUSH	BC
+	LD	C,A
+	LD	B,0
+COMDI1	IN	A,(IDISP1)
+	RLCA
+	DEC	B
+	JR	Z,COMDI3	;Se Erro no display
+	JR	C,COMDI1	;Aguarda display estabilizar
+	RRCA
+	LD	B,A
+	LD	A,C
+	AND	A
+	JR	Z,COMDI2
+	OUT	(IDISP1),A
+COMDI2	LD	A,B		;Posicao atual do cursor
+	POP	BC
+	RET			;Tempo 109+39*(255-B) estados
+COMDI3	SCF
+	LD	A,C
+	POP	BC
+	RET			;Tempo maximo 10044 estados
+;
+;----------------------------------------------------------------
+;	Ajusta o enderecamento do display			-
+;	em [A] onde [H]=linha e [L]=coluna			-
+;----------------------------------------------------------------
+Nsimbol	LD	A,40h		;Acesso a CG ram
+	CALL	COMDIS		;Comando p/display, se linha 0
+	PUSH	HL
+	LD	HL,Tsimbol
+Nsimbo0	LD	A,(HL)
+	CP	0FFh
+	JR	Z,Nsimbo1
+	CALL	DISPA
+	INC	HL
+	JR	Nsimbo0
+Nsimbo1	POP	HL
+	LD	A,80h		;Acesso a CG ram
+	JR	COMDIS		;Comando p/display, se linha 0
+;00 Simbolo de numero
+Tsimbol	DB	01100B
+	DB	10010B
+	DB	10010B
+	DB	01100B
+	DB	00000B
+	DB	11110B
+	DB	00000B
+	DB	00000B
+;01 Simbolo de numera
+	DB	01100B
+	DB	10010B
+	DB	10010B
+	DB	01111B
+	DB	00000B
+	DB	11110B
+	DB	00000B
+	DB	00000B
+;02 Simbolo de espoente 2
+	DB	01100B
+	DB	10010B
+	DB	00100B
+	DB	01000B
+	DB	11110B
+	DB	00000B
+	DB	00000B
+	DB	00000B
+;03 Bolinha (Graus)
+	DB	01100B
+	DB	10010B
+	DB	10010B
+	DB	01100B
+	DB	00000B
+	DB	00000B
+	DB	00000B
+	DB	00000B
+;Final dos simbolos
+	DB	0FFh
+;
+;****************************************************************
+;  Rotinas de controle de interrupcao da porta serial (26/201)	*
+;		Modificado em 24 de Junho de 1997		*
+;****************************************************************
+;	Rotina de controle da interface serial
+RS232C	IN	A,(IORS+2)	;Registrador de status de interrupcao serial
+	RRCA
+	RET	C		;Nenhuma interrupcao pendente
+	RRCA
+	JR	C,RS232T	;Line status ou transmiter hold
+	RRCA
+	JR	NC,WRRS		;Se interrupcao de Modem status
+;
+;Se interrupcao de recepcao	(42+42/159+42 estados)
+	LD	A,(LSRM)	;Registrador de status de linha
+	AND	1FH
+	IN	A,(IORS)
+	RET	NZ		;(42) Se erro anterior de recepcao
+	LD	HL,(PONRXX)
+	LD	(HL),A
+	INC	L
+	LD	A,(PONRXR)
+	SUB	L
+	JR	Z,RDRS1		;(94) Se erro buffer de recepcao cheio
+	LD	(PONRXX),HL
+	LD	HL,(TMPSYS)
+	LD	(TIMRS),HL
+	RET			;(154)
+RDRS1	LD	A,(LSRM)	;Registrador de status de linha
+	SET	0,A		;Liga erro de buffer de recepcao cheio 0?1
+	LD	(LSRM),A
+	RET			;(136)
+;
+RS232T	RRCA
+	JR	NC,WRRS		;transmiter hold
+;
+;Interrupcao de Line de status	(42+36/67+36 estados)
+LSRS	LD	A,(LSRM)	;Registrador de status de linha
+	AND	1FH
+	IN	A,(IORS+5)	;Line status register
+	RET	NZ		;(42)Se erro anterior
+	RES	0,A		;Desliga erro de buffer de recepcao cheio
+	LD	(LSRM),A
+	RET			;(67)
+;
+;Se interrupcao de Modem status e transmiter holding (134+47/39+47 estados)
+WRRS	IN	A,(IORS+6)
+	LD	(MSRM),A
+	LD	HL,(PONTXX)
+	LD	A,(PONTXW)
+	INC	L
+	CP	L
+	RET	Z		;(96) Se buffer de transmissao vasio
+	LD	A,(HL)
+	OUT	(IORS),A
+	LD	(PONTXX),HL
+	LD	HL,(TMPSYS)
+	LD	(TIMRS),HL
+	RET			;(134)
+;
+;*****************************************************************************
+;---------------- Teste da porta serial ----------------
+TSTRS	CALL	PRBAUD
+	RET	C		;Erro de comunicacao com a UART
+	LD	A,0Fh		;Habilita interrupcao todas interrupcao serial
+	LD	(IERM),A	;Registrador de controle de interupcao
+	LD	B,A
+	OUT	(IORS+1),A
+	IN	A,(IORS+1)
+	CP	B
+	JR	NZ,TSTRS1	;Erro de comunicacao com a UART
+	IN	A,(IORS+2)	;Reg indic. de interrup.
+	LD	(IIRM),A
+	LD	A,0Fh		;Habilita a comunicacao e interrupcao
+	LD	(MCRM),A	;Registrador de controle de modem
+	OUT	(IORS+4),A
+	LD	B,A
+	IN	A,(IORS+4)
+	CP	B
+	JR	NZ,TSTRS1	;Erro de comunicacao com a UART
+	IN	A,(IORS+5)	;Reg de status de linha
+	LD	(LSRM),A
+	IN	A,(IORS+6)	;Reg de status do modem
+	LD	(MSRM),A
+	LD	A,(LCRM)	;Registrador de controle de linha
+	OR	10000000B
+	LD	(LCRM),A	;Registrador de controle de linha
+	RET			;UART ok
+TSTRS1	LD	A,(LCRM)	;Registrador de controle de linha
+	AND	01111111B
+	LD	(LCRM),A	;Registrador de controle de linha
+	LD	A,0		;Desliga todas interrupcao serial
+	OUT	(IORS+1),A
+	OUT	(IORS+4),A
+	LD	A,80H+35	;Problema na interface serial (Defeito na UART)
+	SCF
+	RET
+;
+;------------- Progamacao da taxa Bald Rate -------------
+PRBAUD	LD	A,(LCRM)	;Registrador de controle de linha
+	SET	7,A
+	OUT	(IORS+3),A
+	LD	B,A
+	IN	A,(IORS+3)
+	CP	B
+	JR	NZ,TSTRS1	;Erro de comunicacao com a UART
+	LD	HL,(TXBAUD)	;Taxa Baud Rate
+	LD	A,(TXBAUD)	;Programa a taxa baud
+	OUT	(IORS),A
+	LD	B,A
+	IN	A,(IORS)
+	CP	B
+	JR	NZ,TSTRS1	;Erro de comunicacao com a UART
+	LD	A,(TXBAUD+1)
+	OUT	(IORS+1),A
+	LD	B,A
+	IN	A,(IORS+1)
+	CP	B
+	JR	NZ,TSTRS1	;Erro de comunicacao com a UART
+	LD	A,(LCRM)	;Habilita w/r
+	RES	7,A
+	OUT	(IORS+3),A
+	LD	B,A
+	IN	A,(IORS+3)
+	CP	B
+	JR	NZ,TSTRS1	;Erro de comunicacao com a UART
+;Calculo do timer in da a serial apartir do baud-rate
+	LD	HL,(TXBAUD)	;Registrador da taxa baud rate
+	SRL	H		;HL/2
+	RR	L
+	SRL	H		;HL/4
+	RR	L
+	SRL	H		;HL/8
+	RR	L
+	INC	HL		;HL/8+3
+	INC	HL	
+	INC	HL	
+	LD	(TMPRS),HL	;Timein/Timeout da interface serial = 18.43 ms
+	XOR	A
+	RET
+;
+;Limpa os parametros esenciais da interface serial
+cParSer	XOR	A
+	LD	(LSRM),A	;Registrador de status de linha
+	LD	(IIRM),A	;Registrador de status de interupcao
+	LD	(MSRM),A	;Registrador de status de modem
+	LD	(MCRM),A	;Registrador de controle de modem
+	LD	(IERM),A	;Registrador de controle de interupcao
+	LD	(FLGRSX),A	;Flag de controle de protocolo
+	LD	(NCHRRX),A
+	LD	(NCHRTX),A
+	LD	(ERRORX),A	;Codigo de erro ocorrido na recepcao da RS-232
+	LD	A,00000011B	;8bits, 1stop, sem paridade
+	LD	(LCRM),A	;Registrador de controle de linha
+	LD	HL,0FFFFh	;1.75 Baud
+	LD	(TXBAUD),HL	;Registrador da taxa baud rate
+	LD	HL,BUFRX
+	LD	(PONRXR),HL	;Pont. de leitura corren. do buffer de recepcao
+	INC	L
+	LD	(PONRXX),HL	;Pont. de escrita corren. do buffer de recepcao
+	LD	HL,BUFTX
+	LD	(PONTXX),HL	;Pont. de leitura corren. do buffer/transmissao
+	INC	L
+	LD	(PONTXW),HL	;Pont. de escrita corren. do buffer/transmissao
+	LD	HL,30		;Timein/Timeout da interface serial = 61.44 ms
+	LD	(TMPRS),HL
+	RET
+;
+;------------------------------------------------------------------------
+;-	Teste de comunicacao utilizando um conector de retorno		-
+;------------------------------------------------------------------------
+TSTESP	LD	A,(LCRM)	;Registrador de controle de linha
+	AND	10000000B
+	RET	Z		;Comunicacao serial desabilitada
+	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+	CALL	INICRX		;Inicializa o buffer de recepcao
+;Limpa o buffer de transmissao
+	LD	HL,(TMPSYS)
+	LD	(TIMRS),HL
+	LD	HL,(PONTXW)	;Ponteiro de escrita de transmissao
+	DEC	L
+	LD	(PONTXX),HL	;Ponteiro de leitura de transmissao
+	LD	A,(PONTXX)	;Ponteiro de leitura de transmissao
+	LD	(NCHRTX),A
+;Envia byte para a porta serial
+	LD	BC,0		;Valores a ser transmitido/recebido
+TSTESP0	LD	HL,(PONTXW)	;Ponteiro de escrita de transmissao
+TSTESP1	LD	(HL),B		;byte para porta serial
+	INC	B
+	LD	A,(PONTXX)	;Ponteiro de leitura de transmissao
+	INC	L
+	SUB	L
+	JR	NZ,TSTESP1	;Buffer de transmissao nao cheio
+	DEC	B
+	DEC	L
+	PUSH	BC
+	LD	(PONTXW),HL	;Finaliza buffer de transmissao
+	LD	A,(NCHRTX)
+	LD	B,A
+	LD	A,(PONTXX)	;Ponteiro de leitura de transmissao
+	CP	B
+	JR	NZ,TSTESP2	;Se transmitido algum
+;Inicializa a transmissao
+	DI
+	CALL	LSRS		;Verifica registrador de status de linha
+	EI
+	JR	NZ,TSTESP3	;Se erro anterior
+	AND	01100000B	;Verifica se THRE e TEMT vasio
+	JR	Z,TSTESP3	;Ainda nao transmitiu
+	LD	A,(IERM)	;Registrador de controle de interupcao
+	OUT	(IORS+1),A	;Forca interrupcao da transmissao
+	JR	TSTESP3
+TSTESP2	LD	(NCHRTX),A
+;Verifica a recepcao
+TSTESP3	CALL	VRFRX		;Verifica recepcao
+	POP	BC
+	JR	NC,TSTESP4	;Recepcao OK
+	AND	A
+	JR	Z,TSTESP4	;Se nao erro
+	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+	LD	A,(ERRORX)	;erro serial de transmissao/recepcao
+	CALL	MosErr0
+	JP	TECLAW
+;Recepcao ok mostra
+TSTESP4	LD	HL,(PONRXR)	;Verifica se buffer de recpcao esta vasio
+TSTESP5	INC	L
+	LD	A,(PONRXX)
+	SUB	L
+	JR	Z,TSTESP6	;Se buffer de recepcao vasio
+	LD	A,(HL)
+	CP	C
+	JR	NZ,TSTESP7	;Byte recebido nao confere
+	CALL	ACHEX
+	INC	C
+	JR	TSTESP5
+TSTESP6	DEC	L
+	LD	(PONRXR),HL	;Ponteiro de leitura do buffer de entrada
+	XOR	A
+	LD	(NCHRRX),A	;Numero de caracter recebido
+	CALL	TECLAD
+	JR	NC,TSTESP0	;Nao tecla apertada
+	CP	'e'
+	JR	NZ,TSTESP0	;Se nao scape
+	RET			;Se scape
+;Byte recebido nao confere
+TSTESP7	LD	B,A
+	PUSH	BC
+	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+	LD	HL,MENNAO
+	CALL	DISPL
+	POP	BC
+	LD	A,B		;Recebido
+	CALL	ACHEX
+	LD	A,'/'
+	CALL	DISPA
+	LD	A,C		;Transmitido
+	CALL	ACHEX
+	JP	TECLAW
+;
+;--------------------------------------------------------
+;	Verifica se recepcao ok, Se carry erro em A	-
+;	Numero de byte ja' recebido em (NCHRRX) e A	-
+;	Se carry recepcao nao concluida e erro em A	-
+;--------------------------------------------------------
+VRFRX	LD	HL,(PONRXR)	;Verifica se buffer de recpcao esta vasio
+	INC	L
+	LD	A,(PONRXX)
+	SUB	L
+	JR	Z,VRFRX3	;Se buffer de recepcao vasio
+	LD	L,A		;Salva numero de caracter recebido
+	LD	A,(NCHRRX)
+	CP	L
+	JR	NZ,VRFRX1	;Recebido algum, Inicializa timeout
+	CALL	RXTIM1		;Recebido nenhum, Verifica timeout
+	JR	NC,VRFRX2
+	LD	A,(LSRM)	;Registrador de status de linha
+	AND	1FH
+	JR	NZ,VRFRX4	;Se erro de recepcao
+	LD	A,(NCHRRX)
+	RET			;Fim da recepcao sem erro
+VRFRX1	LD	A,L
+	LD	(NCHRRX),A
+	LD	HL,(TMPSYS)
+	LD	(TIMRS),HL
+VRFRX2	XOR	A
+	SCF
+	RET			;Recepcao nao concluida
+;
+VRFRX3	CALL	RXTIM1		;Se buffer de recepcao vasio, Verifica timeout
+	JR	NC,VRFRX2
+	LD	A,(LSRM)	;Registrador de status de linha
+	AND	1FH
+	JR	NZ,VRFRX4	;Se erro de recepcao
+	LD	A,80H+36	;Erro de recepcao timerin
+	LD	(ERRORX),A
+	SCF
+	RET
+;
+;--------------------------------------------------------
+;		Verifica erro da porta serial		-
+;L=4 Buffer cheio,  L=3 Overrun,  L=2 Erro de paridade	-
+;L=1 Framing,       L=0 Break interrupt			-
+;--------------------------------------------------------
+VRFRX4	LD	L,4
+VRFRX5	RRA
+	JR	C,VRFRX6
+	DEC	L
+	JR	NZ,VRFRX5
+;Limpa erro da interface serial
+VRFRX6	XOR	A
+	LD	(LSRM),A
+	LD	A,80H+37	;Erros 37,38,39,40 e 41
+	ADD	A,L
+	SCF
+	LD	(ERRORX),A
+	RET
+;
+;Temporiza a interface serial
+RXTIM1	LD	HL,(TIMRS)	;indica temporisador da serial
+	LD	BC,(TMPRS)	;Tempo de timeout
+	JP	TIMER		;Se carry fim do do tempo
+;
+;Inicializa o buffer de recepcao
+INICRX	XOR	A
+	LD	(ERRORX),A	;Limpa erro
+	LD	(NCHRRX),A
+	DI			;Desabilita a interrupcao
+	LD	(LSRM),A	;Limpa Registrador de status de linha
+	LD	A,(PONRXR)	;Limpa o buffer de recepcao
+	INC	A
+	LD	(PONRXX),A
+	EI			;Habilita a interrupcao
+	RET
+;
+;****************************************************************
+;* 			Modo manual				*
+;****************************************************************
+MANUAL	RES	6,(HL)		;Acende o led LD2
+	LD	A,CLSDIS
+	OUT	(IDISP1),A	;Limpa display e retorna cursor
+	LD	HL,MENNUL	;Mensagem em branco
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+;
+	LD	HL,1.SHL.bPausa	;Modo pausa para
+	LD	DE,sComSer	;Endere�o da placa = Comando serial
+	LD	C,80h		;Seta o bit
+	CALL	SPARAXY		;Envia para os dois eixos
+	RET	C		;Erro de comunicacao
+	LD	HL,MENMAN
+	CALL	DISPL
+	CALL	TECLAW
+	CP	0Dh
+	RET	NZ		;Se saida se nao enter
+;
+;Envia modo manual (desernegisado e pausa)
+	LD	HL,1.SHL.bManua+1.SHL.bPausa	;Modo manual e pausa para
+	LD	DE,sComSer	;Endere�o da placa = Comando serial
+	LD	C,80h		;Seta o bit
+	CALL	SPARAXY		;Envia para os dois eixos
+	RET	C		;Erro de comunicacao
+	LD	A,CLSDIS
+	OUT	(IDISP1),A	;Limpa display e retorna cursor
+	LD	HL,MENMA0
+	CALL	DISPL
+	CALL	TECLAW
+	RET
+;
+;
+;****************************************************************
+;* 			Modo execucao				*
+;****************************************************************
+;
+;Inicializa os parametros
+SEXEC	RES	5,(HL)		;Acende o led LD3
+	LD	A,CLSDIS
+	OUT	(IDISP1),A	;Limpa display e retorna cursor
+	LD	A,(LCRM)	;Registrador de controle de linha
+	AND	10000000B
+	RET	Z		;Comunicacao serial desabilitada
+	LD	HL,MENNUL	;Mensagem em branco
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	CALL	RPARAM	;Calcula e envia os parametros de programa para a placa do motor
+	PUSH	AF
+	XOR	A
+	LD	(NPROG),A
+	POP	AF
+	RET	C		;Se erro de comunicacao nos dois eixos
+;Cancela manual
+	LD	HL,1.SHL.bManua	;Retira o modo manual
+	LD	DE,sComSer	;Endere�o da placa = Comando serial
+	LD	C,40h		;Reseta o bit
+	CALL	SPARAXY
+	RET	C		;Erro de comunicacao
+;
+SEXEC0	CALL	VERREF		;Verifica referencia
+	RET	C		;Erro de comunicacao
+	CP	'e'
+	RET	Z		;Se saida com esc
+	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+	LD	A,080h		;Posiciona na primeira linha
+	CALL	COMDIS
+	LD	HL,MENEXC
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	CALL	DISPL
+;
+;Referenciado, monitora o movimento
+SEXEC1	CALL	MOSTRAX		;Mostra a posicao atual no display
+	JR	NC,SEXEC2	;OK
+	CALL	MOSTRAY		;Mostra a posicao atual no display
+	JR	NC,SEXEC4	;OK
+	RET
+SEXEC2	JR	Z,SEXEC0	;Se nao referenciado
+	CALL	TECLAD
+	CP	'e'
+	RET	Z		;Se tecla esc apertada
+	CP	'{'
+	JR	Z,SEXEC5	;Se start
+	CP	'}'
+	JR	NZ,SEXEC3	;Se nao stop
+	CALL	STOPXY
+	JR	NC,SEXEC3
+	RET			;Erro de comunicacao
+SEXEC3	CALL	MOSTRAY		;Mostra a posicao atual no display
+	JR	NC,SEXEC4	;OK
+	CALL	MOSTRAX		;Mostra a posicao atual no display
+	JR	NC,SEXEC2	;OK
+	RET			;Erro Comando
+SEXEC4	JR	Z,SEXEC0	;Se nao referenciado
+	CALL	TECLAD
+	CP	'e'
+	RET	Z		;Se tecla esc apertada
+	CP	'{'
+	JR	Z,SEXEC5	;Se start
+	CP	'}'
+	JR	NZ,SEXEC1	;Se nao stop
+	CALL	STOPXY
+	JR	NC,SEXEC1
+	RET			;Erro de comunicacao
+;
+SEXEC5	CALL	STARTX		;Envia do start X
+	PUSH	AF
+	CALL	STARTY		;Envia do start Y
+	JR	C,SEXEC6
+	POP	AF
+	JR	SEXEC1
+SEXEC6	POP	AF
+	RET	C		;Erro de comunicacao
+	JR	SEXEC1
+;
+;Verifica se referencia
+VERREF	CALL	STATUSX		;Comando Verifica o status
+	RET	C		;Se erro no Comando
+	JR	Z,VERREF0	;Nao referenciado
+	CALL	STATUSY		;Comando Verifica o status
+	RET	C		;Se erro no Comando
+	JR	NZ,VERREF3	;Se os dois eixos referenciado
+VERREF0	LD	A,(StaTecY)
+	AND	A
+	JR	Z,VERREF2	;Start via teclado e externo para o eixo Y desligado
+	CALL	SREFEX		;Verifica se referencia
+	RET	C		;Erro Comando
+	SCF
+	RET	Z		;Se equipamento nao referenciado
+	CP	'e'
+	RET	Z		;Se saida com esc
+	CP	'}'		;Stop ?
+	JR	Z,VERREF1	;Sim
+	CALL	SREFEY		;Verifica se referencia
+	RET	C		;Erro Comando
+	SCF
+	RET	Z		;Se equipamento nao referenciado
+	CP	'e'
+	RET	Z		;Se saida com esc
+	CP	'}'		;Stop ?
+	JR	NZ,VERREF3	;Nao
+VERREF1	CALL	STOPXY
+	XOR	A
+	RET
+;
+VERREF2	CALL	SREFEY		;Verifica se referencia
+	RET	C		;Erro Comando
+	SCF
+	RET	Z		;Se equipamento nao referenciado
+	CP	'e'
+	RET	Z		;Se saida com esc
+	CP	'}'		;Stop ?
+	JR	Z,VERREF1	;Sim
+	CALL	SREFEX		;Verifica se referencia
+	RET	C		;Erro Comando
+	SCF
+	RET	Z		;Se equipamento nao referenciado
+	CP	'e'
+	RET	Z		;Se saida com esc
+	CP	'}'		;Stop ?
+	JR	Z,VERREF1	;Sim
+;Se os dois eixos referenciado
+VERREF3	LD	HL,1.SHL.bPausa	;Retira a pausa
+	LD	DE,sComSer	;Endere�o da placa = Comando serial
+	LD	C,40h		;Reseta o bit
+	CALL	SPARAXY
+	RET			;Se carry erro de comunicacao
+;
+;Retardo de 2 segundos
+RETARD	LD	HL,(TMPSYS)
+	LD	(TIMFRE),HL	;Seta temporisador do freio
+RETARD1	LD	HL,(TIMFRE)	;indica temporisador
+	LD	BC,2*TSEGUN	;Valor de tempo de 3 Segundos
+	CALL	TIMER
+	RET	C		;Se fim do tempo
+	CALL	TECLAD
+	JR	NC,RETARD1
+	CP	'e'
+	JR	NZ,RETARD1
+	RET
+;
+;------------------------------------------------------------------------
+; Rotina para a busca da referencia do eixo x via porta serial		-
+; O flag de zero ativo Indica que o equipamento nao esta referenciado	-
+;------------------------------------------------------------------------
+SREFEX	CALL	VEREIXX
+	RET	NZ		;Se eixo X desabilitado
+	LD	A,(FLGRFX)	;Verifica se inicializacao de X
+	AND	A
+	RET	NZ		;Se parametros X nao inicializado
+	CALL	STATUSX		;Comando Verifica o status
+	RET	C		;Se erro no Comando
+	RET	NZ		;Referenciado
+	LD	A,0C0h		;Posiciona na segunda linha
+	CALL	COMDIS
+	PUSH	HL
+	LD	HL,MENNUL
+	CALL	DISPL
+	POP	HL
+	BIT	2,L		;referenciando ?
+	JR	NZ,SREFX3	;Sim
+;
+;Aguardando o start para referencia
+SREFX0	LD	A,080h		;Posiciona na primeira linha
+	CALL	COMDIS
+	LD	HL,MENRFX0
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	CALL	DISPL
+SREFX1	CALL	MOSTRAX		;Mostra a posicao atual no display
+	RET	C		;Comando Erro
+	RET	NZ		;Se referenciado
+	BIT	2,L		;referenciando ?
+	JR	NZ,SREFX3	;Sim
+SREFX2	CALL	TECLAD
+	CP	'e'
+	SCF
+	RET	Z		;Se tecla esc apertada
+	CP	'{'		;Tecla start ?
+	JR	NZ,SREFX1	;Nao
+;
+;Referenciando
+	CALL	STARTX
+	RET	C		;Erro de comunicacao
+SREFX3	LD	A,080h		;Posiciona na primeira linha
+	CALL	COMDIS
+	LD	HL,MENRFX1
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	CALL	DISPL
+SREFX4	CALL	MOSTRAX		;Mostra a posicao atual no display
+	RET	C		;Comando Erro
+	RET	NZ		;Se referenciado
+	BIT	2,L		;referenciando ?
+	JR	Z,SREFX2	;Nao
+	CALL	TECLAD
+	CP	'e'
+	SCF
+	RET	Z		;Se tecla esc apertada
+	CP	'}'		;Tecla stop ?
+	JR	NZ,SREFX4	;Nao
+	CALL	STOPX		;Sim
+	JR	NC,SREFX0
+	RET			;Erro de comunicacao
+;
+;------------------------------------------------------------------------
+; Rotina para a busca da referencia do eixo Y via porta serial		-
+; O flag de zero ativo Indica que o equipamento nao esta referenciado	-
+;------------------------------------------------------------------------
+SREFEY	CALL	VEREIXY
+	RET	NZ		;Se eixo Y desabilitado
+	LD	A,(FLGRFY)	;Verifica se inicializacao de Y
+	AND	A
+	RET	NZ		;Se parametros Y nao inicializado
+	CALL	STATUSY		;Comando Verifica o status
+	RET	C		;Se erro no Comando
+	RET	NZ		;Referenciado
+	LD	A,0C0h		;Posiciona na segunda linha
+	CALL	COMDIS
+	PUSH	HL
+	LD	HL,MENNUL
+	CALL	DISPL
+	POP	HL
+	BIT	2,L		;referenciando ?
+	JR	NZ,SREFY3	;Sim
+;
+;Aguardando o start para referencia
+SREFY0	LD	A,080h		;Posiciona na primeira linha
+	CALL	COMDIS
+	LD	HL,MENRFY0
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	CALL	DISPL
+SREFY1	CALL	MOSTRAY		;Mostra a posicao atual no display
+	RET	C		;Comando Erro
+	RET	NZ		;Se referenciado
+	BIT	2,L		;referenciando ?
+	JR	NZ,SREFY3	;Sim
+SREFY2	CALL	TECLAD
+	CP	'e'
+	SCF
+	RET	Z		;Se tecla esc apertada
+	CP	'{'		;Tecla start ?
+	JR	NZ,SREFY1	;Nao
+;
+;Referenciando
+	CALL	STARTY
+	RET	C		;Erro de comunicacao
+SREFY3	LD	A,080h		;Posiciona na primeira linha
+	CALL	COMDIS
+	LD	HL,MENRFY1
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	CALL	DISPL
+SREFY4	CALL	MOSTRAY		;Mostra a posicao atual no display
+	RET	C		;Comando Erro
+	RET	NZ		;Se referenciado
+	BIT	2,L		;referenciando ?
+	JR	Z,SREFY2	;Nao
+	CALL	TECLAD
+	CP	'e'
+	SCF
+	RET	Z		;Se tecla esc apertada
+	CP	'}'		;Tecla stop ?
+	JR	NZ,SREFY4	;Nao
+	CALL	STOPY		;Sim
+	JR	NC,SREFY0
+	RET			;Erro de comunicacao
+;
+;************************************************************************
+;	Rotinas gerais de comunicacao com a placa inteligente		*
+;			 do Movimentador				*
+;************************************************************************
+;
+;------------------------------------------------------------------------
+;			Limpa os buffer da porta serial			-
+;------------------------------------------------------------------------
+;entrada serial
+LIMPSER	LD	HL,(PONRXX)	;Pont. de escrita corren. do buffer de recepcao
+	DEC	L
+	LD	(PONRXR),HL	;Pont. de leitura corren. do buffer de recepcao
+;Saida serial
+	LD	HL,(PONTXX)	;Pont. de escrita corren. do buffer de recepcao
+	INC	L
+	LD	(PONTXW),HL	;Pont. de leitura corren. do buffer de recepcao
+	RET
+;
+;Envia o stop e sai
+STOPXY	LD	HL,1.SHL.bStop+1.SHL.bPausa	;Envia sinal de stop e pausa para
+	LD	DE,sComSer	;Endere�o da placa = Comando serial
+	LD	C,80h		;Seta o bit
+	JP	SPARAXY
+;
+STOPY	CALL	VEREIXY
+	RET	NZ		;Se eixo Y desabilitado
+	LD	HL,1.SHL.bStop+1.SHL.bPausa	;Envia sinal de stop e pausa para
+	LD	DE,sComSer	;Endere�o da placa = Comando serial
+	LD	C,80h		;Seta o bit
+	CALL	sParamY
+	BIT	0,L		;Verifica se referencia
+	RET			;Se NZ equipamento referenciado
+;
+STOPX	CALL	VEREIXX
+	RET	NZ		;Se eixo X desabilitado
+	LD	HL,1.SHL.bStop+1.SHL.bPausa	;Envia sinal de stop e pausa p/ placa do motor
+	LD	DE,sComSer	;Endere�o da placa = Comando serial
+	LD	C,80h		;Seta o bit
+	CALL	sParamX
+	BIT	0,L		;Verifica se referencia
+	RET			;Se NZ equipamento referenciado
+;				;Se carry erro no comando
+;
+;Envia o comando de start para a placa serial
+STARTX	CALL	VEREIXX
+	RET	NZ		;Se eixo X desabilitado
+	LD	HL,1.SHL.bPausa	;Retira a pausa
+	LD	DE,sComSer	;Endere�o da placa = Comando serial
+	LD	C,40h		;Reseta o bit
+	CALL	sParamX
+	RET	C
+	BIT	0,L		;Verifica se referencia
+	JR	Z,STARTX1	;Equipamento sem referencia
+	PUSH	AF
+	LD	A,(StaTecX)
+	AND	A
+	JR	Z,STARTY0	;Start via teclado e externo para o eixo X desligado
+	POP	AF
+STARTX1	LD	HL,1.SHL.bStart	;Envia o sinal d start para a placa do motor
+	LD	DE,sComSer	;Endere�o da placa = Comando serial
+	LD	C,80h		;Seta o bit
+	CALL	sParamX
+	BIT	0,L		;Verifica se referencia
+	RET			;Se NZ equipamento referenciado
+;				;Se carry erro no comando
+;Envia o comando de start para a placa serial
+STARTY	CALL	VEREIXY
+	RET	NZ		;Se eixo Y desabilitado
+	LD	HL,1.SHL.bPausa	;Retira a pausa
+	LD	DE,sComSer	;Endere�o da placa = Comando serial
+	LD	C,40h		;Reseta o bit
+	CALL	sParamY
+	RET	C
+	BIT	0,L		;Verifica se referencia
+	JR	Z,STARTY1	;Equipamento sem referencia
+	PUSH	AF
+	LD	A,(StaTecY)
+	AND	A
+	JR	Z,STARTY0	;Start pelo teclado e externo desligado
+	POP	AF
+STARTY1	LD	HL,1.SHL.bStart	;Envia o sinal d start para a placa do motor
+	LD	DE,sComSer	;Endere�o da placa = Comando serial
+	LD	C,80h		;Seta o bit
+	CALL	sParamY
+	BIT	0,L		;Verifica se referencia
+	RET			;Se NZ equipamento referenciado
+;				;Se carry erro no comando
+STARTY0	POP	AF
+	RET
+;
+;----------------------------------------------------------------
+;	Mostra posicao no modo execucao				-
+;----------------------------------------------------------------
+;Mostra a posicao da placa serial X
+MOSTRAX	CALL	VEREIXX
+	RET	NZ		;Se eixo X desabilitado
+	LD	A,(FLGRFX)	;Verifica se inicializacao de X
+	AND	A
+	RET	NZ		;Se parametros X nao inicializado
+	LD	HL,0		;Valor de execucao
+	LD	DE,SPosAtu	;Endere�o da placa = Posicao atual
+	LD	C,0		;Solicitando dados
+	CALL	sParamX
+	JR	C,STATUSX	;Comando Erro Verifica o status
+	LD	(POSICX),HL	;Posicao atual
+	LD	A,0C0h		;Posiciona na segunda linha
+	CALL	COMDIS
+	LD	A,(EspoenX)
+	LD	(Espoent),A
+	LD	HL,(FPODECX)
+	LD	(FPODEC),HL
+	LD	HL,(POSICX)	;Posicao atual
+	LD	A,'X'
+	CALL	MOSTRP		;Mostra posicao x
+	JR	NC,MOSTRA0
+	LD	A,(VarStaY)
+	BIT	0,A		;Equipamento referenciado ?
+	JR	Z,MOSTRA0	;N�o, Ignora o erro
+	LD	A,80H+102	;Sim, Posicao real X muito grande
+	CALL	BUFERR		;Buferisa erro
+MOSTRA0	LD	A,0C0h		;Posiciona na segunda linha
+	CALL	COMDIS
+	JR	STATUSX		;Comando Verifica o status
+;
+;Mostra a posicao da placa serial Y
+MOSTRAY	CALL	VEREIXY
+	RET	NZ		;Se eixo Y desabilitado
+	LD	A,(FLGRFY)	;Verifica se inicializacao de X
+	AND	A
+	RET	NZ		;Se parametros X nao inicializado
+	LD	HL,0		;Valor de execucao
+	LD	DE,SPosAtu	;Endere�o da placa = Posicao atual
+	LD	C,0		;Solicitando dados
+	CALL	sParamY
+	JP	C,STATUSY	;Comando Erro Verifica o status
+	LD	(POSICY),HL	;Posicao atual Y
+	LD	A,0C8h		;Posiciona na segunda linha coluna 8
+	CALL	COMDIS
+	LD	A,(EspoenY)
+	LD	(Espoent),A
+	LD	HL,(FPODECY)
+	LD	(FPODEC),HL
+	LD	HL,(POSICY)	;Posicao atual
+	LD	A,'Y'
+	CALL	MOSTRP		;Mostra posicao x
+	JR	NC,MOSTRA1
+	LD	A,(VarStaY)
+	BIT	0,A		;Equipamento referenciado ?
+	JR	Z,MOSTRA1	;N�o, Ignora o erro
+	LD	A,80H+103	;Sim, Posicao real Y muito grande
+	CALL	BUFERR		;Buferisa erro
+MOSTRA1	LD	A,0C0h		;Posiciona na segunda linha
+	CALL	COMDIS
+	JP	STATUSY		;Comando Verifica o status
+;
+;Verifica o status para a placa serial X
+STATUSX	CALL	VEREIXX
+	RET	NZ		;Se eixo X desabilitado
+	LD	HL,0		;Valor de execucao
+	LD	DE,sStatus	;Endere�o da placa = status
+	LD	C,0		;Solicitando dados
+	CALL	sParamX
+	RET	C		;Se erro no Comando
+	LD	(VarStaX),HL
+	BIT	7,L		;Verifica se erro
+	JR	NZ,STATUX1	;Se erro
+	LD	HL,0
+	LD	(MASCERX),HL
+	LD	HL,(VarStaX)
+STATUX0	BIT	0,L		;Verifica se referencia
+	RET			;Se NZ equipamento referenciado
+STATUX1	LD	HL,0
+	LD	(VarStaX),HL
+	LD	HL,TPALAR	;Tempo do bip alarme
+	LD	(TMPBIP),HL	;temporizador o bip
+	LD	HL,BUFCPU	;buffer de controle da placa cpu
+	SET	0,(HL)		;liga o bip
+	SET	5,(HL)		;Indica erro
+	LD	HL,0		;Valor de execucao
+	LD	DE,sMaskEr	;Endere�o da placa = Mascara de erro
+	LD	C,0		;Solicitando dados
+	CALL	sParamX
+	RET	C		;Se erro no Comando
+	LD	DE,(MASCERX)
+	LD	(MASCERX),HL
+	LD	A,L
+	OR	H
+	JR	Z,STATUX3	;Mascara de erro nula
+	LD	A,E
+	CPL
+	AND	L
+	LD	E,A
+	LD	A,D
+	CPL
+	AND	H
+	LD	D,A
+	PUSH	DE
+	LD	DE,sMaskEr	;Endere�o da placa = Mascara de erro
+	LD	C,40h		;Reseta o bit indicado por HL
+	CALL	sParamX
+	POP	HL
+	RET	C		;Se erro no Comando
+	LD	A,15
+STATUX2	ADD	HL,HL
+	CALL	C,STATUX4	;Buferiza a mascara de erro
+	SUB	1
+	JR	NC,STATUX2
+STATUX3	LD	HL,1.SHL.bResErr	;(sStatus) Bit de erro do status
+	LD	DE,sStatus	;Endere�o da placa = status
+	LD	C,40h		;Reseta o bit indicado por HL
+	CALL	sParamX
+	JR	NC,STATUX0	;Comando OK
+	RET			;Erro no Comando
+STATUX4	PUSH	HL
+	PUSH	AF
+	ADD	A,65+80h
+	CALL	BUFERR
+	POP	AF
+	POP	HL
+	RET
+;
+;Verifica o status para a placa serial Y
+STATUSY	CALL	VEREIXY
+	RET	NZ		;Se eixo Y desabilitado
+	LD	HL,0		;Valor de execucao
+	LD	DE,sStatus	;Endere�o da placa = status
+	LD	C,0		;Solicitando dados
+	CALL	sParamY
+	RET	C		;Se erro no Comando
+	LD	(VarStaY),HL
+	BIT	7,L		;Verifica se erro
+	JR	NZ,STATUY1	;Se erro
+	LD	HL,0
+	LD	(MASCERY),HL
+	LD	HL,(VarStaY)
+STATUY0	BIT	0,L		;Verifica se referencia
+	RET			;Se NZ equipamento referenciado
+STATUY1	LD	HL,0
+	LD	(VarStaY),HL
+	LD	HL,TPALAR	;Tempo do bip alarme
+	LD	(TMPBIP),HL	;temporizador o bip
+	LD	HL,BUFCPU	;buffer de controle da placa cpu
+	SET	0,(HL)		;liga o bip
+	SET	5,(HL)		;Indica erro
+	LD	HL,0		;Valor de execucao
+	LD	DE,sMaskEr	;Endere�o da placa = Mascara de erro
+	LD	C,0		;Solicitando dados
+	CALL	sParamY
+	RET	C		;Se erro no Comando
+	LD	DE,(MASCERY)
+	LD	(MASCERY),HL
+	LD	A,L
+	OR	H
+	JR	Z,STATUY3	;Mascara de erro nula
+	LD	A,E
+	CPL
+	AND	L
+	LD	E,A
+	LD	A,D
+	CPL
+	AND	H
+	LD	D,A
+	PUSH	DE
+	LD	DE,sMaskEr	;Endere�o da placa = Mascara de erro
+	LD	C,40h		;Reseta o bit indicado por HL
+	CALL	sParamY
+	POP	HL
+	RET	C		;Se erro no Comando
+	LD	A,15
+STATUY2	ADD	HL,HL
+	CALL	C,STATUY4	;Buferiza a mascara de erro
+	SUB	1
+	JR	NC,STATUY2
+STATUY3	LD	HL,1.SHL.bResErr	;(sStatus) Bit de erro do status
+	LD	DE,sStatus	;Endere�o da placa = status
+	LD	C,40h		;Reseta o bit indicado por HL
+	CALL	sParamY
+	JR	NC,STATUY0	;Comando OK
+	RET			;Erro no Comando
+STATUY4	PUSH	HL
+	PUSH	AF
+	ADD	A,81+80h
+	CALL	BUFERR
+	POP	AF
+	POP	HL
+	RET
+;
+MOSTRP	CALL	DISPA
+	LD	A,'='
+	CALL	DISPA
+	LD	DE,REFZER	;Mostra a posicao x/y
+	AND	A
+	SBC	HL,DE
+	LD	DE,(FPODEC)
+	CALL	MULTHL		;HLDE=HL*DE
+	LD	A,(Espoent)
+	LD	B,A
+	LD	A,0
+	DEC	B
+	JR	Z,MOSTRP2
+	JP	M,MOSTRP1	;Para espoente < 0 Valor negativo
+MOSTRP0	SRL	H		;HL=HL/2
+	RR	L
+	RR	D
+	DEC	B
+	JR	NZ,MOSTRP0
+	JR	MOSTRP2
+
+;Para espoente = 0 o fator deve ser o dobro
+MOSTRP1	SLA	D	;HLD =2*HLD e limpa Bit D,0 que indica erro
+	ADC	HL,HL
+	ADC	A,A
+	INC	B
+	JR	NZ,MOSTRP1
+	;Arredonda
+MOSTRP2	SLA	D
+	JR	NC,MOSTAHL
+	INC	L
+	JR	NZ,MOSTAHL
+	INC	H
+	JR	NZ,MOSTAHL
+	INC	A
+	JR	NZ,MOSTAHL
+	DEC	A
+	DEC	HL
+	JR	MOSTAHL		;Mostra AHL no display
+;
+;Mostra o registro AHL no display para AHL < 03E7FFh
+MOSTAHL	LD	C,10
+	CALL	DivAHLc		;HL=AHL/C e resto em A	(Exemplo 139459=10*13945+9)
+	LD	E,CharErr
+	JR	C,MOSTAH0	;Se AHL inicial >q 09:FFFFh  (Valor lido da placa do dosador > 04:B30B)
+	LD	E,A		;Unidade
+	XOR	A
+	LD	C,10
+	CALL	DivAHLc		;HL=AHL/C e resto em A	(Exemplo 13945=10*1394+5)
+	LD	D,A		;Dezena
+	LD	A,H
+	LD	H,L
+	LD	L,0
+	LD	C,10
+	CALL	DivAHc		;H=AH/C, e resto em A	(Exemplo 1394=10*139+4)
+	JR	C,MOSTAH0	;Se AHL inicial >q 03:E7FFh
+	LD	L,A		;Centena Salva o ultimo resto
+	LD	A,H		;Milhar
+	PUSH	AF
+	CALL	DISPHEX		;Mostra <A> em hexadecimal
+	LD	A,L		;Centena
+	CALL	DISPHEX		;Mostra <A> em hexadecimal
+	LD	A,D		;Dezena
+	CALL	DISPHEX		;Mostra <A> em hexadecimal
+	LD	A,E		;Unidade
+	CALL	DISPHEX		;Mostra <A> em hexadecimal
+	LD	A,' '
+	CALL	DISPA		;9999
+	POP	AF
+	CP	10
+	JR	NC,MOSTAH1
+	AND	A
+	RET	
+MOSTAH0	LD	A,CharErr	;Milhar
+	CALL	DISPA		;Mostra <A> em hexadecimal
+	LD	A,CharErr	;Dezena
+	CALL	DISPA		;Mostra <A> em hexadecimal
+	LD	A,CharErr	;Unidade
+	CALL	DISPA		;Mostra <A> em hexadecimal
+	LD	A,E		;Decimo
+	CALL	DISPHEX		;Mostra <A> em hexadecimal
+	LD	A,' '
+	CALL	DISPA		;9999
+MOSTAH1	SCF
+	RET
+;
+;Calcula e envia os parametros de programa para a placa do motor
+RPARAM	CALL	VEREIXX
+	JR	NZ,RPARAMY	;Eixo X desabilitado
+	LD	A,(FLGRFX)	;Verifica se inicializacao dos parametros OK 
+	AND	A
+	JR	NZ,RPARAM1	;Parametros X nao inicializado
+	CALL	STATUSX		;Comando Verifica o status
+	JR	NC,RPARAMY	;Se canal ok
+	CALL	STATUSX		;Comando Verifica o status
+	JR	NC,RPARAMY	;Se canal ok
+	LD	A,0FFh
+	LD	(FLGRFX),A	;Suja o flag de parametros inicialisado
+	AND	A
+	RET
+;
+RPARAM1	LD	HL,(FATGIRX)
+	CALL	CalcFat
+	LD	(EspoenX),A
+	LD	(Espoent),A
+	LD	(FatPuls),HL	;Fator de uso para transformacao de mm p/pulso
+	LD	(FatPulX),HL	;Fator do eixo X para transformacao de mm p/pulso
+	LD	(FPODECX),DE
+	LD	A,(XCANAL)
+	LD	(NCANAL),A
+	LD	HL,0		;Indica que � o eixo X
+	LD	(IdEixo),HL	;Idendificador do eixo 0 para o X e 6 para o Y
+	LD	HL,DOWLDX
+	LD	A,(XPROG)
+	CALL	ENVPROG
+	JR	C,RPARAMY	;Parametros X nao inicializado
+	LD	A,(StaTec)
+	LD	(StaTecX),A
+	XOR	A
+	LD	(FLGRFX),A	;Verifica se inicializacao dos parametros OK
+;
+RPARAMY	CALL	VEREIXY
+	RET	NZ		;Se eixo Y desabilitado
+	LD	A,(FLGRFY)	;Verifica se inicializacao dos parametros OK
+	AND	A
+	JR	NZ,RPARAM2	;Parametros Y nao inicializado
+	CALL	STATUSY		;Comando Verifica o status
+	RET	NC		;Se canal ok
+	CALL	STATUSY		;Comando Verifica o status
+	RET	NC		;Se canal ok
+	LD	A,0FFh
+	LD	(FLGRFY),A	;Suja o flag de parametros inicialisado
+	AND	A
+	RET
+RPARAM2	LD	HL,(FATGIRY)
+	CALL	CalcFat
+	LD	(Espoent),A
+	LD	(EspoenY),A
+	LD	(FatPuls),HL	;Fator de uso para transformacao de mm p/pulso
+	LD	(FatPulY),HL	;Fator do eixo X para transformacao de mm p/pulso
+	LD	(FPODECY),DE
+	LD	A,(YCANAL)
+	LD	(NCANAL),A
+	LD	HL,6		;Indica que � o eixo Y
+	LD	(IdEixo),HL	;Idendificador do eixo 0 para o X e 6 para o Y
+	LD	HL,DOWLDY
+	LD	A,(YPROG)
+	CALL	ENVPROG
+	RET	C
+	LD	A,(StaTec)
+	LD	(StaTecY),A
+	XOR	A
+	LD	(FLGRFY),A	;Verifica se inicializacao dos parametros OK 
+	RET		;Se flag zero parametros inicializado
+;
+;----------------------------------------------------------------
+;Calcula o Fator de transformacao de mm p/pulso	FatPuls		;
+;----------------------------------------------------------------
+CalcFat	ADD	HL,HL		;2*BC
+	LD	B,H
+	LD	C,L
+	ADD	HL,HL		;4*BC
+	ADD	HL,BC		;6*BC
+	LD	DE,TabFat	;Tabela dos fatores
+	ADD	HL,DE		;Sim, ultimo fator
+	LD	E,(HL)		;Primeiro valor em DE
+	INC	HL
+	LD	D,(HL)
+	INC	HL
+	LD	C,(HL)		;Segundo valor em BC
+	INC	HL
+	LD	B,(HL)
+	INC	HL
+	LD	A,(HL)		;Ultimo Valor em A
+	EX	DE,HL		;Primeiro valor de DE para HL
+	LD	D,B		;Segundo valor de BC para DE
+	LD	E,C
+	RET		
+;
+;------------------------------------------------------------------------
+; - Calculo do fator multiplicadorde de mm para pulso e do espoente:	;
+; - Fator * (2^(Espo)) = 65536*(Pm/Dp/Pp)				;
+; - Pm= numero de pulso do motor					;
+; - Dp= numero de dentes da polia					;
+; - Pd= passo da correia dentada em milimetro				;
+; - Espoente � para que 65536 > fator > 32768				;
+; - Exemplo: Fator * 2^(Espo)= 65536*(Pm/Dp/Pp)= 65536*(400/16/5,08)	;
+;                            = 322519,68503937= 40315 *2^(3)		;
+;Caso n�o mensionado considera o passo da correia de 5,08mm		;
+;------------------------------------------------------------------------
+;Fator				Motor	Deslocamento	Fator de	Obs
+;Multiplic.  mm/Pulso,Pulso/mm	Dentes	por Volta	Redu�ao
+TabFat	DEFW	61597,34864,-1	;10	851	ml	36/14		Dosador 50,265 ml/mm (209.44)
+	DEFW	43003,49938,1 	;60	304.8	mm
+	DEFW	61924,34679,1	;41.667	211.7 				(decimo de milimetro)/volta
+	DEFW	35836,59926,2	;36	182.88	mm
+	DEFW	54613,39322,2	;10	120	Graus	G10:30 		30 dentes no cilindro, 
+	DEFW	40315,53268,2	;32	162.56	mm	
+	DEFW	53753,39951,2	;24	121.92	mm	
+	DEFW	64504,33292,2	;20	101.6	mm		
+	DEFW	40315,53268,3	;16	81.28	mm	
+	DEFW	53753,39951,3	;12	60.96	mm	
+	DEFW	64504,33292,3	;10	50.80	mm
+	DEFW	39492,54377,4	;14	41.486...mm	24/14
+	DEFW	53753,39951,4	;6	30.48	mm
+	DEFW	60472,35512,4	;16	27.093	mm 	36/12		Crup
+	DEFW	0FFFFh,0FFFFh,0	;Sem	unitario
+;	DEFW	61597,34864,-1	;209.44	1064	ml			Dosador 50,265 ml/mm
+;
+MENFAT	DEFB	' 851ml] 304.8] 211.7] 182.9] 120Gr] 162.6]121.92] 101.6]'
+	DEFB	' 81.28] 60.96] 50.80]41.487] 30.48]27.093]',0Dh
+;
+;MENFAT	DEFB	'ml851 ]+304.8]_211.7]*182.9]G10:30] 162.6][121.9]101.6 ]'
+;	DEFB	'81.28 ]60.96 ]50.80 ]41.487]30.48 ]27.093]',0Dh
+;
+; Calcula todos parametros de todos submenus do programa e envia para a placa do motor
+; Entrada:	A= Numero do programa	HL= Mensagem a ser mostrada
+ENVPROG	LD	(NPROG),A
+	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+	LD	A,0C0h		;Posiciona na segunda linha
+	CALL	COMDIS
+	CALL	DISPL
+	LD	IX,MMOVIM+3	;Parametros de movimento
+	CALL	INICMED		;Verifica os fatores
+	LD	A,80H+110	;Erro, Parametro de movimentos
+	CALL	C,PRGER6
+PRGER0	LD	IX,MMENSAG+3	;Parametros de impressao
+	CALL	INICMED		;Verifica os fatores
+	LD	A,80H+111	;Erro, Parametro de impressao
+	CALL	C,PRGER6
+PRGER1	LD	IX,MCICLO+3	;Parametros de configuracao de ciclo
+	CALL	INICMED		;Verifica os fatores
+	LD	A,80H+112	;Erro, Parametro de configuracao do ciclo
+	CALL	C,PRGER6
+PRGER2	LD	IX,MIMPRES+3	;Configuracao da impressora
+	CALL	INICMED		;Verifica os fatores
+	LD	A,80H+113	;Erro, Parametro de configuracao da impressora
+	CALL	C,PRGER6
+PRGER3	LD	IX,MINTRV+3	;Parametros de intertravamento
+	CALL	INICMED		;Verifica os fatores
+	LD	A,80H+114	;Erro, Parametro de intertravamento de 2 eixo.
+	CALL	C,PRGER6	;Se Erro buferiza
+PRGER4	LD	HL,(IdEixo)	;Idendificador do eixo 0 para o X e 6 para o Y
+	LD	A,H
+	AND	A
+	SCF
+	RET	NZ
+	CALL	PASPAS		;Ajusta os parametros para passo a passo
+	CALL	LIMPSER		;Limpa os buffer da serial
+	LD	IX,MMOVIM+3	;Parametros de movimento
+	CALL	ENVPRGX
+	JR	C,PRGER5
+	LD	IX,MMENSAG+3	;Parametros de impressao
+	CALL	ENVPRGX
+	JR	C,PRGER5
+	LD	IX,MCICLO+3	;Parametros de configuracao de ciclo
+	CALL	ENVPRGX
+	JR	C,PRGER5
+	LD	IX,MIMPRES+3	;Configuracao da impressora
+	CALL	ENVPRGX
+	JR	C,PRGER5
+	LD	IX,MINTRV+3	;Parametros de intertravamento
+	CALL	ENVPRGX
+	JR	NC,PRGER7
+PRGER5	LD	A,80H+115	;Erro, de comunicacao
+PRGER6	LD	HL,(IdEixo)	;Idendificador do eixo 0 para o X e 6 para o Y
+	ADD	A,L
+	LD	H,A
+	LD	(IdEixo),HL	;Idendificador do eixo 0 para o X e 6 para o Y
+	CALL	BUFERR		;Buferiza o erro
+	SCF
+	RET
+;Envia todos parametro de todos submenus do programa para a placa do motor
+PRGER7	LD	HL,(NUMAVS)	;Numero maximo de mensagem no avanco
+	LD	BC,(NUMRET)	;Numero maximo de mensagem no retorno
+	LD	H,C
+	LD	DE,snMenAv	;Endere�o da placa = Numeros maximo de mensagem
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+	RET	C
+;
+	LD	DE,sFlgPrg	;Endere�o da placa = Flags de configuracao do programa
+	LD	C,0		;Solicitando dados
+	CALL	sParamC
+	RET	C
+;
+	RES	0,L		;Start automatico no avanco
+	LD	A,(ASTAAVS)
+	AND	A
+	JR	Z,VARIAL0	;Desligado
+	SET	0,L
+VARIAL0	RES	1,L		;Start automatico no retorno
+	LD	A,(ASTARET)
+	AND	A
+	JR	Z,VARIAL1	;Desligado
+	SET	1,L
+VARIAL1	RES	2,L		;Saida de start no avanco
+	LD	A,(SSTAAVS)
+	AND	A
+	JR	Z,VARIAL2	;Desligado
+	SET	2,L
+VARIAL2	RES	3,L		;Saida de start no retorno
+	LD	A,(SSTARET)
+	AND	A
+	JR	Z,VARIAL3	;Desligado
+	SET	3,L
+VARIAL3	RES	6,L		;Entrada de start entre eixo
+	LD	A,(ENSTART)
+	AND	A
+	JR	Z,VARIAL6	;Desligado
+	SET	6,L
+VARIAL6	RES	4,L		;Referencia pelo start externo (Start pelo teclado e externo) @@@@@@@@@@@
+	LD	A,(StaTec)
+	AND	A
+	JR	Z,VARIAL7	;Desligado
+	SET	4,L
+VARIAL7	RES	0,H		;Logica do sinal de impressao
+	LD	A,(LGIMPRE)
+	AND	A
+	JR	Z,VARIAH0	;Aberto
+	SET	0,H
+VARIAH0	RES	1,H		;Logica do sinal de reversao
+	LD	A,(DIRERS)
+	AND	A
+	JR	Z,VARIAH1	;Retorno
+	SET	1,H
+VARIAH1	RES	2,H		;Selecao de mensagem via serial
+	LD	A,(MENselS)
+	AND	A
+	JR	Z,VARIAH2	;Desligado
+	SET	2,H
+VARIAH2	RES	3,H		;Reversao de mensagem via serial
+	LD	A,(MENrevS)
+	AND	A
+	JR	Z,VARIAH3	;Desligado
+	SET	3,H
+VARIAH3	RES	7,H		;Modo continuo/passo a passo
+	LD	A,(MPASPAS)
+	AND	A
+	JR	Z,VARIAH7	;Continuo
+	SET	7,H
+VARIAH7	LD	DE,sFlgPrg	;Endere�o da placa = Flags de configuracao do programa
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+	RET	C
+;
+;Enviando os bits estendido
+	LD	DE,sFlgPrE	;Endere�o da placa = Configuracao estendida do programa
+	LD	C,0		;Solicitando dados
+	CALL	sParamC
+	RET	C
+	RES	0,L
+	LD	A,(SSTAPPA)	;Saida de start passo a passo
+	AND	A
+	JR	Z,VARIAE0	;Desligado
+	SET	0,L
+VARIAE0	RES	1,L
+	LD	A,(STAUTPP)	;Start automatico passo/passo
+	AND	A
+	JR	Z,VARIAE1	;Desligado
+	SET	1,L
+VARIAE1	LD	DE,sFlgPrE	;Endere�o da placa = Configuracao estendida do programa
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+	RET
+;
+;Transmite via serial os parametros do menu IX
+ENVPRGX	LD	A,(IX-3)
+	AND	A		;Limpa o carry
+	JR	ENVPRG1
+ENVPRG0	PUSH	DE
+	LD	DE,52
+	ADD	IX,DE
+	POP	DE
+ENVPRG1	PUSH	AF
+	LD	L,(IX+48)	;Parametro ja' convertido
+	LD	H,(IX+49)
+	PUSH	DE
+	LD	E,(HL)
+	INC	HL
+	LD	D,(HL)
+	EX	DE,HL		;Parametro em HL
+	POP	DE
+	LD	E,(IX+41)	;Endere�o da placa = Comando da transmissao serial
+	LD	D,0
+	LD	A,E
+	CP	68h		;Configuracao estendida do programa ?
+	JR	Z,ENVPRG2	;Sim
+	CP	60h
+	JR	Z,ENVPRG2
+	CP	56h
+	JR	Z,ENVPRG2
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+	JR	NC,ENVPRG2	;Se comunicacao OK
+	INC	SP		;Se erro na comunicacao
+	INC	SP
+	RET
+ENVPRG2	POP	AF
+	DEC	A
+	JR	NZ,ENVPRG0
+	RET
+;
+SPARAXY	CALL	VEREIXX
+	JR	NZ,SPARAYY	;Se eixo X desabilitado
+	LD	A,(FLGRFX)	;Verifica se inicializacao de X
+	AND	A
+	JR	NZ,SPARAYY	;Se parametros X nao inicializado
+	PUSH	HL
+	PUSH	DE
+	PUSH	BC
+	CALL	sParamX
+	POP	BC
+	POP	DE
+	POP	HL
+SPARAYY	PUSH	AF
+	CALL	VEREIXY
+	JR	NZ,SPARAWW	;Se eixo Y desabilitado
+	LD	A,(FLGRFY)	;Verifica se inicializacao de Y
+	AND	A
+	JR	NZ,SPARAWW	;Se parametros Y nao inicializado
+	CALL	sParamY
+	JR	C,SPARAZZ
+SPARAWW	POP	AF
+	RET
+SPARAZZ	POP	AF
+	SCF
+	RET
+;
+;------------------------------------------------------------------------
+;		Envia parametros para porta serial			;
+; - Possue 4 entrada sParamX, sParamY, sParamC e sParamN que envia	;
+;   respectivamente para a placa do  motor X, Motor Y, Motor Corrente	;
+;   e para qualquer um novo motor.					;  
+; Entradas:								;
+;	DE= Endereco para onde enviar		HL=Valor a ser enviado	;
+;	C= Tipo da comunicac�o Solicitacao/Reset/Set/Envio		;
+;------------------------------------------------------------------------
+sParamY	LD	A,(YCANAL)	;Canal da placa do motor Y
+	JR	sParamN
+sParamX	LD	A,(XCANAL)	;Canal da placa do motor X
+sParamN	LD	(NCANAL),A	;Salva novo canal
+sParamC	LD	(ValorTx),HL	;Salva o valor a ser enviado
+	LD	HL,ValorTx	;Coloca Ponteiro do valor a ser enviado
+	LD	A,Stx		;Stx
+	LD	(sBuf),A
+	LD	A,(NCANAL)	;Funcao e canal
+	AND	3Fh
+	OR	C
+	LD	(sBuf+1),A
+	LD	(sBuf+2),DE	;Endereco da placa do motor
+	LD	A,2		;Numero de byte enviado/Solicitado
+	LD	(sBuf+4),A
+	LD	(sBuf+5),HL	;Ponteiro do valor a ser enviado/recebido
+	CALL	MosErro		;Se F1, Mostra erro existente
+	LD	D,3
+	LD	A,0		;Limpa erro
+SPARAM0	LD	E,A		;Salva o erro
+	PUSH	DE		;Salva erro e contador de tentativa
+	CALL	COMBLK	;C=Canal/Funcao B=CMD HL=Valor
+	POP	DE		;Restaura erro e contador de tentativa
+	JR	Z,SPARAM2	;Transmisao do bloco OK
+	DEC	D
+	JR	NZ,SPARAM0
+	LD	D,A		;Salva o erro atual
+	LD	A,E		;Pega o erro anterior
+	AND	A
+	CALL	NZ,BUFERR	;Buferiza o erro anterior
+	LD	A,D		;Restaura o erro a tual
+	CALL	BUFERR		;Buferiza o erro
+	CALL	RETARD
+	SCF
+	RET
+SPARAM2	LD	A,(BUFCOM)	;Start byte
+	CP	STX		;Verifica se STX
+	JR	NZ,sParam3
+	LD	A,80h+54	;O erro 54 Start byte STX invalido so acontece na chamada de Sparam?
+	CALL	BUFERR		;Buferiza o erro
+	SCF
+	RET	
+sParam3	XOR	A
+	RET
+;
+;------------------------------------------------------------------------
+;	Envio do bloco de comunicacao e espera do bloco de retorno	-
+; - Entrada:								-
+;	(Sbuf+0)= Start Byte						-
+;	(Sbuf+1)= Canal							-
+;	(Sbuf+2):(Sbuf+3)= Endereco para onde enviar			-
+;	(Sbuf+4)= Numero de byte a ser enviado				-
+;	(Sbuf+5):(Sbuf+6)= Ponteiro do valor a ser enviado/resebido	-
+; 	No acumulador retorna a ultima tecla apertada			-
+;	Em HL retorna o dado os dados solicitado em caso de ACK		-
+;	Se dados enviados ou NACK, em HL temos  STATUS:ERRO		-
+;------------------------------------------------------------------------
+COMBLK	LD	HL,(TIMRS)	;indica temporisador da serial
+	LD	BC,(TMPRS)	;Tempo de timeout
+	CALL	TIMER		;Fim do temporisador da serial ?
+	JR	NC,COMBLK	;Nao
+	LD	HL,(TMPSYS)
+	LD	(TIMRS),HL
+;
+	LD	HL,(PONTXX)
+	LD	A,(PONTXW)
+	INC	L
+	CP	L
+	JR	Z,COMBLK1	;Se buffer de transmissao vasio
+	LD	A,80H+44	;Erro de timeout
+	JP	COMBLKD
+;
+COMBLK1	LD	HL,(PONRXX)
+	LD	A,(PONRXR)	;Verifica se buffer de recpcao esta vasio
+	INC	A
+	CP	L
+	JR	Z,COMBLK2	;Se buffer de recepcao vasio
+	DEC	L
+	LD	(PONRXR),HL	;Limpa o buffer de recepcao
+	LD	A,80H+59	;Bytes invalidos no final do bloco
+	JR	COMBLKD
+;
+COMBLK2	LD	HL,BUFCOM
+	LD	(RXBLOCO),HL
+	XOR	A
+	LD	(FLAGRX),A
+	LD	(ERRORX),A
+COMBLK3	CALL	WrBloco
+	JR	NC,COMBLK4	;Transmissao OK
+	JR	Z,COMBLK3	;Sem erro
+	JR	COMBLKD		;Se erro
+COMBLK4	LD	HL,(TIMRS)	;indica temporisador da serial
+	LD	BC,(TMPRS)	;Tempo de timeout
+	CALL	TIMER		;Fim do temporisador da serial ?
+	JR	NC,COMBLK4	;Nao
+	LD	HL,(TMPSYS)
+	LD	(TIMRS),HL
+;
+COMBLK5	CALL	RDBLK		;Recepcao ?
+	JR	NC,COMBLK5	;inclompleta
+;
+	LD	A,(ERRORX)
+	AND	A
+	JR	NZ,COMBLKD	;Se erro de recepcao
+	LD	HL,(RXBLOCO)
+	LD	BC,BUFCOM+5	;Numero minimo de byte recebido
+	AND	A
+	SBC	HL,BC
+	JR	C,COMBLK9	;Se erro, bytes recebido menor que minimo
+	JR	NZ,COMBLK9	;Se erro de recepcao
+	LD	A,(BUFCOM)	;Start byte
+	CP	STX		;Verifica se ack
+	JR	Z,ComBlkF	;Se Stx
+	CP	ACK		;Verifica se ack
+	JR	NZ,COMBLKA	;Se nao ack
+	LD	HL,(BUFCOM+1)	;H=CmdTxL L=CANAL
+	LD	A,(sBuf+1)	;Funcao e canal
+	AND	3Fh
+	LD	A,(sBuf+1)	;Funcao e canal
+	JR	NZ,ComBlk6	;Canal <> zero
+	XOR	L
+	AND	0C0h
+	JR	NZ,ComBlk8	;Resposta da funcao invalida
+	JR	ComBlK7
+ComBlk6	CP	L
+	JR	NZ,COMBLKB	;Resposta do canal invalido
+ComBlk7	LD	A,(sBuf+2)	;Endereco da placa do motor
+	CP	H
+	JR	NZ,COMBLKC	;Resposta do comando invalido
+	LD	HL,(BUFCOM+3)
+;	LD	A,(CMDTXH)
+;	CP	L
+;	JR	NZ,COMBLKC	;Resposta do comando invalido
+ComBlkF	XOR	A		;Se recepcao OK
+	RET
+ComBlk8	LD	A,80H+57	;Resposta do canal invalido
+	JR	COMBLKD
+COMBLK9	LD	A,80H+55	;Numero de bytes recebidos invalidos
+	JR	COMBLKD
+COMBLKA	LD	A,80H+56	;Recebido nao ACK
+	JR	COMBLKD
+COMBLKB	LD	A,80H+57	;Resposta do canal invalido
+	JR	COMBLKD
+COMBLKC	LD	A,80H+58	;Resposta do comando invalido
+COMBLKD	AND	A
+	RET
+;
+;----------------------------------------------------------------
+;	Envio a string em sBuf					-
+; (Sbuf+0)= Start Byte						-
+; (Sbuf+1)= Canal						-
+; (Sbuf+2):(Sbuf+3)= Endereco para onde enviar			-
+; (Sbuf+4)= Numero de byte a ser enviado			-
+; (Sbuf+5):(Sbuf+6)= Ponteiro do valor a ser enviado/recebido	-
+;----------------------------------------------------------------
+WrBloco	LD	HL,(PONTXW)	;Inicializa buffer de transmissao
+	CALL	WrByt1		;Esc do start byte
+	LD	A,(sBuf)	;Stx
+	LD	C,A		;Cheqsum
+	CALL	WrByt2
+	LD	A,(sBuf+1)	;Funcao e canal
+	ADD	A,C		;Cheqsum
+	LD	C,A
+	LD	A,(sBuf+1)	;Funcao e canal
+	CALL	WrByte
+	LD	A,(sBuf+2)	;Endereco low da placa do motor
+	ADD	A,C		;Cheqsum
+	LD	C,A
+	LD	A,(sBuf+2)	;Endereco low da placa do motor
+	CALL	WrByte
+;	LD	A,(sBuf+3)	;Endereco high da placa do motor
+;	ADD	A,C		;Cheqsum
+;	LD	C,A
+;	LD	A,(sBuf+3)	;Endereco high da placa do motor
+;	CALL	WrByte
+;	LD	A,(sBuf+4)	;Numero de byte enviado/Solicitado
+;	ADD	A,C		;Cheqsum
+;	LD	C,A
+	LD	A,(sBuf+4)	;Numero de byte enviado/Solicitado
+	LD	B,A
+;	CALL	WrByte
+	LD	DE,(sBuf+5)	;Ponteiro do valor a ser enviado/recebido
+	INC	B
+	DEC	B
+	JR	Z,WrBloc1
+WrBloc0	LD	A,(DE)	;Dados a ser enviado
+	ADD	A,C	;Cheqsum
+	LD	C,A
+	LD	A,(DE)	;Valor low a ser enviado
+	CALL	WrByte
+	INC	DE
+	DJNZ	WrBloc0
+WrBloc1	CALL	WrByt1		;Esc do stop byte
+	LD	A,ETX		;Etx do stop byte
+	ADD	A,C		;Cheqsum
+	LD	C,A
+	LD	A,ETX		;Etx do stop byte
+	CALL	WrByt2
+	LD	A,C		;Cheqsum
+	NEG
+	CALL	WrByte
+;
+;Inicializa buffer de transmissao
+	LD	(PONTXW),HL	;Finaliza buffer de transmissao
+	XOR	A
+	DI
+	LD	(ERRORX),A	;Limpa erro
+	LD	(LSRM),A	;Limpa Registrador de status de linha
+	CALL	WRRS		;Inicio do loop de transmissao
+	EI
+	AND	A
+	RET
+;
+;Rotina para colocar no buffer de transmissao o data A
+WrByte	LD	(HL),A		;SOH Inicializa o cabecario
+	INC	L
+	CP	ESC
+	LD	A,(PONTXX)	;Inicializa buffer de transmissao
+	JR	Z,WrByt0	;esc
+	CP	L
+	JR	Z,WrByt3	;Se buffer de transmissao cheio
+	RET
+WrByt0	CP	L
+	JR	Z,WrByt3	;Se buffer de transmissao cheio
+WrByt1	LD	A,esc
+WrByt2	LD	(HL),A		;SOH Inicializa o cabecario
+	INC	L
+	LD	A,(PONTXX)	;Inicializa buffer de transmissao
+	CP	L
+	JR	NZ,WrByt5	;Se buffer de transmissao OK
+	;Se buffer de transmissao cheio
+WrByt3	POP	HL	;Restaura o ponteiro para n�o voltart para WrBloco
+;
+;----------------------------------------------------------------
+;	Checa a transmissao, se nao carry transmissao OK	-
+;	Se carry acumulador contem o numero do erro		-
+;	Se carry e zero nao fim do timer, e nao erro		-
+;----------------------------------------------------------------
+;????????????????????????????????????????????????????????????????
+;	Aqui o buffer de transmissao esta cheio			;
+; - Fica travado aqui at� abrir espaco necessario no buffer 	;
+; ou limpa o buffer e sai com erro de buffer de transmissao	;
+; cheio.							;
+; - Verificar o valor de TxBaud e o tmpRs= 3 +TXBAUD/8		;
+;????????????????????????????????????????????????????????????????
+	LD	HL,(TIMRS)	;indica temporisador da serial
+	LD	BC,(TMPRS)	;Tempo de timeout
+	CALL	TIMER		;temporisador da serial
+	JR	NC,WrByt4	;Se nao fim do timer
+	LD	A,80H+44	;Indica erro de timeout da transmissao
+	AND	A
+	LD	(ERRORX),A
+	SCF			;Indica erro na transmissao
+	RET
+WrByt4	XOR	A		;Limpa erro
+	SCF
+WrByt5	RET
+;
+; Coloca o acumulador no buffer de transmissao
+; Entrada por EnvByte Calcula o checksum e se ESC duplica
+; Entrada por EnvByt0 s� coloca um ESC
+; Entrada: HL = PONTXW		C= Checsum atual
+; Saida: HL = novo PONTXW	C= novo Checsum
+EnvByte	LD	(HL),A		;SOH Inicializa o cabecario
+	INC	L
+	CP	ESC
+	JR	NZ,EnvByt1
+	ADD	A,C
+	LD	C,A
+EnvByt0	LD	(HL),ESC		;SOH Inicializa o cabecario
+	INC	L
+	RET
+EnvByt1	ADD	A,C
+	LD	C,A
+	RET
+
+; Testa o bufer de saida serial
+; Entrada: HL = PONTXW
+; Saida: carry ativo indica que, tem menos que 10 bytes livres no buffer de transmissao
+TstBout	LD	A,(PONTXX)	;Inicializa buffer de transmissao
+	DEC	A
+	SUB	L
+	CP	10
+	RET	NC
+	PUSH	HL
+	PUSH	BC
+	LD	HL,(TIMRS)	;indica temporisador da serial
+	LD	BC,(TMPRS)	;Tempo de timeout
+	CALL	TIMER		;temporisador da serial
+	POP	BC
+	POP	HL
+	JR	NC,TstBout	;Se nao fim do timer
+	LD	A,80H+44	;Indica erro de timeout da transmissao
+	LD	(ERRORX),A
+	RET
+;
+;--------------------------------------------------------
+;	Verifica se recepcao ok, Se carry erro em A	-
+;	Numero de byte ja' recebido em (NCHRRX) e A	-
+;	Se carry recepcao nao concluida e erro em A	-
+;--------------------------------------------------------
+RDBLK	LD	A,(FLAGRX)
+	BIT	7,A
+	JR	Z,RDBLK0	;Aguarda o start bit ou dados/stop bit
+	BIT	6,A
+	SCF
+	RET	Z		;Fim da recepcao aguarda reinicializar
+;Aguardando cheqsum
+	CALL	LBYTE
+	JR	Z,RDBLK5	;Se buffer vazio
+	JP	C,RDBLKD	;Se comando, cheqsum invalido
+	LD	L,A		;Valor do cheqsum
+	LD	A,(CHKRX)
+	ADD	A,L
+	LD	(CHKRX),A
+	JP	NZ,RDBLK7	;Se erro de cheque sum
+	LD	A,(FLAGRX)
+	RES	6,A
+	LD	(FLAGRX),A
+	AND	A
+	RET
+;
+;Aguarda o start bit ou dados/stop bit
+RDBLK0	BIT	6,A
+	JR	NZ,RDBLK2	;Aguarda dados/stop bit
+;
+;Aguarda o start byte
+	CALL	LBYTE
+	JR	Z,RDBLK5	;Se buffer vazio
+	JR	NC,RDBLK6	;Erro no start byte
+	CP	STX
+	JR	Z,RDBLK1	;Start byte STX Ok
+	CP	ACK
+	JR	Z,RDBLK1	;Start byte Ack OK
+	CP	NACK
+	JR	NZ,RDBLK8	;Erro Start byte invalido
+RDBLK1	LD	HL,BUFCOM
+	LD	(HL),A		;Salva o byte
+	INC	HL
+	LD	(RXBLOCO),HL
+	LD	(CHKRX),A	;Cheque sum
+	LD	A,(FLAGRX)
+	SET	6,A
+	LD	(FLAGRX),A
+	AND	A
+	RET
+;
+;Aguarda dados/stop bit
+RDBLK2	CALL	LBYTE
+	JR	Z,RDBLK5	;Se buffer vazio
+	JR	C,RDBLK4	;Se comando verifica o stop byte
+	LD	HL,(RXBLOCO)
+	INC	L
+	DEC	L
+	JR	Z,RdBlk3	;Buffer auxiliar Cheio
+	LD	(HL),A		;Salva byte
+	LD	A,(CHKRX)
+	ADD	A,(HL)
+	LD	(CHKRX),A
+	INC	HL
+	LD	(RXBLOCO),HL
+	AND	A		;Limpa o carry Flag
+	RET
+RDBLK3	LD	A,80H+111	;Se erro bloco muito grande
+	JR	RDBLKB
+;
+;Se comando verifica o stop byte
+RDBLK4	CP	ETX
+	JR	NZ,RDBLK9	;Se erro Stop byte invalido
+	LD	A,(CHKRX)
+	ADD	A,ETX
+	LD	(CHKRX),A
+	LD	A,(FLAGRX)
+	SET	7,A
+	LD	(FLAGRX),A
+	AND	A
+	RET
+;
+;Se buffer vazio
+RDBLK5	LD	HL,(TIMRS)	;indica temporisador da serial
+	LD	BC,(TMPRS)	;Tempo de timeout
+	CALL	TIMER
+	RET	NC		; Se nao fim do tempo
+	CALL	RXERRO
+	JR	C,RDBLKC	;Se erro
+	LD	A,80H+36	;Erro de timer in
+	JR	RDBLKB
+RDBLK7	LD	A,80H+41	;Se erro de cheque sum
+	JR	RDBLKB
+RDBLK6	LD	A,80H+51	;Erro no start byte
+	JR	RDBLKB
+RDBLK8	LD	A,80H+52	;Erro Start byte invalido
+	JR	RDBLKB
+RDBLK9	LD	A,80H+53	;Se erro Stop byte invalido
+	JR	RDBLKB
+RDBLKD	LD	A,80H+60	;Se comando, cheqsum invalido
+	JR	RDBLKB
+;
+RDBLKB	LD	(ERRORX),A
+RDBLKC	LD	A,(FLAGRX)
+	SET	7,A
+	RES	6,A
+	LD	(FLAGRX),A
+	AND	A
+	RET
+;
+LBYTE	CALL	LBYTE1
+	RET	Z		;Se buffer vazio
+	CP	ESC
+	JR	NZ,LBYTE0	;Se dado
+	CALL	LBYTE2
+	RET	Z		;Se so' o ESC no buffer
+	LD	(PONRXR),HL	;Atualiza o ponteiro do buffer de recpcao
+	CP	ESC
+	RET	C		;Se comando
+	CCF
+	RET	NZ		;Se comando
+	AND	A		;Se dado
+	RET
+;
+LBYTE0	LD	(PONRXR),HL	;Atualiza o ponteiro do buffer de recpcao
+	RET	NC		;Se dado
+	CCF
+	RET
+;
+LBYTE1	LD	HL,(PONRXR)	;Verifica se buffer de recpcao esta vasio
+LBYTE2	LD	A,(PONRXX)
+	INC	L
+	SUB	L
+	RET	Z		;Se buffer de recepcao vasio
+	LD	A,(HL)
+	RET
+;--------------------------------------------------------
+;		Verifica erro da porta serial		-
+;L=4 Buffer cheio,  L=3 Overrun,  L=2 Erro de paridade	-
+;L=1 Framing,       L=0 Break interrupt			-
+;--------------------------------------------------------
+RXERRO	LD	A,(LSRM)	;Registrador de status de linha
+	AND	1FH
+	RET	Z		;Se nao erro de recepcao serial
+	LD	L,4
+RXERRO0	RRA
+	JR	C,RXERRO1
+	DEC	L
+	JR	NZ,RXERRO0
+;Limpa erro da interface serial
+RXERRO1	XOR	A
+	LD	(LSRM),A
+	LD	A,80H+37	;Erros 37,38,39,40 e 41
+	ADD	A,L
+	SCF
+	LD	(ERRORX),A
+	RET
+;
+;Seta o bit para salvamento na eeprom da placa nova F4
+;Eixo X
+SALVEEP	CALL	VEREIXX
+	JR	NZ,SAVEEPY	;Se eixo X desabilitado
+	LD	A,(FLGRFX)	;Verifica se inicializacao de X
+	AND	A
+	JR	NZ,SAVEEPY	;Se parametros X nao inicializado
+	LD	HL,1.SHL.bSavPar	;bit para salvar parametros
+	LD	DE,sComSer	;Endere�o da placa = Comando serial
+	LD	C,80h		;Seta bit
+	CALL	sParamX
+;Eixo Y
+SAVEEPY	CALL	VEREIXY
+	RET	NZ		;Se eixo Y desabilitado
+	LD	A,(FLGRFY)	;Verifica se inicializacao de Y
+	AND	A
+	RET	NZ		;Se parametros Y nao inicializado
+	LD	HL,1.SHL.bSavPar	;bit para salvar parametros
+	LD	DE,sComSer	;Endere�o da placa = Comando serial
+	LD	C,80h		;Seta bit
+	CALL	sParamY
+	RET			;Se carry erro de comunicacao
+;
+;Teste de impressao F2
+TSTPRT	LD	HL,1.SHL.bTstImp	;bit para teste de impressao
+	LD	DE,sComSer	;Endere�o da placa = Comando serial
+	LD	C,80h		;Seta bit
+	CALL	sParamX
+	RET			;Se carry erro de comunicacao
+;
+;Buferiza os erros: PonErrW =PonErrW+1 Se PonErrW <> PonErrR (PonErrW)=A
+BufErr	JP	MarkErr
+	PUSH	HL
+	PUSH	DE
+	LD	D,A		;Salva erro
+	LD	HL,BUFERRO	;Posi�ao inicial do buffer
+	LD	A,(PonErrW)	;Ponteiro de escrita do buffer
+	AND	0Fh
+	ADD	A,L
+	LD	L,A
+	LD	A,0
+	ADC	A,H
+	LD	H,A
+	LD	A,(HL)
+	CP	D
+	JR	Z,BufErr2	;Se mesmo erro que anterior
+	LD	A,(PonErrR)	;Ponteiro de leitura do buffer
+	AND	0Fh
+	LD	E,A
+	LD	A,(PonErrW)	;Ponteiro de escrita do buffer
+	INC	A
+	AND	0Fh
+	CP	E
+	JR	Z,BufErr0	;Buffer Cheio
+	LD	(PonErrW),A	;Ponteiro de escrita do buffer
+	LD	HL,BUFERRO	;Posi�ao inicial do buffer
+	ADD	A,L
+	LD	L,A
+	LD	A,0
+	ADC	A,H
+	LD	H,A
+	JR	BufErr1
+BufErr0	LD	D,80h+109	;Erro de Buffer de erro cheio
+BufErr1	LD	(HL),D
+	LD	HL,TPALAR	;Tempo do bip alarme
+	LD	(TMPBIP),HL	;temporizador o bip
+	LD	HL,BUFCPU	;buffer de controle da placa cpu
+	SET	0,(HL)		;liga o bip
+	SET	5,(HL)		;Indica erro
+BufErr2	POP	DE
+	POP	HL
+	RET
+;
+;----------------------------------------------------------------
+;-	Mostra mensagens de erro no display  A=numero do erro	-
+;----------------------------------------------------------------
+;
+;Mostra erro bufferizado com F1 
+;????????? merece uma atencao em relacao a as variaveis do teclado ??????????
+MosErro	LD	A,(ULTTEC)
+	CP	'!'		;F1 ?
+	RET	NZ		;Nao
+	XOR	A
+	LD	(ULTTEC),A
+	LD	A,(TECMAT)	;Posicao matricial da tecla apertada
+	BIT	7,A
+	RET	NZ		;Se tecla desapertada
+	PUSH	DE
+	LD	A,080h		;Linha 1
+	CALL	COMDIS
+	CALL	VRFERR
+	JR	C,MosErr1
+	LD	HL,(MENERR)	;Mensagem alternativa de indicacao de nao erro
+	JR	MosErr2
+MosErr0	PUSH	DE
+MosErr1	CALL	ALARME		;Toca o alarme 2 segundo
+	AND	7FH
+	CALL	PRCMEN
+	LD	DE,eMenIni
+	ADD	HL,DE
+	EX	DE,HL
+	LD	HL,eMenFim
+	AND	A
+	SBC	HL,DE
+	LD	HL,eMenFim
+	JR	C,MosErr2	;DE > eMenFim
+	EX	DE,HL
+MosErr2	CALL	DISPL
+	POP	DE
+	RET
+;
+MENNUL	DEFB	'                                        ',0Dh
+;
+;----------------------------------------------------------------
+;	Calculo do endereco da mensagem				-
+;-	[A] deve conter o numero da mesagem			-
+;-	[HL] retorna o endereco inicial da mesagem		-
+;----------------------------------------------------------------
+PRCMEN	LD	L,A
+	LD	H,0
+	PUSH	DE		;Salva o par [DE]
+	PUSH	HL		;Salva *1
+	ADD	HL,HL		;*2
+	ADD	HL,HL		;*4
+	ADD	HL,HL		;*8
+	PUSH	HL		;Salva *8
+	ADD	HL,HL		;*16
+	ADD	HL,HL		;*32
+	POP	DE		;Restaura *8
+	ADD	HL,DE		;*(32+8)
+	POP	DE		;Restaura *1
+	ADD	HL,DE		;*(32+8+1)
+	POP	DE		;Restaura o par [DE]
+	RET
+;
+ALARME	PUSH	HL
+	LD	HL,TPALAR	;Tempo do bip alarme
+	LD	(TMPBIP),HL	;temporizador o bip
+	LD	HL,BUFCPU	;buffer de controle da placa cpu
+	SET	0,(HL)		;liga o bip
+	POP	HL
+	RET
+;
+;Localiza erros buferizados: Se PonErrR <> PonErrW  --> PonErrR =PonErrR +1 A=(PonErrR)
+VrfErr	JP	LocErr
+	LD	A,(PonErrW)	;Ponteiro de escrita do buffer
+	AND	0Fh
+	LD	L,A
+	LD	A,(PonErrR)	;Ponteiro de leitura do buffer
+	AND	0Fh
+	CP	L
+	JR	Z,VrfErr0	;Buffer Vasio
+	INC	A
+	AND	0Fh
+	LD	HL,BUFERRO	;Posi�ao inicial do buffer
+	LD	(PonErrR),A	;Ponteiro de leitura do buffer
+	ADD	A,L
+	LD	L,A
+	LD	A,0
+	ADC	A,H
+	LD	H,A
+	LD	A,(HL)		;Erro em A
+	LD	HL,TPALAR/4	;Tempo do bip alarme
+	LD	(TMPBIP),HL	;temporizador o bip
+	LD	HL,BUFCPU	;buffer de controle da placa cpu
+	SET	0,(HL)		;liga o bip
+	SET	5,(HL)		;Liga o erro
+	SCF
+	POP	HL
+	RET
+VrfErr0	LD	HL,BUFCPU	;buffer de controle da placa cpu
+	RES	5,(HL)		;Desliga o erro
+	RET
+;
+;Execucao do submenu X
+SUBMENX	LD	A,(NSENHA)
+	CP	NNIVEL-1	;Nivel maximo de protecao ?
+	RET	NC		;Sim
+	CALL	SELPARM		;Edita numero de programa para edicao
+	RET	C		;Se saida com a tecla scape
+	CALL	VEREIXX
+	RET	NZ		;Se eixo X desabilitado
+	LD	IY,MCONFX	;Endereco inicial do menu
+	LD	HL,(FatGirX)
+	PUSH	HL
+	LD	HL,MENNUL	;Mensagem em branco
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	CALL	THARD		;Menu de programa
+	LD	A,(FLGPRG)	;Flag de entrada de parametros de programa
+	LD	C,A
+	LD	A,(FLGGEX)	;Flag de parametros inicialisado
+	OR	C
+	JR	Z,SubMen0	;Se nenhun parametro do menu alterado
+	LD	A,0FFh
+	LD	(FLGGEX),A	;Suja o flag de parametros inicialisado
+	CALL	GPARAM0		;Envia a configurac�es do eixo X para a placa do motor
+	JR	C,SubMen0
+	XOR	A
+	LD	(FLGGEX),A	;Verifica se inicializacao dos parametros OK 
+	POP	HL
+	LD	A,(FatGirX)
+	CP	L
+	RET	Z
+	LD	A,0BBH
+	LD	(FLGRFX),A	;Indica a falta da referencia X
+	RET
+SubMen0	POP	HL
+	RET
+;
+;Execucao do submenu Y
+SUBMENY	LD	A,(NSENHA)
+	CP	NNIVEL-1		;Nivel maximo de protecao ?
+	RET	NC		;Sim
+	CALL	SELPARM		;Edita numero de programa para edicao
+	RET	C		;Se saida com a tecla scape
+	CALL	VEREIXY
+	RET	NZ		;Se eixo Y desabilitado
+	LD	IY,MCONFY	;Endereco inicial do menu
+	LD	HL,(FatGirY)
+	PUSH	HL
+	LD	HL,MENNUL	;Mensagem em branco
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	CALL	THARD		;Menu de programa
+	LD	A,(FLGPRG)	;Flag de entrada de parametros de programa
+	LD	C,A
+	LD	A,(FLGGEY)	;Flag de parametros inicialisado
+	OR	C
+	JR	Z,SubMen0	;Se nenhun parametro do menu alterado
+	LD	A,0FFh
+	LD	(FLGGEY),A	;Suja o flag de parametros inicialisado
+	CALL	GPARAM3		;Envia a configurac�es do eixo Y para a placa do motor
+	JR	C,SubMen0
+	XOR	A
+	LD	(FLGGEY),A	;Verifica se inicializacao dos parametros OK 
+	POP	HL
+	LD	A,(FatGirX)
+	CP	L
+	RET	Z
+	LD	A,0BBH
+	LD	(FLGRFX),A	;Indica a falta da referencia X
+	RET			;Se flag zero parametros inicializado
+;
+SUBMENT	LD	A,(NSENHA)
+	CP	NNIVEL-1	;Nivel maximo de protecao ?
+	RET	NC		;Sim
+	LD	IY,MTESTE	;Endereco inicial do menu
+	LD	HL,MENNUL	;Mensagem em branco
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	CALL	THARD		;Menu de programa
+	RET			;Se flag zero parametros inicializado
+;
+SEQUIPO	LD	IY,MEQUIPO	;Endereco inicial do menu
+	LD	HL,MENNUL	;Mensagem em branco
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	CALL	THARD		;Menu de programa
+	RET			;Se flag zero parametros inicializado
+;
+;Execucao do submenu de edicao
+SUBMENE	LD	L,(IX+46)	;Endereco do inicio do menu
+	LD	H,(IX+47)
+	PUSH	HL
+	POP	IY
+	LD	HL,MENNUL	;Mensagem em branco
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	CALL	THARD		;Menu de programa
+	RET			;Se flag zero parametros inicializado
+;
+;Carrega os parametros essenciais
+INICRAM	XOR	A
+	LD	(NPROG),A
+	LD	A,'0'
+	LD	(CopyPrg),A
+	LD	(CopyPrg+1),A
+	LD	(CopyPrg+2),A
+	LD	(CopyPrg+3),A
+	LD	A,nNivel-2	;Nivel de operacao =2 supervisao=0 
+	LD	HL,tSenha
+	LD	DE,MENSEN
+	CALL	LdOpcao
+	LD	IX,MENPRIN+3	;Indexador da mensagem do programa em execucao
+	CALL	CalcRam
+	JR	NC,INICRA0
+	LD	A,80H+61	;Erro no menu principal
+	CALL	BUFERR		;Buferiza o erro
+	AND	A
+INICRA0	LD	IX,MCONFX+3	;Configuracao do eixo X
+	CALL	CalcRam
+	JR	NC,INICRA1
+	LD	A,80H+63	;Erro no menu de configuracao do eixo X
+	CALL	BUFERR		;Buferiza o erro
+	AND	A
+INICRA1	LD	IX,MCONFY+3	;Configuracao do eixo Y
+	CALL	CalcRam
+	JR	NC,INICRA2
+	LD	A,80H+64	;Erro no menu de configuracao do eixo Y
+	CALL	BUFERR		;Buferiza o erro
+	AND	A
+INICRA2	LD	A,(NSENHA)
+	INC	A
+	LD	(NSENHA),A
+	JP	ConfSer
+;
+;Calcula os parametros da ram de systema do menu apontado por IX
+CalcRam	LD	A,(IX-3)
+	AND	A
+	PUSH	AF
+CalcRa0	CALL	LDPARM		;Carrega parametro no buffer de edicao
+	CALL	PROCESA		;Processa o parametro
+	JR	C,CalcRa2
+	POP	AF
+CalcRa1	DEC	A
+	RET	Z
+	PUSH	AF
+	PUSH	DE
+	LD	DE,52
+	ADD	IX,DE
+	POP	DE
+	JR	CalcRa0
+CalcRa2	POP	AF
+	SCF			;Indica que ouve erro
+	JR	CalcRa1
+;
+MenTst1	DEFB	' Cheguei ate aqui na mensagem teste 1   ',0Dh
+MenTst2	DEFB	' Cheguei ate aqui na mensagem teste 2   ',0Dh
+MenTst3	DEFB	' Cheguei ate aqui na mensagem teste 3   ',0Dh
+MenTst4	DEFB	' Cheguei ate aqui na mensagem teste 4   ',0Dh
+MenTst5	DEFB	' Cheguei ate aqui na mensagem teste 5   ',0Dh
+MenTst6	DEFB	' Cheguei ate aqui na mensagem teste 6   ',0Dh
+MenTst7	DEFB	' Cheguei ate aqui na mensagem teste 7   ',0Dh
+MenTst8	DEFB	' Cheguei ate aqui na mensagem teste 8   ',0Dh
+MenTst9	DEFB	' Cheguei ate aqui na mensagem teste 8   ',0Dh
+	LD	HL,MenTst8	;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	CALL	DispTst		;@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+DispTst	PUSH	AF
+	PUSH	BC
+	PUSH	DE
+	CALL	DISPL
+	LD	HL,0
+DispTs0	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	NOP
+	INC	L
+	JR	NZ,DispTs0
+	INC	H
+	JR	NZ,DispTs0
+	POP	DE
+	POP	BC
+	POP	AF
+	RET
+;
+;Carrega a op�ao A da mensagem de opcao apontada por DE na posicao HL
+LdOpcao	LD	B,A
+	AND	A
+	JR	Z,LdOpca2	;Se opcao zero
+LdOpca0	LD	A,(DE)
+LdOpca1	INC	DE
+	CP	']'
+	JR	NZ,LdOpca0
+	LD	A,(DE)
+	CP	0Dh
+	JR	Z,LdOpca3	;Fim das opc�es
+	DJNZ	LdOpca1	;Opc�o encontrada
+LdOpca2	LD	A,(DE)
+	CALL	SalByte
+	LD	A,(DE)
+	INC	HL
+	INC	DE
+	CP	']'
+	JR	NZ,LdOpca2
+	RET
+LdOpca3	SCF
+	RET
+;	
+;Conversao das medidas
+INICMED	PUSH	IX
+	CALL	CalcRam
+	POP	IX
+	RET	C		;Se erro
+	LD	A,(IX-3)
+INICME0	PUSH	AF
+	LD	DE,INICME1	;Endereco de retorno da rotina de conversao
+	PUSH	DE
+	LD	L,(IX+44)	;Endereco de chamada da rotina de Conversao
+	LD	H,(IX+45)
+	PUSH	HL
+	LD	L,(IX+48)	;Parametro a ser convertido
+	LD	H,(IX+49)
+	LD	E,(HL)
+	INC	HL
+	LD	D,(HL)
+	EX	DE,HL
+	RET
+INICME1	JR	C,INICME2	;Erro de parametro do programa (XPRG) ou (YPRG)
+	POP	AF
+	EX	DE,HL
+	LD	L,(IX+48)	;Parametro a ser convertido
+	LD	H,(IX+49)
+	LD	(HL),E
+	INC	HL
+	LD	(HL),D
+	DEC	A
+	RET	Z
+	LD	DE,52
+	ADD	IX,DE
+	JR	INICME0
+INICME2	POP	AF
+	SCF
+	RET
+;
+;conversao de milimetro para pulso do motor
+CONVMM	CALL	CONVMM0
+	RET	C
+	PUSH	DE
+	LD	DE,REFZER	;Deslocamento do zero
+	ADD	HL,DE
+	POP	DE
+	RET
+;
+CONVMMN	CALL	CONVMM0
+	RET	C
+	PUSH	DE
+	LD	DE,0		;Valor negativo
+	EX	DE,HL
+	AND	A
+	SBC	HL,DE
+	POP	DE
+	AND	A
+	RET
+;
+CONVMM0	PUSH	DE
+	LD	DE,(FatPuls)	;Fator de uso para transformacao de mm p/pulso
+	CALL	MULTHL		;HLDE=HL*DE
+	LD	A,(Espoent)
+	AND	A
+	JR	Z,CONVMM3	;Se Espoente=0 Nao multiplica
+	JP	M,CONVMM5	;Para espoente < 0 Valor negativo
+CONVMM1	RLC	D		;HLDE=2*HLDE
+	ADC	HL,HL
+	JR	C,CONVMM2	;Se erro
+	DEC	A
+	JR	NZ,CONVMM1
+CONVMM3	RLC	D
+CONVMM4	JR	NC,CONVMM2	;Se nao arredondamento
+	CCF
+	INC	L
+	JR	NZ,CONVMM2
+	INC	H
+	JR	NZ,CONVMM2
+	DEC	HL
+CONVMM2	POP	DE
+	RET
+CONVMM5	SRL	H		;HL/2
+	RR	L
+	RR	D
+	INC	A
+	JR	NZ,CONVMM5
+	JR	CONVMM4		;Verifica se arredondamento
+;
+;conversao de segundo para pulso de interrupcao
+CONVSEG	PUSH	HL		;Salva o valor
+	LD	DE,FATTMP	;Fator de conversao de tempo espoente (3)
+	CALL	MULTHL		;HLDE=HL*DE
+	RLC	D		;Prepara para aredondar automatico
+	POP	DE		;Restaura o valor
+	ADC	HL,DE
+	RET
+;
+;------------------------------------------------------------------------------
+;PONTOS DE CHAMADA
+;	SELPARM		;Entra novo parametro ou opcao
+;------------------------------------------------------------------------------
+;BYTES DA MENSAGEM DE PARAMETROS INDEXADO POR IX
+;00-39 = Mensagem
+;40    = 0Dh
+;41    = Vago
+;42,43 = Rotina principal de chamada (normalmente teclado)	SELPARM
+;44,45 = Rotina de conversao	CONVMM,CONVMM0,CONVSEG
+;46,47 = Endereco inicial do parametro na ram de usuario;
+;      = Ou endereco do submenu
+;48,49 = Endereco do parametro na ram de systema
+;50,51 = Ponteiro da mensagem de opcao
+;------------------------------------------------------------------------------
+;Convencao dos simbolos utilizado na mascara
+;# = SO NUMERO				@ = NUMERO OU PONTO DECIMAL	;
+;$ = HEXADECIMAL SEM PONTO		* = OPCAO			;
+;& = SUBSTITUICAO			. = PONTO DECIMAL		;
+;------------------------------------------------------------------------
+TSTMACR	DEFW	0
+	DEFB	'XYZ'
+;************************************************************************
+;		Entra com novo valor do parametro ou opcao		*
+;************************************************************************
+SELPARM	CALL	LDPARM		;Carrega parametro no buffer de edicao
+	CALL	PROCES0		;Processa parametro e guarda no buffer temporario
+	CALL	SELPAR0
+	RET	C		;Se saida com scap ou mensagem sem parametros
+	LD	(FLGPRG),A	;Flag de entrada de parametros de programa 0Dh OU Esc
+	CALL	SAVPAR
+	CALL	PROCESA		;Processa o parametro
+	AND	A
+	RET			;Se zero mesmo valor do parametro
+;
+SELPARP	CALL	LDPARM		;Carrega parametro no buffer de edicao
+	CALL	PROCES0		;Processa parametro e guarda no buffer temporario
+	CALL	SELPAR0
+	RET	C		;Se saida com scap ou mensagem sem parametros
+	LD	(FLGPRG),A	;Flag de entrada de parametros de programa 0Dh OU Esc
+	CALL	SAVPAR
+	CALL	PROCES0		;Processa o parametro
+	AND	A
+	RET			;Se zero mesmo valor do parametro
+;
+SELPAR0	LD	A,PISCUR	;Cursor ligado e Letra fixa
+	CALL	COMDIS
+	LD	HL,(ENDCUR)	;H=linha L=coluna
+	CALL	INIPARM		;Inicializa os ponteiros do cursor
+	RET	C		;Se mensagem sem parametro
+	PUSH	HL
+	LD	HL,BfParTp	;Endereco do parametro na ram de systema
+	LD	(PONTBFY),HL	;Ponteiro do valor decimal
+	POP	HL
+SELPAR1	CALL	TECLAW
+	CP	0Dh
+	RET	Z		;Se enter, volta
+	CP	'e'
+	SCF
+	RET	Z		;Se scap sai
+	CALL	SELPAR6		;o campo � de op�ao ?
+	JR	Z,SELPAR7	;Sim
+	CP	'<'		;Retrocede o cursor ?
+	JR	Z,SELPAR2	;Sim
+	CP	'>'		;Avanca o cursor ?
+	JR	Z,SELPAR3	;Sim
+	CALL	VRFHEX		;Valor Decimal ou hexa (se combinar com o campo) ?
+	JR	C,SELPAR1	;Nao, tecla invalida
+	LD	(DE),A
+	JR	SELPAR4
+SELPAR2	CALL	RETCOLU
+	JR	SELPAR1
+SELPAR3	LD	A,(DE)
+SELPAR4	PUSH	BC
+	PUSH	HL
+	CALL	DISPA		;Displaia o acumulador
+	CALL	AVSCOLU		;Avanca o cursor uma coluna
+	JR	C,SELPAR5	;Se fim da linha
+	POP	AF		;Restaura a pilha
+	POP	AF
+	JR	SELPAR1
+SELPAR5	LD	A,CURESQ	;cursor para esquerda
+	CALL	COMDIS
+	POP	HL
+	POP	BC
+	JR	SELPAR1
+;
+SELPAR6	PUSH	DE
+	LD	E,A
+	LD	A,(BC)
+	CP	'*'
+	LD	A,E
+	POP	DE
+	RET
+;
+;Se opcao
+SELPAR7	CP	'<'		;Retrocede o cursor ?
+	JR	NZ,SELPAR8	;Nao
+	CALL	RETOPCA		;Sim
+	JR	SELPAR1
+
+SELPAR8	CP	'>'		;Avanca o cursor ?
+	JR	NZ,SELPAR1	;Nao
+	CALL	AVSOPCA		;Sim
+	JR	SELPAR1
+;
+;Verifica se o valor em asc e decimal
+VRFHEX	CP	'0'
+	RET	C
+	CP	'9'+1
+	CCF
+	RET	NC
+	CP	'F'+1
+	CCF
+	RET	C
+	CP	'A'
+	PUSH	AF
+	LD	A,(BC)
+	CP	'$'
+	JR	NZ,VRFHEX1
+	POP	AF
+	RET
+VRFHEX1	POP	AF
+	SCF
+	RET
+;
+;Retrocede o cursor uma coluna
+RETCOLU	PUSH	HL		;Salva a posicao anterior do cursor
+	PUSH	DE		;Salva ponteiro do buffer na pilha
+	PUSH	BC		;Salva o ponteiro da mensagem
+	DEC	DE		;Decrementa o ponteiro buffer
+	CALL	DECCOL
+	JR	C,RETCOL4	;Nunca pode ocorrer
+	CALL	RETCOL5		;Variavel ?
+	JR	C,RETCOL4	;Inicio da mascara
+	JR	Z,RETCOL3	;Sim, fim
+RETCOL0	CALL	DECCOL		;Coluna anterior OK
+	JR	C,RETCOL4	;Nao
+	CALL	RETCOL5		;Variavel ?
+	JR	C,RETCOL4	;Inicio da mascara
+	JR	NZ,RETCOL0	;Sim
+RETCOL1	CP	'*'
+	JR	NZ,RETCOL2
+	DEC	DE
+	CALL	DECCOL
+	JR	C,RETCOL4	;Nunca pode ocorrer
+	CALL	RETCOL5		;Variavel ?
+	JR	C,RETCOL2	;Inicio da mascara
+	JR	Z,RETCOL1	;Sim
+	INC	DE
+	INC	BC
+	CALL	INCCOL
+RETCOL2	PUSH	HL
+	LD	HL,(PONTBFY)	;Ponteiro do valor decimal
+	DEC	HL
+	DEC	HL
+	LD	(PONTBFY),HL	;Ponteiro do valor decimal
+	POP	HL
+RETCOL3	CALL	LINCOL		;H=linha L=coluna
+	POP	AF		;Descarta o ponteiro da mensagem
+	POP	AF		;Descarta o ponteiro do buffer na pilha
+	POP	AF		;Descarta a posicao anterior do cursor
+	AND	A
+	RET
+RETCOL4	POP	BC		;Restaura o ponteiro da mensagem
+	POP	DE		;Restaura o ponteiro do buffer na pilha
+	POP	HL		;Restaura a posicao anterior do cursor
+	RET
+;
+RETCOL5	PUSH	HL
+	PUSH	IX
+	POP	HL
+	AND	A
+	SBC	HL,BC
+	POP	HL
+	JR	NC,RETCOL6
+	DEC	BC		;Ponteiro da mensagem
+	LD	A,(BC)
+	CP	'#'		;Numero decimal ?
+	RET	Z		;Sim
+	CP	'@'		;Numero decimal ou ponto ?
+	RET	Z		;Sim
+	CP	'$'		;Numero hexadecimal ?
+	RET	Z		;Sim
+	CP	'*'		;Menu opcao ?
+	RET	Z		;Sim
+	RET	NC
+RETCOL6	CCF
+	RET
+;
+DECCOL	INC	L		;Testa coluna ?
+	DEC	L
+	JR	NZ,DECCOL0
+	INC	H		;Testa a linha
+	DEC	H
+	JR	Z,DECCOL1	;Nunca pode ocorrer
+	DEC	H		;Decrementa o numero da linha
+	LD	L,NCOLUN	;Numero de coluna do display
+DECCOL0	DEC	L		;Decrementa o numero da coluna
+	AND	A
+	RET
+DECCOL1	SCF
+	RET
+;
+;------------------------------------------------------------------------
+; - Carrega os parametros da mensagem da ram de usuario para o buffer	-
+;   de edi��o (ram volatil)						-
+; - Valores de entrada:							-
+;   IX= Endereco inicial da mensagem do parametro			-
+; - Uso dos registros							-
+;   HL= Endereco do parametro da messagem na ram de usuario		-
+;   DE= Buffer de edicao dos parametros de mensagem (ram de sistema)	-
+;   BC= Endereco da mensagem do parametro				-
+;------------------------------------------------------------------------
+LDPARM	LD	L,(IX+46)	;Endereco do parametro na ram de usuario
+	LD	H,(IX+47)
+	LD	A,(NPROG)	;Numero do programa em H
+	ADD	A,H		;Deslocamento ou numero do programa
+	LD	H,A
+	LD	DE,BufEdit	;Buffer de edicao
+	PUSH	IX
+	POP	BC
+	DEC	BC
+LDPARM1	CALL	INCMASC		;Variavel ?
+	JR	NZ,LDPARM1	;Nao
+LDPARM2	JR	C,LDPARM4	;Se enter
+	LD	A,(HL)
+	LD	(DE),A
+	INC	HL
+	INC	DE
+LDPARM3	CALL	INCMASC		;Variavel ?
+	JR	Z,LDPARM2	;Sim
+	CP	'.'		;Ponto decimal ?
+	JR	Z,LDPARM3	;Sim
+	JR	LDPARM1
+LDPARM4	CCF
+	RET
+;
+;------------------------------------------------------------------------
+; - Salva os parametros da mensagem do buffer de edi��o para a ram de	-
+;   usuario (ram com bateria)						-
+; - Valores de entrada:							-
+;   IX= Endereco inicial da mensagem dos parametros			-
+; - Uso dos registros							-
+;   HL= Endereco do parametro da messagem na ram de usuario		-
+;   DE= Buffer de edicao dos parametros de mensagem (ram de sistema)	-
+;   BC= Endereco da mensagem do parametro				-
+;------------------------------------------------------------------------
+SAVPAR	LD	L,(IX+46)	;Endereco do parametro
+	LD	H,(IX+47)
+	LD	A,(NPROG)
+	ADD	A,H
+	LD	H,A
+	LD	DE,BufEdit	;Buffer de edicao
+	PUSH	IX
+	POP	BC
+	DEC	BC
+SAVPA0	CALL	INCMASC		;Variavel ?
+	JR	NZ,SAVPA0	;Nao
+SAVPA1	JR	C,SAVPA4	;Se enter
+	LD	A,(DE)
+	PUSH	BC
+	CALL	SALBYTE		;Sava um byte na ram de usuario
+	POP	BC
+	INC	HL
+	INC	DE
+SAVPA2	CALL	INCMASC		;Variavel ?
+	JR	Z,SAVPA1	;Sim
+	CP	'.'		;Ponto decimal ?
+	JR	Z,SAVPA2	;Sim
+	JR	SAVPA0
+SAVPA4	CCF
+	RET
+;
+;Inicializa os ponteiros para o inicio da primeira variavel
+INIPARM	PUSH	IX
+	POP	BC
+	DEC	BC
+	LD	L,0		;Linha atual coluna 0
+	JR	INIPAR1
+INIPAR0	CALL	INCCOL
+INIPAR1	CALL	INCMASC		;Variavel ?
+	JR	NZ,INIPAR0	;Nao
+	LD	DE,BufEdit	;Buffer de edicao
+	RET	C		;Se fim da mascara
+	CALL	LINCOL		;H=linha L=coluna
+	AND	A
+	RET
+;
+;Avanca o cursor uma coluna
+AVSCOLU	CALL	INCMASC		;Variavel ?
+	JR	NZ,AVSCOL0	;Nao, Verifica a proxima
+	RET	C		;Se enter
+	INC	DE		;Sim, Ponteiro do buffer da varialvel
+	CALL	INCCOL		;Proxima coluna
+	AND	A
+	RET
+AVSCOL0	CALL	INCCOL		;Proxima coluna
+	CALL	INCMASC		;Variavel ?
+	JR	NZ,AVSCOL0	;Nao
+	RET	C		;Se enter
+	INC	DE		;Sim, Ponteiro do buffer da varialvel
+	CALL	INCCOL		;Proxima coluna
+	CALL	LINCOL		;H=linha L=coluna
+	PUSH	HL
+	LD	HL,(PONTBFY)	;Ponteiro do valor decimal
+	INC	HL
+	INC	HL
+	LD	(PONTBFY),HL	;Ponteiro do valor decimal
+	POP	HL
+	AND	A		;Limpa o carry
+	RET
+;
+INCCOL	INC	L
+	LD	A,L
+	SUB	NCOLUN		;Numero de coluna do display
+	RET	C
+	LD	L,A
+	INC	H
+	LD	A,H
+	SUB	NLINHA		;Numero de linha do display
+	RET	C
+	LD	H,A
+	RET
+;
+DISPMEN	LD	DE,(ENDMACR)
+	INC	DE		;Salta endereco de deslocamento da macro
+	INC	DE
+	PUSH	DE
+	LD	DE,BufEdit	;Buffer de edicao
+	PUSH	IX
+	POP	BC		;Endereco da mensagem
+	DEC	BC
+	LD	L,0		;Linha atual coluna 0
+DISPME0	CALL	INCMASC		;Variavel ?
+	JR	Z,DISPME1	;Sim
+	CP	'&'		;Nao, Macro ?
+	JR	NZ,DISPME2	;Nao, mostra byte
+	EX	(SP),HL		;Ponteiro da macro
+	LD	A,(HL)
+	INC	HL
+	EX	(SP),HL		;Ponteiro da macro
+	JR	DISPME2
+DISPME1	JR	C,DISPME3	;Se fim da mascara
+	LD	A,(DE)
+	INC	DE
+DISPME2	CALL	DISPA
+	CALL	INCCOL		;Proxima coluna
+;	CALL	LINCOL		;H=linha L=coluna
+	JR	DISPME0
+DISPME3	POP	AF
+	RET
+;
+;------------------------------------------------------------------------
+; - Calcula os valores dos parametros de mensagem e salva no endereco	-
+;   da ram de sistema. 'Procesa' salva no endereco dado no parametros	-
+;   de menssagem (IX+48):(Ix+49) e 'Proces0' salva no endereco		-
+;   temporario BfParTp.							-
+; - O valor calculado sera um valor real (tipo word) apartir do valor	-
+;   ascii, mas se o campo for de op�ao o valor sera o numero da op�ao	-
+; - Valores de entrada:							-
+;   IX= Endereco inicial da mensagem dos parametros			-
+; - Uso dos registros							-
+;   HL= Endereco dos valores dos parametro da messagem (ram de sistema)	-
+;   DE= Buffer de edicao dos parametros de mensagem (ram de sistema)	-
+;   BC= Endereco da mensagem do parametro				-
+;------------------------------------------------------------------------
+PROCESA	LD	L,(IX+48)	;Endereco do parametro na ram de systema
+	LD	H,(IX+49)
+	JR	PROCES1
+PROCES0	LD	HL,BfParTp	;Endereco do parametro na ram de systema
+PROCES1	LD	DE,BufEdit	;Buffer de edicao
+	PUSH	IX
+	POP	BC
+	DEC	BC
+PROCES2	PUSH	HL		;Salva ponteiro do buffer de valores
+	LD	HL,0		;Valor =0
+	CALL	PROCES3		;HL = Valor do parametro
+	EX	DE,HL		;Valor em DE, ponteiro do buffer de edicao em HL
+	EX	(SP),HL		;Ponteiro do buffer de valores em HL
+	JR	C,PROCES4	;Se parametro errado
+	LD	(HL),E
+	INC	HL
+	LD	(HL),D
+	INC	HL
+	POP	DE		;Restaura o ponteiro do buffer de edicao
+	LD	A,(BC)
+	CP	0Dh
+	JR	NZ,PROCES2	;Nao fim dos parametros
+	RET			;Sim
+;
+PROCES3	INC	BC
+	LD	A,(BC)
+	CP	'*'		;Menu opcao ?
+	Jr	Z,PROCES5	;Sim
+	CP	'#'		;Numero decimal ?
+	JR	Z,PRODECI	;Sim
+	CP	'@'		;Numero decimal ou ponto ?
+	JR	Z,PRODECI	;Sim
+	CP	'$'		;Numero hexadecimal ?
+	JR	Z,PROHEXA	;Sim
+	CP	0Dh
+	JR	NZ,PROCES3	;Nao
+	POP	HL		;Descarta um nivel de retorno do CALL
+PROCES4	POP	DE		;Descarta ponteiro do buffer de ponteiros
+	RET
+PROCES5	CALL	PROPCAO		;Retorna em HL o endereco da op�ao na mensagem de opcao
+	JR	NC,PROCES6
+	LD	A,(ByteErr)	;Posicao do byte onde ocorreu o erro de opcao
+	LD	L,(IX+46)	;Endereco do parametro na ram de usuario
+	LD	H,(IX+47)
+	ADD	A,L
+	LD	L,A
+	LD	A,(NPROG)
+	ADD	A,H
+	LD	H,A
+	PUSH	BC
+	LD	A,CharErr	;Indica Onde ocorreu o erro
+	CALL	SalByte
+	POP	BC
+PROCES6	LD	HL,(NumOpc)	;Numero da opcao
+	LD	H,0
+	RET
+;
+;------------------------------------------------------------------------------
+PRODECI	LD	A,(DE)
+	CALL	DECIMAN
+	JR	C,PRODEC3
+	PUSH	DE
+	ADD	HL,HL	;*2
+	JR	C,PRODEC4
+	LD	D,H
+	LD	E,L
+	ADD	HL,HL	;*4
+	JR	C,PRODEC4
+	ADD	HL,HL	;*8
+	JR	C,PRODEC4
+	ADD	HL,DE	;*(8+2)
+	JR	C,PRODEC4
+	POP	DE
+	ADD	A,L
+	LD	L,A
+	LD	A,0
+	ADC	A,H
+	LD	H,A
+	JR	C,PROHEX2
+PRODEC0	INC	DE
+PRODEC1	CALL	INCMASC		;Variavel ?
+	JR	NZ,PRODEC2	;Nao
+	JR	NC,PRODECI	;Sim
+	AND	A
+	RET
+PRODEC2	CP	'.'		;Se ponto
+	JR	Z,PRODEC1	;Sim
+	AND	A
+	RET
+PRODEC3	CP	'.'
+	JR	NZ,PROHEX1	;Variavel invalida
+	LD	A,(BC)
+	CP	'@'
+	JR	NZ,PROHEX1	;Variavel invalida
+	JR	PRODEC0
+
+PRODEC4	POP	DE
+	JR	PROHEX2
+;
+;Transforma de ASC p/ BCD
+DECIMAN	CP	'0'
+	RET	C		;[A] < '0'
+	CP	'9'+1
+	CCF
+	RET	C		;[A] > '9'
+	SUB	'0'
+	RET
+;
+;------------------------------------------------------------------------------
+PROHEXA	LD	A,(DE)
+	CALL	HEXADEC
+	JR	C,PROHEX1
+	ADD	HL,HL	;*2
+	JR	C,PROHEX2
+	ADD	HL,HL	;*4
+	JR	C,PROHEX2
+	ADD	HL,HL	;*8
+	JR	C,PROHEX2
+	ADD	HL,HL	;*16
+	JR	C,PROHEX2
+	ADD	A,L
+	LD	L,A
+	LD	A,0
+	ADC	A,H
+	JR	C,PROHEX2
+	LD	H,A
+	INC	DE
+	CALL	INCMASC		;Variavel ?
+	JR	NZ,PROHEX0	;Nao
+	JR	NC,PROHEXA	;Sim
+	AND	A
+	RET
+PROHEX0	CP	'.'		;Se ponto
+	JR	Z,PROHEXA	;Sim
+	AND	A
+	RET
+	;Calcula o endere�o com erro e coloca um asteristico para identificar
+ProHex1	PUSH	HL
+	LD	A,E
+	SUB	.LOW.BufEdit	;Buffer de edicao
+	LD	L,(IX+46)	;Endereco do parametro na ram de usuario
+	LD	H,(IX+47)
+	ADD	A,L
+	LD	L,A
+	LD	A,(NPROG)
+	ADD	A,H
+	LD	H,A
+	PUSH	BC
+	LD	A,CharErr	;Indica Onde ocorreu o erro
+	CALL	SalByte
+	POP	BC
+	POP	HL
+	;Sai de cima do campo da variavel
+PROHEX2	INC	DE
+	CALL	INCMASC		;Variavel ?
+	JR	NZ,PROHEX3	;Nao
+	JR	NC,PROHEX2	;Sim
+PROHEX3	SCF
+	RET			;Variavel invalida
+;
+;Transforma de ASC p/ HEXADECIMA
+HEXADEC	CP	'0'
+	RET	C		;[A] < '0'
+	CP	'9'+1
+	JR	NC,HEXDEC0	;[A] > '9'
+	SUB	'0'
+	RET
+HEXDEC0	CP	'A'
+	RET	C		;'9'< [A] < 'A'
+	CP	'F'+1
+	CCF
+	RET	C		;[A] > 'F'
+	SUB	'0'+7
+	RET
+;
+;------------------------------------------------------------------------
+; - Calcula os valores das opcoes da mensagem				-
+; - O valor calculado sera o numero da op�ao				-
+; - Valores de entrada:							-
+;   IX= Endereco inicial da mensagem dos parametros			-
+; - Uso dos registros							-
+;   HL= Buffer de edicao dos parametros de mensagem (ram de sistema)	-
+;   DE= Endereco da mensagem de opcao fornecido pela mensagem		-
+;   BC= Endereco da mensagem do parametro				-
+;------------------------------------------------------------------------
+PROPCAO	EX	DE,HL		;Salva ponteiro do buffer de edicao de DE em HL
+	LD	E,(IX+50)	;Ponteiro da mensagem de opcao
+	LD	D,(IX+51)
+	XOR	A
+	LD	(ByteErr),A	;Inicializa byte onde ocorreu o erro de opcao
+	LD	(NumOpc),A	;Inicializa o numero da opcao
+	LD	A,(DE)
+;	CP	0Dh
+;	JR	NZ,PROPCA0	;Menu de opcao OK
+;	PUSH	HL		;Salva ponteiro do buffer de edicao
+;	PUSH	BC		;Salva o ponteiro da mensagem
+;	JR	PROPCA7		;Mensagem de op��o nula
+;
+PROPCA0	PUSH	HL		;Salva ponteiro do buffer de edicao
+	PUSH	BC		;Salva o ponteiro da mensagem
+	PUSH	DE		;Salva Ponteiro das opcoes
+PROPCA1	CP	(HL)
+	JR	NZ,PROPCA5	;Nao � a opcao programada
+	INC	HL
+	INC	DE
+	CALL	INCMASC		;Variavel ?
+	JR	NZ,PROPCA3	;Nao
+	JR	C,PROPCA3	;Nao, fim da mensagem
+	LD	A,(DE)		;Sim
+;	CP	']'		;Fim da opcao
+;	JR	Z,PROPCA1	;Sim ?
+	CP	0Dh		;Fim do menu de opcao
+	JR	NZ,PROPCA1	;Nao ?
+PROPCA2	INC	HL
+	CALL	INCMASC		;Variavel ?
+	JR	NZ,PROPCA3	;Nao
+	JR	NC,PROPCA2	;Sim
+PROPCA3	LD	(PontTmp),DE	;Salva ponteiro da proxima opcao
+	POP	DE		;Restaura o ponteiro das opcoes
+	AND	A
+PROPCA4	INC	SP	;Descarta o ponteiro anterior da mensagem
+	INC	SP
+	INC	SP	;Descarta o ponteiro anterior do buffer de edicao
+	INC	SP
+	EX	DE,HL
+	RET
+	;Localiza a proxima opcao tendo base o tamanho do campo na mensagem de parametros
+PROPCA5	INC	SP		;Descarta o ponteiro das opcoes da pilha
+	INC	SP
+	LD	A,L
+	SUB	.LOW.BufEdit	;Buffer de edicao
+	PUSH	HL
+	LD	L,A
+	LD	A,(ByteErr)	;Posicao do byte onde ocorreu o erro de opcao
+	CP	L
+	JR	NC,Pulatt0
+	LD	A,L		;Pega a posicao maior
+	LD	(ByteErr),A	;Posicao do byte onde ocorreu o erro de opcao
+Pulatt0	POP	HL
+	LD	A,(NumOpc)	;Numero da opcao
+	INC	A
+	LD	(NumOpc),A	;Numero da opcao
+PROPCA6	INC	DE
+PROPCA7	INC	HL
+	CALL	INCMASC		;Variavel ?
+	JR	NZ,PROPCA8	;Nao
+	JR	C,PROPCA8	;Nao, fim do menu de opcao
+	LD	A,(DE)		;Sim
+	CP	0Dh		;Fim do menu de opcao
+	JR	NZ,PROPCA6	;Nao ?
+	JR	PROPCA7
+PROPCA8	LD	A,(DE)
+	CP	0Dh		;Fim do menu de opcao ?
+	CCF
+	JR	Z,PROPCA4	;Sim, Opcao invalida
+	POP	BC		;Restaura o ponteiro da mensagem
+	POP	HL		;Restaura o ponteiro do buffer de edicao
+	JR	PROPCA0		;Verifica a proxima opcao
+;
+;Verifica a Opcao anterior
+RETOPCA	PUSH	HL		;Salva a posicao anterior do cursor
+	PUSH	DE		;Salva ponteiro do buffer de edicao
+	PUSH	BC		;Salva o ponteiro da mensagem
+	CALL	PROPCAO		;Testa a opcao atual
+	JR	C,AVSOPC0	;Opcao atual invalida
+	POP	DE		;Restaura o ponteiro da mensagem
+	PUSH	DE
+	LD	A,C		;BC=BC-DE = Deslocamento do cursor em numero de byte
+	SUB	E
+	LD	C,A
+	LD	A,B
+	SBC	A,D
+	LD	B,A
+	JR	C,AVSOPC5	;Opcao anterior invalida
+	JR	NZ,AVSOPC5	;Opcao anterior invalida
+	SBC	HL,BC
+	JR	C,AVSOPC5	;Opcao anterior invalida
+	EX	DE,HL
+	LD	L,(IX+50)	;Ponteiro da mensagem de opcao
+	LD	H,(IX+51)
+	SBC	HL,DE
+	JR	Z,RETOPC0
+	JR	NC,AVSOPC5
+RETOPC0	EX	DE,HL
+	JR	AVSOPC1
+;
+;Verifica a proxima Opcao
+AVSOPCA	PUSH	HL		;Salva a posicao anterior do cursor
+	PUSH	DE		;Salva ponteiro do buffer de edicao
+	PUSH	BC		;Salva o ponteiro da mensagem
+	CALL	PROPCAO		;Testa a opcao atual
+	JR	C,AVSOPC0	;Opcao atual invalida
+	LD	DE,(PontTmp)	;Restaura ponteiro da proxima opcao
+	LD	A,(DE)
+	CP	0Dh
+	JR	Z,AVSOPC5	;Proxima opcao invalida
+	EX	DE,HL
+	JR	AVSOPC1
+AVSOPC0	LD	L,(IX+50)	;Ponteiro da mensagem de opcao
+	LD	H,(IX+51)
+AVSOPC1	POP	BC		;Restaura o ponteiro da mensagem
+	POP	DE		;Restaura ponteiro do buffer
+	PUSH	DE		;Salva ponteiro do buffer
+	PUSH	BC		;Salva o ponteiro da mensagem
+AVSOPC2	LD	A,(HL)		;Sim
+	CP	0Dh		;Fim do menu de opcao
+	JR	NZ,AVSOPC3	;Nao ?
+	LD	A,' '
+	JR	AVSOPC4
+AVSOPC3	INC	HL
+AVSOPC4	LD	(DE),A
+	INC	DE
+	CALL	DISPA
+	CALL	INCMASC		;Variavel ?
+	JR	NZ,AVSOPC5	;Nao
+	JR	NC,AVSOPC2	;Sim
+AVSOPC5	POP	BC		;Restaura o ponteiro da mensagem
+	POP	DE		;Restaura ponteiro do buffer
+	POP	HL		;Restaura a posicao anterior do cursor
+	CALL	LINCOL		;H=linha L=coluna
+	RET
+;
+;Incrementa ponteiro da mascara e testa se variavel
+INCMASC	INC	BC
+	LD	A,(BC)
+	CP	'#'		;Numero decimal ?
+	RET	Z		;Sim
+	CP	'@'		;Numero decimal ou ponto ?
+	RET	Z		;Sim
+	CP	'$'		;Numero hexadecimal ?
+	RET	Z		;Sim
+	CP	'*'		;Menu opcao ?
+	RET	Z		;Sim
+	CP	0Dh
+	RET	NZ
+	CCF
+	RET
+;----------------------------------------------------------------
+;----------------------------------------------------------------
+;----------------------------------------------------------------
+;----------------------------------------------------------------
+GPARAM	CALL	VEREIXX
+	JR	NZ,GPARAMY	;Se eixo X desabilitado
+	LD	A,(FLGGEX)	;Verifica se inicializacao dos parametros OK 
+	AND	A
+	JR	NZ,GPARAM1	;Parametros X nao inicializado
+	CALL	STATUSX		;Comando Verifica o status
+	JR	NC,GPARAMY	;Se canal ok
+	CALL	STATUSX		;Comando Verifica o status
+	JR	NC,GPARAMY	;Se canal ok
+	LD	A,0FFh
+	LD	(FLGGEX),A	;Suja o flag de parametros inicialisado
+	AND	A
+	RET
+;
+GPARAM1	CALL	GPARAM0
+	JR	C,GPARAMY	;Parametros X nao inicializado
+	XOR	A
+	LD	(FLGGEX),A	;Verifica se inicializacao dos parametros OK 
+;
+GPARAMY	CALL	VEREIXY
+	RET	NZ		;Se eixo Y desabilitado
+	LD	A,(FLGGEY)	;Verifica se inicializacao dos parametros OK
+	AND	A
+	JR	NZ,GPARAM2	;Parametros Y nao inicializado
+	CALL	STATUSY		;Comando Verifica o status
+	RET	NC		;Se canal ok
+	CALL	STATUSY		;Comando Verifica o status
+	RET	NC		;Se canal ok
+	LD	A,0FFh
+	LD	(FLGGEY),A	;Suja o flag de parametros inicialisado
+	AND	A
+	RET
+GPARAM2	CALL	GPARAM3
+	RET	C
+	XOR	A
+	LD	(FLGGEY),A	;Verifica se inicializacao dos parametros OK 
+	RET		;Se flag zero parametros inicializado
+;
+;Envia a configurac�es do eixo X para a placa do motor
+GPARAM0	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+	LD	HL,DOWCFX
+	CALL	DISPL		;Mostra mensagem educada
+	LD	A,0C0h		;Posiciona na segunda linha
+	CALL	COMDIS
+	CALL	LIMPSER		;Limpa os buffer da serial
+	LD	A,(XCANAL)
+	LD	(NCANAL),A
+;
+	LD	HL,(NPULSX)	;Numero de pulso do giro
+	LD	DE,snPulso	;Endere�o da placa = numero de pulso por giro
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+	RET	C
+;
+	LD	HL,(JANELX)	;Janela de protecao por giro
+	LD	DE,sJanela	;Endere�o da placa = Janela de prote�ao
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+	RET	C
+;
+	LD	HL,(ACERFX)	;Aceleracao programada d referencia Pulso/(S^2)
+	LD	DE,sAceRef	;Endere�o da placa = Aceleracao programada da referencia
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+	RET	C
+;
+	LD	HL,(VELRFX)	;Velocidade programada da referencia Pulso/Seg
+	LD	DE,sVelRef	;Endere�o da placa = Velocidade programada da referencia
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+	RET	C
+;
+	LD	HL,(POSRFX)	;Posicao zero da referencia +20mm
+	LD	DE,REFZER
+	ADD	HL,DE
+	LD	DE,sValRef	;Endere�o da placa = Valor da posi�ao de referencia
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+;
+	LD	DE,sFlgPrg	;Endere�o da placa = Flags de configuracao do programa
+	LD	C,0		;Solicitando dados
+	CALL	sParamC
+	RET	C
+;
+	RES	7,L		;Start via teclado e externo para o eixo X
+	LD	A,(RFSTARX)
+	AND	A
+	JR	Z,VARIAL4	;Desligado
+	SET	7,L
+VARIAL4	RES	5,L		;Logica do start externo
+	LD	A,(LGSTARX)
+	AND	A
+	JR	Z,VARIXL5	;Aberto
+	SET	5,L
+VARIXL5	RES	4,H		;Zero Index habilitado p/ protecao
+	LD	A,(GIROPX)
+	AND	A
+	JR	Z,VARIXH4	;Desligado
+	SET	4,H
+VARIXH4	RES	5,H		;Zero Index habilitado p/ correcao
+	LD	A,(GIROCX)
+	AND	A
+	JR	Z,VARIXH5	;Desligado
+	SET	5,H
+VARIXH5	RES	6,H		;Reducao da corrente em repouso
+	LD	A,(REDCORX)
+	AND	A
+	JR	Z,VARIXH6	;Desligado
+	SET	6,H
+VARIXH6	LD	DE,sFlgPrg	;Endere�o da placa = Flags de configuracao do programa
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+	RET	C
+;Enviando os bits estendido
+	LD	DE,sFlgPrE	;Endere�o da placa = Configuracao estendida do programa
+	LD	C,0		;Solicitando dados
+	CALL	sParamC
+	RET	C
+	RES	4,L		;Desliga o turbo
+	LD	A,(TURBOX)
+	AND	A
+	JR	Z,VARIXE0	;Desligado
+	SET	4,L
+VARIXE0	LD	DE,sFlgPrE	;Endere�o da placa = Configuracao estendida do programa
+	LD	C,0C0h		;Enviando dados
+	JP	sParamC
+;
+;Envia a configurac�es do eixo Y para a placa do motor
+GPARAM3	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+	LD	HL,DOWCFY
+	CALL	DISPL		;Mostra mensagem educada
+	LD	A,0C0h		;Posiciona na segunda linha
+	CALL	COMDIS
+	CALL	LIMPSER		;Limpa os buffer da serial
+	LD	A,(YCANAL)
+	LD	(NCANAL),A
+;
+	LD	HL,(NPULSY)	;Numero de pulso do giro
+	LD	DE,snPulso	;Endere�o da placa = numero de pulso por giro
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+	RET	C
+;
+	LD	HL,(JANELY)	;Janela de protecao por giro
+	LD	DE,sJanela	;Endere�o da placa = Janela de prote�ao
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+	RET	C
+;
+	LD	HL,(ACERFY)	;Aceleracao programada d referencia Pulso/(S^2)
+	LD	DE,sAceRef	;Endere�o da placa = Aceleracao programada da referencia
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+	RET	C
+;
+	LD	HL,(VELRFY)	;Velocidade programada da referencia Pulso/Seg
+	LD	DE,sVelRef	;Endere�o da placa = Velocidade programada da referencia
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+	RET	C
+;
+	LD	HL,(POSRFY)	;Posicao zero da referencia +20mm
+	LD	DE,REFZER
+	ADD	HL,DE
+	LD	DE,sValRef	;Endere�o da placa = Valor da posi�ao de referencia
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+;
+	LD	DE,sFlgPrg	;Endere�o da placa = Flags de configuracao do programa
+	LD	C,0		;Solicitando dados
+	CALL	sParamC
+	RET	C
+;
+	RES	7,L		;Start via teclado e externo para o eixo Y
+	LD	A,(RFSTARY)
+	AND	A
+	JR	Z,VARIYL4	;Desligado
+	SET	7,L
+VARIYL4	RES	5,L		;Logica do start externo
+	LD	A,(LGSTARY)
+	AND	A
+	JR	Z,VARIYL5	;Aberto
+	SET	5,L
+VARIYL5	RES	4,H		;Zero Index habilitado p/ protecao
+	LD	A,(GIROPY)
+	AND	A
+	JR	Z,VARIYH4	;Desligado
+	SET	4,H
+VARIYH4	RES	5,H		;Zero Index habilitado p/ correcao
+	LD	A,(GIROCY)
+	AND	A
+	JR	Z,VARIYH5	;Desligado
+	SET	5,H
+VARIYH5	RES	6,H		;Reducao da corrente em repouso
+	LD	A,(REDCORY)
+	AND	A
+	JR	Z,VARIYH6	;Desligado
+	SET	6,H
+VARIYH6	LD	DE,sFlgPrg	;Endere�o da placa = Flags de configuracao do programa
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+	RET	C
+;Enviando os bits estendido
+	LD	DE,sFlgPrE	;Endere�o da placa = Configuracao estendida do programa
+	LD	C,0		;Solicitando dados
+	CALL	sParamC
+	RET	C
+	RES	4,L		;Desliga o turbo
+	LD	A,(TURBOY)
+	AND	A
+	JR	Z,VARIYE0	;Desligado
+	SET	4,L
+VARIYE0	LD	DE,sFlgPrE	;Endere�o da placa = Configuracao estendida do programa
+	LD	C,0C0h		;Enviando dados
+	JP	sParamC
+;
+;----------------------------------------------------------------
+;-  Mostra no display os registradores AF,BC,DE e HL na linha 0	-
+;----------------------------------------------------------------
+MOSREG	PUSH	AF
+	LD	A,(MDEBUG)
+	AND	A
+;	JP	Z,MOSREG9	;Se debug desligado
+;
+	LD	A,80h		;Linha 0
+	CALL	COMDIS
+	POP	AF
+;
+	EX	(SP),HL		;Contador de programa em HL
+	PUSH	HL
+	PUSH	AF
+	LD	A,'C'
+	CALL	DISPA
+	LD	A,'P'
+	CALL	MOSREG4
+	POP	AF
+	POP	HL
+	EX	(SP),HL		;Restaura o contador de programa
+;
+	PUSH	AF
+	PUSH	HL
+	PUSH	AF
+	LD	A,'A'
+	CALL	DISPA
+	LD	A,'F'
+	POP	HL
+	CALL	MOSREG4
+;
+	LD	H,B
+	LD	L,C
+	LD	A,'B'
+	CALL	DISPA
+	LD	A,'C'
+	CALL	MOSREG4
+;
+	LD	H,D
+	LD	L,E
+	LD	A,'D'
+	CALL	DISPA
+	LD	A,'E'
+	CALL	MOSREG4
+;
+	POP	HL
+	PUSH	HL
+	LD	A,'H'
+	CALL	DISPA
+	LD	A,'L'
+	CALL	MOSREG4
+;
+	PUSH	IX
+	POP	HL
+	LD	A,'I'
+	CALL	DISPA
+	LD	A,'X'
+	CALL	MOSREG4
+;
+	PUSH	IY
+	POP	HL
+	LD	A,'I'
+	CALL	DISPA
+	LD	A,'Y'
+	CALL	MOSREG4
+;
+	LD	HL,0
+	ADD	HL,SP
+	LD	A,'S'
+	CALL	DISPA
+	LD	A,'P'
+	CALL	MOSREG4
+;
+	LD	A,16
+MOSREG0	PUSH	AF
+	LD	A,' '
+	CALL	DISPA
+	POP	AF
+	DEC	A
+	JR	NZ,MOSREG0
+;
+;Aqui saida pelo teclado
+	CALL	TECLAW
+	JR	MOSREG3
+;Aqui saida por tempo
+;
+	LD	HL,1000		;Em HL retardo em mS a 4MHz (1000mS)
+MOSREG1	LD	A,248
+MOSREG2	DEC	A
+	JR	NZ,MOSREG2
+	DEC	HL
+	LD	A,H
+	OR	L
+	JR	NZ,MOSREG1	;Retardo de um segundo
+MOSREG3	POP	HL
+MOSREG9	POP	AF
+	RET
+;
+MOSREG4	CALL	DISPA
+	LD	A,'='
+	CALL	DISPA
+	LD	A,H
+	CALL	ACHEX
+	LD	A,L
+	CALL	ACHEX
+	LD	A,' '
+	JP	DISPA
+;
+;Condicao para desligar o debug
+DDEBUG	PUSH	AF
+	XOR	A
+	LD	(MDEBUG),A
+	POP	AF
+	RET
+;
+;Condicao para ligar o debug
+LDEBUG	PUSH	HL
+	PUSH	DE
+	PUSH	AF
+;
+	PUSH	IX
+	POP	DE
+	LD	A,'A'
+	LD	HL,MCICLO+52*0+3
+	AND	A
+	SBC	HL,DE
+	JR	Z,LDEBUG1
+	LD	HL,MCICLO+52*1+3
+	AND	A
+	SBC	HL,DE
+	JR	Z,LDEBUG1
+	LD	HL,MMENSAG+52*9+3
+	AND	A
+	SBC	HL,DE
+	JR	Z,LDEBUG1
+	XOR	A
+LDEBUG1	LD	(MDEBUG),A
+	POP	AF
+	POP	DE
+	POP	HL
+	RET
+;
+VEREIXX	LD	A,(EIXOX)
+	JR	VerEix0
+;
+VEREIXY	LD	A,(EIXOY)
+VerEix0	XOR	1	;Limpa o carry e Compara com 1=Halilitado 
+	AND	A	;Sempre deve retornar com o flag de carry desligado
+	RET	;O flag de zero indica eixo habitado
+;
+;----------------------------------------------------------------
+;- 		FINAL DO PROGRAMA EXECUTAVEL			-
+;----------------------------------------------------------------
+;
+VMICROY	LD	A,(YCANAL)
+	LD	(NCANAL),A
+	JR	VMICRO0
+VMICROX	LD	A,(XCANAL)
+	LD	(NCANAL),A
+VMICRO0	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+	LD	HL,(ENDCUR)	;H=linha L=coluna
+	PUSH	HL
+	LD	HL,0
+	LD	(ENDCUR),HL	;H=linha L=coluna
+	LD	A,(NUMEM)
+	CALL	MOSMEN		;Mostra mensagem sem parametros no display
+VMICRO1	CALL	SELPARM		;Edita numero de programa para execucao
+	JR	C,VMICRO3	;Saida com scape, restaura o endereco do cursor
+	LD	L,(IX+48)	;Endereco do parametro na ram de systema
+	LD	H,(IX+49)
+	LD	E,(HL)		;Endere�o low da placa
+	LD	D,0		;Endere�o high da placa
+VMICRO2	PUSH	DE
+	LD	HL,0		;Valor de execucao
+	LD	C,0		;Solicitando dados
+	PUSH	BC
+	CALL	sParamC
+	POP	BC
+	POP	DE
+	JR	C,VMICRO1	;Se erro no Comando
+	LD	A,0C0h		;Posiciona na segunda linha
+	CALL	COMDIS
+	LD	A,H
+	CALL	ACHEX
+	LD	A,L
+	CALL	ACHEX
+	LD	A,'h'
+	CALL	DISPA
+	LD	A,' '
+	CALL	DISPA
+	LD	A,' '
+	CALL	DISPA
+	LD	A,H
+	CALL	ACBIN		;Mostra o acumulador em binario
+	LD	A,' '
+	CALL	DISPA
+	LD	A,L
+	CALL	ACBIN		;Mostra o acumulador em binario
+	CALL	TECLAD
+	JR	NC,VMICRO2
+	CP	'e'
+	JR	NZ,VMICRO1
+VMICRO3	POP	HL		;Se scap sai
+	LD	(ENDCUR),HL	;H=linha L=coluna
+	RET
+;
+MMICROY	LD	A,(YCANAL)
+	LD	(NCANAL),A
+	JR	MMICRO0
+MMICROX	LD	A,(XCANAL)
+	LD	(NCANAL),A
+MMICRO0	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+	LD	HL,(ENDCUR)	;H=linha L=coluna
+	PUSH	HL
+	LD	HL,0
+	LD	(ENDCUR),HL	;H=linha L=coluna
+	LD	A,(NUMEM)
+	CALL	MOSMEN		;Mostra mensagem sem parametros no display
+MMICRO1	CALL	SELPARM		;Edita numero de programa para execucao
+	JR	C,VMICRO3	;Saida com scape, restaura o endereco do cursor
+	LD	L,(IX+48)	;Endereco do parametro na ram de systema
+	LD	H,(IX+49)
+	LD	E,(HL)		;Endere�o low da placa
+	INC	HL
+	LD	D,(HL)		;Endere�o high da placa
+	CALL	MMICRO6		;Se menu "modifica memoria CPU"
+	JR	Z,MMICRO4	;Sim
+	LD	D,0		;Endere�o high da placa
+	PUSH	DE
+	LD	HL,0		;Valor de execucao
+	LD	C,0		;Solicitando dados
+	PUSH	BC
+	CALL	sParamC
+	POP	BC
+	POP	DE
+	JR	C,MMICRO1	;Se erro no Comando
+	;
+MMICRO8	LD	A,0C0h		;Posiciona na segunda linha
+	CALL	COMDIS
+	LD	A,H
+	CALL	ACHEX
+	LD	A,L
+	CALL	ACHEX
+	LD	A,'h'
+	CALL	DISPA
+	LD	A,' '
+	CALL	DISPA
+	LD	A,' '
+	CALL	DISPA
+	PUSH	BC
+	PUSH	DE
+	CALL	INPHEXD		;DE= Valor hexa
+	EX	DE,HL		;Endere�o da placa em DE Valor em HL
+	POP	DE
+	POP	BC
+	JR	C,MMICRO2
+	LD	A,(ULTTEC)
+	CP	'e'
+	JR	Z,VMICRO3	;Se scap sai
+	JR	MMICRO1
+MMICRO2	CALL	MMICRO6		;Se menu "modifica memoria CPU"
+	JR	Z,MMICRO5	;Sim
+	LD	C,0C0h		;Solicitando dados
+	CALL	sParamC
+	JR	MMICRO1
+	;Obtem o valor de (DE) da memoria CPU
+MMICRO4	LD	A,(DE)
+	LD	L,A
+	INC	DE
+	LD	A,(DE)
+	LD	H,A
+	DEC	DE	;Restaura o endere�o
+	JR	MMICRO8
+	;Salva o parametro na memoria cpu
+MMICRO5	;LD	L,(IX+48)	;Endereco do parametro na ram de systema
+	;LD	H,(IX+49)
+	EX	DE,HL
+	LD	(HL),E
+	INC	HL
+	LD	(HL),D
+	JR	MMICRO1
+	;Se menu "modifica memoria CPU" retorna com o flag de zero ativo
+MMICRO6	LD	A,(IX+42)
+	CP	.LOW.MMICRO0
+	RET	NZ
+	LD	A,(IX+43)
+	CP	.HIGH.MMICRO0
+	RET
+;
+;----------------------------------------------------------------
+;			MOSTRA A MEMORIA			|
+; 	ENDERECO 00    03 04    07 08    11 12    15		|
+;	    0000:00000000 00000000 00000000 00000000		|
+;	    0010:00000000 00000000 00000000 00000000		|
+;----------------------------------------------------------------
+VERMEMY	PUSH	AF
+	LD	A,(YCANAL)	;a placa do motor X
+	JR	VERMEXY
+VERMEMX	PUSH	AF
+	LD	A,(XCANAL)	;a placa do motor X
+VERMEXY	LD	(NCANAL),A	;Salva o canal
+	LD	A,'Z'
+	JR	VERMEMK
+VERMEMO	PUSH	AF
+	LD	A,' '
+VERMEMK	LD	(MDEBUG+1),A
+	POP	AF
+	CALL	SELPARM		;Edita numero de programa para execucao
+	RET	C		;Se saida com a tecla scape
+	LD	L,(IX+48)	;Endereco do parametro na ram de systema
+	LD	H,(IX+49)
+	LD	E,(HL)		;Endereco
+	INC	HL
+	LD	D,(HL)
+	EX	DE,HL		;Endereco em HL
+VERMEM0	CALL	VERMEM3
+	CALL	TECLAD
+	JR	NC,VERMEM0
+	CP	'Y'
+	JR	Z,VERMEM0	;Se seta para cima ou para baixo desapertada
+	CP	'e'
+	RET	Z
+	CP	'b'
+	JR	Z,VERMEM2
+	CP	's'
+	JR	Z,VERMEM1
+	CALL	TECLAW
+	CP	'e'
+	RET	Z
+	CP	'b'
+	JR	Z,VERMEM2
+	CP	's'
+	JR	NZ,VERMEM0
+VERMEM1	LD	BC,16
+	SBC	HL,BC
+	JR	VERMEM0
+VERMEM2	LD	BC,16
+	ADD	HL,BC
+	JR	VERMEM0
+VERMEM3	LD	A,080h		;Posiciona na primeira linha
+	CALL	COMDIS
+	PUSH	HL
+	CALL	VERMEM4
+	CALL	VERMEM4
+	POP	HL
+	RET
+;
+VERMEM4	LD	A,H
+	CALL	ACHEX
+	LD	A,L
+	CALL	ACHEX
+	LD	A,':'
+	CALL	DISPA
+	PUSH	BC
+	LD	C,4
+	JR	VERMEM6
+VERMEM5	LD	A,' '
+	CALL	DISPA
+VERMEM6	LD	A,(MDEBUG+1)
+	CP	' '
+	JR	NZ,VERMEM8	;Se placa do eixo X ou Y
+;
+;Se memoria da CPU
+	LD	B,4
+VERMEM7	LD	A,(HL)
+	CALL	ACHEX
+	INC	HL
+	DJNZ	VERMEM7
+	DEC	C
+	JR	NZ,VERMEM5
+	POP	BC
+	RET
+;
+;Se placa X ou Y
+VERMEM8	CALL	VERMEM9
+	CALL	VERMEM9
+	DEC	C
+	JR	NZ,VERMEM5
+	POP	BC
+	RET
+;
+VERMEM9	PUSH	HL
+	PUSH	BC
+	SRL	H		;HL/2
+	RR	L
+	LD	E,L		;Endere�o low da placa
+	LD	D,0		;Endere�o High da placa
+	LD	HL,0		;Valor de execucao
+	LD	C,0		;Solicitando dados
+	CALL	sParamC
+	JR	NC,VERMEMA
+	LD	A,'*'
+	CALL	DISPA
+	LD	A,'*'
+	CALL	DISPA
+	LD	A,'*'
+	CALL	DISPA
+	LD	A,'*'
+	CALL	DISPA
+	JR	VERMEMB
+VERMEMA	LD	A,L
+	CALL	ACHEX
+	LD	A,H
+	CALL	ACHEX
+VERMEMB	POP	BC
+	POP	HL
+	INC	HL
+	INC	HL
+	RET
+;
+;----------------------------------------------------------------
+;	Submenu da senha nivel da senha				-
+; 		Nivel 0	Nivel de Fabricante	Sem protecao	-
+; Superv.]	Nivel 1	Nivel de Supervisao			-
+; Manute.]	Nivel 2	Nivel de Manutencao			-
+; Operac.]	NIVEL 3	NIVEL de Operacao			-
+; Proteg.]	Nivel 4	Nivel de Protecao total			-
+;----------------------------------------------------------------
+;Troca do nivel da senha
+TrocNiv	CALL	LDPARM		;Carrega parametro no buffer de edicao
+	CALL	PROCES0		;Processa parametro e guarda no buffer temporario
+	CALL	SELPAR0
+	RET	C		;Se saida com scap ou mensagem sem parametros
+	LD	(FLGPRG),A	;Flag de entrada de parametros de programa 0Dh OU Esc
+	CALL	PROCES0		;Processa parametro e guarda no buffer temporario
+	LD	A,(nSenha)	;Nivel Atual
+	LD	C,A
+	LD	A,(BfParTp)	;Novo Nivel de prote�ao no buffer temporario
+	INC	A
+	CP	C
+	RET	Z		;Novo nivel igual
+	JR	NC,TrocNi0	;Novo nivel de maior protecao
+	LD	C,A		;Salva novo nivel
+	CALL	VFSENHA		;Entra com a senha corrente e verifica se valida
+	RET	C		;Senha invalida ou abortado
+	LD	A,C		;Restaura novo nivel
+TrocNi0	LD	(nSenha),A	;Salva novo nivel de prote��o
+	CALL	SAVPAR
+	AND	A
+	RET			;Se zero mesmo valor do parametro
+;
+;Troca da senha
+TrocSen	CALL	LDPARM		;Carrega parametro no buffer de edicao
+	CALL	PROCES0		;Processa parametro e guarda no buffer temporario
+	CALL	SELPAR0
+	RET	C		;Se saida com scap ou mensagem sem parametros
+	LD	(FLGPRG),A	;Flag de entrada de parametros de programa 0Dh OU Esc
+	CALL	PROCES0		;Processa parametro e guarda no buffer temporario
+	LD	A,(BfParTp)	;Nivel de prote�ao desejado para troca de senha
+	INC	A
+	CP	NNIVEL-1
+	RET	Z		;Se nivel de protecao nao tem senha
+	LD	C,A		;Salva novo nivel
+	CALL	VFSENHA		;Entra com a senha corrente e verifica se valida
+	RET	C		;Senha invalida ou abortado
+	LD	A,C		;Restaura novo nivel
+TrocSe0	LD	HL,NVSENHA	;Mensagem da nova senha
+	CALL	ENTERSH		;Entra com a nova senha
+	RET	C		;Entrada abortada
+	LD	HL,BFTECX	;Buffer auxiliar da entrada da senha pelo teclado
+	LD	DE,BFSENHA	;Senha atual
+	PUSH	BC
+	LD	BC,8
+	LDIR			;(DE) <-- (HL)
+	POP	BC
+	LD	HL,CFSENHA	;Confirma Nova senha
+	CALL	ENTERSH		;Confirma a nova senha
+	RET	C		;Entrada abortada
+	LD	HL,BFSENHA	;Senha atual
+	CALL	VLSENHA		;Senha valida ?
+	JR	C,TrocSe0	;Nao
+	;Calcula o endereco da senha do nivel dado pelo registro C
+	LD	DE,BFSENHA	;Nova senha
+	LD	A,C		;Novo nivel
+	ADD	A,A		;A=2*A
+	ADD	A,A		;A=4*A
+	ADD	A,A		;A=8*A
+	LD	HL,PRISENH	;Endereco da primeira senha
+	ADD	A,L
+	LD	L,A
+	LD	A,0
+	ADC	A,H
+	LD	H,A		;Endereco da senha do nivel atual em HL
+	;Salva a nova senha na ram de usuario
+TrocSe1	LD	A,(DE)
+	CALL	SALBYTE		;Sava um byte na ram de usuario
+	INC	HL
+	INC	DE
+	LD	A,.LOW.BFSENHA+8
+	CP	E
+	JR	NZ,TrocSe1	;Nao
+	CALL	SAVPAR		;Salva o nivel da troca da senha
+	RET
+;
+;Entra a senha corrente e verifica se � valida.
+;Entradas	C = Nivel
+;Saidas:	Carry ativo = Senha invalida
+VFSENHA	LD	HL,TUSENHA	;Mensagem tua senha
+	CALL	ENTERSH		;Entra a senha com a sua senha
+	RET	C		;Entrada abortada
+	LD	HL,PRISENH	;Endereco da primeira senha
+	LD	E,0
+VFSENH0	PUSH	HL
+	CALL	VLSENHA		;Senha valida ?
+	POP	HL
+	RET	NC		;Sim
+	LD	A,E
+	INC	E		;Nao, proxima senha
+	CP	C
+	JR	Z,VFSENHA	;Ultima senha e nenhuma valida
+	LD	A,8
+	ADD	A,L
+	LD	L,A
+	LD	A,0
+	ADC	A,H
+	LD	H,A
+	JR	VFSENH0
+;
+;Entra senha pelo teclado
+;Em (HL) a mensagem da senha	em (BFTECX) a string da senha
+ENTERSH	PUSH	HL
+	CALL	LINHALT		;Procura uma linha alternativa sem ser a atual
+	LD	HL,MENNUL	;Mensagem em branco
+	CALL	DISPL
+	CALL	LINHALT		;Procura uma linha alternativa sem ser a atual
+	POP	HL
+	CALL	DISPL
+	LD	HL,BFTECX	;Buffer auxiliar da entrada da senha pelo teclado
+ENTSEN0	CALL	TECLAW
+	CP	'e'
+	SCF
+	RET	Z		;Se saida com scape
+	CP	'<'		;Retrocede o cursor ?
+	JR	Z,ENTSEN1	;Sim
+	LD	(HL),A
+	CP	0Dh
+	JR	Z,ENTSEN2		;Ultima tecla apertada
+	LD	A,.LOW.BFTECX+8
+	CP	L
+	JR	Z,ENTSEN0
+	INC	HL
+	LD	A,'*'
+	CALL	DISPA
+	JR	ENTSEN0
+	;Retrocede o cursor
+ENTSEN1	LD	A,.LOW.BFTECX
+	CP	L	;Cursor j� na Posic�o inicial ?
+	JR	Z,ENTSEN0	;Sim
+	DEC	HL
+	LD	A,CURESQ	;cursor para esquerda
+	CALL	COMDIS
+	LD	A,' '
+	CALL	DISPA
+	LD	A,CURESQ	;cursor para esquerda
+	CALL	COMDIS
+	JR	ENTSEN0
+	;Preenche o resto do campo da senha com '<'
+ENTSEN2	LD	A,.LOW.BFTECX+8
+	CP	L
+	RET	Z
+	INC	HL
+	LD	(HL),'<'	;Retrocede o cursor ?
+	JR	ENTSEN2
+;
+;Verifica a validade da senha, Saida com carry indica senha invalida
+;Em (HL) a p/ comparar	(BFTECX) a string da senha
+VLSENHA	PUSH	DE
+	LD	DE,BFTECX	;Buffer auxiliar da entrada da senha pelo teclado
+VLSENH0	LD	A,(DE)
+	CP	(HL)
+	JR	NZ,VLSENH3
+VLSENH1	CP	0Dh
+	JR	Z,VLSENH2	;Ultima tecla apertada
+	INC	HL
+	INC	DE
+	LD	A,.LOW.BFTECX+8
+	CP	L
+	JR	NZ,VLSENH0
+VLSENH2	POP	DE
+	RET
+VLSENH3	LD	A,(HL)
+	CP	'<'		;Retrocede o cursor ?
+	LD	A,(DE)
+	JR	Z,VLSENH1	;Tecla coringa
+	SCF
+	JR	VLSENH2
+;
+;Procura uma linha alternativa para uso sem ser a atual
+LINHALT	LD	A,(ENDCUR+1)	;Numero da linha
+	INC	A
+	CP	NLINHA		;Numero de linha do display
+	JR	C,LINHAL0
+	SUB	2
+	JR	NC,LINHAL0	;Se display com mais de uma linha
+	XOR	A		;Se display so uma linha
+LINHAL0	LD	H,A
+	LD	L,0
+	JP	LINCOL		;Ajuste/cursor/display em H=linha e L=coluna
+;
+;Testa a senha se existe teclas invalidas
+TSSENHA	LD	HL,PRISENH+8	;Endereco da primeira senha de usuario
+	LD	D,0		;Indica sem erro
+	LD	C,NNIVEL-1	;Numero de senha =3
+TSSENH0	LD	B,8
+	PUSH	HL
+TSSENH1	LD	A,(HL)
+	CP	'e'		;Escap
+	JR	Z,TSSENH5	;Tecla invalida
+	CP	0Dh
+	JR	Z,TSSENH2	;Ultima tecla valida
+	CALL	VLTECLA		;Verifica se tecla valida
+	JR	C,TSSENH5	;Tecla invalida
+TSSENH2	INC	HL
+	DJNZ	TSSENH1
+	INC	SP		;Restaura a pilha
+	INC	SP
+TSSENH3	DEC	C
+	JR	NZ,TSSENH0
+	LD	A,(nSenha)	;Nivel Atual
+	CP	NNIVEL+1	;Numero de senha < 5
+	LD	A,D
+	JR	C,TSSENH4	;Senha valida
+	LD	A,80H+104	;80H+13	;Erro memoria perdida (Menu Principal -nivel Invalido)
+TSSENH4	AND	A
+	RET	Z
+	SCF
+	RET
+TSSENH5	POP	HL
+	LD	DE,INISENH
+	CALL	TSSENH6		;Carrega a senha de fabrica INISENH na posicao HL
+	LD	D,80H+105	;80H+13	;Erro memoria perdida (Menu de configuracao do equipamento)
+	JR	TSSENH3
+;Copia 8 byte de (DE) para (HL) [HL Aponta para a ram de usuario]
+TSSENH6	PUSH	BC
+	LD	B,8
+TSSENH7	LD	A,(DE)
+	PUSH	BC
+	CALL	SALBYTE
+	POP	BC
+	INC	HL
+	INC	DE
+	DJNZ	TSSENH7
+	POP	BC
+	RET
+INISENH	DEFB	'123',0Dh,'<<<<',0Dh
+;
+FBSENHA	PUSH	HL
+	PUSH	DE
+	LD	HL,PRISENH	;Endereco da primeira senha
+	LD	DE,FABSENH	;Senha do fabricante
+	CALL	TSSENH6
+	POP	DE
+	POP	HL
+	RET
+FABSENH	DEFB	'014789',0Dh,'<',0Dh
+;
+;Verifica a validade da tecla [A], Se saida com carry tecla invalida
+VLTECLA	PUSH	HL
+	PUSH	DE
+	LD	HL,TABTEC
+	CP	'?'
+	JR	Z,VLTECL1	;Tecla invalida
+	LD	D,A		;Salva a tecla
+VLTECL0	LD	A,(HL)
+	CP	D
+	JR	Z,VLTECL2	;Tecla valida encontrada
+	INC	HL
+	LD	A,.LOW.TABTEC+256
+	CP	L
+	JR	NZ,VLTECL0
+	LD	A,D		;Restaura a tecla
+VLTECL1	SCF			;Indica tecla invalida
+VLTECL2	POP	DE
+	POP	HL
+	RET
+;
+;Verifica e ou modifica um endereco da EEprom
+MEEPROY	LD	A,(YCANAL)
+	LD	(NCANAL),A
+	JR	MEEPRO0
+MEEPROX	LD	A,(XCANAL)
+	LD	(NCANAL),A
+MEEPRO0	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+	LD	HL,(ENDCUR)	;H=linha L=coluna
+	PUSH	HL
+	LD	HL,0
+	LD	(ENDCUR),HL	;H=linha L=coluna
+	LD	A,(NUMEM)
+	CALL	MOSMEN		;Mostra mensagem sem parametros no display
+MEEPRO1	CALL	SELPARM		;Edita numero de programa para execucao
+	JR	C,MEEPRO4	;Saida com scape, restaura o endereco do cursor
+	CALL	MEEPRO3		;Envia o endereco da EEPROM
+	JR	C,MEEPRO1	;Se erro no Comando
+	LD	HL,0		;Valor de execucao
+	LD	DE,sEeCr	;Endere�o da placa = Io de Controle e Dados da eeprom
+	LD	C,0		;Solicitando dados
+	CALL	sParamC
+	JR	C,MEEPRO1	;Se erro no Comando
+	LD	A,0C0h		;Posiciona na segunda linha
+	CALL	COMDIS
+	LD	A,H		;Conteudo da eeprom no byte mais significativo
+	CALL	ACHEX
+	LD	A,'h'
+	CALL	DISPA
+	LD	A,' '
+	CALL	DISPA
+	LD	A,' '
+	CALL	DISPA
+	CALL	INPHEX		;DE=Valor hexa
+	JR	C,MEEPRO2
+	LD	A,(ULTTEC)
+	CP	'e'
+	JR	Z,MEEPRO4	;Se scap sai
+	JR	MEEPRO1
+MEEPRO2	LD	L,0
+	LD	H,A		;Novo Valor
+	PUSH	HL
+	CALL	MEEPRO3		;Envia o endereco da EEPROM
+	POP	HL
+	JR	C,MEEPRO1	;Se erro no Comando
+	LD	DE,sEeCr	;Endere�o da placa = Io de Controle e Dados da eeprom
+	LD	C,0C0h		;Enviando dados
+	CALL	sParamC
+	JR	MEEPRO1
+MEEPRO3	LD	L,(IX+48)	;Endereco do parametro na ram de systema
+	LD	H,(IX+49)
+	LD	C,(HL)
+	INC	HL
+	LD	B,(HL)
+	LD	H,B
+	LD	L,C
+	LD	DE,sEeArL	;Endere�o da placa = Io de endereco da eeprom
+	LD	C,0C0h		;Enviando o dado
+	JP	sParamC
+MEEPRO4	POP	HL		;Se scap sai
+	LD	(ENDCUR),HL	;H=linha L=coluna
+	RET
+;
+;Verifica e ou modifica o numero do canal da COM2
+MODCAN2	XOR	A
+	LD	(NCANAL),A
+	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+	CALL	ALARME		;Toca o alarme 2 segundo
+	LD	HL,MENCAN2	;Mensagem de modificacao do canal
+	CALL	DISPL
+	CALL	TECLAW
+	CP	'e'
+	RET	Z		;Se abortado
+	CP	0Dh
+	JR	Z,MODCAN3	;Se OK
+	RET	NZ		;Se nao confirmado, abortado
+MODCAN3	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+MODCAN4	LD	HL,vEndCo2	;Endere�o do canal da com2 na eeprom
+	LD	DE,sEeArL	;Endere�o da placa = Io de endereco da eeprom
+	LD	C,0C0h		;Enviando o dado
+	CALL	sParamC
+	RET	C		;Se erro na comunicacao serial.
+	LD	HL,0
+	LD	DE,sEeCr	;Endere�o da placa = Io de Controle e Dados da eeprom
+	LD	C,0		;Solicitando dados
+	CALL	sParamC
+	RET	C		;Se erro na comunicacao serial.
+	LD	A,H
+	CALL	XYZWA		;Salva HL no buffer
+	LD	A,(NUMEM)
+	LD	HL,(ENDCUR)	;H=linha L=coluna
+	CALL	MOSMEN		;Mostra mensagem sem parametros no display
+	CALL	SELPARM		;Edita numero de programa para execucao
+	RET	C		;Se erro na comunicacao serial.
+	LD	HL,vEndCo2	;Endere�o do canal da com2 na eeprom
+	LD	DE,sEeArL	;Endere�o da placa = Io de endereco da eeprom
+	LD	C,0C0h		;Enviando o dado
+	CALL	sParamC
+	RET	C		;Se erro na comunicacao serial.
+	LD	L,(IX+48)	;Endereco do parametro na ram de systema
+	LD	H,(IX+49)
+	LD	A,(HL)
+	LD	H,A
+	LD	L,0
+	LD	DE,sEeCr	;Endere�o da placa = Io de Controle e Dados da eeprom
+	LD	C,0C0h		;Enviando o dado
+	CALL	sParamC
+	RET	C		;Se erro na comunicacao serial.
+	JR	MODCAN4
+;
+;Atualiza com [A] o parametro, valor e ascii
+XYZWA	LD	L,(IX+48)	;Endereco do parametro na ram de systema
+	LD	H,(IX+49)
+	LD	(HL),A
+	INC	HL
+	LD	(HL),0
+	LD	L,(IX+46)	;Endereco do parametro na ram de systema
+	LD	H,(IX+47)
+	PUSH	AF
+	CALL	XYZWH
+	LD	(HL),A
+	INC	HL
+	POP	AF
+	CALL	XYZWL
+	LD	(HL),A
+	RET
+XYZWH	RRCA
+	RRCA
+	RRCA
+	RRCA
+XYZWL	AND	0Fh
+	ADD	A,'0'
+	CP	'9'+1
+	RET	C	;Se numeros
+	ADD	A,7
+	RET
+;
+
+XYZWHL	PUSH	DE
+	LD	E,(IX+48)	;Endereco do parametro na ram de systema
+	LD	D,(IX+49)
+	EX	DE,HL
+	LD	(HL),E
+	INC	HL
+	LD	(HL),D
+	EX	DE,HL
+	LD	E,(IX+46)	;Endereco do parametro na ram de systema
+	LD	D,(IX+47)
+	LD	A,H
+	CALL	XYZWH
+	LD	(DE),A
+	INC	DE
+	LD	A,H
+	CALL	XYZWL
+	LD	(DE),A
+	INC	DE
+	LD	A,L
+	CALL	XYZWH
+	LD	(DE),A
+	INC	DE
+	LD	A,L
+	CALL	XYZWL
+	LD	(DE),A
+	POP	DE
+	RET
+;
+;----------------------------------------------------------------
+;	Divide <AHL> por <C> Resultado em <HL> e Resto em <A>	-
+;	Max=67+484+458=1009	Min=67+417+391=875		-
+;	Se carry overflow na divisao				-
+;----------------------------------------------------------------
+DivAHLc	CALL	DivAHc
+	JR	C,DivAHc6	;Overflow na divisao
+	LD	B,H		;Salva parte mais siguinificativa
+	LD	H,L
+	CALL	DivAHc0
+	LD	L,H
+	LD	H,B		;Restaura parte mais siguinificativa
+	RET			;67
+;----------------------------------------------------------------
+;	Divide <AH> por <C> Resultado em <H> e Resto em <A>	-
+;	DivAHc=484/417	DivAHc0=458/391 estados			-
+;	Se carry overflow na divisao				-
+;----------------------------------------------------------------
+DivAHc	INC	C		;Checa se divisor = 0
+	DEC	C
+	JR	Z,DivAHc6	;Se divisor = 0 erro
+	CP	C
+	JR	NC,DivAHc6	;Overflow na divisao
+DivAHc0	PUSH	BC
+	LD	B,8
+DivAHc1	SLA	H
+	RLA
+	JR	C,DivAHc4	;68	Over flow no resto
+	CP	C
+	JR	NC,DivAHc4	;79	Se resto >q divisor
+	DJNZ	DivAHc1		;87
+	JR	DivAHc5		;92+7*(87-44)+24=417
+DivAHc6	SCF
+	RET
+DivAHc2	SLA	H
+	DEC	B
+	JR	Z,DivAHc5	;24
+DivAHc3	RLA
+	JR	C,DivAHc4	;35	Over flow no resto
+	CP	C
+	JR	C,DivAHc2	;46	Se resto <q divisor
+DivAHc4	SUB	C
+	SCF
+	RL	H
+	DJNZ	DivAHc3		;70
+DivAHc5	AND	A
+	POP	BC
+	RET			;89+(79-41)+7*(70-19)=484
+;
+;Desliga do parametro apontado por DE, aprincipio usado para desligar o turbo
+;Somatoria de(HL) + CheqSumm = Somatoria de (DE) + NovoCheqSumm  
+; - NovoCheqSumm = Somatoria de(DE)- Somatoria de (HL) - CheqSumm   
+DTurbo	LD	A,(HL)
+	CP	'D'
+	RET	Z		;Se Turbo ja desligado
+	LD	DE,MENLIG
+	LD	B,7		;Numero maximo de byte
+	NEG
+DTurbo0	LD	C,A		;Salva o cheqsum
+	LD	A,(DE)
+	LD	(HL),A
+	INC	DE
+	INC	HL		
+	CP	']'
+	JR	Z,DTurbo1
+	DEC	B
+	JR	Z,DTurbo1
+	ADD	A,C		;Soma o cheqsum do novo byte
+	SUB	(HL)		;Subtrae o cheqsum do byte anterior
+	JR	DTurbo0
+DTurbo1	ADD	A,C		;Soma o cheqsum do novo byte
+	SUB	(HL)		;Subtrae o cheqsum do byte anterior
+	NEG
+	LD	(HL),A		;Salva o cheqsum
+	RET
+;
+;------------------------------------------------------------------------
+; - Rotina que interpreta dos dados que ja estao no buffer de recepcao	-
+;------------------------------------------------------------------------
+LerBlok	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+	LD	HL,MenVerS
+	CALL	DISPL
+	LD	BC,TSEGUN/2	;Valor do tempo ( 0,5 Seg )
+	CALL	RETARBC
+	LD	A,(XCANAL)	;a placa do motor X
+	LD	(NCANAL),A	;Salva o canal
+	;Seta buffer dos dados de saida
+	LD	A,Stx		;Stx
+	LD	(sBuf),A
+	LD	A,(NCANAL)	;Funcao e canal
+	AND	3Fh
+	OR	0C0h
+	LD	(sBuf+1),A
+	LD	DE,30h
+	LD	(sBuf+2),DE	;Endereco da placa do motor
+	LD	A,2		;Numero de byte enviado/Solicitado
+	LD	HL,0
+	LD	(sBuf+4),A
+	LD	(sBuf+5),HL	;Ponteiro do valor a ser enviado/recebido
+	;Inicializa
+	XOR	A
+	LD	(FLAGRX),A
+	LD	(ERRORX),A
+	LD	HL,BUFCOM
+	LD	(RXBLOCO),HL
+	LD	HL,(TMPSYS)
+	LD	(TIMRS),HL
+	;Executa
+	CALL	ComBlk5		;Recepcao ?
+	JR	Z,LerBlk0	;Ok, Sem erro
+	CP	80H+36		;Erro de timer in ?
+	JR	Z,LerBlk0	;Sim Ignora
+	CALL	BUFERR		;Ser erro, Buferiza
+LerBlk0	RET
+;
+;Retardo em BC/TSEGUN segundos
+RETARBC	PUSH	HL
+	PUSH	DE
+	LD	HL,(TMPSYS)
+	LD	(TIMFRE),HL	;Seta temporisador do freio
+RETARB0	LD	HL,(TIMFRE)	;indica temporisador
+	CALL	TIMER
+	JR	C,RETARB1	;Se fim do tempo
+	CALL	TECLAD
+	JR	NC,RETARB0	;Sem tecla apertada
+	CP	'e'
+	JR	NZ,RETARB0	;Tecla apertada n�o � ESC
+RETARB1	POP	DE
+	POP	HL
+	RET
+
+;Submenu de conficuracao da serial
+SUBMENR	LD	A,(NSENHA)
+	CP	NNIVEL-2	;Nivel maximo de protecao ?
+	RET	NC		;Sim
+	XOR	A
+	LD	(FLGPRG),A	;Flag de entrada de parametros de programa 0Dh OU Esc
+	LD	L,(IX+46)	;Endereco do inicio do menu
+	LD	H,(IX+47)
+	PUSH	HL
+	POP	IY
+	LD	HL,MENNUL	;Mensagem em branco
+	LD	(MENERR),HL	;Mensagem alternativa de indicacao de nao erro
+	CALL	THARD		;Menu de programa
+	LD	A,(FLGPRG)	;Flag de entrada de parametros de programa
+	AND	A
+	RET	Z	;Se nenhun parametro do menu alterado
+	CALL	ConfSer	;Se algum parametro alterado do menu
+	DI
+	CALL	PRBAUD
+	EI
+	RET
+;
+;Determina o valor do LCRM (Registrador de controle de linha)
+ConfSer	LD	A,4	;Indica uma taxa de 2400 Bauds (MenBald)(ValBald)
+	LD	(NumBald),A
+	LD	A,3
+	LD	(nBitDat),A	;Numero de bits dos dados da comunica�ao serial
+	LD	A,0
+	LD	(StopBit),A	;Numero de stop bit da comunica��o serial
+	LD	(ParytOn),A	;habita paridade da comunica��o serial
+	LD	(ParyTip),A	;Tipo da paridade da comunica��o serial
+	LD	(mBreak),A	;Habita Break da comunica��o serial
+	LD	IX,mPorSer+3	;Parametros da porta serial
+	CALL	CalcRam
+	JR	NC,ConfSe0
+	LD	A,80H+106	;Erro no menu configuracao da serial
+	CALL	BUFERR		;Buferiza o erro
+ConfSe0	LD	A,(nBitDat)	;Numero de bits dos dados da comunica�ao serial
+	RRCA
+	RRCA
+	LD	B,A
+	LD	A,(StopBit)	;Numero de stop bit da comunica��o serial
+	OR	B
+	RRCA
+	LD	B,A
+	LD	A,(ParytOn)	;habita paridade da comunica��o serial
+	OR	B
+	RRCA
+	LD	B,A
+	LD	A,(ParyTip)	;Tipo da paridade da comunica��o serial
+	OR	B
+	RRCA
+	RRCA
+	LD	B,A
+	LD	A,(mBreak)	;Habita Break da comunica��o serial
+	OR	B
+	RRCA
+	RRCA
+	LD	B,A
+	LD	A,(LCRM)	;Line Control register LCR
+	AND	80h
+	OR	B
+	LD	(LCRM),A	;Line Control register LCR
+	;Determina o divisor da Uart para a taxa desejada
+	LD	A,(NumBald)
+ConfSe1	ADD	A,A
+	LD	L,A		;Endere�o low
+	LD	A,0		;Endere�o high
+	ADC	A,A
+	LD	H,A
+	LD	DE,ValBald	;Tabela dos fatores
+	ADD	HL,DE		;Sim, ultimo fator
+	LD	E,(HL)		;Primeiro valor em DE
+	INC	HL
+	LD	D,(HL)
+	LD	(TXBAUD),DE	;Taxa Baud Rate
+	RET
+;
+MenBald	DEFB	'  600]  900] 1200] 1800] 2400] 3600] 4800]'
+	DEFB	' 7200] 9600]14400]19200]28800]38400]57600]',0Dh
+ValBald	DEFW	192,128,96,64,48,32,24,16,12,8,6,4,3,2,255	;Valor = 11520/Taxa
+;
+mStart	DEFW	1.SHL.bStart		;(sComSer) Bit start
+mPausa	DEFW	1.SHL.bPausa			;(sComSer) Bit pausa
+mManua	DEFW	1.SHL.bManua		;(sComSer) Bit manual
+mTstImp	DEFW	1.SHL.bTstImp			;(sComSer) Bit teste de impressao
+mSavPar	DEFW	1.SHL.bSavPar		;(sComSer) bit para salvar parametros
+mManPau	DEFW	1.SHL.bManua+1.SHL.bPausa	;(sComSer) Manual e pausa
+mStoPau	DEFW	1.SHL.bStop+1.SHL.bPausa	;(sComSer) Stop e pausa
+;
+mResErr	DEFW	1.SHL.bResErr	;(sStatus) Bit de erro do status
+mEndCo2	DEFW	23h		;Endere�o do canal da com2 na eeprom
+;
+;----------------------------------------------------------------
+;		Marca o erro no buffer				-
+;Entrada: A=NUmero do erro					-
+;----------------------------------------------------------------
+MarkErr	PUSH	HL
+	PUSH	DE
+	CALL	CalcErr	;A=NUmero do erro, E=Mascara de bit do erro, HL=Endereco do byte de erro, A=Byte de erro
+	AND	E
+	JR	NZ,MarkEr0	;Ja ocorreu o erro
+	LD	A,(HL)
+	OR	E		;Seta o bit de erro
+	LD	(HL),A
+	LD	HL,TPALAR	;Tempo do bip alarme
+	JR	MarkEr1
+MarkEr0	LD	HL,TPALAR/2	;Tempo do bip alarme
+MarkEr1	LD	HL,TPALAR	;Tempo do bip alarme
+	LD	(TMPBIP),HL	;temporizador o bip
+	LD	HL,BUFCPU	;buffer de controle da placa cpu
+	SET	0,(HL)		;liga o bip
+	SET	5,(HL)		;Indica erro
+	POP	DE
+	POP	HL
+	RET
+;
+;----------------------------------------------------------------
+;Localiza erro no buffer					-
+;Entrada:	Nenhuma(ultimo erro)				-
+;Saidas:	A=Numero do erro encontrado			-
+;		Flag de carry ativo indica erro			-
+;----------------------------------------------------------------
+LocErr	LD	A,(PonErrW)	;Ultimo erro
+	INC	A
+	AND	7Fh
+	LD	(PonErrW),A	;Ultimo erro
+	CALL	CalcErr	;A=NUmero do erro, E=Mascara de bit do erro, HL=Endereco do byte de erro, A=Byte de erro
+	LD	C,L		;Salva o endereco inicial do erro
+	LD	B,E		;Salva mascara de bit inicial
+	LD	D,A		;Salva byte de erro
+	;Procura bit de erro
+LocErr0	LD	A,E
+	AND	D
+	JR	NZ,LocErr6	;Encontrado erro
+	RLC	E
+	JR	NC,LocErr0
+	;Procura proximo byte de erro
+LocErr1	INC	HL
+	LD	A,L
+	CP	.LOW.BUFERRO+16
+	JR	C,LocErr2
+	LD	L,.LOW.BUFERRO
+	LD	A,L
+LocErr2	CP	C		;De volta ao endere�o inicial de erro ?
+	JR	Z,LocErr4	;Sim, checar os bits menos significativos
+	LD	A,(HL)
+	AND	A
+	JR	Z,LocErr1
+	;Encontrado um byte com erro, procura bit
+	LD	D,A		;Salva byte de erro, Aqui E=1h
+LocErr3	LD	A,E
+	AND	D
+	JR	NZ,LocErr6	;Encontrado erro
+	SLA	E
+	JR	NZ,LocErr3
+	JR	LocErr5		;Erro Fatal
+	;Procura bit de erro no resto do byte inicial
+LocErr4	LD	A,E	; Aqui E inicial =1h
+	CP	B		;De volta a mascara de bit inicial e endere�o inicial ?
+	JR	Z,LocErr9	;Sim, Giro Por todo o buffer e nao encontrado nenhum erro
+	AND	D
+	JR	NZ,LocErr6	;Encontrado erro
+	SLA	E
+	JR	NZ,LocErr4
+	;Condicao invalida (Nunca poderia ocorrer)
+LocErr5	LD	A,(PonErrW)	;Ultimo erro
+	INC	A
+	AND	7Fh
+	LD	(PonErrW),A	;Ultimo erro
+	XOR	A
+	RET
+	;Encontrado erro, limpa o bit de erro
+LocErr6	;LD	A,E
+	CPL
+	AND	D
+	LD	(HL),A
+	;Calcula o numero do erro (Novo endereco)
+	LD	A,L
+	SUB	.LOW.BUFERRO
+	ADD	A,A
+	ADD	A,A
+	ADD	A,A
+LocErr7	SRL	E
+	JR	Z,LocErr8
+	INC	A
+	JR	LocErr7
+LocErr8	LD	(PonErrW),A	;Salva ultimo erro
+	LD	HL,TPALAR/4	;Tempo do bip alarme
+	LD	(TMPBIP),HL	;temporizador o bip
+	LD	HL,BUFCPU	;buffer de controle da placa cpu
+	SET	0,(HL)		;liga o bip
+	SET	5,(HL)		;Liga o erro
+	SCF
+	RET
+	;Giro Por todo o buffer e nao encontrado nenhum erro
+LocErr9	LD	A,7Fh
+	LD	(PonErrW),A	;Salva ultimo erro
+	LD	HL,BUFCPU	;buffer de controle da placa cpu
+	RES	5,(HL)		;Desliga o erro
+	RET
+;
+;----------------------------------------------------------------
+;Entrada:	A=Valor do erro					-
+;Saidas:	E=(A Mod 8)=Mascara de bit do erro		-
+;		HL=BUFERRO +(A/8)=Endereco do byte de erro	-
+;		A=(HL)=Byte de erro				-
+;----------------------------------------------------------------
+CalcErr	AND	7Fh		;Numero do erro
+	LD	E,1		;Mascara de Bit do erro
+	SRL	A
+	JR	NC,CalcEr0
+	SLA	E		;2h
+CalcEr0	SRL	A
+	JR	NC,CalcEr1
+	SLA	E		;4h
+	SLA	E		;8h
+CalcEr1	SRL	A
+	JR	NC,CalcEr2
+	SLA	E		;10h
+	SLA	E		;20h
+	SLA	E		;40h
+	SLA	E		;80h
+CalcEr2	LD	HL,BUFERRO	;Posi�ao inicial do buffer
+	ADD	A,L
+	LD	L,A
+	LD	A,0
+	ADC	A,H
+	LD	H,A
+	LD	A,(HL)
+	RET
+;----------------------------------------------------------------
+;- 			FINAL DO PROGRAMA			-
+;----------------------------------------------------------------
+	FILE	MENUPO11.INC
+
+	ORG	RamSys
+;Variaveis do teclado
+VARTEC	Defs	8	;7800h	Buffer de varredura do teclado
+BUFTEC	Defs	16	;7808h	Buffer do teclado
+TECMAT	Defs	1	;7818h	Posicao matricial da tecla apertada
+PONtecR	Defs	1	;7819h	Ponteiro de leitura do buffer do teclado 
+PONtecW	Defs	1	;781Ah	Ponteiro de escrita do buffer do teclado 
+CONTEC	Defs	1	;781Bh	Contador de linha do teclado
+TIMTEC	Defs	1	;781Ch	Temporizador do debunc do teclado
+FLGTEC	Defs	1	;781Dh	Flag da rotina de teclado
+ULTTEC	Defs	1	;781Eh	Ultima tecla apertada
+	Defs	1	;781Fh	Vago
+CESPREP	Defs	2	;7820h	Contador de espera de repeticao
+;
+ERINT	Defs	1	;7822h	Indicador de erro de interrupcao
+CNTINT	Defs	1	;7823h	Contador de erro de interrupcao
+BUFCPU	Defs	1	;7824h	buffer de controle da placa cpu
+	Defs	1	;7825h	Vago
+
+TMPSYS	Defs	2	;7826h	Tempo do sistema
+TMPBIP	Defs	2	;7828h	temporizador o bip
+CHEQSYS	Defs	2	;782Ah	Valor do cheqsum calculado da eprom
+TIMFRE	Defs	2	;782Ch	Temporizador do freio
+	Defs	2	;782Eh	Vago
+;
+BufEdit	Defs	16	;7830h	Buffer de edicao dos parametros de mensagem (copiado da ram de usuario)
+ENDCUR	Defs	2	;7840h	Endereco do cursor linha/coluna
+BUFDIS	Defs	2	;7842h	Endereco corrente do buffer do display
+PonErrR	Defs	1	;7844h	Ponteiro de Leitura do buffer de erro
+PonErrW	Defs	1	;7845h	Ponteiro de escrita do buffer de erro
+MENERR	Defs	2	;7846h	Mensagem alternativa de indicacao de nao erro
+	Defs	8	;7848h	Vago
+
+NUMEM	Defs	16	;7850h	Enderecos do cursor dos varios menus
+;
+CPROG	Defs	4	;7860h	Numeros do programa para copia origem e destino
+NPROG	Defs	1	;7864h	Numero do programa de uso
+	Defs	1	;7865h	Vago
+EPROG	Defs	2	;7866h	Numero do programa de edicao
+FLGPRG	Defs	1	;7868h	Flag de entrada de parametros de programa
+	Defs	1	;7869h	Vago
+MDEBUG	Defs	2	;786Ah	Para se utilizado pelo debug
+	Defs	6	;786AC	Vago
+BUFTST	Defs	4	;7872h	Buffer ascii dos parametros do menu de teste
+BUFTST0	Defs	2	;7876h	Buffer word dos parametros do menu de teste
+	Defs	8	;7878h	Vago
+;
+BUFERRO	Defs	16	;7880h	Buffer dos codigo ou mascara de erro
+;
+;1BYTE
+BUFMTX	Defs	1	;7890h	buffer de controle da placa do motor X
+FLGRFX	Defs	1	;7891h	Flag se zero referenciado X
+FLGRFY	Defs	1	;7892h	Flag se zero referenciado Y
+FLGGEX	Defs	1	;7893h	Indica a falta dos parameros exenciais
+FLGGEY	Defs	1	;7894h	Indica a falta dos parameros exenciais
+NCANAL	Defs	1	;7895h	1 byte numero do canal de comunicacao corrente
+;
+;2BYTE
+POSICX	Defs	2	;7896h	Posicao atual, do eixo
+FPODECX	Defs	2	;7898h	Fator de transformacao de pulso p/mm
+;PEXECX	Defs	2	;789Ah	Posicao de execucao, do eixo
+	Defs	2	;789Ah	Vago
+;
+POSICY	Defs	2	;789Ch
+FPODECY	Defs	2	;789Eh	Fator de transformacao de pulso p/mm
+;PEXECY	Defs	2	;78A0h	Posicao de execucao, do eixo
+	Defs	2	;Vago
+
+FatPuls	Defs	2	;78A2h	Fator de uso para transformacao de mm p/pulso
+Espoent	Defs	1	;78A4h	Espoente de FatPuls
+	Defs	1	;78A5h	Vago
+FPODEC	Defs	2	;78A6h	Fator de transformacao de pulso p/mm
+	Defs	2	;78A8h	Vago
+NSENHA	Defs	2	;78AAh	Nivel da senha
+	Defs	4	;78ACh	Vago
+BFTECX	Defs	9	;78B0h	Buffer auxiliar para entrada da senha do teclado
+	Defs	7	;78B9h	Vago
+BFSENHA	Defs	9	;78C0h	Buffer auxiliar da nova senha
+	Defs	7	;78C9h	Vago
+;
+BfParTp	Defs	16	;78D0h	Buffer temporario dos valores dos parametros
+PontTmp	Defs	2	;78E0h	Ponteiro da proxima opcao (temporario)
+PONTBFY	Defs	2	;78E2h	Ponteiro do buffer BfParTp
+ENDMACR	Defs	2	;78E4h	Ponteiro da macro da mascara
+ValorTx Defs	2	;78E6h	Valor a ser enviado pela para serial
+NumOpc	Defs	2	;78E8h	Numero da opcao do parametro corrente
+EspoenX	Defs	1	;78EAh	Espoente de FatPulX do eixo X
+	Defs	1	;78EBh	Vago
+EspoenY	Defs	1	;78ECh	Espoente de FatPulY do eixo Y
+	Defs	1	;78EDh	Vago
+NumBald	Defs	2	;78EEh	Numero da opcao da taxa 
+sTstArq	Defs	2	;78F0h	Numero de paginas com erro / Numero da ultima pagina com erro
+nBitDat	Defs	2	;78F2h	Numero de bits dos dados da comunica�ao serial
+StopBit	Defs	2	;78F4h	Numero de stop bit da comunica��o serial
+ParytOn	Defs	2	;78F6h	habita paridade da comunica��o serial
+ParyTip	Defs	2	;78F8h	Tipo da paridade da comunica��o serial
+mBreak	Defs	2	;78FAh	Habita Break da comunica��o serial
+ByteErr	Defs	1	;78FCh	Posicao do byte onde ocorreu o erro de opcao
+	Defs	1	;78FDh	Vago
+FatPulX	Defs	2	;78FEh	Fator do eixo X para transformacao de mm p/pulso
+FatPulY	Defs	2	;7900h	Fator do eixo X para transformacao de mm p/pulso
+VarStaX	Defs	2	;7902h	Status do eixo X
+VarStaY	Defs	2	;7904h	Status do eixo Y
+IdEixo	Defs	2	;7906h	Idendificador do eixo 0 para o X e 6 para o Y
+tSenha	Defs	8	;7908h	Testo no nivel da senha a ser trocada
+CopyPrg	Defs	8	;7910h	Testo do mumero do programa fonte e destino para copia
+;
+;
+;Buffer dos valores dos parametros ja transformado eixo x
+	ORG	RamSys+200h	;Bufuso
+;EndP0	Defs	BufUso-EndP0
+;Parametros de programa
+POSINI	Defs	2	;7A00h	Posicao inicial
+POSFIM	Defs	2	;7A02h	Posicao final
+ACEAVS	Defs	2	;7A04h	Aceleracao programada de avanco Pulso/(S^2)
+ACERET	Defs	2	;7A06h	Aceleracao programada de retorno Pulso/(S^2)
+VELAVS	Defs	2	;7A08h	Velocidade de avanco
+VELRET	Defs	2	;7A0Ah	Velocidade de retorno
+NUMAVS	Defs	2	;7A0Ch	Numero maximo de mensagem no avanco
+PRIAVS	Defs	2	;7A0Eh	Primeira mensagem no avanco
+PRIRET	Defs	2	;7A10h	Primeira mensagem no retono
+ULTAVS	Defs	2	;7A12h	Ultima mensagem no avanco
+ULTRET	Defs	2	;7A14h	Ultima mensagem no retono
+TMPIMPR	Defs	2	;7A16h	Largura do sinal de impressao (Tempo de dosagem INAL)
+RETAUT	Defs	2	;7A18h	Retardo do start automatico
+RETEXT	Defs	2	;7A1Ah	Retardo do start externo
+APISTAO	Defs	2	;7A1Ch	Posicao de avanco do cilindro
+RETPPAS	Defs	2	;7A1Eh	Retardo no start passo/passo
+FlagP	Defs	2	;7A20h	Bits de configura�ao do programa (2 Byte sFlgPrg)
+RETIMPR	Defs	2	;7A22h	Retardo no sinal de impressao
+DivTaco	Defs	2	;7A24h	Divisor programado do taco 	(sPtaco)	@@@@@@@@
+;
+;Parametros X
+JANELX	Defs	2	;7A26h	Janela de protecao por giro
+NPULSX	Defs	2	;7A28h	Numero de pulso do giro
+POSRFX	Defs	2	;7A2Ah	Posicao zero da referencia X
+ACERFX	Defs	2	;7A2Ch	Aceleracao programada d referencia Pulso/(S^2)
+VELRFX	Defs	2	;7A2Eh	Velocidade programada da referencia Pulso/Seg
+FlagPx	Defs	2	;7A30h	Bits de configuracao X / Divisor programado do motor
+;Parametros Y
+JANELY	Defs	2	;7A32h
+NPULSY	Defs	2	;7A34h
+POSRFY	Defs	2	;7A36h
+ACERFY	Defs	2	;7A38h
+VELRFY	Defs	2	;7A3Ah
+FlagPy	Defs	2	;7A3Ch	Bits de configuracao X / Divisor programado do motor
+
+;Opcoes de programa
+ASTAAVS	Defs	2	;7A3Eh	Start automatico no avanco
+ASTARET	Defs	2	;7A40h	Start automatico no retorno
+SSTAAVS	Defs	2	;7A42h	
+SSTARET	Defs	2	;7A44h	
+STAUTPP	Defs	2	;7A46h	Start automatico passo/passo
+SSTAPPA	Defs	2	;7A48h	Saida de start passo a passo
+ENSTART	Defs	2	;7A4Ah	Entrada de start entre eixo ligado
+StaTec	Defs	2	;7A4Ch	Start via teclado e externo para o eixo X
+LGIMPRE	Defs	2	;7A4Eh	Logica do sinal de impressao
+DIRERS	Defs	2	;7A50h	Direcao da reversao de mensagem (Logica)
+MENselS	Defs	2	;7A52h	Tipo de comuncacao serial do eixo
+MENrevS	Defs	2	;7A54h	Tipo de comuncacao serial do eixo
+;vago
+;vago
+;vago
+MPASPAS	Defs	2	;7A56h	Modo passo a passo
+;
+NUMRET	Defs	2	;7A58h	Numero maximo de mensagem no retorno
+DivMotX	Defs	2	;7A5Ah	Divisor programado do motor 	(sPmotor)	@@@@@@@@@
+DivMotY	Defs	2	;7A5Ch	Divisor programado do motor 	(sPmotor)	@@@@@@@@@
+;Parametros interno
+	;Parametros X
+XPROG	Defs	2	;7A5Eh	Numero do programa X para execucao
+FATGIRX	Defs	2	;7A60h	Fator de deslocamento por giro do motor
+EIXOX	Defs	2	;7A62h	Eixo X Habilitado Desabilitado
+XCANAL	Defs	2	;7A64h	Canal X de comunicacao
+	;Opcoes X
+GIROPX	Defs	2	;7A66h	Giro com funcao de protecao
+GIROCX	Defs	2	;7A68h	Giro com funcao de correcao
+LGSTARX	Defs	2	;7A6Ah	Logica do start externo
+REDCORX	Defs	2	;7A6Ch	Reducao da corrente em repouso
+RFSTARX	Defs	2	;7A6Eh	Referencia pelo start externo
+TURBOX	Defs	2	;7A70h	Eixo X em turbo
+	;Parametros Y
+YPROG	Defs	2	;7A72h
+FATGIRY	Defs	2	;7A74h
+EIXOY	Defs	2	;7A76h
+YCANAL	Defs	2	;7A78h
+	;Opcoes Y
+GIROPY	Defs	2	;7A7Ah
+GIROCY	Defs	2	;7A7Ch
+LGSTARY	Defs	2	;7A7Eh
+REDCORY	Defs	2	;7A80h
+RFSTARY	Defs	2	;7A82h	Referencia pelo start externo
+TURBOY	Defs	2	;7A84h
+
+MASCERX	Defs	2	;7A86h
+MASCERY	Defs	2	;7A88h
+StaTecX	Defs	1	;7A8Ah	Start via teclado e externo para o eixo X
+StaTecY	Defs	1	;7A8Bh	Start via teclado e externo para o eixo X
+	Defs	4	;7A8Ch	Vago
+;
+;************************************************************************
+;* Parametros do programa de comunicacao serial RS232-C p/ a CPU3100	*
+;************************************************************************
+;Registros, ponteiros e flag usados
+LSRM	Defs	1	;7A90h	Registrador de status de linha
+LCRM	Defs	1	;7A91h	Registrador de controle de linha
+MSRM	Defs	1	;7A92h	Registrador de status de modem
+MCRM	Defs	1	;7A93h	Registrador de controle de modem
+IIRM	Defs	1	;7A94h	Registrador de status de interupcao
+IERM	Defs	1	;7A95h	Registrador de controle de interupcao
+FLGRSX	Defs	1	;7A96h	Flag de controle de protocolo
+NCHRRX	Defs	1	;7A97h	Numero de caracter recebido
+NCHRTX	Defs	1	;7A98h	Numero de caracter transmitido
+ERRORX	Defs	1	;7A99h	Codigo de erro ocorrido na recepcao da RS-232
+CHKRX	Defs	2	;7A9Ah	Cheqsum do bloco de recepcao
+;
+TXBAUD	Defs	2	;7A9Ch	Registrador da taxa baud rat
+PONRXR	Defs	2	;7A9Eh	Pont. de leitura corren. do buffer de recepcao
+PONRXX	Defs	2	;7AA0h	Pont. de escrita corren. do buffer de recepcao
+
+PONTXX	Defs	2	;7AA2h	Pont. de leitura corren. do buffer/transmissao
+PONTXW	Defs	2	;7AA4h	Pont. de escrita corren. do buffer/transmissao
+
+TIMRS	Defs	2	;7AA6h	Temporisador para interface serial
+FLAGRX	Defs	1	;7AA8h	Flag de controle da rotina de recepcao serial
+	Defs	1	;7AA9H	Vago
+RXBLOCO	Defs	2	;7AAAh	Ponteiro do Buffer dos dados de recepcao
+TMPRS	Defs	2	;7AACh	Timein/Timeout da interface serial 15=30.72 ms
+CmdTxL	Defs	1	;7AAEh	Comando de comunicacao serial Byte low
+CmdTxH	Defs	1	;7AAFh	Byte High
+sBuf	Defs	7	;7AB0h	Buffer dos dados de saida
+;
+;
+	END	8000H
+;
+;----------------------------------------------------------------
+;- 	Mostra palavra de 2 bytes no display			-
+;-  	Em <HL> o endereco inicial				-
+;-	<C> o numero de pares de bytes				-
+;-	O endececo mais alto e o mais significativo		-
+;----------------------------------------------------------------
+MOSTRW	INC	HL
+	LD	A,(HL)
+	CALL	ACHEX
+	DEC	HL
+	LD	A,(HL)
+	CALL	ACHEX
+	LD	A,' '
+	CALL	DISPA
+	INC	HL
+	INC	HL
+	DEC	C
+	JR	NZ,MOSTRW
+	RET
+;
+;------------------------------------------------------------------------
+;Mostra parametros no display						-
+;IX conten endereco inicial da mensagem do parametro			-
+;(BufEdit) = DADOS			H=Numero inicial da linha	-
+;------------------------------------------------------------------------
+DISPARM	CALL	INIPARM
+	JR	C,DISPAR1	;Se enter
+DISPAR0	LD	A,(DE)
+	CALL	DISPA		;Displaia o acumulador
+	CALL	AVSCOLU		;Avanca o cursor uma coluna
+	JR	NC,DISPAR0
+DISPAR1	CCF			;Se enter
+	RET
+;
+NDPAR	EQU	19		;Numeros de parametros
+VREFER	EQU	492		;Velocidade p/ referencia (100mm/S)
+AREFTM	EQU	2580		;pulso/t^2 aceleracao/referencia=(1000mm/S^2)
+AREFSG	EQU	4921		;Pulso/s^2 aceleracao/referencia=(1000mm/S^2)
+ATIVST	EQU	3		;Contagem para ativar o start externo
+DESAST	EQU	27		;Contagem para desativar o start externo
+;
+;
+;----------------------------------------------------------------
+;	Mesmo que DISPL so' que coloca do area de bufmen	-
+;	(DE)=(HL)						-
+;----------------------------------------------------------------
+;	mensagem display indicada por (HL)
+BUFLIN	PUSH	DE
+	LD	DE,(BUFDIS)
+	LD	A,(HL)
+BUFLI1	LD	(DE),A
+	INC	HL
+	INC	DE
+	LD	A,(HL)
+	CP	0Dh
+	JR	NZ,BUFLI1
+	LD	(DE),A
+	LD	(BUFDIS),DE
+	INC	HL
+	POP	DE
+	RET
+;
+;----------------------------------------------------------------
+;	Eleva <HL> ao quadrado		HL,DE = HL*HL		;
+;	Retorna em <HL> os dois byte Mais significativo		;
+;	E <DE> os dois bytes menos significativo		;
+;	Nc cliclo	maximo=165+634=799 minimo=165+610=775	;
+;----------------------------------------------------------------
+QDRHL	PUSH	AF
+	PUSH	BC
+	LD	B,L
+	LD	C,L
+	CALL	MULTBC		;L*L
+	LD	E,C
+	LD	C,H
+	RRA
+	CALL	MULTB0		;A/2+L*H
+	LD	B,H
+	LD	H,A
+	LD	L,C
+	LD	C,B
+	ADC	HL,HL
+	LD	D,L
+	LD	A,H
+	CALL	MULTB0		;A+H*H
+	LD	L,C		;Salva o menos significativo
+	LD	H,A
+	POP	BC
+	POP	AF
+	RET
+;
+;-------------------------------------------------------------------
+;Raiz quadrada de <HLDE> DE=SQRT(HLDE) RESTO EM HL
+;ATENCAO SO' VALIDO PARA HL DE < 1000 0000H
+;MAXIMO=4*407+222=1850 / MINIMO=4*388+222=1774 estados
+;-------------------------------------------------------------------
+SQRTHD	PUSH	BC
+	PUSH	DE
+	PUSH	HL
+	LD	A,H
+	CALL	SQRT	;BC=BC*16+SQRT(HLA)
+	POP	DE
+	LD	A,E
+	CALL	SQRT0	;BC=BC*16+SQRT(HLA)
+	POP	DE
+	LD	A,D
+	PUSH	DE
+	CALL	SQRT0	;BC=BC*16+SQRT(HLA)
+	POP	DE
+	LD	A,E
+	CALL	SQRT0	;BC=BC*16+SQRT(HLA)
+	SRL	B	;Ajuste do resultado
+	RR	C
+	LD	D,B	;Resultado em DE
+	LD	E,C
+	POP	BC
+	RET
+;
+;-------------------------------------------------------------------
+;Raiz quadrada
+;SQRT	BC=2*SQRT(A) e HL=resto
+;SQRT0	HL=resto e BC o resultado anterior	BC=2*SQRT(HLA) e HL=novo resto
+;MAXIMO=3*102+101=407 / MINIMO=3*95+103=388 estados
+;-------------------------------------------------------------------
+SQRT	LD	BC,0
+	LD	HL,0
+SQRT0	SCF			;Raiz=2*Raiz+1 
+	RL	C
+	RL	B
+	RLA			;Mais dois bits de A em HL
+	ADC	HL,HL
+	RLA
+	ADC	HL,HL
+	LD	D,H		;Salva resto em DE
+	LD	E,L
+	SBC	HL,BC		;Verifica se resto em HL e'< q raiz em BC
+	INC	C		;C=XXXX XX01 passa p/ C=XXXX XX10
+	JR	NC,SQRT1	;Se resto era >=q raiz
+	EX	DE,HL		;Restaura resto anterior
+	RES	1,C		;C=XXXX XX10 passa p/ C=XXXX XX00
+SQRT1	SCF			;Raiz=2*Raiz+1 
+	RL	C
+	RL	B
+	RLA			;Mais dois bits de A em HL
+	ADC	HL,HL
+	RLA
+	ADC	HL,HL
+	LD	D,H		;Salva resto em DE
+	LD	E,L
+	SBC	HL,BC		;Verifica se resto em HL e'< q raiz em BC
+	INC	C		;C=XXXX XX01 passa p/ C=XXXX XX10
+	JR	NC,SQRT2	;Se resto era >=q raiz
+	EX	DE,HL		;Restaura resto anterior
+	RES	1,C		;C=XXXX XX10 passa p/ C=XXXX XX00
+SQRT2	SCF			;Raiz=2*Raiz+1 
+	RL	C
+	RL	B
+	RLA			;Mais dois bits de A em HL
+	ADC	HL,HL
+	RLA
+	ADC	HL,HL
+	LD	D,H		;Salva resto em DE
+	LD	E,L
+	SBC	HL,BC		;Verifica se resto em HL e'< q raiz em BC
+	INC	C		;C=XXXX XX01 passa p/ C=XXXX XX10
+	JR	NC,SQRT3	;Se resto era >=q raiz
+	EX	DE,HL		;Restaura resto anterior
+	RES	1,C		;C=XXXX XX10 passa p/ C=XXXX XX00
+SQRT3	SCF			;Raiz=2*Raiz+1 
+	RL	C
+	RL	B
+	RLA			;Mais dois bits de A em HL
+	ADC	HL,HL
+	RLA
+	ADC	HL,HL
+	LD	D,H		;Salva resto em DE
+	LD	E,L
+	SBC	HL,BC		;Verifica se resto em HL e'< q raiz em BC
+	INC	C		;C=XXXX XX01 passa p/ C=XXXX XX10
+	RET	NC		;Se resto era >=q raiz
+	EX	DE,HL		;Restaura resto anterior
+	RES	1,C		;C=XXXX XX10 passa p/ C=XXXX XX00
+	RET
+;
+;----------------------------------------------------------------
+;			DE=HLDE/BC e resto em HL		-
+;	Maximo=2*713+130=1556	Minimo=2*558+130=1246 Estados	-
+;----------------------------------------------------------------
+DIVBC	LD	A,L		;Verifica se HL>BC
+	SUB	C
+	LD	A,H
+	SBC	A,B
+	CCF
+	JR	C,DIVBC0		;Overflow de divisao HL>=BC
+	LD	A,D
+	LD	D,8
+	RLA
+	CALL	DIVBC3		;A=HLA/BC Resto em HL
+	LD	D,A
+	LD	A,E
+	PUSH	DE
+	LD	D,8
+	RLA
+	CALL	DIVBC3		;A=HLA/BC Resto em HL
+	POP	DE
+	LD	E,A
+DIVBC0	RET			;130
+;
+;----------------------------------------------------------------
+;	A=HLA/BC Resto em HL	Ponto de Entrada DIVBC3		-
+;	Maximo=90+7*89=713	Minimo=75+7*69=558 Estados	-
+;----------------------------------------------------------------
+DIVBC1	POP	HL
+	CCF
+DIVBC2	RLA
+	DEC	D
+	RET	Z		;69-5+11+7*69=558
+DIVBC3	ADC	HL,HL
+	JR	C,DIVBC5	;So' para BC>8000H
+DIVBC4	PUSH	HL
+	SBC	HL,BC
+	JR	C,DIVBC1	;Resto <q divisor
+	INC	SP		;Restaura apontador da pilha.
+	INC	SP
+	CCF
+	RLA
+	DEC	D
+	RET	Z		;117-27+7*89=713
+	ADC	HL,HL
+	JR	NC,DIVBC4	;So' para BC<=8000H
+DIVBC5	AND	A
+	SBC	HL,BC		;Resto >q FFFFH
+	JR	DIVBC2
+;
+;----------------------------------------------------------------
+;	Calcula o modulo da diferenca HL-DE			-
+;	HL=MOD(HL-DE) e carry indica o sinal negativo		-
+;	DE=Inalterado						-
+;-	MAXIMO=64	MINIMO=30				-
+;----------------------------------------------------------------
+MODDIF	AND	A
+	SBC	HL,DE
+	RET	NC	;(30)	Se positivo ou zero
+	LD	A,L		;complementa o curso
+	CPL
+	LD	L,A
+	LD	A,H
+	CPL
+	LD	H,A
+	INC	HL
+	RET		;(64)
+;
+;----------------------------------------------------------------
+;	Mesmo que ACBIN so' que coloca do area de bufmen	-
+;	Mostra o valor do acumulador em binario			;
+;----------------------------------------------------------------
+BUFBIN	PUSH	BC
+	PUSH	AF
+	PUSH	HL
+	LD	HL,(BUFDIS)
+	LD	C,A
+	LD	B,8
+BUFBI2	LD	A,'0'
+	RLC	C
+	JR	NC,BUFBI1
+	LD	A,'1'
+BUFBI1	LD	(HL),A
+	INC	L
+	DEC	B
+	JR	NZ,BUFBI2
+	LD	(HL),0Dh
+	LD	(BUFDIS),HL
+	POP	HL
+	POP	AF		;????? Nao tem condicao de erro
+	POP	BC
+	RET
+;
+;Mostra posicao atual X
+MOSTRX	LD	A,0E1h		;Posiciona na segunda linha coluna 33
+	CALL	COMDIS
+	LD	HL,(POSICX)	;Posicao atual
+	LD	A,'X'
+MOSTR0	LD	DE,REFZER	;Mostra a posicao x/y
+	AND	A
+	SBC	HL,DE
+	CALL	DISPA		;Mostra A'='HL
+	LD	A,'='
+	CALL	DISPA
+	LD	A,H		;Mostra HL
+	CALL	ACHEX
+	LD	A,L
+	CALL	ACHEX
+	LD	A,' '
+	CALL	DISPA
+	LD	A,0C0h		;Posiciona na segunda linha
+	CALL	COMDIS
+	RET
+;
+;------------------------------------------------------------------------
+;-  Mostra na linha 0 do display as variaveis 				-
+; BUFMTX POSICX POSRPX PEXECX VELMAX ACERLX				-
+;-  B=XX A=YYYY R=XXXX E=ZZZZ V=WWWW I=???? 				-
+;BUFMTX = buffer de controle x		POSICX	;posicao atual		-
+;POSRPX = Posicao da desaceleracao	PEXECX = Posicao de execucao	-
+;VELMAX = Velocidade maxima		ACERLX = Aceleracao em uso	-
+;------------------------------------------------------------------------
+MOSVAR	PUSH	HL
+	PUSH	AF
+	LD	A,80h		;Linha 0
+	CALL	COMDIS
+	LD	A,'B'
+	CALL	DISPA
+	LD	A,'='
+	CALL	DISPA
+	LD	A,(BUFMTX)
+	CALL	ACHEX
+	LD	A,' '
+	CALL	DISPA
+;
+	LD	A,'A'
+	CALL	DISPA
+	LD	A,'='
+	CALL	DISPA
+	LD	HL,(POSICX)	;posicao atual
+	LD	A,H
+	CALL	ACHEX
+	LD	A,L
+	CALL	ACHEX
+	LD	A,' '
+	CALL	DISPA
+;
+	LD	A,'R'
+	CALL	DISPA
+	LD	A,'='
+	CALL	DISPA
+	LD	HL,(POSICX)	;posicao atual
+	LD	A,H
+	CALL	ACHEX
+	LD	A,L
+	CALL	ACHEX
+	LD	A,' '
+	CALL	DISPA
+;
+	LD	A,'E'
+	CALL	DISPA
+	LD	A,'='
+	CALL	DISPA
+	LD	HL,(PEXECX)	;Posicao de execucao
+	LD	A,H
+	CALL	ACHEX
+	LD	A,L
+	CALL	ACHEX
+	LD	A,' '
+	CALL	DISPA
+;
+	LD	A,'V'
+	CALL	DISPA
+	LD	A,'='
+	CALL	DISPA
+	LD	HL,(PEXECX)	;Posicao de execucao
+	LD	A,H
+	CALL	ACHEX
+	LD	A,L
+	CALL	ACHEX
+	LD	A,' '
+	CALL	DISPA
+;
+	LD	A,'I'
+	CALL	DISPA
+	LD	A,'='
+	CALL	DISPA
+	LD	HL,(PEXECX)	;Posicao de execucao
+	LD	A,H
+	CALL	ACHEX
+	LD	A,L
+	CALL	ACHEX
+	LD	A,' '
+	CALL	DISPA
+;
+	POP	AF
+	POP	HL
+	RET
+;
+;Mostra em hexadecimal os ultimos 32 bytes do buffer circular apontado por HL
+SERTST	CALL	TECLAW
+	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+	LD	E,L
+	LD	A,L
+	SUB	32
+	LD	L,A
+SERTST0	LD	A,(HL)
+	CALL	ACHEX
+	INC	L
+	LD	A,(HL)
+	CALL	ACHEX
+	LD	A,' '
+	CALL	DISPA
+	INC	L
+	LD	A,E
+	CP	L
+	JR	NZ,SERTST0
+	CALL	TECLAW
+	RET
+;
+;Mostra os primeiros 26 bytes do buffer de recepcao serial
+;Apartir do ponteiro de leitura
+VRFBFIN	CALL	TECLAW
+	LD	A,CLSDIS
+	CALL	COMDIS		;Limpa display e retorna cursor
+	LD	A,E
+	SUB	L
+	CP	27
+	JR	C,VRFBFI0
+	LD	A,26
+VRFBFI0	LD	D,A
+VRFBFI1	LD	A,(HL)
+	CALL	ACHEX
+	LD	A,' '
+	CALL	DISPA
+	INC	L
+	DEC	D
+	JR	NZ,VRFBFI1
+	CALL	TECLAW
+	RET
+;
+TSTBIP4	PUSH	HL
+	LD	HL,16*TMPBP	;Tempo do bip
+	JR	TSTBIPX
+TSTBIP2	PUSH	HL
+	LD	HL,4*TMPBP	;Tempo do bip
+	JR	TSTBIPX
+TSTBIP1	PUSH	HL
+	LD	HL,TMPBP	;Tempo do bip
+TSTBIPX	LD	(TMPBIP),HL	;temporizador o bip
+	LD	HL,BUFCPU	;buffer de controle da placa cpu
+	SET	0,(HL)		;liga o bip
+	POP	HL
+	RET
+;
+
+
+
+
+; IOINT	EQU	50h		;So entrada	no registro D
+;				Estado normal
+;D0 Interrupcao Externa			0
+;D1 Interrupcao interface serial	0
+;D2 Interrupcao do relogio		0		
+;D3 Interrupcao pendente		0
+;D4 Nao conectado			?
+;D5 Nao conectado			?
+;D6 Nao conectado			?
+;D7 Nao conectado			?
+
+;CTRCPU	EQU	11h	No registro E
+;	Entrada		Estado Normal
+;D0	start avanco	?
+;D1	okbat		1	0	0
+;D2	start retorno	?
+;D3	badram		0	0	0
+;D4	cnt4-?		?
+;D5	control		1	0	0
+;D6	cnt4-?		?
+;D7	shift		1	0	0
+
+
+;IOTEC	EQU	10h		;Diversos
+;	Entrada			Saida
+;D0	coluna 0		Teclado	A0
+;D1	coluna 1		Teclado	A1
+;D2	coluna 2		Teclado	A2
+;D3	coluna 3		Nao usado
+;D4	coluna 4		Ld3	Estava errado	Ld1
+;D5	coluna 5		Ld2
+;D6	coluna 6		Ld1	Estava errado	Ld3
+;D7	coluna 7		Nao usado
+
+
+
+;////////////////////////////////////////////////////////////////////////////////////////
+;	Label do MenuPo10.Inc								/
+;////////////////////////////////////////////////////////////////////////////////////////
+;	Rotinas Chamada do menu
+;	COPIPRG	EXECUX	EXECUY	LerBlok	MEEPROX	MEEPROY	MMICRO0	MMICROX	MMICROY	MODCAN2
+;	REDICAO	RETORNA	SELPARM	SELPARP	SEQUIPO	SUBMENE	SUBMENR	SUBMENT	SUBMENX	SUBMENY
+;	TSINP	TSOUT	TSTEC	TSTESP	TrocNiv	TrocSen	VERMEMO	VERMEMX	VERMEMY	VMICROX
+;	VMICROY
+
+;	Rotinas de conversoes
+;	CONVMM	CONVMM0	CONVSEG	RETORNA
+
+
+;	Variaveis AscII
+;	0	8000h	8003h	8007h	800Bh	800Fh	8013h	8017h	8019h	801Bh
+;	801Fh	8023h	8027h	802Bh	'8032h'	'8035h'	'8038h'	'803Eh'	'8045h'	'804Ch'
+;	8053h	805Ah	805Fh	8066h	806Dh	8073h	8078h	807Fh	8086h	808Dh
+;	8094h	8098h	809Fh	80A6h	'80ADh'	80B2h	80B7h	80BCh	80C3h	'80CAh'
+;	'80CCh'	'80D0h'	'80D5h'	FD00h	FD08h	FD10h	FD18h	FD20h	FD28h	FD30h
+;	FD38h	FD40h	FD48h	FD50h	FD58h	FD60h	FE00h	FE08h	FE10h	FE18h
+;	FE20h	FE28h	FE30h	FE38h	FE40h	FE48h	FE50h	FE58h	FE60h	FF30h
+;	FF38h	FF40h	FF50h	FF58h	FF60h	FF90h	FF98h	FFA0h	FFA8h	FFB0h
+;	FFB8h	BUFTST	ChkCpu	CopyPrg	MCICLO	MIMPRES	MINTRV	MMOVIM	mPorSer	tSenha
+;	'MMENSAG'
+
+;	Variaveis Word
+;	ACEAVS	ACERET	ACERFX	ACERFY	APISTAO	ASTAAVS	ASTARET	BUFTST0	CHEQSYS	CPROG,
+;	DIRERS	EIXOX	EIXOY	ENSTART	EPROG	FATGIRX	FATGIRY	GIROCX	GIROCY	GIROPX
+;	GIROPY	JANELX	JANELY	LGIMPRE	LGSTARX	LGSTARY	MENrevS	MENselS	MPASPAS	NPULSX
+;	NPULSY	NUMAVS	NUMRET	NumBald	POSFIM	POSINI	POSRFX	POSRFY	PRIAVS	PRIRET
+;	ParyTip	ParytOn	REDCORX	REDCORY	RETAUT	RETEXT	RETIMPR	RETPPAS	RFSTARX	RFSTARY
+;	SSTAAVS	SSTAPPA	SSTARET	StaTec	STAUTPP	StopBit	TMPIMPR	TURBOX	TURBOY	ULTAVS
+;	ULTRET	VELAVS	VELRET	VELRFX	VELRFY	XCANAL	XPROG	YCANAL	YPROG	mBreak
+;	nBitDat	nSenha
+;	'DirMeS'	'NumMul'	'PasMul'	'PrMAVS'	'PrMRET'
+;	'RetEix'	'SelImp'	'SelMul'	'SelPar'	'TMPIMPR'
+;	'TMPIMPR'
+;////////////////////////////////////////////////////////////////////////////////////////
