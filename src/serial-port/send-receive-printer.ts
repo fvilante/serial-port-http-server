@@ -86,7 +86,7 @@ const Test1 = () => {
             sendPrinter(port, 9600)(1, 'oi')
                 .then( () => {
                     setTimeout( () => { 
-                        sendPrinter(port, 9600)(3,'V17')
+                        sendPrinter(port, 9600)(4,'E44.A5')
                     },1500)
                 })
                 .catch( err => {
