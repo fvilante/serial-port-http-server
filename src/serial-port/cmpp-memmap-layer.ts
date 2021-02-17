@@ -1,6 +1,7 @@
 import { BaudRate } from "../serial-local-driver";
 import { DirectoinKeys, FrameCore, word2int } from "./cmpp-datalink-protocol";
 import { GetAllNames, HyperDriver, GetCastFromName, Driver, Param } from "./mapa_de_memoria";
+import { executeInSequence } from "./promise-utils";
 import { sendCmpp } from './send-receive-cmpp-datalink'
 
 
@@ -95,23 +96,6 @@ export const setParam_ =
         }
         
 
-})
-
-export const executeInSequence = (arr: (() => Promise<void>)[]): Promise<void> => new Promise( (resolve, reject) =>  {
-    let i: number = 0
-    const executeAndWait = () => {
-        console.log('****************** enviando para CMPP **************')
-        arr[i]().then( () => {
-            console.log('****************** Sucesso no envio para CMPP **************')
-            i++;
-            if(i<arr.length) {
-                executeAndWait();
-            } else {
-                resolve(); //finished
-            }            
-        })
-    }
-    executeAndWait();
 })
 
 

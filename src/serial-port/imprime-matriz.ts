@@ -1,7 +1,9 @@
 import { delay } from "../utils/delay"
-import { executeInSequence, setParam_ } from "./cmpp-memmap-layer"
+import { setParam_ } from "./cmpp-memmap-layer"
+import { MovimentKit, Milimeter} from "./driver-de-eixo"
 import { Address } from "./global"
 import { Driver } from "./mapa_de_memoria"
+import { executeInSequence } from "./promise-utils"
 import { PosicaoInicialY, 
     mili2PulseX as miliX, 
     mili2PulseY as miliY,
@@ -150,28 +152,19 @@ const FazLinha = ():Promise<void> => new Promise ((resolve, reject) => {
 
 })
 
-type Impressoes = [
-    [x0: number, x1: number],
-    [x2: number, x3: number],
-    [x4: number, x5: number],
+export type ImpressoesX = readonly [
+    readonly [x0: number, x1: number],
+    readonly [x2: number, x3: number],
+    readonly [x4: number, x5: number],
 ]
 
-const fazLinhaX = (impressoes: Impressoes):Promise<void> => {
-/*
-    const movimento = {
-        rampa: miliX(70),
-        PMA: PosicaoInicialX+miliX(100),
-        UMA: PosicaoInicialX+miliX(170),
-        PI: PosicaoInicialX,
-        PF: movimento['UMA'] + rampa,
-        NMA: 2,
-        velAv: 1700,
-        acAv: 3000,
-        velRet: 2300,
-        acRet: 3000,
-    }*/
+export const fazLinhaXPreta = async (movimentKit: MovimentKit, impressoes: ImpressoesX):Promise<void> => {
 
-    const rampa = miliX(70)
+    console.log('fazLinhaPreta')
+    const {x,y,z,m} = movimentKit
+
+
+    const rampa = miliX(100)
     const PMA = PosicaoInicialX+miliX(100)
     const UMA = PosicaoInicialX+miliX(170)
     const PI = PosicaoInicialX
@@ -182,94 +175,73 @@ const fazLinhaX = (impressoes: Impressoes):Promise<void> => {
     const velRet = 2300
     const acRet = 3000
 
-    return new Promise( (resolve, reject) => {
+
+
+    const ImprimePar = async (x0: number, x1: number, rampa: number): Promise<void> => {
+
+
+        await x._setPrintMessages({
+            numeroDeMensagensNoAvanco: NMA,
+            numeroDeMensagensNoRetorno: 0,
+            posicaoDaPrimeiraMensagemNoAvanco: x0,
+            posicaoDaUltimaMensagemNoAvanco: x1,
+            posicaoDaPrimeiraMensagemNoRetorno: 500,
+            posicaoDaUltimaMensagemNoRetorno: 500,
+        })
     
-        const setup = [
-            //() => X('Posicao inicial', PI),
-            () => X('Velocidade de avanco', velAv),
-            () => X('Velocidade de retorno', velRet),
-            () => X('Aceleracao de retorno', acRet),
-            () => X('Aceleracao de avanco', acAv),
-        ]
+        const [minX, maxX] = x._getAbsolutePositionRange()
 
-        const rampa = miliX(100)
+        const POSFIM = x1+x._convertMilimeterToPulseIfNecessary(Milimeter(rampa))
+
+        await x.goToAbsolutePosition(x1+rampa, (v,a) =>[velAv,acAv] )
+        await x.goToAbsolutePosition(minX, (v,a) => [velRet,acRet])
+        //await x._clearPrintingMessages() //FIX: should be unnecessary
+
+        return
+    }
+
+
+    await ImprimePar(impressoes[0][0],impressoes[0][1], rampa )
+    await ImprimePar(impressoes[1][0],impressoes[1][1], rampa )
+    await ImprimePar(impressoes[2][0],impressoes[2][1], rampa )
         
-        const ImprimePar = (x0: number, x1: number): Promise<void> => {
-            return new Promise( (resolve, reject) => {
-                const programaImpressao = [
-                    () => X('Posicao final', x1+rampa),
-                    () => X('Posicao da primeira impressao no avanco', x0),
-                    () => X('Posicao da ultima mensagem no avanco', x1),
-                    () => X('Numero de mensagem no avanco', NMA),
-                ]
-
-                const start_X_duas_Passadas_Branca = [
-                    () => X('Start automatico no retorno ligado', true),
-                    () => X('Start serial', true),
-                    () => delay(1000),
-                    () => AguardaAtePosicaoAtualSerIgualA('XAxis', PI, 5, 40000),
-                    () => X('Start serial', true),
-                    () => delay(1000),
-                    () => AguardaAtePosicaoAtualSerIgualA('XAxis', PI, 5, 40000),
-                ]
-
-                const start_X_uma_passada_preta = [
-                    () => X('Start automatico no retorno ligado', true),
-                    () => X('Start serial', true),
-                    () => delay(1000),
-                    () => AguardaAtePosicaoAtualSerIgualA('XAxis', PI, 5, 40000),
-                ]
-
-
-                executeInSequence([
-                    ...programaImpressao,
-                    ...start_X_duas_Passadas_Branca,
-                ]).then(() => resolve())
+    return
             
-            })
-        }
-        
-    
-   
-    
-        const arr = [ 
-            ...setup, 
-            () => ImprimePar(impressoes[0][0],impressoes[0][1] ),
-            () => ImprimePar(impressoes[1][0],impressoes[1][1] ),
-            () => ImprimePar(impressoes[2][0],impressoes[2][1] ),
-        ]
-        
-        
-        return executeInSequence(arr)
-            .then( () => resolve())
-
-
-    })
-    
 }
+    
 
-const E44_A5: Impressoes = [
-    [PosicaoInicialX+miliX(100-9), PosicaoInicialX+miliX(200-40)],
-    [PosicaoInicialX+miliX(100-9+(70*2)), PosicaoInicialX+miliX(200-40+(70*2))],
-    [PosicaoInicialX+miliX(100-9+(70*4)+2), PosicaoInicialX+miliX(200-40+(70*4)+5) ],
+
+
+export const fazLinhaXBranca = async (movimentKit: MovimentKit, impressoes: ImpressoesX):Promise<void> => {
+    console.log('fazLinhaBranca')
+    await fazLinhaXPreta(movimentKit, impressoes)
+    await fazLinhaXPreta(movimentKit, impressoes)
+        
+}
+    
+
+export const E44_A5: ImpressoesX = [
+    [PosicaoInicialX+miliX(100-9+9), PosicaoInicialX+miliX(200-40+9+3)],
+    [PosicaoInicialX+miliX(100-9+(70*2)+9+4), PosicaoInicialX+miliX(200-40+(70*2)+9+6.3)],
+    [PosicaoInicialX+miliX(100-9+(70*4)+2+9+5.5), PosicaoInicialX+miliX(200-40+(70*4)+5+9+5) ],
 ]
 
 const ec = miliX(67-115) //espaçamento_cabeçote
 
-const E44_B1: Impressoes = [
+export const E44_B1: ImpressoesX = [
     [PosicaoInicialX+miliX(100-9+6)+ec, PosicaoInicialX+miliX(200-40)+ec],
     [PosicaoInicialX+miliX(100-9+(70*2))+ec, PosicaoInicialX+miliX(200-40+(70*2))+ec],
     [PosicaoInicialX+miliX(100-9+(70*4)+2)+ec, PosicaoInicialX+miliX(200-40+(70*4)+5)+ec],
 ]
 
 // este sao 5 impressoes por linha
-const V17: Impressoes = [
+export const V17: ImpressoesX = [
     [PosicaoInicialX+miliX(100-9+6-22+3)+ec, PosicaoInicialX+miliX(200-40+5-6.5+3)+ec],
     [PosicaoInicialX+miliX(100-9+(70*2)+25-3+3)+ec, PosicaoInicialX+miliX(200-40+(70*2)+52.5-4+3)+ec],
     [PosicaoInicialX+miliX(200-40+(70*4)+5+3)+ec, PosicaoInicialX+miliX(200-40+(70*4)+5+3)+ec],
 ]
 
-const V107: Impressoes = [
+export const V107: ImpressoesX = [
     [PosicaoInicialX+miliX(100-9+6+3.5)+ec, PosicaoInicialX+miliX(200-40+3.5)+ec],
     [PosicaoInicialX+miliX(100-9+(70*2)+1.5)+ec, PosicaoInicialX+miliX(200-40+(70*2)+3)+ec],
     [PosicaoInicialX+miliX(100-9+(70*4)+2+3)+ec, PosicaoInicialX+miliX(200-40+(70*4)+5+3)+ec],
@@ -277,65 +249,65 @@ const V107: Impressoes = [
 
 
 const delta = -miliX(40)
-const TermoP3: Impressoes = [
+export const TermoP3: ImpressoesX = [
     [PosicaoInicialX+miliX(100-9)+delta, PosicaoInicialX+miliX(200-40)+delta],
     [PosicaoInicialX+miliX(100-9+(70*2))+delta, PosicaoInicialX+miliX(200-40+(70*2))+delta],
     [PosicaoInicialX+miliX(100-9+(70*4)+2)+delta, PosicaoInicialX+miliX(200-40+(70*4)+5)+delta ],
 ]
 
-const Termo2559371: Impressoes = [
+export const Termo2559371: ImpressoesX = [
     [PosicaoInicialX+miliX(100-9+7.5-45+3), PosicaoInicialX+miliX(200-40+52)+delta],
     [PosicaoInicialX+miliX(100-9+(70*2)+101-35), PosicaoInicialX+miliX(200-40+(70*2)+152+4)+delta],
     [0, 0],
 ]
 
 // M1
-const Termo2559371_M1_Texto_Inferior: Impressoes = [
+export const Termo2559371_M1_Texto_Inferior: ImpressoesX = [
     [PosicaoInicialX+miliX(100-9+7.5-45+3+6-2), PosicaoInicialX+miliX(200-40+52+6-3)+delta],
     [PosicaoInicialX+miliX(100-9+(70*2)+101-35+6+3-7), PosicaoInicialX+miliX(200-40+(70*2)+152+4+6+6-7)+delta],
     [0, 0],
 ]
 
-const Termo2559371_M1_Texto_Superior: Impressoes = [
+export const Termo2559371_M1_Texto_Superior: ImpressoesX = [
     [PosicaoInicialX+miliX(100-9+7.5-45+3+6-2-8), PosicaoInicialX+miliX(200-40+52+6-3-9)+delta],
     [PosicaoInicialX+miliX(100-9+(70*2)+101-35+6+3-7-9), PosicaoInicialX+miliX(200-40+(70*2)+152+4+6+6-7-8)+delta],
     [0, 0],
 ]
 
-const T199: Impressoes = [
+export const T199: ImpressoesX = [
     [PosicaoInicialX+miliX(100-9+6+6)+ec, PosicaoInicialX+miliX(200-40+8)+ec],
     [PosicaoInicialX+miliX(100-9+(70*2)+6)+ec, PosicaoInicialX+miliX(200-40+(70*2)+8)+ec],
     [PosicaoInicialX+miliX(100-9+(70*4)+2+8)+ec, PosicaoInicialX+miliX(200-40+(70*4)+5+6)+ec],
 ]
 
-const T125 = T199
+export const T125 = T199
 
-const T110: Impressoes = [
+export const T110: ImpressoesX = [
     [PosicaoInicialX+miliX(100-9+6+6+5)+ec, PosicaoInicialX+miliX(200-40+8+5)+ec],
     [PosicaoInicialX+miliX(100-9+(70*2)+6+5)+ec, PosicaoInicialX+miliX(200-40+(70*2)+8+5+2)+ec],
     [PosicaoInicialX+miliX(100-9+(70*4)+2+8+5)+ec, PosicaoInicialX+miliX(200-40+(70*4)+5+6+5+2)+ec],
 ]
 
-const T123: Impressoes = [
+export const T123: ImpressoesX = [
     [PosicaoInicialX+miliX(100-9+6+6+5)+ec, PosicaoInicialX+miliX(200-40+8+5)+ec],
     [PosicaoInicialX+miliX(100-9+(70*2)+6+5)+ec, PosicaoInicialX+miliX(200-40+(70*2)+8+5+2)+ec],
     [PosicaoInicialX+miliX(100-9+(70*4)+2+8+5)+ec, PosicaoInicialX+miliX(200-40+(70*4)+5+6+5+2)+ec],
 ]
 
-const P3A: Impressoes = [
+export const P3A: ImpressoesX = [
     [PosicaoInicialX+miliX(100-9+6-11.5+2.3)+ec, PosicaoInicialX+miliX(200-40-11)+ec],
     [PosicaoInicialX+miliX(100-9+(70*2)-12.5)+ec, PosicaoInicialX+miliX(200-40+(70*2)-10.5)+ec],
     [PosicaoInicialX+miliX(100-9+(70*4)+2-11.6)+ec, PosicaoInicialX+miliX(200-40+(70*4)+5-13.11)+ec],
 ]
 
 
-const V120: Impressoes = [
+export const V120: ImpressoesX = [
     [PosicaoInicialX+miliX(100-9+6)+ec, PosicaoInicialX+miliX(200-40)+ec],
     [PosicaoInicialX+miliX(100-9+(70*2)-2)+ec, PosicaoInicialX+miliX(200-40+(70*2))+ec],
     [PosicaoInicialX+miliX(100-9+(70*4)+2)+ec, PosicaoInicialX+miliX(200-40+(70*4)+5)+ec],
 ]
 
-const V2: Impressoes = [
+export const V2: ImpressoesX = [
     [PosicaoInicialX+miliX(100-9+6+6+5+5.7)+ec, PosicaoInicialX+miliX(200-40+8+5+5.7)+ec],
     [PosicaoInicialX+miliX(100-9+(70*2)+6+5+5.7)+ec, PosicaoInicialX+miliX(200-40+(70*2)+8+5+2+5.7)+ec],
     [PosicaoInicialX+miliX(100-9+(70*4)+2+8+5+5.7)+ec, PosicaoInicialX+miliX(200-40+(70*4)+5+6+5+2+5.7)+ec],
@@ -361,151 +333,153 @@ Referencia_3Eixos().then( () => {
 */
 
 
-const E44_A3 = E44_A5 // @4 - preta
-const E44_A1 = E44_A5 // @4 - preta
-const E44_A6 = E44_A5 // @4 - preta
-const E44_A7 = E44_A5 // @4 - preta
+export const E44_A3 = E44_A5 // @4 - preta
+export const E44_A1 = E44_A5 // @4 - preta
+export const E44_A6 = E44_A5 // @4 - preta
+export const E44_A7 = E44_A5 // @4 - preta
 
 
 // termoretratil
 
 
 
-const E44_B2 = E44_B1 // @3 - branca
-const E44_B5 = E44_B1 // @3 - branca
-const T202 = E44_B1 // porem o texto eh @2 - branca
+export const E44_B2 = E44_B1 // @3 - branca
+export const E44_B5 = E44_B1 // @3 - branca
+export const E44_B6 = E44_B1 // @3 - branca
+export const T202 = E44_B1 // porem o texto eh @2 - branca
 
 //termoretratil
 
 
 // job
 const intervalo = 10000
-const modelo = V17 //V107 //E44_A5
+const modelo = TermoP3 //T110 //V107 //E44_A5
 
+/*
 const arr = [
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
 
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
 
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
-    () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
 
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
+    () => delay(intervalo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
 
 
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
-    () => fazLinhaX(modelo),
+    () => fazLinhaXBranca(modelo),
     () => delay(intervalo),
 
 /*
@@ -563,7 +537,19 @@ const arr = [
    
     
 
-]
+//]
 
-executeInSequence(arr)
+const C = 100
+
+/*const arr = YPassoAPasso([
+    PosicaoInicialY+100*1,
+    PosicaoInicialY+100*2,
+    PosicaoInicialY+100*3,
+])
+    */    
+
+
+//executeInSequence(arr )
+
+
 

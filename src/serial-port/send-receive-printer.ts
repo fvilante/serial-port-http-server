@@ -1,11 +1,65 @@
 import { BaudRate } from '../serial-local-driver'
+import { delay } from '../utils/delay'
 import { CommDriver, communicate } from './communicate'
 import { mkSetRemoteMessageFrame, mkSelectRemoteMessageFrame } from './printer-protocol'
 
 const ACK = 6
 const NACK = 21
 
-const printerTimeout = 5000
+const printerTimeout = 3000
+
+
+const sendReceiveFrameToPrinter = (
+    portName: string, baudRate: BaudRate = 9600
+) => async (
+    frame: readonly number[]
+): Promise<void> => new Promise( (resolve, reject) => {
+
+    communicate(
+        portName,
+        baudRate,
+        frame,
+        //onData
+        (dataReceived, hasFinished) => {
+            const printerResponse = dataReceived[0]
+           
+            hasFinished() 
+                .then( () => {
+                    if (printerResponse===ACK) {
+                        resolve()
+                    } else if (printerResponse === NACK) {
+                        reject('Printer responded with NACK instead of ACK')
+                    } else {
+                        reject(`Printer do not responded ACK or NACK as expected, but responded with byte='${printerResponse}'.`)
+                    }
+                })
+
+
+        },
+        printerTimeout,
+    )
+    
+})
+
+export const sendPrinter2 = (
+    portName: string, baudRate: BaudRate = 9600
+) => async (
+    remoteFieldIndex: number, text: string
+): Promise<void> => {
+
+    const selectMessage = mkSelectRemoteMessageFrame(remoteFieldIndex)
+    const setText = mkSetRemoteMessageFrame(text)
+
+    await sendReceiveFrameToPrinter(portName, baudRate)(selectMessage)
+    await delay(500) // fix: May be unecessary this delay
+    await sendReceiveFrameToPrinter(portName, baudRate)(setText)
+    console.log(`Successfully selected remote field "${remoteFieldIndex}" and set remote text to "${text}" on Printer on port ${portName}/${String(baudRate)}.`);
+    return 
+}
+
+
+
+
 
 export const sendPrinter = (
         portName: string, baudRate: BaudRate = 9600
@@ -86,7 +140,7 @@ const Test1 = () => {
             sendPrinter(port, 9600)(1, 'oi')
                 .then( () => {
                     setTimeout( () => { 
-                        sendPrinter(port, 9600)(4,'E44.A5')
+                        sendPrinter(port, 9600)(4,'E44.A7')
                     },1500)
                 })
                 .catch( err => {
@@ -99,6 +153,6 @@ const Test1 = () => {
 }
 //11944724357
 
-Test1()
+//Test1();
 
 

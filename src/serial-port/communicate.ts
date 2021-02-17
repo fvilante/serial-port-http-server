@@ -2,6 +2,10 @@ import { BaudRate, PortOpened, SerialDriverConstructor } from '../serial-local-d
 
 export const CommDriver = SerialDriverConstructor()
 
+
+// Comunicate with a device sending to it data, and grabing the response to a interpreter
+// The interpreter is responsible to msg back when he has finished processing the response
+// or signal back if an error has ocuried
 export const communicate = (
     portName: string,  // com1, com2, etc
     baudRate: BaudRate, //2400, 9600, etc

@@ -1,8 +1,9 @@
-import { executeInSequence, setParam_ } from './cmpp-memmap-layer'
+import { setParam_ } from './cmpp-memmap-layer'
 import { fetchCMPPStatusL, StatusLCasted} from './get-cmpp-status'
 import { getPosicaoAtual } from './get-pos-atual'
 import { Address, Axis } from './global'
 import { Driver } from './mapa_de_memoria'
+import { executeInSequence } from './promise-utils'
 
 // RECEBE PARAMETROS DE ENTRADA DO CICLO DO USUARIO
 

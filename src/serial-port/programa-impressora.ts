@@ -1,6 +1,6 @@
-import { executeInSequence } from './cmpp-memmap-layer'
+import { executeInSequence } from './promise-utils'
 import { Address, Printers} from './global'
-import { ExecuteInParalel } from './referencia_eixos'
+import { ExecuteInParalel } from './promise-utils'
 import { sendPrinter } from './send-receive-printer'
 
 
@@ -31,10 +31,10 @@ export const ProgramaImpressora = (
         const paralel = [
             () => EnabledPrinter(remoteFieldIndex,text),
             () => DisablePrinter(remoteFieldIndex,''),
-        ]
+        ] as const
 
         return ExecuteInParalel(paralel)
     
 }
 
-ProgramaImpressora('printerWhite',2,'T202')
+//ProgramaImpressora('printerWhite',2,'T202')

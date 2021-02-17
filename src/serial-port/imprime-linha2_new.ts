@@ -1,8 +1,9 @@
-import { executeInSequence, setParam_ } from './cmpp-memmap-layer'
+import { setParam_ } from './cmpp-memmap-layer'
 import { fetchCMPPStatusL, StatusLCasted} from './get-cmpp-status'
 import { getPosicaoAtual } from './get-pos-atual'
 import { Address, Axis } from './global'
 import { Driver } from './mapa_de_memoria'
+import { executeInSequence } from './promise-utils'
 
 // RECEBE PARAMETROS DE ENTRADA DO CICLO DO USUARIO
 
@@ -81,8 +82,11 @@ export const buscaRef = (axis: Axis): Promise<void> => {
 
     const arr = [
         //() => Z('Posicao final', 100),
+        () => Axis('Start externo habilitado', false),
+        () => Axis('Entrada de start entre eixo habilitado', false),
         () => Axis('Reducao do nivel de corrente em repouso', false),
-        () => Axis('Velocidade de referencia', 150),
+        () => Axis('Zero Index habilitado p/ protecao', false),
+        () => Axis('Velocidade de referencia', 230),
         
         //() => Z('Aceleracao de referencia',5000),
         
@@ -189,11 +193,11 @@ const preparaZ = ():Promise<void> => new Promise( (resolve, reject) => {
     const { portName, baudRate, channel} = Address[`Axis`]['ZAxis']
     const Z = setParam_(portName,baudRate,channel)(Driver)
 
-    const PosicaoInicial = 750
+    const PosicaoInicial = 650
 
     const arr = [
         () => Z('Posicao inicial', PosicaoInicial),
-        () => Z('Posicao final', 1000),
+        () => Z('Posicao final', 700),
         () => Z('Velocidade de avanco', 200),
         () => Z('Velocidade de retorno', 300),
         () => Z('Aceleracao de avanco', 500),
@@ -2257,10 +2261,10 @@ const repeatPromise = <A>(p: Promise<A>, nTimes: number): Promise<A> =>
         })
 })
 
-//InicializaMaquina();
+InicializaMaquina();
 
 
-executeInSequence(arr)
+//executeInSequence(arr)
 
 
 

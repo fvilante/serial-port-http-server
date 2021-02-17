@@ -140,6 +140,7 @@ export const compileCoreFrame = (core: FrameCore): FrameSerialized => {
 // ======== INCOMMING DATA PROCESSING =============
 
 // note: javascript object guarantees the keys to be iterated in order of insertion for string-keys
+// todo: Add information about when this data arrived (for time / speed (ping) information)
 export type FrameInterpreted = {
     readonly firstEsc: [firstEsc: ESC],
     readonly startByte: [startByte: StartByteNum],

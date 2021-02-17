@@ -22,7 +22,7 @@ export const sendCmpp = (
         const s0 = compileCoreFrame(frame)
         const dataToSend = flattenFrameSerialized(s0)
         //console.log(`Enviando para CMPP: `, dataToSend)
-        
+        const hasSentSignal = () => undefined // do nothing
 
         communicate(
             portName, 
@@ -66,7 +66,9 @@ export const sendCmpp = (
                     }
                 }
 
-            }, CmppTimeout)
+            }, 
+            CmppTimeout,
+            )
 })
 
 

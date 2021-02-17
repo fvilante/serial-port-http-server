@@ -1,9 +1,10 @@
 import { delay } from "../utils/delay"
-import { executeInSequence, setParam_ } from "./cmpp-memmap-layer"
+import { setParam_ } from "./cmpp-memmap-layer"
 import { fetchCMPPStatusL } from "./get-cmpp-status"
 import { getPosicaoAtual } from "./get-pos-atual"
 import { Address, Axis } from "./global"
 import { Driver } from "./mapa_de_memoria"
+import { ExecuteInParalel, executeInSequence, WaitUntilTrue } from "./promise-utils"
 
 
 const { portName:portNameX, baudRate:baudRateX, channel:channelX} = Address[`Axis`]['XAxis']
@@ -31,30 +32,6 @@ export const mili2PulseZ = (mm: number): number => {
     return mili2PulseX(mm)
 }
 
-export const WaitUntilDone = <A>(effect: () => Promise<A>, condition: (_:A) => boolean, poolingInterval: number /*milisecs*/, timeout: number ):Promise<A> => 
-    new Promise( (resolve, reject) => { 
-
-        let timerout: NodeJS.Timeout | undefined = undefined
-        let pooling: NodeJS.Timeout | undefined = undefined
-        timerout = setTimeout( () => { 
-            if (pooling!==undefined) clearTimeout(pooling)
-            reject(`Timeout in function 'WaitUntilDone' after '${timeout} milisecs'. Condition was not satisfied before timeout.`)
-        }, timeout)
-
-        const pool = () => {
-            effect()
-                .then( a => {
-                    if(condition(a)===true) {
-                        if (timerout!==undefined) clearTimeout(timerout)
-                        resolve(a);
-                    } else {
-                        pooling = setTimeout(pool, poolingInterval)
-                    }
-                })
-        }
-        pool();      
-})
-
 
 export const AguardaAtePosicaoAtualSerIgualA = (axis: Axis, posicao: number, janela: number, timeout: number):Promise<void> => new Promise( (resolve, reject) => {
 
@@ -67,7 +44,7 @@ export const AguardaAtePosicaoAtualSerIgualA = (axis: Axis, posicao: number, jan
             ? true
             : false
         
-    return WaitUntilDone(
+    return WaitUntilTrue(
         () => getPosicaoAtual(portName, baudRate, channel),
         pa => isInsideInInterval(pa),
         600,
@@ -102,7 +79,7 @@ export const buscaRef = (axis: Axis, velRef: number): Promise<void> => {
         //() => setParam('Modo manual serial', false), // bit de desliga o motor
         () => Axis('Start serial', true),
     ]
-    return executeInSequence(arr)
+    return executeInSequence(arr).then( () => {})
     /*setTimeout( () => { 
 
         setInterval( () => executeInSequence(arr), 1000)
@@ -133,7 +110,7 @@ export const ReferenciaEixoSeNecessario = (axis: Axis, velref: number): Promise<
             if (referenciado===false && referenciando===false) {
                 buscaRef(axis,velref)
                     .then( () => {
-                        WaitUntilDone(
+                        WaitUntilTrue(
                             getStatusL,
                             (statusL => statusL.referenciado === true),
                             1000,
@@ -146,7 +123,7 @@ export const ReferenciaEixoSeNecessario = (axis: Axis, velref: number): Promise<
                
                 
             } else if (referenciado===false && referenciando===true) { 
-                WaitUntilDone(
+                WaitUntilTrue(
                     getStatusL,
                     (statusL => statusL.referenciado === true),
                     1000,
@@ -160,31 +137,11 @@ export const ReferenciaEixoSeNecessario = (axis: Axis, velref: number): Promise<
         })
 })
 
-export const ExecuteInParalel = (arr: readonly ( () => Promise<void>)[]): Promise<void> => {
-    let i = 0
-
-    return new Promise( (resolve, reject) => {
-        arr.map( p => p()
-            .then( () => {
-                i++;
-                if (i===arr.length) {
-                    resolve()
-                } else {
-                    //todo: define a timeout
-                }
-
-            })
-            .catch( (err) => {
-                reject(err)
-            })
-        )
-    })
-}
 
 // Inicializacao da maquina garante estas posicoes iniciais configuradas
-export const PosicaoInicialX = 650
-export const PosicaoInicialY = 650
-export const PosicaoInicialZ = 750
+export const PosicaoInicialX = 630
+export const PosicaoInicialY = 630
+export const PosicaoInicialZ = 630
 
 export const InicializaMaquina = (): Promise<void> => new Promise( (resolve, reject) => {
 
@@ -213,13 +170,13 @@ export const InicializaMaquina = (): Promise<void> => new Promise( (resolve, rej
         () => Y('Numero de mensagem no retorno',0),
         () => Y('Start automatico no avanco ligado', false),
         () => Y('Start automatico no retorno ligado', true),
-    ]
+    ] as const
 
    
 
     const programaInicialZ = [
         () => Z('Posicao inicial', PosicaoInicialZ),
-        () => Z('Posicao final', 1000),
+        () => Z('Posicao final', PosicaoInicialZ+50),
         () => Z('Velocidade de avanco', 500), //200
         () => Z('Velocidade de retorno', 500), //300
         () => Z('Aceleracao de avanco', 500),
@@ -227,16 +184,24 @@ export const InicializaMaquina = (): Promise<void> => new Promise( (resolve, rej
         () => Z('Reducao do nivel de corrente em repouso', false),
         //() => Z('Start automatico no avanco ligado', true),
         () => Z('Start automatico no retorno ligado', true),
-    ]
+    ] as const
 
     const referenciaZ = [
+        () => Z('Start externo habilitado', false),
+        () => Z('Entrada de start entre eixo habilitado', false),
+        () => Z('Reducao do nivel de corrente em repouso', false),
+        () => Z('Zero Index habilitado p/ protecao', false),
         () => ReferenciaEixoSeNecessario('ZAxis',250),
-    ]
+    ] as const
 
     const referenciaXY = [
+        () => Z('Start externo habilitado', false),
+        () => Z('Entrada de start entre eixo habilitado', false),
+        () => Z('Reducao do nivel de corrente em repouso', true),
+        () => Z('Zero Index habilitado p/ protecao', true),
         () => ReferenciaEixoSeNecessario('XAxis',500),
         () => ReferenciaEixoSeNecessario('YAxis',500),
-    ]
+    ] as const
 
     const warmUpZ = [
         // warup up Z
@@ -244,7 +209,7 @@ export const InicializaMaquina = (): Promise<void> => new Promise( (resolve, rej
         () => delay(1000),
         () => AguardaAtePosicaoAtualSerIgualA('ZAxis', PosicaoInicialZ, 2, 30000),
         () => Z('Start automatico no retorno ligado', false),
-    ]
+    ] as const
 
     const warmUpX = [
         // warup up X
@@ -252,15 +217,15 @@ export const InicializaMaquina = (): Promise<void> => new Promise( (resolve, rej
         () => delay(2000),
         () => AguardaAtePosicaoAtualSerIgualA('XAxis', PosicaoInicialX, 2, 40000),
         () => X('Start automatico no retorno ligado', false)
-    ]
-
+    ] as const 
+ 
     const warmUpY = [
         // warup up Y
         () => StartNoEixo('YAxis'),
         () => delay(2000),
         () => AguardaAtePosicaoAtualSerIgualA('YAxis', PosicaoInicialY, 2, 40000),
         () => Y('Start automatico no retorno ligado', false)
-    ]
+    ] as const
 
     
     const carregaProgramaInicialDosEixos = [
@@ -278,12 +243,12 @@ export const InicializaMaquina = (): Promise<void> => new Promise( (resolve, rej
             () => executeInSequence(warmUpY),
             () => executeInSequence(warmUpZ),
         ])
-    ]
+    ] as const
 
     
 
     executeInSequence(carregaProgramaInicialDosEixos)
-    .then( () => resolve())
+    .then( data => resolve())
 
    
 })
@@ -302,3 +267,5 @@ export const Referencia_3Eixos = ():Promise<void> => {
 
     })
 }
+
+//Referencia_3Eixos()

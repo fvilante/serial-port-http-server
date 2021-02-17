@@ -13,7 +13,7 @@ import { sendCmpp } from "./send-receive-cmpp-datalink"
 // botao_de_emergencia = bit 7 (nok - 'este sinal por alguma razão nao consegui ler na pratica (pode ser problema no cabo))
 
 
-type Sinais = {
+export type MSinais = {
     gaveta_1: 'Fechada' | 'Aberta'
     gaveta_2: 'Fechada' | 'Aberta'
     botao_emergencia: 'Ligado' | 'Desligado'
@@ -21,11 +21,11 @@ type Sinais = {
 }
 
 
-const LeSinais = (waddr_: number):Promise<Sinais> => new Promise( (resolve, reject) => {
+export const LeMSinais = ():Promise<MSinais> => new Promise( (resolve, reject) => {
  
     const ZAxis = 'ZAxis'
     const {portName, baudRate, channel} = Address['Axis'][ZAxis] 
-    const waddr = waddr_
+    const waddr = 0x38/2
     const data = 0
     const frame = FrameCore('STX','Solicitacao',channel,waddr,data)
     sendCmpp(portName, baudRate)(frame)
@@ -45,12 +45,12 @@ const LeSinais = (waddr_: number):Promise<Sinais> => new Promise( (resolve, reje
             const janela_manutencao_bit = bit_test(dataHigh, bitJanelaManut)
             const botao_de_emergencia_bit = bit_test(dataHigh, bitBotaoEmerg)
 
-            const gaveta_1: Sinais['gaveta_1'] = gaveta_1_bit===false ? 'Fechada' : 'Aberta'
-            const gaveta_2: Sinais['gaveta_2'] = gaveta_2_bit===false ? 'Fechada' : 'Aberta'
-            const janela_manutencao: Sinais['janela_manutencao'] = janela_manutencao_bit===false ? 'Fechada' : 'Aberta'
-            const botao_emergencia: Sinais['botao_emergencia'] = botao_de_emergencia_bit===false ? 'Desligado' : 'Ligado'
+            const gaveta_1: MSinais['gaveta_1'] = gaveta_1_bit===false ? 'Fechada' : 'Aberta'
+            const gaveta_2: MSinais['gaveta_2'] = gaveta_2_bit===false ? 'Fechada' : 'Aberta'
+            const janela_manutencao: MSinais['janela_manutencao'] = janela_manutencao_bit===false ? 'Fechada' : 'Aberta'
+            const botao_emergencia: MSinais['botao_emergencia'] = botao_de_emergencia_bit===false ? 'Desligado' : 'Ligado'
 
-            const sinais: Sinais = {
+            const sinais: MSinais = {
                 gaveta_1,
                 gaveta_2,
                 janela_manutencao,
@@ -68,7 +68,7 @@ const LeSinais = (waddr_: number):Promise<Sinais> => new Promise( (resolve, reje
 
 const Test2 = () => {
 
-    LeSinais(0x38/2)
+    LeMSinais()
         .then( sinais => {
             console.table(sinais)
         })
