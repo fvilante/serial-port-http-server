@@ -42,6 +42,7 @@ export type KnownJobs = {
     'M1': () => Job__
     'P3': () => Job__
     'T123': () => Job__
+    'V2': () => Job__
 }
 
 export const getKnownJobs = ():KnownJobs => {
@@ -57,11 +58,50 @@ export const getKnownJobs = ():KnownJobs => {
         'M1': getTermoM1Job,
         'P3': getTermoM1Job,
         'T123': getT123Job,
+        'V2': getV2Job,
     }
     
 }
 
 // ======================== JOB FUNCTIONS DEFINITIONS ===============================
+
+const getV2Job = (): Job__ => {
+    //const ref = 'T110'
+    const deltaX = 3-3.5
+    const deltaY = +1.5
+    const firstX = 150+13.66+3 + deltaX
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18 + deltaY
+    const impressoesX: ImpressoesX = [
+        [firstX+(stepX*0),firstX+(stepX*1)],
+        [firstX+(stepX*2),firstX+(stepX*3)],
+        [firstX+(stepX*4),firstX+(stepX*5)],
+    ]
+    const stepY = 70
+    const linhasY = [ // em milimetros absolutos
+        posicaoYDaLinha5EmMilimetros+(stepY*(2)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(1)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(0)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+    ]
+    return {
+        partNumber: '',
+        printer: 'printerWhite',
+        barCode: '',
+        msg:  'V2',
+        remoteFieldId: 3,
+        impressoesX,
+        linhasY,
+        printVelocity: 1700,
+        zLevel:0,
+        passes: 2
+        
+    }
+}
+
 
 const getTermo2559370Job = (): Job__ => {
     const firstX = 150+13.66-28.5-10.10+70-35.44-15+9.67-2.5
