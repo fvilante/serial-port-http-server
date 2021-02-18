@@ -36,17 +36,20 @@ export type ImpressoesX = readonly [
 
 //type ImpressoesX = readonly number[]
 
+
 type Job__ = {
+    // Proxy
     partNumber: string
     barCode: string
+    // Message
     printer: Printers
     msg: string
     passes?: number
     remoteFieldId: number // selection of remote field -> normally 1 to 4 (inclusive-both-sides) but theoretically any number between 1 and 99
-    //kinematics parameters
+    // Message kinematics
     printVelocity: number // in pulses per 1024 milisec  // fix: Not implemented
 
-    // positional parameters
+    // Print positions
     zLevel: number // mm in relation to MinZ //Fix: Should be safe move (and give back an clear error msg if user try to access an physically impossible position)
     impressoesX: ImpressoesX
     linhasY: readonly number[]
@@ -1470,7 +1473,11 @@ const Test9 = async () => {
    
     
     // fazer:
+    // - descobrir delta do cabecote branco pro preto
     // definir um Type para definir o programa de cada matriz
+    //  - sub agrupar os parametros do type Job 
+    //  - nao é urgente: Fazer duas linhas numa passada só
+    //  - nao é urgente: 
     // descobrir a distancia entre cabecote
     // resolver o programMessage que esta finalizando o programa depois da execucao
     // criar o tipo AbsolutePulse e substituir todos os numbers do AxisContrler e MotorControler de number para este tipo 
@@ -1518,8 +1525,145 @@ const Test9 = async () => {
     const getTermo2559371Job = (): Job__ => {
         return {
             ...getTermo2559370Job(),
-            msg: '2559371'
+            msg: '2559371',
         }
+    }
+
+    const getE44A2Job = (): Job__ => {
+        const firstX = 150+13.66-28.5-10.10+70
+        const stepX = 70
+        const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87
+        const stepY = 70
+        return {
+            partNumber: '',
+            barCode: '',
+            printer: 'printerBlack',
+            msg: 'E44.A2',
+            remoteFieldId: 4,
+            printVelocity: 2000,
+            zLevel: 0,
+            impressoesX: [
+                [firstX+(stepX*0),firstX+(stepX*1)],
+                [firstX+(stepX*2),firstX+(stepX*3)],
+                [firstX+(stepX*4),firstX+(stepX*5)],
+            ],
+            linhasY: [
+                posicaoYDaLinha5EmMilimetros+(stepY*(2)),
+                posicaoYDaLinha5EmMilimetros+(stepY*(1)),
+                posicaoYDaLinha5EmMilimetros+(stepY*(0)),
+                posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
+                posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
+                posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
+                posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+            ]
+        } 
+    }
+
+    const getE44B5Job = (): Job__ => {
+
+        type XYDelta = {
+            x: Milimeter, // milimeter in relation to white Head
+            y: Milimeter, // milimeter in relation to cmpp 0
+        }
+
+        const deltaHead: XYDelta = {
+            x: Milimeter(-46.51),
+            y: Milimeter(+5.90),
+        }
+
+        const deltaGaveta2: XYDelta = {
+            x: Milimeter(+603.5+1.29),
+            y: Milimeter(+6.34+3.98),
+        }
+
+        const deltaId: XYDelta = {
+            x: Milimeter(0),
+            y: Milimeter(0),
+        }
+
+        const applyDeltaToCoordinates = (xss: ImpressoesX, ys: readonly number[], delta: XYDelta): [newXs: ImpressoesX, newYs: readonly number[]] => {
+            const { x: xHead, y: yHead} = delta
+            const newYs = ys.map( y => y + yHead.value)
+            const newXs = xss.map( xs => xs.map( x => x + xHead.value)) as unknown as ImpressoesX
+            console.log('ys:', ys)
+            console.log('new_ys:', newYs)
+            console.log('xs', xss)
+            console.log('newXs', newXs)
+            return [newXs, newYs]
+        }
+
+        const E44_A2 = getE44A2Job()
+        const {
+            impressoesX,
+            linhasY,
+        } = E44_A2
+
+        const [impressoesX_, linhasY_] = 
+            applyDeltaToCoordinates(impressoesX, linhasY, deltaHead)
+
+        const [impressoesX_adjusted, linhasY_adjusted] = 
+            applyDeltaToCoordinates(impressoesX_, linhasY_, deltaGaveta2)
+
+        return {
+            ...E44_A2,
+            partNumber: '',
+            barCode: '',
+            msg: 'E44.B5',
+            passes:2,
+            remoteFieldId: 3,
+            printer: 'printerWhite',
+            linhasY: linhasY_adjusted,
+            impressoesX: impressoesX_adjusted,
+        }
+    }
+
+    const getE44A5Job = (): Job__ => {
+        return {
+            ...getE44A2Job(),
+            msg: 'E44.A5'
+        }
+    }
+
+    const getE44A6Job = (): Job__ => {
+        return {
+            ...getE44A2Job(),
+            msg: 'E44.A6'
+        }
+    }
+
+    const getT110Job = (): Job__ => {
+        const firstX = 150+13.66
+        const stepX = 70
+        const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11
+        const impressoesX: ImpressoesX = [
+            [firstX+(stepX*0),firstX+(stepX*1)],
+            [firstX+(stepX*2),firstX+(stepX*3)],
+            [firstX+(stepX*4),firstX+(stepX*5)],
+        ]
+        const stepY = 70
+        const linhasY = [ // em milimetros absolutos
+            posicaoYDaLinha5EmMilimetros+(stepY*(2)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(1)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(0)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+        ]
+        return {
+            partNumber: '',
+            printer: 'printerWhite',
+            barCode: '',
+            msg:  'T110',
+            remoteFieldId: 3,
+            impressoesX,
+            linhasY,
+            printVelocity: 1700,
+            zLevel:0,
+            passes: 2
+            
+        }
+
     }
 
     const getTermoM1Job = (): Job__ => {
@@ -1568,8 +1712,7 @@ const Test9 = async () => {
 
                 console.log('fazLinhaPreta')
                 const {x,y,z,m} = movimentKit
-            
-            
+                    
                 const rampa = mili2PulseX(100)
                 const PMA = PosicaoInicialX+mili2PulseX(100)
                 const UMA = PosicaoInicialX+mili2PulseX(170)
@@ -1581,10 +1724,7 @@ const Test9 = async () => {
                 const velRet = 2300
                 const acRet = 3000
             
-            
-            
                 const ImprimePar = async (x0: number, x1: number, rampa: number): Promise<void> => {
-            
             
                     await x._setPrintMessages({
                         numeroDeMensagensNoAvanco: NMA,
@@ -1673,7 +1813,7 @@ const Test9 = async () => {
         }
         
 
-        const doAllJob = async (job:Job__): Promise<void> => {
+        const doTheJob = async (job:Job__): Promise<void> => {
 
             console.log('=========== [Iniciando Trabajo:] ===========')
             console.table(job)
@@ -1695,17 +1835,40 @@ const Test9 = async () => {
 
         }
 
+        const executeManyJobsWithTimeDelay = async (jobs: readonly Job__[], timeDelayInSecs: number): Promise<void> => {
+            const arr = jobs.map( job => async () => {
+                await doTheJob(job);
+                await delay(timeDelayInSecs*1000)
+
+            })
+        }
+
         // release Z 
+        const jobs = Range(1,3).map( qtdeImpressa => {
+            console.log(`qtde impressa=${qtdeImpressa}`)
+            return getE44A6Job()
+        })
         await z._moveRelative(Milimeter(zLevel))
-        await doAllJob(job);
+        //await executeManyJobsWithTimeDelay(jobs,(1.5*60));
+        await doTheJob(job)
         // sobe Z
         await z.goToAbsolutePosition(minZ);
 
 
     }
 
-    await performJob(getTermoM1Job());
-    await performJob(getTermo2559371Job());
+    // Faz termo M1-255937
+    //await performJob(getTermo2559370Job());
+    //await performJob(getTermoM1Job());
+    
+    await m.parkSafelyIfItisPossible()
+    throw new Error('haha')
+    await m.safelyReferenceSystemIfNecessary()
+    const arr = Range(0,2,1).map( gavetada => async () => {
+        await performJob(getT110Job()) //Fix: Job in milimeters must be correct typed as milimeter instead of number
+        await delay(1.5*60*1000)
+    })
+    await executeInSequence(arr)
     
     
    
@@ -1860,32 +2023,32 @@ namespace E44_Black {
 
     namespace E44_A5 {
         const firstX = 150+13.66-28.5-10.10+70
-    const stepX = 70
-    const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87
-    const stepY = 70
-    const Job_E44_A3: Job__ = {
-        partNumber: '',
-        barCode: '',
-        printer: 'printerBlack',
-        msg: 'E44.A5',
-        remoteFieldId: 4,
-        printVelocity: 2000,
-        zLevel: 0,
-        impressoesX: [
-            [firstX+(stepX*0),firstX+(stepX*1)],
-            [firstX+(stepX*2),firstX+(stepX*3)],
-            [firstX+(stepX*4),firstX+(stepX*5)],
-        ],
-        linhasY: [
-            posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
-        ]
-    }
+        const stepX = 70
+        const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87
+        const stepY = 70
+        const Job_E44_A3: Job__ = {
+            partNumber: '',
+            barCode: '',
+            printer: 'printerBlack',
+            msg: 'E44.A5',
+            remoteFieldId: 4,
+            printVelocity: 2000,
+            zLevel: 0,
+            impressoesX: [
+                [firstX+(stepX*0),firstX+(stepX*1)],
+                [firstX+(stepX*2),firstX+(stepX*3)],
+                [firstX+(stepX*4),firstX+(stepX*5)],
+            ],
+            linhasY: [
+                posicaoYDaLinha5EmMilimetros+(stepY*(2)),
+                posicaoYDaLinha5EmMilimetros+(stepY*(1)),
+                posicaoYDaLinha5EmMilimetros+(stepY*(0)),
+                posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
+                posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
+                posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
+                posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+            ]
+        }
     }
 
   
