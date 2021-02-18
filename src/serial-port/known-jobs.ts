@@ -34,6 +34,7 @@ export type KnownJobsKeys = keyof KnownJobs
 export type KnownJobs = {
     'T110': () => Job__
     'E44.A2': () => Job__
+    'E44.A3': () => Job__
     'E44.A5': () => Job__
     'E44.A6': () => Job__
     'E44.B6': () => Job__
@@ -50,6 +51,7 @@ export const getKnownJobs = ():KnownJobs => {
     return {
         'T110':  getT110Job,
         'E44.A2': getE44A2Job,
+        'E44.A3': getE44A3Job,
         'E44.A5': getE44A5Job,
         'E44.A6': getE44A6Job,
         'E44.B6': getE44B6Job,
@@ -64,6 +66,13 @@ export const getKnownJobs = ():KnownJobs => {
 }
 
 // ======================== JOB FUNCTIONS DEFINITIONS ===============================
+
+const getE44A3Job = (): Job__ => {
+    return {
+        ...getE44A2Job(),
+        msg: 'E44.A3',
+    }
+}
 
 const getV2Job = (): Job__ => {
     //const ref = 'T110'
