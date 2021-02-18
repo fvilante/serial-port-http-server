@@ -27,7 +27,7 @@ const detectPrinters = async ():Promise<PrinterDetectionResponse> => {
 
         return  () => {
             console.log(`Procurando na porta/baudrate = ${portName}/${baudRate}`)
-            return sendPrinter2(portName, baudRate)(3,'Test')
+            return sendPrinter2(portName, baudRate)(3, portName)
             .then( () => {
                 console.log(`Encontrado na porta: ${portName}/${baudRate}`)
                 res.set({portName, baudRate},{
@@ -45,7 +45,7 @@ const detectPrinters = async ():Promise<PrinterDetectionResponse> => {
         }
     })
     await ExecuteInParalel(DetectAll)
-        .finally( () => {
+        .then( () => {
             // FIX: This report is not being show I do not found why
             //      but console.log of low level functions are show the detection phase (provisorily)
             console.log('Fim da busca.')
