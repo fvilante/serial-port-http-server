@@ -1192,7 +1192,7 @@ const Test9 = async () => {
     //throw new Error('haha')
     await m.safelyReferenceSystemIfNecessary()
     const arr = Range(0,2,1).map( gavetada => async () => {
-        await performJobByItsName('T110') //Fix: Job in milimeters must be correct typed as milimeter instead of number
+        await performJobByItsName('E44.B6') //Fix: Job in milimeters must be correct typed as milimeter instead of number
         await delay(1.5*60*1000)
     })
     await executeInSequence(arr)
