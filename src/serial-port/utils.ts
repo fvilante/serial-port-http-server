@@ -47,5 +47,14 @@ export const groupBy = <T, K>(list: readonly T[], getKey: (item: T) => K):Map<K,
 export const now = () => new Date().getTime()
 
 
-
+// helper
+//window is inclusive bound in both sides
+export const isInsideRange = (x: number, range: readonly [lowerBoundInclusive: number, upperBoundInclusive: number]) => {
+    const lowerBound = range[0]
+    const upperBound = range[1]
+    const isInsideRange_ = ((x>=lowerBound) && (x<=upperBound)) 
+    return isInsideRange_
+        ? true
+        : false
+}
 
