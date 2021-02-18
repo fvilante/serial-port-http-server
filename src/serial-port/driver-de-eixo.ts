@@ -1257,7 +1257,7 @@ const Test9 = async () => {
     //throw new Error('haha')
     await m.safelyReferenceSystemIfNecessary()
     const arr = Range(0,10,1).map( gavetada => async () => {
-        await performJobByItsName('E44.A3') //Fix: Job in milimeters must be correct typed as milimeter instead of number
+        await performJobByItsName('V2') //Fix: Job in milimeters must be correct typed as milimeter instead of number
         await delay(1.5*60*1000)
     })
     await executeInSequence(arr)
