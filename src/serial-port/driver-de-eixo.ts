@@ -1191,51 +1191,18 @@ const Test9 = async () => {
    // await m.parkSafelyIfItisPossible()
     //throw new Error('haha')
     await m.safelyReferenceSystemIfNecessary()
-    const arr = Range(0,2,1).map( gavetada => async () => {
-        await performJobByItsName('E44.B6') //Fix: Job in milimeters must be correct typed as milimeter instead of number
+    const arr = Range(0,10,1).map( gavetada => async () => {
+        await performJobByItsName('E44.A6') //Fix: Job in milimeters must be correct typed as milimeter instead of number
         await delay(1.5*60*1000)
     })
     await executeInSequence(arr)
     
-    
-   
-
 }
 
 Test9();
 
 
 /// programas
-
-namespace T123 {
-    
-    const PartNumber = ''
-    const printer:Printers = 'printerWhite'
-    const msg = 'T123'
-    const remoteFieldId = 3
-    const zLevel = 0 // (o quanto o cabecote desce em milimetros) in milimeter relative to MinZ
-    const firstX = 150+13.66-28.5-10.10+70-35.44-15+9.67-2.5+4.3+8.68-2.72
-    const stepX = 70
-    const tempoAbastecimentoUmaLinha = 11000//-4000-3000
-    const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87+13.6-(7+5)+3.44+23.89-11.25
-    const impressoesX:ImpressoesX = [
-        [firstX+(stepX*0),firstX+(stepX*1)],
-        [firstX+(stepX*2),firstX+(stepX*3)],
-        [firstX+(stepX*4),firstX+(stepX*5)],
-    ]
-    const stepY = 70
-    const linhasY = [
-        posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
-    ].reverse()
-
-}
-
 
 
 namespace Test {

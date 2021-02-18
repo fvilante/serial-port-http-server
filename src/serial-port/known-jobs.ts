@@ -41,6 +41,7 @@ export type KnownJobs = {
     '2559371': () => Job__
     'M1': () => Job__
     'P3': () => Job__
+    'T123': () => Job__
 }
 
 export const getKnownJobs = ():KnownJobs => {
@@ -55,6 +56,7 @@ export const getKnownJobs = ():KnownJobs => {
         '2559371': getTermo2559371Job,
         'M1': getTermoM1Job,
         'P3': getTermoM1Job,
+        'T123': getT123Job,
     }
     
 }
@@ -88,6 +90,44 @@ const getTermo2559370Job = (): Job__ => {
             posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
             posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
         ]
+    }
+}
+
+const getT123Job = (): Job__ => {
+    const partNumber = ''
+    const printer:Printers = 'printerWhite'
+    const msg = 'T123'
+    const remoteFieldId = 3
+    const zLevel = 0 // (o quanto o cabecote desce em milimetros) in milimeter relative to MinZ
+    const firstX = 150+13.66-28.5-10.10+70-35.44-15+9.67-2.5+4.3+8.68-2.72
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87+13.6-(7+5)+3.44+23.89-11.25
+    const impressoesX:ImpressoesX = [
+        [firstX+(stepX*0),firstX+(stepX*1)],
+        [firstX+(stepX*2),firstX+(stepX*3)],
+        [firstX+(stepX*4),firstX+(stepX*5)],
+    ]
+    const stepY = 70
+    const linhasY = [
+        posicaoYDaLinha5EmMilimetros+(stepY*(2)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(1)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(0)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+    ].reverse()
+    return {
+        partNumber: '',
+        barCode: '',
+        printer: 'printerWhite',
+        msg: 'T123',
+        printVelocity: 1700,
+        passes: 2,
+        remoteFieldId: 3,
+        zLevel,
+        impressoesX,
+        linhasY,
     }
 }
 
