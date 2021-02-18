@@ -3,6 +3,46 @@
 import { Milimeter } from "./driver-de-eixo"
 import { Printers } from "./global"
 
+
+// ================= temp / draft ==================
+
+
+namespace Draft {
+    type Position1D = {
+        kind: 'Position'
+        relativeTo: 'AbsoluteZeroMachineAt2021FEV16' | 'MinimumSafePoint'
+        value: Milimeter
+    }
+
+    type Position3D = {
+        kind: 'Position3D'
+        x: Position1D
+        y: Position1D
+        z: Position1D
+    }
+
+    type Message = {
+        printer: Printers
+        remoteFieldId: number
+        text: string
+        textLength: Milimeter // the length of the printed text
+        passes: number
+    }
+
+
+    type PrintLine = {
+        zLevel: number // mm in relation to MinZ //Fix: Should be safe move (and give back an clear error msg if user try to access an physically impossible position)
+        xPos: readonly number[] //mm in relation of cmpp 0
+        yPos: number //mm in relation of cmpp 0
+        message: Message
+    }
+
+}
+
+
+// ================== end temp draft =================
+
+
 export type Job__ = {
     // Proxy
     partNumber: string
@@ -58,7 +98,7 @@ export const getKnownJobs = ():KnownJobs => {
         '2559370': getTermo2559370Job,
         '2559371': getTermo2559371Job,
         'M1': getTermoM1Job,
-        'P3': getTermoM1Job,
+        'P3': getP3job,
         'T123': getT123Job,
         'V2': getV2Job,
     }
@@ -66,6 +106,41 @@ export const getKnownJobs = ():KnownJobs => {
 }
 
 // ======================== JOB FUNCTIONS DEFINITIONS ===============================
+
+const getP3job = (): Job__ => {
+    const deltaX = 3-3.5-10.82
+    const deltaY = -30+4+8+15-4
+    const firstX = 150+13.66+3 + deltaX
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18 + deltaY
+    const impressoesX: ImpressoesX = [
+        [firstX+(stepX*0),firstX+(stepX*1)],
+        [firstX+(stepX*2),firstX+(stepX*3)],
+        [firstX+(stepX*4),firstX+(stepX*5)],
+    ]
+    const stepY = 60
+    const linhasY = [ // em milimetros absolutos
+        posicaoYDaLinha5EmMilimetros+(stepY*(2)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(1)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(0)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+    ]
+    return {
+        partNumber: '',
+        printer: 'printerWhite',
+        barCode: '',
+        msg:  'P3',
+        remoteFieldId: 3,
+        impressoesX,
+        linhasY,
+        printVelocity: 1700,
+        zLevel:0,
+        passes: 2
+    }
+}
 
 const getE44A3Job = (): Job__ => {
     return {
@@ -350,7 +425,7 @@ const getTermoM1Job = (): Job__ => {
             posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
             posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
             posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
-        ]
+        ].reverse()
     }
 }
 
