@@ -76,6 +76,7 @@ export type KnownJobs = {
     'E44.A2': () => Job__
     'E44.A3': () => Job__
     'E44.A5': () => Job__
+    'E44.A7': () => Job__
     'E44.A6': () => Job__
     'E44.B6': () => Job__
     '2559370': () => Job__
@@ -94,6 +95,7 @@ export const getKnownJobs = ():KnownJobs => {
         'E44.A3': getE44A3Job,
         'E44.A5': getE44A5Job,
         'E44.A6': getE44A6Job,
+        'E44.A7': getE44A7Job,
         'E44.B6': getE44B6Job,
         '2559370': getTermo2559370Job,
         '2559371': getTermo2559371Job,
@@ -146,6 +148,13 @@ const getE44A3Job = (): Job__ => {
     return {
         ...getE44A2Job(),
         msg: 'E44.A3',
+    }
+}
+
+const getE44A7Job = ():Job__ => {
+    return {
+        ...getE44A2Job(),
+        msg: 'E44.A7',
     }
 }
 
@@ -306,7 +315,7 @@ const getE44B6Job = (): Job__ => {
 
     const deltaGaveta2: XYDelta = {
         x: Milimeter(+603.5+1.29),
-        y: Milimeter(+6.34+3.98),
+        y: Milimeter(+6.34+3.98+1.23),
     }
 
     const deltaId: XYDelta = {
@@ -337,6 +346,8 @@ const getE44B6Job = (): Job__ => {
     const [impressoesX_adjusted, linhasY_adjusted] = 
         applyDeltaToCoordinates(impressoesX_, linhasY_, deltaId)
 
+    const test = [linhasY_adjusted[0], linhasY_adjusted[6]]
+
     return {
         ...E44_A2,
         partNumber: '',
@@ -345,7 +356,7 @@ const getE44B6Job = (): Job__ => {
         passes:2,
         remoteFieldId: 3,
         printer: 'printerWhite',
-        linhasY: linhasY_adjusted,
+        linhasY: test, //linhasY_adjusted,
         impressoesX: impressoesX_adjusted,
     }
 }
