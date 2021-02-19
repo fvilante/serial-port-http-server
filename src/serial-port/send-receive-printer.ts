@@ -41,6 +41,9 @@ const sendReceiveFrameToPrinter = (
     
 })
 
+// Fix: Rename sendPrinter2 to sendPrinter but before remove the current sendPrint
+//      This was named to 2 just temporarily to avoid broke sendPrinter in the transition
+//      This is the official up-to-date function
 export const sendPrinter2 = (
     portName: string, baudRate: BaudRate = 9600
 ) => async (
@@ -53,6 +56,7 @@ export const sendPrinter2 = (
     await sendReceiveFrameToPrinter(portName, baudRate)(selectMessage)
     await delay(500) // fix: May be unecessary this delay
     await sendReceiveFrameToPrinter(portName, baudRate)(setText)
+    await delay(500) // fix: May be unecessary this delay
     console.log(`Successfully selected remote field "${remoteFieldIndex}" and set remote text to "${text}" on Printer on port ${portName}/${String(baudRate)}.`);
     return 
 }

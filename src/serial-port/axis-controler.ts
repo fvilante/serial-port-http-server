@@ -23,6 +23,10 @@ export type PrintingPositions = {
     readonly posicaoDaUltimaMensagemNoRetorno: number, 
 }
 
+export type AxisKinematics = {
+    readonly AbsoluteDisplacement: Milimeter
+}
+
 export type AxisControler = {
     readonly isReferenced: () => Promise<boolean>
     readonly isMoving: () => Promise<boolean>
@@ -52,6 +56,7 @@ export type AxisControler = {
     readonly _getTrajectory: () => Trajectory | undefined
     readonly _isSafePosition: (pos: number) => boolean // if position is inside axis range min,max
     readonly _moveRelative: (relativePos_: number | Milimeter) => Promise<void>
+    //readonly _resetWithoutLooseReference: () => Promise<void>
 }
 
 export type AxisStarterKit = {
@@ -126,7 +131,7 @@ export const Z_AxisStarterKit: AxisStarterKit = {
             () => axis('Start automatico no avanco ligado', false),
             () => axis('Start automatico no retorno ligado', false),
         ])
-    }
+    }   
 }
 
 export const X_AxisStarterKit: AxisStarterKit = {
