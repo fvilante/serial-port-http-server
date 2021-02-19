@@ -6,7 +6,7 @@ import { getKnownJobs, ImpressoesX, Job__, KnownJobsKeys } from "./known-jobs"
 import { AxisControler } from "./axis-controler"
 import { MovimentKit, makeMovimentKit } from './machine-controler'
 import { Milimeter } from "./displacement"
-import { Printers } from "./global"
+import { Address, Printers } from "./global"
 import { sendPrinter2 } from "./send-receive-printer"
 import { Range } from "./utils"
 
@@ -95,14 +95,14 @@ const Test9 = async () => {
     }
 
     const programMessage = async (printer: Printers,remoteFieldId: number, msg: string): Promise<[remoteFieldId: number, msg: string]> => {
-        //const portsInfo = await CommDriver.listPorts()
-        //const ports = portsInfo.map( portInfo => portInfo.uid )
-        const ports = ['com9']
-        const arr = ports.map( port => async () => {
-            await sendPrinter2(port, 9600)(remoteFieldId,msg)
-            return
-        })
-        await ExecuteInParalel(arr)
+        const printerToEnable = printer
+        const printerToDisable:Printers = printer === 'printerBlack' ? 'printerWhite' : 'printerBlack'
+        const e = Address['Printers'][printerToEnable]
+        const d = Address['Printers'][printerToDisable]
+        const emptyMessage = ''
+        await sendPrinter2(e.portName, e.baudRate)(remoteFieldId,msg)
+        await sendPrinter2(d.portName, d.baudRate)(remoteFieldId,emptyMessage)
+        await delay(500) // FIX: this delay May be unecessary
         return [remoteFieldId, msg]
     }
 
@@ -299,7 +299,7 @@ const Test9 = async () => {
     //throw new Error('haha')
     await m.safelyReferenceSystemIfNecessary()
     const arr = Range(0,10,1).map( gavetada => async () => {
-        await performJobByItsName('E44.A5') //Fix: Job in milimeters must be correct typed as milimeter instead of number
+        await performJobByItsName('E44.B6') //Fix: Job in milimeters must be correct typed as milimeter instead of number
         await delay(1.5*60*1000)
     })
     await executeInSequence(arr)
