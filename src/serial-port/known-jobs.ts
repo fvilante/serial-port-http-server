@@ -73,6 +73,7 @@ export type KnownJobsKeys = keyof KnownJobs
 
 export type KnownJobs = {
     'T110': () => Job__
+    'T199': () => Job__
     'E44.A2': () => Job__
     'E44.A3': () => Job__
     'E44.A5': () => Job__
@@ -91,6 +92,7 @@ export const getKnownJobs = ():KnownJobs => {
 
     return {
         'T110':  getT110Job,
+        'T199': getT199Job,
         'E44.A2': getE44A2Job,
         'E44.A3': getE44A3Job,
         'E44.A5': getE44A5Job,
@@ -141,6 +143,40 @@ const getP3job = (): Job__ => {
         printVelocity: 1700,
         zLevel:0,
         passes: 2
+    }
+}
+
+const getT199Job = (): Job__ => {
+    const firstX = 150+13.66-8.15
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18
+    const impressoesX: ImpressoesX = [
+        [firstX+(stepX*0),firstX+(stepX*1)],
+        [firstX+(stepX*2),firstX+(stepX*3)],
+        [firstX+(stepX*4),firstX+(stepX*5)],
+    ]
+    const stepY = 70
+    const linhasY = [ // em milimetros absolutos
+        posicaoYDaLinha5EmMilimetros+(stepY*(2)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(1)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(0)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+    ]
+    return {
+        partNumber: '',
+        printer: 'printerWhite',
+        barCode: '',
+        msg:  'T199',
+        remoteFieldId: 3,
+        impressoesX,
+        linhasY,
+        printVelocity: 1700,
+        zLevel:0,
+        passes: 2
+        
     }
 }
 

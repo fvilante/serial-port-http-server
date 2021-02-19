@@ -101,7 +101,7 @@ const Test9 = async () => {
         const d = Address['Printers'][printerToDisable]
         const emptyMessage = ''
         await sendPrinter2(e.portName, e.baudRate)(remoteFieldId,msg)
-        await sendPrinter2(d.portName, d.baudRate)(remoteFieldId,emptyMessage)
+        //await sendPrinter2(d.portName, d.baudRate)(remoteFieldId,emptyMessage)
         await delay(500) // FIX: this delay May be unecessary
         return [remoteFieldId, msg]
     }
@@ -295,11 +295,11 @@ const Test9 = async () => {
     //await performJob(getTermoM1Job());
     
     //await m.safelyReferenceSystemIfNecessary()
-   // await m.parkSafelyIfItisPossible()
+    //await m.parkSafelyIfItisPossible()
     //throw new Error('haha')
     await m.safelyReferenceSystemIfNecessary()
     const arr = Range(0,10,1).map( gavetada => async () => {
-        await performJobByItsName('E44.B6') //Fix: Job in milimeters must be correct typed as milimeter instead of number
+        await performJobByItsName('T199') //Fix: Job in milimeters must be correct typed as milimeter instead of number
         await delay(1.5*60*1000)
     })
     await executeInSequence(arr)
