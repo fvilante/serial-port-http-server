@@ -299,11 +299,44 @@ const Test9 = async () => {
     //throw new Error('haha')
     await m.safelyReferenceSystemIfNecessary()
     const arr = Range(0,10,1).map( gavetada => async () => {
-        await performJobByItsName('T199') //Fix: Job in milimeters must be correct typed as milimeter instead of number
+        await performJobByItsName('T123') //Fix: Job in milimeters must be correct typed as milimeter instead of number
         await delay(1.5*60*1000)
     })
     await executeInSequence(arr)
     
+}
+
+const Test10 = async ():Promise<void> => {
+    // achar posicao da garagem e janela de manutencao
+
+
+    const movimentKit = await makeMovimentKit()
+    const {x,y,z,m} = movimentKit
+
+    const [minX, maxX] = x._getAbsolutePositionRange()
+    const [minY, maxY] = y._getAbsolutePositionRange()
+    const [minZ, maxZ] = y._getAbsolutePositionRange()
+
+    // ----
+
+    await m.safelyReferenceSystemIfNecessary()
+    
+    // posicao da garagem
+    await x.goToAbsolutePosition(maxX)
+    await y.goToAbsolutePosition(minY)
+    await z.goToAbsolutePosition(minZ+100+150+50+50+25+30+20+15+5)
+    await z._forceLooseReference()
+    await x._forceLooseReference()
+    await y._forceLooseReference()
+
+    await m.safelyReferenceSystemIfNecessary()
+
+    // posicao do servico no cabecote
+    x.goToAbsolutePosition((maxX/2)+minX-300-200+50+15+5)
+    y.goToAbsolutePosition((maxY/2)+minY)
+    await x._forceLooseReference()
+    await y._forceLooseReference()
+
 }
 
 Test9();

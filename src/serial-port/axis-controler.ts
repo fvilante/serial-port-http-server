@@ -137,7 +137,7 @@ export const Z_AxisStarterKit: AxisStarterKit = {
 export const X_AxisStarterKit: AxisStarterKit = {
     axisName: 'XAxis',
     minAbsolutePosition: 610,
-    maxAbsolutePOsition: 8300,
+    maxAbsolutePOsition: 8355+25,
     milimeterToPulseRatio: 152.87/1000,
     velRef: 350,
     acRef: 3000,
@@ -252,7 +252,6 @@ export const Y_AxisStarterKit: AxisStarterKit = {
 }
 
 export type Trajectory = ([position: number, timeStamp: number])[]
-
 
 
 export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
