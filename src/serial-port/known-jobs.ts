@@ -1,6 +1,6 @@
 // All known jobs
 
-import { Milimeter } from "./displacement"
+import { Milimeter } from "./axis-position"
 import { Printers } from "./global"
 
 
@@ -88,6 +88,10 @@ export type KnownJobs = {
     'T123': () => Job__
     'V2': () => Job__
     'T202': () => Job__
+
+    // iveco
+    'ST18': () => Job__
+    '25002 B': () => Job__
 }
 
 export const getKnownJobs = ():KnownJobs => {    
@@ -108,6 +112,10 @@ export const getKnownJobs = ():KnownJobs => {
         'T123': getT123Job,
         'V2': getV2Job,
         'T202': getT202Job,
+
+        // iveco
+        'ST18': getST18job,
+        '25002 B': get2502Bjob,
     }
     
 }
@@ -124,6 +132,66 @@ const UNSAFECopyJobButChangeMessage = (jobToCopyKey: KnownJobsKeys, newMessage: 
 }
 
 // ======================== JOB FUNCTIONS DEFINITIONS ===============================
+
+const get2502Bjob = ():Job__ => {
+    const firstX = 155-9.5-6+4.8
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 336+2-1
+    const stepY = 70
+    return {
+        partNumber: '',
+        barCode: '',
+        printer: 'printerWhite',
+        msg: '25002 B',
+        remoteFieldId: 2,
+        printVelocity: 1700,
+        zLevel: 0,
+        impressoesX: [
+            [firstX+(stepX*0),firstX+(stepX*1)],
+            [firstX+(stepX*2),firstX+(stepX*3)],
+            [firstX+(stepX*4),firstX+(stepX*5)],
+        ],
+        linhasY: [
+            //posicaoYDaLinha5EmMilimetros+(stepY*(2)),
+            //posicaoYDaLinha5EmMilimetros+(stepY*(1)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(0)),
+            //posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
+            //posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
+            //posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
+            //posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+        ]
+    } 
+}
+
+const getST18job = ():Job__ => {
+    const firstX = 150+13.66-28.5-10.10+70+23.3+(-70*1)
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87+10+10+5-3
+    const stepY = 70
+    return {
+        partNumber: '',
+        barCode: '',
+        printer: 'printerWhite',
+        msg: 'ST18',
+        remoteFieldId: 2,
+        printVelocity: 1700,
+        zLevel: 0,
+        impressoesX: [
+            [firstX+(stepX*0),firstX+(stepX*1)],
+            [firstX+(stepX*2),firstX+(stepX*3)],
+            [firstX+(stepX*4),firstX+(stepX*5)],
+        ],
+        linhasY: [
+            posicaoYDaLinha5EmMilimetros+(stepY*(2)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(1)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(0)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+        ]
+    } 
+}
 
 const getT202Job = (): Job__ => {
     const firstX = 150+13.66-8.15-5
@@ -465,7 +533,7 @@ const getE44A6Job = (): Job__ => {
 }
 
 const getT110Job = (): Job__ => {
-    const firstX = 150+13.66
+    const firstX = 150+13.66-4
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18
     const impressoesX: ImpressoesX = [

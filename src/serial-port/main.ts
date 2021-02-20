@@ -5,7 +5,7 @@ import { mili2PulseX, PosicaoInicialX } from "./referencia_eixos"
 import { getKnownJobs, ImpressoesX, Job__, KnownJobsKeys } from "./known-jobs"
 import { AxisControler } from "./axis-controler"
 import { MovimentKit, makeMovimentKit } from './machine-controler'
-import { Milimeter } from "./displacement"
+import { Milimeter } from "./axis-position"
 import { Address, Printers } from "./global"
 import { sendPrinter2 } from "./send-receive-printer"
 import { Range } from "./utils"
@@ -298,17 +298,20 @@ const Test9 = async () => {
     //await m.safelyReferenceSystemIfNecessary()
     //await m.parkSafelyIfItisPossible()
     //throw new Error('haha')
+
+
     await m.safelyReferenceSystemIfNecessary()
+    
     const arr = Range(0,10,1).map( gavetada => async () => {
-<<<<<<< HEAD
-        await performJobByItsName('T123') //Fix: Job in milimeters must be correct typed as milimeter instead of number
-=======
-        await performJobByItsName('E44.A3') //Fix: Job in milimeters must be correct typed as milimeter instead of number
->>>>>>> e44_a2
-        await delay(1.5*60*1000)
+    await performJobByItsName('25002 B') //Fix: Job in milimeters must be correct typed as milimeter instead of number
+    await delay(1.5*60*1000)
     })
     await executeInSequence(arr)
     
+    //await y._forceLooseReference()
+    //await m.safelyReferenceSystemIfNecessary()
+    //await y.goToAbsolutePosition(Milimeter(100+200+10+26))
+    //await x.goToAbsolutePosition(Milimeter(100+55))
 }
 
 const Test10 = async ():Promise<void> => {

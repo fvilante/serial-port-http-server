@@ -1,13 +1,14 @@
 import { delay } from "../utils/delay"
 import { AxisStarterKit } from "./axis-starter-kit"
 import { setParam_ } from "./cmpp-memmap-layer"
-import { Milimeter } from "./displacement"
+import { Milimeter } from "./axis-position"
 import { fetchCMPPStatusL, StatusLCasted } from "./get-cmpp-status"
 import { getPosicaoAtual } from "./get-pos-atual"
 import { Address, Axis } from "./global"
 import { Driver } from "./mapa_de_memoria"
 import { executeInSequence, WaitUntilTrue } from "./promise-utils"
 import { isInsideRange, now } from "./utils"
+import { PrintingPositions } from "./cmpp-controler"
 
 // ***********************************************************
 // A generic Axis driver
@@ -15,18 +16,12 @@ import { isInsideRange, now } from "./utils"
 // Hides and wrap the CMPP-classic PCBoard API
 // ***********************************************************
 
-export type PrintingPositions = {
-    readonly numeroDeMensagensNoAvanco: number,
-    readonly numeroDeMensagensNoRetorno: number,
-    readonly posicaoDaPrimeiraMensagemNoAvanco: number,
-    readonly posicaoDaUltimaMensagemNoAvanco: number,
-    readonly posicaoDaPrimeiraMensagemNoRetorno: number,
-    readonly posicaoDaUltimaMensagemNoRetorno: number, 
-}
+
 
 export type AxisKinematics = {
     readonly AbsoluteDisplacement: Milimeter
 }
+
 
 export type AxisControler = {
     readonly isReferenced: () => Promise<boolean>
@@ -61,7 +56,6 @@ export type AxisControler = {
 }
 
 export type Trajectory = ([position: number, timeStamp: number])[]
-
 
 export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
     
