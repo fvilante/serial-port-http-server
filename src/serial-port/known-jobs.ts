@@ -79,6 +79,7 @@ export type KnownJobs = {
     'E44.A5': () => Job__
     'E44.A7': () => Job__
     'E44.A6': () => Job__
+    'E44.B1': () => Job__
     'E44.B6': () => Job__
     '2559370': () => Job__
     '2559371': () => Job__
@@ -86,10 +87,10 @@ export type KnownJobs = {
     'P3': () => Job__
     'T123': () => Job__
     'V2': () => Job__
+    'T202': () => Job__
 }
 
-export const getKnownJobs = ():KnownJobs => {
-
+export const getKnownJobs = ():KnownJobs => {    
     return {
         'T110':  getT110Job,
         'T199': getT199Job,
@@ -98,6 +99,7 @@ export const getKnownJobs = ():KnownJobs => {
         'E44.A5': getE44A5Job,
         'E44.A6': getE44A6Job,
         'E44.A7': getE44A7Job,
+        'E44.B1': getE44B1job,
         'E44.B6': getE44B6Job,
         '2559370': getTermo2559370Job,
         '2559371': getTermo2559371Job,
@@ -105,11 +107,62 @@ export const getKnownJobs = ():KnownJobs => {
         'P3': getP3job,
         'T123': getT123Job,
         'V2': getV2Job,
+        'T202': getT202Job,
     }
     
 }
 
+// utils
+// unsafe because it can cause circular reference
+// FIX: Huge source of potential bugs if not very carrefully useds
+const UNSAFECopyJobButChangeMessage = (jobToCopyKey: KnownJobsKeys, newMessage: string): Job__ => {
+    const jobToCopy = getKnownJobs()[jobToCopyKey]()
+    return {
+        ...jobToCopy,
+        msg: newMessage,
+    }
+}
+
 // ======================== JOB FUNCTIONS DEFINITIONS ===============================
+
+const getT202Job = (): Job__ => {
+    const firstX = 150+13.66-8.15-5
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18+17
+    const impressoesX: ImpressoesX = [
+        [firstX+(stepX*0),firstX+(stepX*1)],
+        [firstX+(stepX*2),firstX+(stepX*3)],
+        [firstX+(stepX*4),firstX+(stepX*5)],
+    ]
+    const stepY = 70
+    const linhasY = [ // em milimetros absolutos
+        posicaoYDaLinha5EmMilimetros+(stepY*(2)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(1)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(0)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
+        posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+    ]
+    return {
+        partNumber: '',
+        printer: 'printerWhite',
+        barCode: '',
+        msg:  'T202',
+        remoteFieldId: 2,
+        impressoesX,
+        linhasY,
+        printVelocity: 1700,
+        zLevel:0,
+        passes: 2
+        
+    }
+}
+
+const getE44B1job = ():Job__ => ({ 
+    ...getE44B6Job(), 
+    msg: 'E44.B1', 
+})
 
 const getP3job = (): Job__ => {
     const deltaX = 3-3.5-10.82
