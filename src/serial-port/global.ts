@@ -38,11 +38,11 @@ export type Printers = keyof Address['Printers']
 export const Address: Address = {
     Printers: {
         printerBlack: {
-            portName: 'com2',
+            portName: 'com9',
             baudRate: 9600,
         },
         printerWhite: {
-            portName: 'com9',
+            portName: 'com17',
             baudRate: 9600,
         },
     },
