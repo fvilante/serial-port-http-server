@@ -1,4 +1,5 @@
-import { AxisControler, getAxisControler, X_AxisStarterKit, Y_AxisStarterKit, Z_AxisStarterKit } from "./axis-controler"
+import { AxisControler, getAxisControler } from "./axis-controler"
+import { X_AxisStarterKit, Y_AxisStarterKit, Z_AxisStarterKit } from "./axis-starter-kit"
 import { Printers } from "./global"
 import { ImpressoesX } from "./known-jobs"
 import { ExecuteInParalel, executeInSequence } from "./promise-utils"
@@ -225,6 +226,7 @@ export const MachineControler = async (
         }
 }
 
+// Fix: I'd like not to have to import AxisStartKit. I would not use this 'starter kit strategy' at all
 export const makeMovimentKit = async ():Promise<MovimentKit> => {
     const z = getAxisControler(Z_AxisStarterKit)
     const x = getAxisControler(X_AxisStarterKit)
