@@ -101,7 +101,7 @@ const Test9 = async () => {
         const d = Address['Printers'][printerToDisable]
         const emptyMessage = ''
         await sendPrinter2(e.portName, e.baudRate)(remoteFieldId,msg)
-        //await sendPrinter2(d.portName, d.baudRate)(remoteFieldId,emptyMessage)
+        await sendPrinter2(d.portName, d.baudRate)(remoteFieldId,emptyMessage)
         await delay(500) // FIX: this delay May be unecessary
         return [remoteFieldId, msg]
     }
@@ -250,8 +250,9 @@ const Test9 = async () => {
             const impressoesX = job.impressoesX
 
             // program printer
+            
             await programMessage(printer, remoteFieldId, msg)
-
+            
             // executa linhas
             const possYmm = linhasY.map( x => Milimeter(x))
             const fazTodasAsLinhas = possYmm.map( yPos => async () => {
@@ -299,7 +300,11 @@ const Test9 = async () => {
     //throw new Error('haha')
     await m.safelyReferenceSystemIfNecessary()
     const arr = Range(0,10,1).map( gavetada => async () => {
+<<<<<<< HEAD
         await performJobByItsName('T123') //Fix: Job in milimeters must be correct typed as milimeter instead of number
+=======
+        await performJobByItsName('E44.A3') //Fix: Job in milimeters must be correct typed as milimeter instead of number
+>>>>>>> e44_a2
         await delay(1.5*60*1000)
     })
     await executeInSequence(arr)

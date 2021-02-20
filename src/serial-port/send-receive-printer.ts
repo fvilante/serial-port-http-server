@@ -14,7 +14,7 @@ const sendReceiveFrameToPrinter = (
 ) => async (
     frame: readonly number[]
 ): Promise<void> => new Promise( (resolve, reject) => {
-
+    console.log('oi10')
     communicate(
         portName,
         baudRate,
@@ -38,6 +38,7 @@ const sendReceiveFrameToPrinter = (
         },
         printerTimeout,
     )
+    console.log('oi11')
     
 })
 
@@ -52,7 +53,6 @@ export const sendPrinter2 = (
 
     const selectMessage = mkSelectRemoteMessageFrame(remoteFieldIndex)
     const setText = mkSetRemoteMessageFrame(text)
-
     await sendReceiveFrameToPrinter(portName, baudRate)(selectMessage)
     await delay(500) // fix: May be unecessary this delay
     await sendReceiveFrameToPrinter(portName, baudRate)(setText)
