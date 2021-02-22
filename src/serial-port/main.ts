@@ -16,7 +16,7 @@ import { Range } from "./utils"
 // ================================================================
 
 const Test7F = {
-    // move para coordenada calcusando vetorialmente 
+    // move para coordenada calculando vetorialmente 
     //a componente dos eixos que realizarao o deslocamento
 }
 
@@ -303,8 +303,8 @@ const Test9 = async () => {
     await m.safelyReferenceSystemIfNecessary()
     
     const arr = Range(0,10,1).map( gavetada => async () => {
-    await performJobByItsName('25002 B') //Fix: Job in milimeters must be correct typed as milimeter instead of number
-    await delay(1.5*60*1000)
+        await performJobByItsName('E44.B6') //Fix: Job in milimeters must be correct typed as milimeter instead of number
+        await delay(1.5*60*1000)
     })
     await executeInSequence(arr)
     
@@ -340,10 +340,16 @@ const Test10 = async ():Promise<void> => {
     await m.safelyReferenceSystemIfNecessary()
 
     // posicao do servico no cabecote
-    x.goToAbsolutePosition((maxX/2)+minX-300-200+50+15+5)
-    y.goToAbsolutePosition((maxY/2)+minY)
+    await x.goToAbsolutePosition((maxX/2)+minX-300-200+50+15+5)
+    await y.goToAbsolutePosition((maxY/2)+minY)
     await x._forceLooseReference()
     await y._forceLooseReference()
+
+}
+
+const Test11 = async (): Promise<void> => {
+
+    return
 
 }
 

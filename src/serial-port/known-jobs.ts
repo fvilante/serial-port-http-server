@@ -74,6 +74,7 @@ export type KnownJobsKeys = keyof KnownJobs
 export type KnownJobs = {
     'T110': () => Job__
     'T199': () => Job__
+    'E44.A1': () => Job__
     'E44.A2': () => Job__
     'E44.A3': () => Job__
     'E44.A5': () => Job__
@@ -92,12 +93,16 @@ export type KnownJobs = {
     // iveco
     'ST18': () => Job__
     '25002 B': () => Job__
+    'ST22': () => Job__
+    'ST6': () => Job__
+    'ST93': () => Job__
 }
 
 export const getKnownJobs = ():KnownJobs => {    
     return {
         'T110':  getT110Job,
         'T199': getT199Job,
+        'E44.A1': getE44A1Job,
         'E44.A2': getE44A2Job,
         'E44.A3': getE44A3Job,
         'E44.A5': getE44A5Job,
@@ -116,6 +121,9 @@ export const getKnownJobs = ():KnownJobs => {
         // iveco
         'ST18': getST18job,
         '25002 B': get2502Bjob,
+        'ST22': getST22Job,
+        'ST6': getST6Job,
+        'ST93': getST93Job,
     }
     
 }
@@ -132,6 +140,99 @@ const UNSAFECopyJobButChangeMessage = (jobToCopyKey: KnownJobsKeys, newMessage: 
 }
 
 // ======================== JOB FUNCTIONS DEFINITIONS ===============================
+
+
+const getST93Job = ():Job__ => {
+    const firstX = 155-9.5-6+4.8+2.5+2.5-20+(70)
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 336+2-1+10
+    const stepY = 70
+    return {
+        partNumber: '',
+        barCode: '',
+        printer: 'printerBlack',
+        msg: 'ST93',
+        remoteFieldId: 2,
+        printVelocity: 1700,
+        zLevel: 0,
+        impressoesX: [
+            [firstX+(stepX*0),firstX+(stepX*1)],
+            [firstX+(stepX*2),firstX+(stepX*3)],
+            [firstX+(stepX*4),firstX+(stepX*5)],
+        ],
+        linhasY: [
+            posicaoYDaLinha5EmMilimetros+(stepY*(2)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(1)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(0)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+        ]
+    } 
+}
+
+
+const getST6Job = ():Job__ => {
+    const firstX = 155-9.5-6+4.8+2.5+2.5
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 336+2-1+10
+    const stepY = 70
+    return {
+        partNumber: '',
+        barCode: '',
+        printer: 'printerWhite',
+        msg: 'ST6',
+        remoteFieldId: 2,
+        printVelocity: 1700,
+        zLevel: 0,
+        impressoesX: [
+            [firstX+(stepX*0),firstX+(stepX*1)],
+            [firstX+(stepX*2),firstX+(stepX*3)],
+            [firstX+(stepX*4),firstX+(stepX*5)],
+        ],
+        linhasY: [
+            posicaoYDaLinha5EmMilimetros+(stepY*(2)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(1)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(0)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+        ]
+    } 
+}
+
+const getST22Job = ():Job__ => {
+    const firstX = 155-9.5-6+4.8+2.5
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 336+2-1
+    const stepY = 70
+    return {
+        partNumber: '',
+        barCode: '',
+        printer: 'printerWhite',
+        msg: 'ST22',
+        remoteFieldId: 2,
+        printVelocity: 1700,
+        zLevel: 0,
+        impressoesX: [
+            [firstX+(stepX*0),firstX+(stepX*1)],
+            [firstX+(stepX*2),firstX+(stepX*3)],
+            [firstX+(stepX*4),firstX+(stepX*5)],
+        ],
+        linhasY: [
+            posicaoYDaLinha5EmMilimetros+(stepY*(2)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(1)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(0)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+        ]
+    } 
+}
+
 
 const get2502Bjob = ():Job__ => {
     const firstX = 155-9.5-6+4.8
@@ -152,13 +253,13 @@ const get2502Bjob = ():Job__ => {
             [firstX+(stepX*4),firstX+(stepX*5)],
         ],
         linhasY: [
-            //posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-            //posicaoYDaLinha5EmMilimetros+(stepY*(1)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(2)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(1)),
             posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-            //posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-            //posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-            //posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-            //posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
+            posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
         ]
     } 
 }
@@ -232,6 +333,7 @@ const getE44B1job = ():Job__ => ({
     msg: 'E44.B1', 
 })
 
+
 const getP3job = (): Job__ => {
     const deltaX = 3-3.5-10.82
     const deltaY = -30+4+8+15-4
@@ -298,6 +400,13 @@ const getT199Job = (): Job__ => {
         zLevel:0,
         passes: 2
         
+    }
+}
+
+const getE44A1Job = (): Job__ => {
+    return {
+        ...getE44A2Job(),
+        msg: 'E44.A1',
     }
 }
 
@@ -406,7 +515,7 @@ const getT123Job = (): Job__ => {
         posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
         posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
         posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
-    ].reverse()
+    ]
     return {
         partNumber: '',
         barCode: '',
@@ -513,7 +622,7 @@ const getE44B6Job = (): Job__ => {
         passes:2,
         remoteFieldId: 3,
         printer: 'printerWhite',
-        linhasY: test, //linhasY_adjusted,
+        linhasY: linhasY_adjusted,
         impressoesX: impressoesX_adjusted,
     }
 }
@@ -593,7 +702,7 @@ const getTermoM1Job = (): Job__ => {
             posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
             posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
             posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
-        ].reverse()
+        ]
     }
 }
 
