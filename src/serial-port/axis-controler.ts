@@ -6,7 +6,7 @@ import { fetchCMPPStatusL, StatusLCasted } from "./get-cmpp-status"
 import { getPosicaoAtual } from "./get-pos-atual"
 import { Address, Axis } from "./global"
 import { Driver } from "./mapa_de_memoria"
-import { executeInSequence, WaitUntilTrue } from "./promise-utils"
+import { executeInSequence, WaitUntilTrueFastPooling } from "./promise-utils"
 import { isInsideRange, now } from "./utils"
 import { PrintingPositions } from "./cmpp-controler"
 
@@ -208,7 +208,7 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
         const UBound = position+window[1] 
         const targetPositionRange = [LBound, UBound] as const
 
-        await WaitUntilTrue(
+        await WaitUntilTrueFastPooling(
             () => getCurrentAbsolutePosition(),
             curPos => {
                 const hasReachedTargetPosition = isInsideRange(curPos, targetPositionRange)
@@ -217,7 +217,6 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
                 }
                 return isInsideRange(curPos, targetPositionRange)
             },
-            600, //FIX: how to optimize and generalize this value?
             timeout,
         )
 

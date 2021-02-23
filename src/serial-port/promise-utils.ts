@@ -1,3 +1,5 @@
+import { delay } from "../utils/delay";
+import { Range } from "./utils";
 
 // helper
 type UnPromisifyArray<T extends readonly (() => Promise<unknown>)[]> = {
@@ -111,8 +113,39 @@ const Test2 = () => {
 
 // ========== [ WaitUntilTrue - monitor effects until it attends some pre-requisits or timeout ] =================
 
-export const WaitUntilTrue = <A>(effect: () => Promise<A>, condition: (_:A) => boolean, poolingInterval: number /*milisecs*/, timeout: number ):Promise<A> => 
-    new Promise( (resolve, reject) => { 
+export const WaitUntilTrueFastPooling = async <A>(effect: () => Promise<A>, condition: (_:A) => boolean, timeout: number ):Promise<A> => {
+    let tid: NodeJS.Timeout | undefined = undefined
+    let r:A | undefined = undefined
+    const runEffect = async () => {
+        r = await effect()
+        return r
+    } 
+
+    return new Promise( async (resolve, reject) => { 
+
+        tid = setTimeout( () => {
+            reject('WaitUntil has timedout')
+        }, timeout)
+        // pool as fast as possible
+        try {
+            while(condition(await runEffect())!==true) { 
+                // fast pooling loop
+            }
+        } catch (err) {
+            reject(err)
+        }
+        
+        // condition satisfied
+        clearTimeout(tid)
+        resolve(r as unknown as A)
+    
+    })
+}
+
+
+export const WaitUntilTrue = async <A>(effect: () => Promise<A>, condition: (_:A) => boolean, poolingInterval: number /*set to min interval*/ , timeout: number ):Promise<A> => {
+   
+    return new Promise( (resolve, reject) => { 
 
         let timerout: NodeJS.Timeout | undefined = undefined
         let pooling: NodeJS.Timeout | undefined = undefined
@@ -133,6 +166,19 @@ export const WaitUntilTrue = <A>(effect: () => Promise<A>, condition: (_:A) => b
                 })
         }
         pool();      
-})
+    })
+}
+
 
 //Test1();
+
+
+export const repeatPromiseWithInterval = async <A>(p: () => Promise<A>, timesToRepeat: number, intervalMilisecs: number) => {
+    const repetitions = Range(0,timesToRepeat,1).map( nTime => async () => {
+        const r = await p()
+        await delay(intervalMilisecs)
+        return r
+    })
+    const r = await executeInSequence(repetitions)
+    return r
+}
