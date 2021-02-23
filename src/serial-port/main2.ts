@@ -187,22 +187,27 @@ const performJob = async (job: Job__, movimentKit: MovimentKit): Promise<void> =
 
     const doAllYLinesIncludingItsXLine = async (job: Job__): Promise<void> => {
 
-        // esta funcao é importante, ela compensa a falta de ortogonalidade, possivelmente será
-        // necessário uma funcao desta por gaveta
+        // esta funcao é importante, ela compensa a falta de ortogonalidade entre a mecanica do eixo X e Y, 
+        // possivelmente será necessário uma funcao desta por gaveta
         const compensateLackOfAxisXYOrtogonality = (yPos: Milimeter, xsPos: ImpressoesX):ImpressoesX => {
-            // x=-1.84mm em y=+420mm
-            const [minY, maxY] = y._getAbsolutePositionRange()
-            const x_ = 1.84 //x._convertMilimeterToPulseIfNecessary(Milimeter(1.84))
-            const y_ = 420 //y._convertMilimeterToPulseIfNecessary(Milimeter(420))
+            // x=+1.20mm em y=+420mm
+            const x_ = 1.20//1.84
+            const y_ = 420//420
             const yPosInMM = yPos.value
             
             const deltaInMM = (yPosInMM)*(x_/y_)
-            //const deltaInMM = x._convertAbsolutePulsesToMilimeter(deltaInMM)
             const newXs = xsPos.map( p => p.map( x => x+deltaInMM)) as unknown as ImpressoesX
-            console.log(`deltaInMM=${deltaInMM}, deltaInPulse=${deltaInMM}`)
-            console.table(xsPos)
-            console.log(`New Xs (adjusted):`)
-            console.table(newXs)
+            return newXs
+        }
+
+        const moveCoordinatesToDrawer1Or2 = (yPos: Milimeter, xsPos: ImpressoesX):ImpressoesX => {
+            // x=-1.84mm em y=+420mm
+            const x_ = 1.84+0.5
+            const y_ = 420
+            const yPosInMM = yPos.value
+            
+            const deltaInMM = (yPosInMM)*(x_/y_)
+            const newXs = xsPos.map( p => p.map( x => x+deltaInMM)) as unknown as ImpressoesX
             return newXs
         }
 
@@ -269,7 +274,7 @@ const main2 = async () => {
    
     const repeticoes = 10
     const tempoDeAbastecimento = 1.5*60*1000
-    const drawerWork: readonly KnownJobsKeys[] = ['V120']
+    const drawerWork: readonly KnownJobsKeys[] = ['E44.A3']
     const doDrawerSingleWork_ = () => doDrawerSingleWork('Drawer1',drawerWork, movimentKit)
 
     console.log(`===========================================================================`)

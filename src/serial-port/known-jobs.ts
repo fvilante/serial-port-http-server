@@ -379,9 +379,9 @@ const getST18job = ():Job__ => {
 
 
 const getV120Job = (): Job__ => {
-    const firstX = 150+13.66-8.15-5-3+1.5
+    const firstX = 150+13.66-8.15-5-3+1.5-2.5
     const stepX = 70
-    const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18+17
+    const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18+17-5
     const impressoesX: ImpressoesX = [
         [firstX+(stepX*0),firstX+(stepX*1)],
         [firstX+(stepX*2),firstX+(stepX*3)],
