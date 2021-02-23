@@ -89,7 +89,7 @@ export const X_AxisStarterKit: AxisStarterKit = {
     axisName: 'XAxis',
     minAbsolutePosition: 610,
     maxAbsolutePOsition: 8355+25,
-    milimeterToPulseRatio: 152.87/1000,
+    milimeterToPulseRatio: (152.87/1000),
     velRef: 350,
     acRef: 3000,
     defaultVelocity: 2000,
@@ -146,7 +146,7 @@ export const Y_AxisStarterKit: AxisStarterKit = {
     axisName: 'YAxis',
     minAbsolutePosition: 610,
     maxAbsolutePOsition: 7310,
-    milimeterToPulseRatio: 69.82/1000, //1. 7.22/100, 2. 69.82/1000
+    milimeterToPulseRatio: (69.82*0.9936)/1000,//((69.82)*(420+2.7/420))/1000, //1. 7.22/100, 2. 69.82/1000
     velRef: 350,
     acRef: 3000,
     defaultVelocity: 1000,

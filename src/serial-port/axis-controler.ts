@@ -207,14 +207,9 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
         const LBound = position-window[0]
         const UBound = position+window[1] 
         const targetPositionRange = [LBound, UBound] as const
+
         await WaitUntilTrue(
-            async () => {
-                const vel = await _getEstimatedVelocity()
-                const ac = await _getEstimatedAcceleration()
-                const pos = await getCurrentAbsolutePosition()
-                console.log(`Est. velocity=${vel.toFixed(2)}, Est. acceleration=${ac.toFixed(2)}`)
-                return pos
-            },
+            () => getCurrentAbsolutePosition(),
             curPos => {
                 const hasReachedTargetPosition = isInsideRange(curPos, targetPositionRange)
                 if(monitor!==undefined) {
