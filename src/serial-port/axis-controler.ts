@@ -295,7 +295,7 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
         return  
     }
 
-    const _convertMilimeterToPulseIfNecessary: T['_convertMilimeterToPulseIfNecessary'] = (position: number | Milimeter):number => {
+    const _convertMilimeterToPulseIfNecessary: T['_convertMilimeterToPulseIfNecessary'] = position => {
         if (typeof position === 'number') {
             return position
         } else {

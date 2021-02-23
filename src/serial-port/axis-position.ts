@@ -1,79 +1,81 @@
 import { AxisControler } from "./axis-controler"
 
-// Position in one or more Axis
-// Purpose: make it safe to work with diferent units of positions in axis
-// Note: Position by definition is a vector (which means that it is a 'n cordinates'
-//       in relation to a 'vector basis')
-// All positions here are in relation to the zero of CMPP, that means, it is AbsolutePosition.
+type Field<A> = {
+    zero: () => A
+    invert: () => A
+    add: (p: A) => A
+    sub: (p: A) => A
+}
 
-// Milimeter: A unit of linear length and linear length is a measure of the distance between
-// two points.
+const numberField = (value: number):Field<number> => {
+    return {
+        zero: () => 0,
+        invert: () => value*(-1),
+        add: (other: number) => value+other,
+        sub: (other: number) => value-other,
+    }
+}
+
+//Maps any Field type to real numbers
+const mapToFieldOverReals = <A>(unWrap: (_:A) => number, reWrap: (_:number) => A, getValue: () => A): Field<A> => {
+    const f = numberField(unWrap(getValue()))
+    return {
+        zero: () => reWrap(f.zero()),
+        invert: () => reWrap(f.invert()),
+        add: other => reWrap(f.add(unWrap(other))),
+        sub: other => reWrap(f.sub(unWrap(other))),
+    }
+}
+
+
 export type Milimeter = {
     kind: 'Milimeter'
     value: number
 }
 export const Milimeter = (value: number): Milimeter => ({kind: 'Milimeter', value})
 
-// A unit of angular motion
-export type Pulse = {
-    kind: 'Pulse'
-    value: number
+
+// Most elementary unit unit of position
+// Note: Step (sinonymous=Pulse) is neither Angular nor Linear, but can be mapped to it.
+export type Step = {
+    kind: 'Step'
+    getValue: () => number
+    transform: <X>(f: (_:Step) => X) => X
+    map: (f: (_:Step) => Step) => Step
+    zero: () => Step
+    invert: () => Step
+    add: (p: Step) => Step
+    sub: (p: Step) => Step
+} 
+
+export const Step = (value: number): Step => {
+
+    type T = Step
+
+    const getValue: T['getValue'] = () => value
+
+    const transform: T['transform'] = f => f(Step(value))
+
+    const map: T['map'] = f => transform(f)
+
+    const fieldOverReals = () => {
+        const unWrap = getValue
+        const reWrap = Step
+        const getPulse = () => Step(value)
+        return mapToFieldOverReals(unWrap, reWrap, getPulse)
+    }
+
+    return {
+        kind: 'Step',
+        getValue,
+        transform,
+        map,
+        ...fieldOverReals(),
+    }
 }
-export const Pulse = (value: number): Pulse => ({kind: 'Pulse', value})
 
 export type PositionUnits = 
     | Milimeter['kind'] 
-    | Pulse['kind']
-
-
-export type Position = {
-    toAbsoluteMilimeter: () => Milimeter
-    toAbsolutePulse: () => Pulse
-    // map: (f: (_: Displacement) => Displacement) => Displacement
-    // add: (value: Displacement) => Displacement
-    // sub: (value: Displacement) => Displacement
-}
-
-
-// Represents a position in a linear 1 dimension length space or in a angular space
-export const AxisPosition = (axis: AxisControler) => (absolutePosition: Milimeter | Pulse): Position => {
-    
-    type T = Position
-
-    const qty = absolutePosition.value
-    const unit = absolutePosition.kind
-
-    const toAbsoluteMilimeter: T['toAbsoluteMilimeter'] = () => {
-        const mm = unit === 'Milimeter' 
-            ? Milimeter(qty) 
-            : axis._convertAbsolutePulsesToMilimeter(qty)
-        return mm
-    }
-
-    const toAbsolutePulse: T['toAbsolutePulse'] = () => {
-        const pulse = unit === 'Milimeter' 
-            ? axis._convertMilimeterToPulseIfNecessary(Milimeter(qty)) 
-            : qty
-        return Pulse(pulse)
-    }
-
-    /*const map: T['map'] = f => {
-        return Displacement
-    }*/
-
-    return {
-        toAbsoluteMilimeter: toAbsoluteMilimeter,
-        toAbsolutePulse: toAbsolutePulse,
-        //map,
-       // add,
-       // sub,
-    }
-
-}
-
-export type Position_ = {
-    fromMilimeter: (value: number) => Position
-    fromPulse: (value: number) => Position
-}
+    | Step['kind']
 
 

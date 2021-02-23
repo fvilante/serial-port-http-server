@@ -1,5 +1,5 @@
 import { delay } from "../utils/delay"
-import { Milimeter, Pulse } from "./axis-position"
+import { Milimeter, Step } from "./axis-position"
 import { Address, Printers } from "./global"
 import { getKnownJobs, Job__, KnownJobsKeys } from "./known-jobs"
 import { makeMovimentKit, MovimentKit } from "./machine-controler"
@@ -17,35 +17,7 @@ type ImprimeParPrintingParameters = {
     acRet: number,
 }
 
-const ImprimePar = async (p: ImprimeParPrintingParameters, movimentKit: MovimentKit): Promise<void> => {
-        
-    const {x,y,z,m} = movimentKit
-    const {x0,x1,rampa,velAv, acAv, velRet, acRet} = p
-
-    await x._setPrintMessages({
-        numeroDeMensagensNoAvanco: 2,
-        numeroDeMensagensNoRetorno: 0,
-        posicaoDaPrimeiraMensagemNoAvanco: x0,
-        posicaoDaUltimaMensagemNoAvanco: x1,
-        posicaoDaPrimeiraMensagemNoRetorno: 500,
-        posicaoDaUltimaMensagemNoRetorno: 500,
-    })
-
-    const [minX, maxX] = x._getAbsolutePositionRange()
-
-    const POSFIN = x1+rampa
-    const POSINI = x0-rampa
-    const safePOSINI = POSINI < minX ? minX : POSINI
-    const safePOSFIM = POSFIN > maxX ? maxX : POSFIN
-
-    await x.goToAbsolutePosition(safePOSFIM, (v,a) =>[velAv,acAv] )
-    await x.goToAbsolutePosition(safePOSINI, (v,a) => [velRet,acRet])
-    //await x._clearPrintingMessages() //FIX: should be unnecessary
-
-    return
-}
-
-const ImprimeLinhaInterpolando = async (xi: Milimeter, xf: Milimeter, qtde: number, movimentKit: MovimentKit): Promise<void> => {
+const ImprimeLinhaSomenteNoAvancoEInterpolando = async (xi: Milimeter, xf: Milimeter, qtde: number, movimentKit: MovimentKit): Promise<void> => {
 
     const defaults = { // in pulses
         acAv: 6000,
@@ -96,8 +68,8 @@ const programMessage = async (printer: Printers,remoteFieldId: number, msg: stri
     const e = Address['Printers'][printerToEnable]
     const d = Address['Printers'][printerToDisable]
     const emptyMessage = ''
-    await sendPrinter2(e.portName, e.baudRate)(remoteFieldId,msg)
-    await sendPrinter2(d.portName, d.baudRate)(remoteFieldId,emptyMessage)
+    //await sendPrinter2(e.portName, e.baudRate)(remoteFieldId,msg)
+    //await sendPrinter2(d.portName, d.baudRate)(remoteFieldId,emptyMessage)
     await delay(500) // FIX: this delay May be unecessary
     return [remoteFieldId, msg]
 }
@@ -140,7 +112,7 @@ const performJob = async (job: Job__, movimentKit: MovimentKit): Promise<void> =
             const ULTIMA = impressoes.length-1
             const positionFirstMessage = impressoes[PRIMEIRA]
             const positionLastMessage = impressoes[ULTIMA]
-            await ImprimeLinhaInterpolando(positionFirstMessage, positionLastMessage, 6, movimentKit)
+            await ImprimeLinhaSomenteNoAvancoEInterpolando(positionFirstMessage, positionLastMessage, 6, movimentKit)
             await x.goToAbsolutePosition(minX)
                 
             return
@@ -168,8 +140,8 @@ const performJob = async (job: Job__, movimentKit: MovimentKit): Promise<void> =
         }
 
         //FIX: Remove -> unused -> deprecated
-        const convertImpressoesMM2Pulse = (isMM: Job__['impressoesX']): readonly Pulse[] => {
-            const iPulses = isMM.map( iMM => Pulse(x._convertMilimeterToPulseIfNecessary(iMM)))
+        const convertImpressoesMM2Pulse = (isMM: Job__['impressoesX']): readonly Step[] => {
+            const iPulses = isMM.map( iMM => Step(x._convertMilimeterToPulseIfNecessary(iMM)))
             return iPulses 
         }
 
