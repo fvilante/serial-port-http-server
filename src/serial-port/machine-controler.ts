@@ -1,7 +1,7 @@
 import { AxisControler, getAxisControler } from "./axis-controler"
+import { Milimeter } from "./axis-position"
 import { X_AxisStarterKit, Y_AxisStarterKit, Z_AxisStarterKit } from "./axis-starter-kit"
 import { Printers } from "./global"
-import { ImpressoesX } from "./known-jobs"
 import { ExecuteInParalel, executeInSequence } from "./promise-utils"
 import { isInsideRange } from "./utils"
 
@@ -27,7 +27,7 @@ type Job = {
     readonly text: string,
     readonly printer: Printers,
     readonly zPosition: number,
-    readonly xyPositions: readonly {y: number, xs: ImpressoesX }[],
+    readonly xyPositions: readonly {y: number, xs: readonly Milimeter[] }[],
     readonly printSpeed: number
 }
 

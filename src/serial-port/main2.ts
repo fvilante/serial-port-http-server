@@ -1,7 +1,6 @@
 import { delay } from "../utils/delay"
-import { Milimeter } from "./axis-position"
+import { Milimeter, Pulse } from "./axis-position"
 import { Address, Printers } from "./global"
-import { ImpressoesX } from "./imprime-matriz"
 import { getKnownJobs, Job__, KnownJobsKeys } from "./known-jobs"
 import { makeMovimentKit, MovimentKit } from "./machine-controler"
 import { executeInSequence, repeatPromiseWithInterval } from "./promise-utils"
@@ -46,11 +45,9 @@ const ImprimePar = async (p: ImprimeParPrintingParameters, movimentKit: Moviment
     return
 }
 
-const ImprimeLinhaInterpolando = async (xi: number, xf: number, qtde: number, movimentKit: MovimentKit): Promise<void> => {
+const ImprimeLinhaInterpolando = async (xi: Milimeter, xf: Milimeter, qtde: number, movimentKit: MovimentKit): Promise<void> => {
 
-    const defaults: ImprimeParPrintingParameters = {
-        x0: 0,
-        x1: 0,
+    const defaults = { // in pulses
         acAv: 6000,
         acRet: 3000,
         rampa: 640,
@@ -62,10 +59,13 @@ const ImprimeLinhaInterpolando = async (xi: number, xf: number, qtde: number, mo
 
     const {x,y,z,m} = movimentKit
 
+    const xi_InPulses = x._convertMilimeterToPulseIfNecessary(xi)
+    const xf_InPulses = x._convertMilimeterToPulseIfNecessary(xf)
+
     await x._setPrintMessages({
         numeroDeMensagensNoAvanco: qtde,
-        posicaoDaPrimeiraMensagemNoAvanco: xi,
-        posicaoDaUltimaMensagemNoAvanco: xf,
+        posicaoDaPrimeiraMensagemNoAvanco: xi_InPulses,
+        posicaoDaUltimaMensagemNoAvanco: xf_InPulses,
         numeroDeMensagensNoRetorno: 0,
         posicaoDaPrimeiraMensagemNoRetorno: 500,
         posicaoDaUltimaMensagemNoRetorno: 500,
@@ -73,8 +73,8 @@ const ImprimeLinhaInterpolando = async (xi: number, xf: number, qtde: number, mo
 
     const [minX, maxX] = x._getAbsolutePositionRange()
 
-    const POSFIN = xf+rampa
-    const POSINI = xi-rampa
+    const POSINI = xi_InPulses-rampa
+    const POSFIN = xf_InPulses+rampa
     const safePOSINI = POSINI < minX ? minX : POSINI
     const safePOSFIM = POSFIN > maxX ? maxX : POSFIN
 
@@ -116,12 +116,12 @@ const performJob = async (job: Job__, movimentKit: MovimentKit): Promise<void> =
     const {x,y,z,m} = movimentKit
     const [minZ, maxZ] = z._getAbsolutePositionRange()
 
-    const doASingleXLine = async (yPos: Milimeter, impressoesX: ImpressoesX, movimentKit: MovimentKit): Promise<void> => {
+    const doASingleXLine = async (yPos: Milimeter, impressoesX: Job__['impressoesX'], movimentKit: MovimentKit): Promise<void> => {
 
         const {x,y,z,m} = movimentKit
 
         // Fix: Velocity must not be a constant
-        const fazLinhaXUmaVezInteira = async (movimentKit: MovimentKit, impressoes: ImpressoesX):Promise<void> => {
+        const fazLinhaXUmaVezInteira = async (movimentKit: MovimentKit, impressoes: Job__['impressoesX']):Promise<void> => {
 
             const defaults: ImprimeParPrintingParameters = {
                 x0: 0,
@@ -134,18 +134,13 @@ const performJob = async (job: Job__, movimentKit: MovimentKit): Promise<void> =
             }
 
             const [minX, maxX] = x._getAbsolutePositionRange()
-
-            const p1 = {...defaults, x0: impressoes[0][0], x1: impressoes[0][1]}
-            const p2 = {...defaults, x0: impressoes[1][0], x1: impressoes[1][1]}
-            const p3 = {...defaults, x0: impressoes[2][0], x1: impressoes[2][1]}
             
             await x.goToAbsolutePosition(minX)
-            const positionFirstMessage = p1.x0
-            const positionLastMessage = p3.x1
+            const PRIMEIRA = 0
+            const ULTIMA = impressoes.length-1
+            const positionFirstMessage = impressoes[PRIMEIRA]
+            const positionLastMessage = impressoes[ULTIMA]
             await ImprimeLinhaInterpolando(positionFirstMessage, positionLastMessage, 6, movimentKit)
-            //await ImprimePar(p1, movimentKit )
-            //await ImprimePar(p2, movimentKit )
-            //await ImprimePar(p3, movimentKit )
             await x.goToAbsolutePosition(minX)
                 
             return
@@ -153,16 +148,16 @@ const performJob = async (job: Job__, movimentKit: MovimentKit): Promise<void> =
         }
 
         
-        const fazLinhaXPreta = async (movimentKit: MovimentKit, impressoes: ImpressoesX):Promise<void> => {
+        const fazLinhaXPreta = async (movimentKit: MovimentKit, impressoes: Job__['impressoesX']):Promise<void> => {
             await fazLinhaXUmaVezInteira(movimentKit, impressoes)
         }
         
-        const fazLinhaXBranca = async (movimentKit: MovimentKit, impressoes: ImpressoesX):Promise<void> => {
+        const fazLinhaXBranca = async (movimentKit: MovimentKit, impressoes: Job__['impressoesX']):Promise<void> => {
             await fazLinhaXUmaVezInteira(movimentKit, impressoes)
             await fazLinhaXUmaVezInteira(movimentKit, impressoes)          
         }
 
-        const printAtAParticularYanXLinInAnyColor = async (printer: Printers, modelo: ImpressoesX): Promise<void> => {
+        const printAtAParticularYanXLinInAnyColor = async (printer: Printers, modelo: Job__['impressoesX']): Promise<void> => {
             if (printer==='printerWhite') {
                 await fazLinhaXBranca(movimentKit,modelo)
             } else {
@@ -172,16 +167,17 @@ const performJob = async (job: Job__, movimentKit: MovimentKit): Promise<void> =
             return
         }
 
-        const convertImpressoesMM2Pulse = (iMM: ImpressoesX): ImpressoesX => {
-            const iPulses = iMM.map( par => par.map( i => x._convertMilimeterToPulseIfNecessary(Milimeter(i)))) as unknown as ImpressoesX
+        //FIX: Remove -> unused -> deprecated
+        const convertImpressoesMM2Pulse = (isMM: Job__['impressoesX']): readonly Pulse[] => {
+            const iPulses = isMM.map( iMM => Pulse(x._convertMilimeterToPulseIfNecessary(iMM)))
             return iPulses 
         }
 
         //position y
         await y.goToAbsolutePosition(yPos)
         //do the line
-        const iInPulses = convertImpressoesMM2Pulse(impressoesX)
-        await printAtAParticularYanXLinInAnyColor(printer,iInPulses)
+        //const iInPulses = convertImpressoesMM2Pulse(impressoesX)
+        await printAtAParticularYanXLinInAnyColor(printer,impressoesX)
 
     }
 
@@ -189,36 +185,24 @@ const performJob = async (job: Job__, movimentKit: MovimentKit): Promise<void> =
 
         // esta funcao é importante, ela compensa a falta de ortogonalidade entre a mecanica do eixo X e Y, 
         // possivelmente será necessário uma funcao desta por gaveta
-        const compensateLackOfAxisXYOrtogonality = (yPos: Milimeter, xsPos: ImpressoesX):ImpressoesX => {
+        const compensateLackOfAxisXYOrtogonality = (yPos: Milimeter, xsPos: Job__['impressoesX']): Job__['impressoesX'] => {
             // x=+1.20mm em y=+420mm
             const x_ = 1.20//1.84
             const y_ = 420//420
             const yPosInMM = yPos.value
             
-            const deltaInMM = (yPosInMM)*(x_/y_)
-            const newXs = xsPos.map( p => p.map( x => x+deltaInMM)) as unknown as ImpressoesX
-            return newXs
-        }
-
-        const moveCoordinatesToDrawer1Or2 = (yPos: Milimeter, xsPos: ImpressoesX):ImpressoesX => {
-            // x=-1.84mm em y=+420mm
-            const x_ = 1.84+0.5
-            const y_ = 420
-            const yPosInMM = yPos.value
-            
-            const deltaInMM = (yPosInMM)*(x_/y_)
-            const newXs = xsPos.map( p => p.map( x => x+deltaInMM)) as unknown as ImpressoesX
+            const deltaInMM = Milimeter((yPosInMM)*(x_/y_))
+            const newXs = xsPos.map( x => Milimeter(x.value+deltaInMM.value))
             return newXs
         }
 
         console.log('=========== [Iniciando Trabalho:] ===========')
         console.table(job)
 
-        const impressoesX = job.impressoesX // number in milimeter --> FIX: Cast to milimeter not to number
+        const impressoesX = job.impressoesX
        
         // executa linhas
-        const possYmm = linhasY.map( x => Milimeter(x))
-        const fazTodasAsLinhas = possYmm.map( yPos => async () => {
+        const fazTodasAsLinhas = linhasY.map( yPos => async () => {
             const ajusted_impressoesX = compensateLackOfAxisXYOrtogonality(yPos, impressoesX)
             await doASingleXLine(yPos,ajusted_impressoesX, movimentKit)
         })
@@ -230,11 +214,11 @@ const performJob = async (job: Job__, movimentKit: MovimentKit): Promise<void> =
     }
 
 
-    // preogram printers
+    // program printers
     await programMessage(printer, remoteFieldId, msg)
-    // release Z 
-    await z._moveRelative(Milimeter(zLevel))
-    //await executeManyJobsWithTimeDelay(jobs,(1.5*60));
+    // release Z
+    const zLevelInPulses = minZ+z._convertMilimeterToPulseIfNecessary(zLevel)
+    await z.goToAbsolutePosition(zLevelInPulses);
     await doAllYLinesIncludingItsXLine(job)
     // sobe Z
     await z.goToAbsolutePosition(minZ);
@@ -274,7 +258,7 @@ const main2 = async () => {
    
     const repeticoes = 10
     const tempoDeAbastecimento = 1.5*60*1000
-    const drawerWork: readonly KnownJobsKeys[] = ['E44.A3']
+    const drawerWork: readonly KnownJobsKeys[] = ['E44.A5']
     const doDrawerSingleWork_ = () => doDrawerSingleWork('Drawer1',drawerWork, movimentKit)
 
     console.log(`===========================================================================`)

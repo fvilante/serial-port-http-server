@@ -63,13 +63,13 @@ const deltaId: XYDelta = {
     y: Milimeter(0),
 }
 
-const applyDeltaToCoordinates = (xss: ImpressoesX, ys: readonly number[], delta: XYDelta): [newXs: ImpressoesX, newYs: readonly number[]] => {
+const applyDeltaToCoordinates = (xs: Job__['impressoesX'], ys: Job__['linhasY'], delta: XYDelta): [newXs: Job__['impressoesX'], newYs: Job__['linhasY']] => {
     const { x: xHead, y: yHead} = delta
-    const newYs = ys.map( y => y + yHead.value)
-    const newXs = xss.map( xs => xs.map( x => x + xHead.value)) as unknown as ImpressoesX
+    const newYs: typeof ys = ys.map( y => Milimeter(y.value + yHead.value))
+    const newXs: typeof xs = xs.map( x => Milimeter(x.value + xHead.value))
     console.log('ys:', ys)
     console.log('new_ys:', newYs)
-    console.log('xs', xss)
+    console.log('xs', xs)
     console.log('newXs', newXs)
     return [newXs, newYs]
 }
@@ -87,17 +87,20 @@ export type Job__ = {
     printVelocity: number // in pulses per 1024 milisec  // fix: Not implemented
 
     // Print positions
-    zLevel: number // mm in relation to MinZ //Fix: Should be safe move (and give back an clear error msg if user try to access an physically impossible position)
-    impressoesX: ImpressoesX
-    linhasY: readonly number[]
+    zLevel: Milimeter // mm in relation to MinZ //Fix: Should be safe move (and give back an clear error msg if user try to access an physically impossible position)
+    impressoesX: readonly Milimeter[] // in relation to machine 0 -> FIX: Should be safe to use 0, not is the case, because it will collide carrier at FC- direction
+    linhasY: readonly Milimeter[] // in relation to machine 0 -> FIX: Should be safe to use 0, not is the case, because it will collide carrier at FC- direction 
 
 }
-
+/*
 export type ImpressoesX = readonly [
     readonly [x0: number, x1: number],
     readonly [x2: number, x3: number],
     readonly [x4: number, x5: number],
 ]
+*/
+
+
 
 
 export type KnownJobsKeys = keyof KnownJobs
@@ -193,20 +196,20 @@ const getST93Job = ():Job__ => {
         msg: 'ST93',
         remoteFieldId: 2,
         printVelocity: 1700,
-        zLevel: 0,
+        zLevel: Milimeter(0),
         impressoesX: [
-            [firstX+(stepX*0),firstX+(stepX*1)],
-            [firstX+(stepX*2),firstX+(stepX*3)],
-            [firstX+(stepX*4),firstX+(stepX*5)],
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
         ],
         linhasY: [
-            posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
         ]
     } 
 }
@@ -224,20 +227,20 @@ const getST6Job = ():Job__ => {
         msg: 'ST6',
         remoteFieldId: 2,
         printVelocity: 1700,
-        zLevel: 0,
+        zLevel: Milimeter(0),
         impressoesX: [
-            [firstX+(stepX*0),firstX+(stepX*1)],
-            [firstX+(stepX*2),firstX+(stepX*3)],
-            [firstX+(stepX*4),firstX+(stepX*5)],
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
         ],
         linhasY: [
-            posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
         ]
     } 
 }
@@ -254,20 +257,20 @@ const getST19Job = (): Job__ => {
         msg: 'ST19',
         remoteFieldId: 2,
         printVelocity: 1700,
-        zLevel: 0,
+        zLevel: Milimeter(0),
         impressoesX: [
-            [firstX+(stepX*0),firstX+(stepX*1)],
-            [firstX+(stepX*2),firstX+(stepX*3)],
-            [firstX+(stepX*4),firstX+(stepX*5)],
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
         ],
         linhasY: [
-            posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
         ]
     } 
 }
@@ -284,20 +287,20 @@ const getST22Job = ():Job__ => {
         msg: 'ST22',
         remoteFieldId: 2,
         printVelocity: 1700,
-        zLevel: 0,
+        zLevel: Milimeter(0),
         impressoesX: [
-            [firstX+(stepX*0),firstX+(stepX*1)],
-            [firstX+(stepX*2),firstX+(stepX*3)],
-            [firstX+(stepX*4),firstX+(stepX*5)],
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
         ],
         linhasY: [
-            posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
         ]
     } 
 }
@@ -329,20 +332,20 @@ const get25002Bjob = ():Job__ => {
         msg: '25002 B',
         remoteFieldId: 2,
         printVelocity: 1700,
-        zLevel: 0,
+        zLevel: Milimeter(0),
         impressoesX: [
-            [firstX+(stepX*0),firstX+(stepX*1)],
-            [firstX+(stepX*2),firstX+(stepX*3)],
-            [firstX+(stepX*4),firstX+(stepX*5)],
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
         ],
         linhasY: [
-            posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
         ]
     } 
 }
@@ -359,20 +362,20 @@ const getST18job = ():Job__ => {
         msg: 'ST18',
         remoteFieldId: 2,
         printVelocity: 1700,
-        zLevel: 0,
+        zLevel: Milimeter(0),
         impressoesX: [
-            [firstX+(stepX*0),firstX+(stepX*1)],
-            [firstX+(stepX*2),firstX+(stepX*3)],
-            [firstX+(stepX*4),firstX+(stepX*5)],
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
         ],
         linhasY: [
-            posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
         ]
     } 
 }
@@ -382,20 +385,20 @@ const getV120Job = (): Job__ => {
     const firstX = 150+13.66-8.15-5-3+1.5-2.5
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18+17-5
-    const impressoesX: ImpressoesX = [
-        [firstX+(stepX*0),firstX+(stepX*1)],
-        [firstX+(stepX*2),firstX+(stepX*3)],
-        [firstX+(stepX*4),firstX+(stepX*5)],
-    ]
     const stepY = 70
-    const linhasY = [ // em milimetros absolutos
-        posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+    const impressoesX: Job__['impressoesX'] = [
+        Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+        Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+        Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+    ]
+    const linhasY: Job__['linhasY'] = [
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
     return {
         partNumber: '',
@@ -406,7 +409,7 @@ const getV120Job = (): Job__ => {
         impressoesX,
         linhasY,
         printVelocity: 1700,
-        zLevel:0,
+        zLevel: Milimeter(0),
         passes: 2
         
     } 
@@ -416,20 +419,20 @@ const getT202Job = (): Job__ => {
     const firstX = 150+13.66-8.15-5
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18+17
-    const impressoesX: ImpressoesX = [
-        [firstX+(stepX*0),firstX+(stepX*1)],
-        [firstX+(stepX*2),firstX+(stepX*3)],
-        [firstX+(stepX*4),firstX+(stepX*5)],
-    ]
     const stepY = 70
-    const linhasY = [ // em milimetros absolutos
-        posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+    const impressoesX: Job__['impressoesX'] = [
+        Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+        Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+        Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+    ]
+    const linhasY: Job__['linhasY'] = [
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
     return {
         partNumber: '',
@@ -440,7 +443,7 @@ const getT202Job = (): Job__ => {
         impressoesX,
         linhasY,
         printVelocity: 1700,
-        zLevel:0,
+        zLevel: Milimeter(0),
         passes: 2
         
     }
@@ -458,20 +461,20 @@ const getP3job = (): Job__ => {
     const firstX = 150+13.66+3 + deltaX
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18 + deltaY
-    const impressoesX: ImpressoesX = [
-        [firstX+(stepX*0),firstX+(stepX*1)],
-        [firstX+(stepX*2),firstX+(stepX*3)],
-        [firstX+(stepX*4),firstX+(stepX*5)],
-    ]
     const stepY = 60
-    const linhasY = [ // em milimetros absolutos
-        posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+    const impressoesX: Job__['impressoesX'] = [
+        Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+        Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+        Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+    ]
+    const linhasY: Job__['linhasY'] = [
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
     return {
         partNumber: '',
@@ -482,7 +485,7 @@ const getP3job = (): Job__ => {
         impressoesX,
         linhasY,
         printVelocity: 1700,
-        zLevel:0,
+        zLevel: Milimeter(0),
         passes: 2
     }
 }
@@ -491,20 +494,20 @@ const getT199Job = (): Job__ => {
     const firstX = 150+13.66-8.15
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18
-    const impressoesX: ImpressoesX = [
-        [firstX+(stepX*0),firstX+(stepX*1)],
-        [firstX+(stepX*2),firstX+(stepX*3)],
-        [firstX+(stepX*4),firstX+(stepX*5)],
-    ]
     const stepY = 70
-    const linhasY = [ // em milimetros absolutos
-        posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+    const impressoesX: Job__['impressoesX'] = [
+        Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+        Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+        Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+    ]
+    const linhasY: Job__['linhasY'] = [
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
     return {
         partNumber: '',
@@ -515,7 +518,7 @@ const getT199Job = (): Job__ => {
         impressoesX,
         linhasY,
         printVelocity: 1700,
-        zLevel:0,
+        zLevel: Milimeter(0),
         passes: 2
         
     }
@@ -549,20 +552,20 @@ const getV2Job = (): Job__ => {
     const firstX = 150+13.66+3 + deltaX
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18 + deltaY
-    const impressoesX: ImpressoesX = [
-        [firstX+(stepX*0),firstX+(stepX*1)],
-        [firstX+(stepX*2),firstX+(stepX*3)],
-        [firstX+(stepX*4),firstX+(stepX*5)],
-    ]
     const stepY = 70
-    const linhasY = [ // em milimetros absolutos
-        posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+    const impressoesX: Job__['impressoesX'] = [
+        Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+        Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+        Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+    ]
+    const linhasY: Job__['linhasY'] = [
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
     return {
         partNumber: '',
@@ -573,7 +576,7 @@ const getV2Job = (): Job__ => {
         impressoesX,
         linhasY,
         printVelocity: 1700,
-        zLevel:0,
+        zLevel: Milimeter(0),
         passes: 2
         
     }
@@ -592,20 +595,20 @@ const getTermo2559370Job = (): Job__ => {
         msg:  '2559370',
         remoteFieldId: 3,
         printVelocity: 2000,
-        zLevel: 0,
-        impressoesX: [ // em milimetros absolutos
-            [firstX+(stepX*0),firstX+(stepX*1)],
-            [firstX+(stepX*2),firstX+(stepX*3)],
-            [0,0],
+        zLevel: Milimeter(0),
+        impressoesX: [
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
         ],
-        linhasY: [ // em milimetros absolutos
-            posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+        linhasY: [
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
         ]
     }
 }
@@ -615,24 +618,24 @@ const getT123Job = (): Job__ => {
     const printer:Printers = 'printerWhite'
     const msg = 'T123'
     const remoteFieldId = 3
-    const zLevel = 0 // (o quanto o cabecote desce em milimetros) in milimeter relative to MinZ
+    const zLevel = Milimeter(0) // (o quanto o cabecote desce em milimetros) in milimeter relative to MinZ
     const firstX = 150+13.66-28.5-10.10+70-35.44-15+9.67-2.5+4.3+8.68-2.72
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87+13.6-(7+5)+3.44+23.89-11.25
-    const impressoesX:ImpressoesX = [
-        [firstX+(stepX*0),firstX+(stepX*1)],
-        [firstX+(stepX*2),firstX+(stepX*3)],
-        [firstX+(stepX*4),firstX+(stepX*5)],
-    ]
     const stepY = 70
-    const linhasY = [
-        posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+    const impressoesX: Job__['impressoesX'] = [
+        Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+        Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+        Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+    ]
+    const linhasY: Job__['linhasY'] = [
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
     return {
         partNumber: '',
@@ -667,20 +670,20 @@ const getE44A2Job = (): Job__ => {
         msg: 'E44.A2',
         remoteFieldId: 4,
         printVelocity: 2000,
-        zLevel: 0,
+        zLevel: Milimeter(0),
         impressoesX: [
-            [firstX+(stepX*0),firstX+(stepX*1)],
-            [firstX+(stepX*2),firstX+(stepX*3)],
-            [firstX+(stepX*4),firstX+(stepX*5)],
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
         ],
         linhasY: [
-            posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
         ]
     } 
 }
@@ -732,20 +735,20 @@ const getT110Job = (): Job__ => {
     const firstX = 150+13.66-4
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18
-    const impressoesX: ImpressoesX = [
-        [firstX+(stepX*0),firstX+(stepX*1)],
-        [firstX+(stepX*2),firstX+(stepX*3)],
-        [firstX+(stepX*4),firstX+(stepX*5)],
-    ]
     const stepY = 70
-    const linhasY = [ // em milimetros absolutos
-        posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-        posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+    const impressoesX: Job__['impressoesX'] = [
+        Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+        Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+        Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+    ]
+    const linhasY: Job__['linhasY'] = [
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
     return {
         partNumber: '',
@@ -756,7 +759,7 @@ const getT110Job = (): Job__ => {
         impressoesX,
         linhasY,
         printVelocity: 1700,
-        zLevel:0,
+        zLevel: Milimeter(0),
         passes: 2
         
     }
@@ -775,20 +778,20 @@ const getTermoM1Job = (): Job__ => {
         msg: 'M1',
         remoteFieldId: 3,
         printVelocity: 2000,
-        zLevel: 0,
-        impressoesX: [ // em milimetros absolutos
-            [firstX+(stepX*0),firstX+(stepX*1)],
-            [firstX+(stepX*2),firstX+(stepX*3)],
-            [0,0],
+        zLevel: Milimeter(0),
+        impressoesX: [
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
         ],
-        linhasY: [ // em milimetros absolutos
-            posicaoYDaLinha5EmMilimetros+(stepY*(2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(0)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-1)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-2)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-3)),
-            posicaoYDaLinha5EmMilimetros+(stepY*(-4)),
+        linhasY: [
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
         ]
     }
 }
