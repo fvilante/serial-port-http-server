@@ -143,16 +143,6 @@ export const getKnownJobs = ():KnownJobs => {
     
 }
 
-// utils
-// unsafe because it can cause circular reference
-// FIX: Huge source of potential bugs if not very carrefully useds
-const UNSAFECopyJobButChangeMessage = (jobToCopyKey: KnownJobsKeys, newMessage: string): Matriz => {
-    const jobToCopy = getKnownJobs()[jobToCopyKey]()
-    return {
-        ...jobToCopy,
-        msg: newMessage,
-    }
-}
 
 // ======================== JOB FUNCTIONS DEFINITIONS ===============================
 
