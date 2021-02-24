@@ -1,12 +1,12 @@
 
-import { getKnownJobs, ImpressoesX, Job__, KnownJobs, KnownJobsKeys} from './known-jobs'
+import { getKnownJobs, ImpressoesX, Matriz, KnownJobs, KnownJobsKeys} from './matrizes-conhecidas'
 
 // print known jobs
 
 
 const jobsList = getKnownJobs()
 
-const formatJobNumbers = (job: Job__, toFixedDigits: number = 2): Job__ => {
+const formatJobNumbers = (job: Matriz, toFixedDigits: number = 2): Matriz => {
     const {
         linhasY,
         impressoesX,

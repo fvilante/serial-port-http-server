@@ -2,7 +2,7 @@
 import { delay } from "../utils/delay"
 import { ExecuteInParalel, executeInSequence } from "./promise-utils"
 import { mili2PulseX, PosicaoInicialX } from "./referencia_eixos"
-import { getKnownJobs, ImpressoesX, Job__, KnownJobsKeys } from "./known-jobs"
+import { getKnownJobs, ImpressoesX, Matriz, KnownJobsKeys } from "./matrizes-conhecidas"
 import { AxisControler } from "./axis-controler"
 import { MovimentKit, makeMovimentKit } from './machine-controler'
 import { Milimeter } from "./axis-position"
@@ -125,7 +125,7 @@ const Test9 = async () => {
     await m.safelyReferenceSystemIfNecessary()
 
 
-    const performJob = async (job: Job__): Promise<void> => {
+    const performJob = async (job: Matriz): Promise<void> => {
         
         const {
             printer,
@@ -242,7 +242,7 @@ const Test9 = async () => {
         }
         
 
-        const doTheJob = async (job: Job__): Promise<void> => {
+        const doTheJob = async (job: Matriz): Promise<void> => {
 
             console.log('=========== [Iniciando Trabajo:] ===========')
             console.table(job)
@@ -265,7 +265,7 @@ const Test9 = async () => {
 
         }
 
-        const executeManyJobsWithTimeDelay = async (jobs: readonly Job__[], timeDelayInSecs: number): Promise<void> => {
+        const executeManyJobsWithTimeDelay = async (jobs: readonly Matriz[], timeDelayInSecs: number): Promise<void> => {
             const getJobByName = getKnownJobs()
             const arr = jobs.map( job => async () => {
                 await doTheJob(job);

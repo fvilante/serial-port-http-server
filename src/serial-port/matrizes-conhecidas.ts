@@ -3,43 +3,6 @@
 import { Milimeter } from "./axis-position"
 import { Printers } from "./global"
 
-
-// ================= temp / draft ==================
-
-
-namespace Draft {
-    type Position1D = {
-        kind: 'Position'
-        relativeTo: 'AbsoluteZeroMachineAt2021FEV16' | 'MinimumSafePoint'
-        value: Milimeter
-    }
-
-    type Position3D = {
-        kind: 'Position3D'
-        x: Position1D
-        y: Position1D
-        z: Position1D
-    }
-
-    type Message = {
-        printer: Printers
-        remoteFieldId: number
-        text: string
-        textLength: Milimeter // the length of the printed text
-        passes: number
-    }
-
-
-    type PrintLine = {
-        zLevel: number // mm in relation to MinZ //Fix: Should be safe move (and give back an clear error msg if user try to access an physically impossible position)
-        xPos: readonly number[] //mm in relation of cmpp 0
-        yPos: number //mm in relation of cmpp 0
-        message: Message
-    }
-
-}
-
-
 // ================== end temp draft =================
 
 
@@ -63,7 +26,7 @@ const deltaId: XYDelta = {
     y: Milimeter(0),
 }
 
-const applyDeltaToCoordinates = (xs: Job__['impressoesX'], ys: Job__['linhasY'], delta: XYDelta): [newXs: Job__['impressoesX'], newYs: Job__['linhasY']] => {
+const applyDeltaToCoordinates = (xs: Matriz['impressoesX'], ys: Matriz['linhasY'], delta: XYDelta): [newXs: Matriz['impressoesX'], newYs: Matriz['linhasY']] => {
     const { x: xHead, y: yHead} = delta
     const newYs: typeof ys = ys.map( y => Milimeter(y.value + yHead.value))
     const newXs: typeof xs = xs.map( x => Milimeter(x.value + xHead.value))
@@ -74,7 +37,7 @@ const applyDeltaToCoordinates = (xs: Job__['impressoesX'], ys: Job__['linhasY'],
     return [newXs, newYs]
 }
 
-export type Job__ = {
+export type Matriz = {
     // Proxy
     partNumber: string
     barCode: string
@@ -106,39 +69,39 @@ export type ImpressoesX = readonly [
 export type KnownJobsKeys = keyof KnownJobs
 
 export type KnownJobs = {
-    'T110': () => Job__
-    'T199': () => Job__
-    'T125': () => Job__
-    'E44.A1': () => Job__
-    'E44.A2': () => Job__
-    'E44.A3': () => Job__
-    'E44.A5': () => Job__
-    'E44.A7': () => Job__
-    'E44.A6': () => Job__
-    'E44.B1': () => Job__
-    'E44.B2': () => Job__
-    'E44.B6': () => Job__
-    '2559370': () => Job__
-    '2559371': () => Job__
-    'M1': () => Job__
-    'P3': () => Job__
-    'T123': () => Job__
-    'V2': () => Job__
-    'T202': () => Job__
-    'V120': () => Job__
-    'V107': () => Job__
+    'T110': () => Matriz
+    'T199': () => Matriz
+    'T125': () => Matriz
+    'E44.A1': () => Matriz
+    'E44.A2': () => Matriz
+    'E44.A3': () => Matriz
+    'E44.A5': () => Matriz
+    'E44.A7': () => Matriz
+    'E44.A6': () => Matriz
+    'E44.B1': () => Matriz
+    'E44.B2': () => Matriz
+    'E44.B6': () => Matriz
+    '2559370': () => Matriz
+    '2559371': () => Matriz
+    'M1': () => Matriz
+    'P3': () => Matriz
+    'T123': () => Matriz
+    'V2': () => Matriz
+    'T202': () => Matriz
+    'V120': () => Matriz
+    'V107': () => Matriz
 
     // iveco
-    'ST18': () => Job__
-    '25401': () => Job__
-    '25002 B': () => Job__
-    '25402 B': () => Job__
-    '25006 A': () => Job__
-    '25006 B': () => Job__
-    'ST22': () => Job__
-    'ST6': () => Job__
-    'ST93': () => Job__
-    'ST19': () => Job__
+    'ST18': () => Matriz
+    '25401': () => Matriz
+    '25002 B': () => Matriz
+    '25402 B': () => Matriz
+    '25006 A': () => Matriz
+    '25006 B': () => Matriz
+    'ST22': () => Matriz
+    'ST6': () => Matriz
+    'ST93': () => Matriz
+    'ST19': () => Matriz
 }
 
 export const getKnownJobs = ():KnownJobs => {    
@@ -183,7 +146,7 @@ export const getKnownJobs = ():KnownJobs => {
 // utils
 // unsafe because it can cause circular reference
 // FIX: Huge source of potential bugs if not very carrefully useds
-const UNSAFECopyJobButChangeMessage = (jobToCopyKey: KnownJobsKeys, newMessage: string): Job__ => {
+const UNSAFECopyJobButChangeMessage = (jobToCopyKey: KnownJobsKeys, newMessage: string): Matriz => {
     const jobToCopy = getKnownJobs()[jobToCopyKey]()
     return {
         ...jobToCopy,
@@ -193,17 +156,17 @@ const UNSAFECopyJobButChangeMessage = (jobToCopyKey: KnownJobsKeys, newMessage: 
 
 // ======================== JOB FUNCTIONS DEFINITIONS ===============================
 
-const getV107Job = ():Job__ => {
+const getV107Job = ():Matriz => {
     const firstX = 150+13.66-8.15-4.5
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18+2
     const stepY = 70
-    const impressoesX: Job__['impressoesX'] = [
+    const impressoesX: Matriz['impressoesX'] = [
         Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
         Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
         Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
     ]
-    const linhasY: Job__['linhasY'] = [
+    const linhasY: Matriz['linhasY'] = [
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
@@ -227,7 +190,7 @@ const getV107Job = ():Job__ => {
     }
 }
 
-const getST93Job = ():Job__ => {
+const getST93Job = ():Matriz => {
     const firstX = 155-9.5-6+4.8+2.5+2.5-20+(70)
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1+10
@@ -258,7 +221,7 @@ const getST93Job = ():Job__ => {
 }
 
 
-const getST6Job = ():Job__ => {
+const getST6Job = ():Matriz => {
     const firstX = 155-9.5-6+4.8+2.5+2.5
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1+10
@@ -288,7 +251,7 @@ const getST6Job = ():Job__ => {
     } 
 }
 
-const getST19Job = (): Job__ => {
+const getST19Job = (): Matriz => {
     const firstX = 155-9.5-6+4.8+2.5+46.51+6.13
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1-5.9+2
@@ -318,7 +281,7 @@ const getST19Job = (): Job__ => {
     } 
 }
 
-const getST22Job = ():Job__ => {
+const getST22Job = ():Matriz => {
     const firstX = 155-9.5-6+4.8+2.5  
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1    
@@ -348,28 +311,28 @@ const getST22Job = ():Job__ => {
     } 
 }
 
-const get25401Job = (): Job__ => {
+const get25401Job = (): Matriz => {
     return {
         ...get25002Bjob(),
         msg: '25401'
     }
 }
 
-const get25402Bjob = (): Job__ => {
+const get25402Bjob = (): Matriz => {
     return {
         ...get25002Bjob(),
         msg: '25402 B'
     }
 }
 
-const get25006Ajob = (): Job__ => {
+const get25006Ajob = (): Matriz => {
     return {
         ...get25002Bjob(),
         msg: '25006 A'
     }
 }
 
-const get25006Bjob = (): Job__ => {
+const get25006Bjob = (): Matriz => {
     return {
         ...get25002Bjob(),
         msg: '25006 B'
@@ -378,7 +341,7 @@ const get25006Bjob = (): Job__ => {
 
 
 
-const get25002Bjob = ():Job__ => {
+const get25002Bjob = ():Matriz => {
     const firstX = 155-9.5-6+4.8
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1
@@ -408,7 +371,7 @@ const get25002Bjob = ():Job__ => {
     } 
 }
 
-const getST18job = ():Job__ => {
+const getST18job = ():Matriz => {
     const firstX = 150+13.66-28.5-10.10+70+23.3+(-70*1)
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87+10+10+5-3
@@ -439,17 +402,17 @@ const getST18job = ():Job__ => {
 }
 
 
-const getV120Job = (): Job__ => {
+const getV120Job = (): Matriz => {
     const firstX = 150+13.66-8.15-5-3+1.5-2.5
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18+17-5
     const stepY = 70
-    const impressoesX: Job__['impressoesX'] = [
+    const impressoesX: Matriz['impressoesX'] = [
         Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
         Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
         Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
     ]
-    const linhasY: Job__['linhasY'] = [
+    const linhasY: Matriz['linhasY'] = [
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
@@ -473,17 +436,17 @@ const getV120Job = (): Job__ => {
     } 
 }
 
-const getT202Job = (): Job__ => {
+const getT202Job = (): Matriz => {
     const firstX = 150+13.66-8.15-5
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18+17
     const stepY = 70
-    const impressoesX: Job__['impressoesX'] = [
+    const impressoesX: Matriz['impressoesX'] = [
         Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
         Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
         Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
     ]
-    const linhasY: Job__['linhasY'] = [
+    const linhasY: Matriz['linhasY'] = [
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
@@ -507,30 +470,30 @@ const getT202Job = (): Job__ => {
     }
 }
 
-const getE44B1job = ():Job__ => ({ 
+const getE44B1job = ():Matriz => ({ 
     ...getE44B6Job(), 
     msg: 'E44.B1', 
 })
 
-const getE44B2job = ():Job__ => ({ 
+const getE44B2job = ():Matriz => ({ 
     ...getE44B6Job(), 
     msg: 'E44.B2', 
 })
 
 
-const getP3job = (): Job__ => {
+const getP3job = (): Matriz => {
     const deltaX = 3-3.5-10.82
     const deltaY = -30+4+8+15-4
     const firstX = 150+13.66+3 + deltaX
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18 + deltaY
     const stepY = 60
-    const impressoesX: Job__['impressoesX'] = [
+    const impressoesX: Matriz['impressoesX'] = [
         Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
         Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
         Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
     ]
-    const linhasY: Job__['linhasY'] = [
+    const linhasY: Matriz['linhasY'] = [
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
@@ -553,24 +516,24 @@ const getP3job = (): Job__ => {
     }
 }
 
-const getT125Job = (): Job__ => {
+const getT125Job = (): Matriz => {
     return {
         ... getT199Job(),
         msg: 'T125',
     }
 }
 
-const getT199Job = (): Job__ => {
+const getT199Job = (): Matriz => {
     const firstX = 150+13.66-8.15
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18
     const stepY = 70
-    const impressoesX: Job__['impressoesX'] = [
+    const impressoesX: Matriz['impressoesX'] = [
         Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
         Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
         Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
     ]
-    const linhasY: Job__['linhasY'] = [
+    const linhasY: Matriz['linhasY'] = [
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
@@ -594,28 +557,28 @@ const getT199Job = (): Job__ => {
     }
 }
 
-const getE44A1Job = (): Job__ => {
+const getE44A1Job = (): Matriz => {
     return {
         ...getE44A2Job(),
         msg: 'E44.A1',
     }
 }
 
-const getE44A3Job = (): Job__ => {
+const getE44A3Job = (): Matriz => {
     return {
         ...getE44A2Job(),
         msg: 'E44.A3',
     }
 }
 
-const getE44A7Job = ():Job__ => {
+const getE44A7Job = ():Matriz => {
     return {
         ...getE44A2Job(),
         msg: 'E44.A7',
     }
 }
 
-const getV2Job = (): Job__ => {
+const getV2Job = (): Matriz => {
     //const ref = 'T110'
     const deltaX = 3-3.5
     const deltaY = +1.5
@@ -623,12 +586,12 @@ const getV2Job = (): Job__ => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18 + deltaY
     const stepY = 70
-    const impressoesX: Job__['impressoesX'] = [
+    const impressoesX: Matriz['impressoesX'] = [
         Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
         Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
         Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
     ]
-    const linhasY: Job__['linhasY'] = [
+    const linhasY: Matriz['linhasY'] = [
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
@@ -653,7 +616,7 @@ const getV2Job = (): Job__ => {
 }
 
 
-const getTermo2559370Job = (): Job__ => {
+const getTermo2559370Job = (): Matriz => {
     const firstX = 150+13.66-28.5-10.10+70-35.44-15+9.67-2.5
     const stepX = (104.96+15.24)
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87+13.6-(7+5)
@@ -683,7 +646,7 @@ const getTermo2559370Job = (): Job__ => {
     }
 }
 
-const getT123Job = (): Job__ => {
+const getT123Job = (): Matriz => {
     const partNumber = ''
     const printer:Printers = 'printerWhite'
     const msg = 'T123'
@@ -693,12 +656,12 @@ const getT123Job = (): Job__ => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87+13.6-(7+5)+3.44+23.89-11.25
     const stepY = 70
-    const impressoesX: Job__['impressoesX'] = [
+    const impressoesX: Matriz['impressoesX'] = [
         Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
         Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
         Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
     ]
-    const linhasY: Job__['linhasY'] = [
+    const linhasY: Matriz['linhasY'] = [
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
@@ -721,14 +684,14 @@ const getT123Job = (): Job__ => {
     }
 }
 
-const getTermo2559371Job = (): Job__ => {
+const getTermo2559371Job = (): Matriz => {
     return {
         ...getTermo2559370Job(),
         msg: '2559371',
     }
 }
 
-const getE44A2Job = (): Job__ => {
+const getE44A2Job = (): Matriz => {
     const firstX = 150+13.66-28.5-10.10+70
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87
@@ -758,7 +721,7 @@ const getE44A2Job = (): Job__ => {
     } 
 }
 
-const getE44B6Job = (): Job__ => {
+const getE44B6Job = (): Matriz => {
 
     const E44_A2 = getE44A2Job()
     const {
@@ -787,31 +750,31 @@ const getE44B6Job = (): Job__ => {
     }
 }
 
-const getE44A5Job = (): Job__ => {
+const getE44A5Job = (): Matriz => {
     return {
         ...getE44A2Job(),
         msg: 'E44.A5'
     }
 }
 
-const getE44A6Job = (): Job__ => {
+const getE44A6Job = (): Matriz => {
     return {
         ...getE44A2Job(),
         msg: 'E44.A6'
     }
 }
 
-const getT110Job = (): Job__ => {
+const getT110Job = (): Matriz => {
     const firstX = 150+13.66-4
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18
     const stepY = 70
-    const impressoesX: Job__['impressoesX'] = [
+    const impressoesX: Matriz['impressoesX'] = [
         Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
         Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
         Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
     ]
-    const linhasY: Job__['linhasY'] = [
+    const linhasY: Matriz['linhasY'] = [
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
@@ -836,7 +799,7 @@ const getT110Job = (): Job__ => {
 
 }
 
-const getTermoM1Job = (): Job__ => {
+const getTermoM1Job = (): Matriz => {
     const firstX = 150+13.66-28.5-10.10+70-35.44
     const stepX = (104.96+15.24)
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87+13.6+3.21

@@ -1,7 +1,7 @@
 import { delay } from "../utils/delay"
 import { Milimeter, Step } from "./axis-position"
 import { Address, Printers } from "./global"
-import { getKnownJobs, Job__, KnownJobsKeys } from "./known-jobs"
+import { getKnownJobs, Matriz, KnownJobsKeys } from "./matrizes-conhecidas"
 import { makeMovimentKit, MovimentKit } from "./machine-controler"
 import { executeInSequence, repeatPromiseWithInterval } from "./promise-utils"
 import { Range } from "./utils"
@@ -75,7 +75,7 @@ const programMessage = async (printer: Printers,remoteFieldId: number, msg: stri
 }
 
 
-const performJob = async (job: Job__, movimentKit: MovimentKit): Promise<void> => {
+const performJob = async (job: Matriz, movimentKit: MovimentKit): Promise<void> => {
         
     const {
         printer,
@@ -88,12 +88,12 @@ const performJob = async (job: Job__, movimentKit: MovimentKit): Promise<void> =
     const {x,y,z,m} = movimentKit
     const [minZ, maxZ] = z._getAbsolutePositionRange()
 
-    const doASingleXLine = async (yPos: Milimeter, impressoesX: Job__['impressoesX'], movimentKit: MovimentKit): Promise<void> => {
+    const doASingleXLine = async (yPos: Milimeter, impressoesX: Matriz['impressoesX'], movimentKit: MovimentKit): Promise<void> => {
 
         const {x,y,z,m} = movimentKit
 
         // Fix: Velocity must not be a constant
-        const fazLinhaXUmaVezInteira = async (movimentKit: MovimentKit, impressoes: Job__['impressoesX']):Promise<void> => {
+        const fazLinhaXUmaVezInteira = async (movimentKit: MovimentKit, impressoes: Matriz['impressoesX']):Promise<void> => {
 
             const defaults: ImprimeParPrintingParameters = {
                 x0: 0,
@@ -121,16 +121,16 @@ const performJob = async (job: Job__, movimentKit: MovimentKit): Promise<void> =
         }
 
         
-        const fazLinhaXPreta = async (movimentKit: MovimentKit, impressoes: Job__['impressoesX']):Promise<void> => {
+        const fazLinhaXPreta = async (movimentKit: MovimentKit, impressoes: Matriz['impressoesX']):Promise<void> => {
             await fazLinhaXUmaVezInteira(movimentKit, impressoes)
         }
         
-        const fazLinhaXBranca = async (movimentKit: MovimentKit, impressoes: Job__['impressoesX']):Promise<void> => {
+        const fazLinhaXBranca = async (movimentKit: MovimentKit, impressoes: Matriz['impressoesX']):Promise<void> => {
             await fazLinhaXUmaVezInteira(movimentKit, impressoes)
             await fazLinhaXUmaVezInteira(movimentKit, impressoes)          
         }
 
-        const printAtAParticularYanXLinInAnyColor = async (printer: Printers, modelo: Job__['impressoesX']): Promise<void> => {
+        const printAtAParticularYanXLinInAnyColor = async (printer: Printers, modelo: Matriz['impressoesX']): Promise<void> => {
             if (printer==='printerWhite') {
                 await fazLinhaXBranca(movimentKit,modelo)
             } else {
@@ -141,7 +141,7 @@ const performJob = async (job: Job__, movimentKit: MovimentKit): Promise<void> =
         }
 
         //FIX: Remove -> unused -> deprecated
-        const convertImpressoesMM2Pulse = (isMM: Job__['impressoesX']): readonly Step[] => {
+        const convertImpressoesMM2Pulse = (isMM: Matriz['impressoesX']): readonly Step[] => {
             const iPulses = isMM.map( iMM => Step(x._convertMilimeterToPulseIfNecessary(iMM)))
             return iPulses 
         }
@@ -154,11 +154,11 @@ const performJob = async (job: Job__, movimentKit: MovimentKit): Promise<void> =
 
     }
 
-    const doAllYLinesIncludingItsXLine = async (job: Job__): Promise<void> => {
+    const doAllYLinesIncludingItsXLine = async (job: Matriz): Promise<void> => {
 
         // esta funcao é importante, ela compensa a falta de ortogonalidade entre a mecanica do eixo X e Y, 
         // possivelmente será necessário uma funcao desta por gaveta
-        const compensateLackOfAxisXYOrtogonality = (yPos: Milimeter, xsPos: Job__['impressoesX']): Job__['impressoesX'] => {
+        const compensateLackOfAxisXYOrtogonality = (yPos: Milimeter, xsPos: Matriz['impressoesX']): Matriz['impressoesX'] => {
             // x=+1.20mm em y=+420mm
             const x_ = 1.20//1.84
             const y_ = 420//420
