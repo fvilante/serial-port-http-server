@@ -107,50 +107,17 @@ export const MachineControler = async (
             
         }
 
-        const doOneJob: T['doOneJob'] = async (job) => {
-
-            const { 
-                printSpeed,
-                text,
-                remoteFieldIndex,
-                printer,
-                xyPositions,
-                zPosition,
-               
-            } = job
-
-            //Assure Z is safe, before perform the job
-            //Only job has autorith to move down Z
-            await _assureZisSafe()
-
-            // program printer
-            //await ProgramaImpressora(printer,remoteFieldIndex,text)
+        const doOneJob: T['doOneJob'] = async (job) => {    
             //
-            await z.goToAbsolutePosition(zPosition)
-            //
-            for (const nextLine of xyPositions.values()) {
-                const xs = nextLine.xs
-                const impressoes = xs
-                // position y
-                await y.goToAbsolutePosition(nextLine.y)
-                // first print
-                if (printer ==='printerWhite') {
-                    //await fazLinhaXBranca(impressoes)
-                } else {
-                    //await fazLinhaXPreta(impressoes)
-                }
-                
-            }
-
-            //Put Z at a safe position at job end
-            await _assureZisSafe()
+            
+          
         }
 
         // Z is safe if:
         //  - It is at the safe position
         //  - Otherwise Z is not safe
         // If Z is unreferenced all other axis are stopped
-        //  then Z is referenced first, and it go to MINY position, 
+        //  then Z is referenced first, and it go to Minimum Z position (MinZ), 
         //  then others axis can be referenced in parallel if necessary
         // FIX: The logic should improve to preserve X and Y reference if possible
         //      I'm not being efficient at not lossing X and Y reference if possible

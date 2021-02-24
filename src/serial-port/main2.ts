@@ -253,7 +253,7 @@ const main2 = async () => {
     const Termo371: DrawerWork = ['2559371', 'M1']
     const Termo370: DrawerWork = ['2559370', 'M1']
     const T125: DrawerWork = ['T125']
-    const lote: Batch = [ ['E44.B2'], Termo371 ]
+    const lote: Batch = [ ['P3'], ['V120'] ]
     
     doBatchWork(lote, tempoDeAbastecimento, repeticoesDeLote, movimentKit)
 
