@@ -1,10 +1,9 @@
 import { delay } from "../utils/delay"
 import { Milimeter, Step } from "./axis-position"
 import { Address, Printers } from "./global"
-import { getKnownJobs, Matriz, KnownJobsKeys } from "./matrizes-conhecidas"
+import { getMatrizesConhecidas, Matriz, MatrizesConhecidasKeys } from "./matrizes-conhecidas"
 import { makeMovimentKit, MovimentKit } from "./machine-controler"
 import { executeInSequence, repeatPromiseWithInterval } from "./promise-utils"
-import { Range } from "./utils"
 import { sendPrinter2 } from "./send-receive-printer"
 
 type ImprimeParPrintingParameters = {
@@ -75,7 +74,7 @@ const programMessage = async (printer: Printers,remoteFieldId: number, msg: stri
 }
 
 
-const performJob = async (job: Matriz, movimentKit: MovimentKit): Promise<void> => {
+const performMatriz = async (matriz: Matriz, movimentKit: MovimentKit): Promise<void> => {
         
     const {
         printer,
@@ -83,7 +82,7 @@ const performJob = async (job: Matriz, movimentKit: MovimentKit): Promise<void> 
         msg,
         zLevel,
         linhasY,
-    } = job
+    } = matriz
 
     const {x,y,z,m} = movimentKit
     const [minZ, maxZ] = z._getAbsolutePositionRange()
@@ -148,7 +147,7 @@ const performJob = async (job: Matriz, movimentKit: MovimentKit): Promise<void> 
 
     }
 
-    const doAllYLinesIncludingItsXLine = async (job: Matriz): Promise<void> => {
+    const doAllYLinesIncludingItsXLine = async (matriz: Matriz): Promise<void> => {
 
         // esta funcao é importante, ela compensa a falta de ortogonalidade entre a mecanica do eixo X e Y, 
         // possivelmente será necessário uma funcao desta por gaveta
@@ -164,9 +163,9 @@ const performJob = async (job: Matriz, movimentKit: MovimentKit): Promise<void> 
         }
 
         console.log('=========== [Iniciando Trabalho:] ===========')
-        console.table(job)
+        console.table(matriz)
 
-        const impressoesX = job.impressoesX
+        const impressoesX = matriz.impressoesX
        
         // executa linhas
         const fazTodasAsLinhas = linhasY.map( yPos => async () => {
@@ -186,32 +185,32 @@ const performJob = async (job: Matriz, movimentKit: MovimentKit): Promise<void> 
     // release Z
     const zLevelInPulses = minZ+z._convertMilimeterToPulseIfNecessary(zLevel)
     await z.goToAbsolutePosition(zLevelInPulses);
-    await doAllYLinesIncludingItsXLine(job)
+    await doAllYLinesIncludingItsXLine(matriz)
     // sobe Z
     await z.goToAbsolutePosition(minZ);
 
 }
 
 // helper
-const performJobByItsName = async (jobName: KnownJobsKeys, movimentKit: MovimentKit): Promise<void> => {
-    const job = getKnownJobs()[jobName]()
-    return performJob(job, movimentKit)
+const performMatrizByItsMsg = async (matrizMessage: MatrizesConhecidasKeys, movimentKit: MovimentKit): Promise<void> => {
+    const matriz = getMatrizesConhecidas()[matrizMessage]()
+    return performMatriz(matriz, movimentKit)
 }
 
 type Drawer = 'Drawer1' | 'Drawer2'
 
-const doSingleDrawerWork = async (drawer: Drawer, jobs: readonly KnownJobsKeys[], movimentKit: MovimentKit): Promise<void> => {
+const doSingleDrawerWork = async (drawer: Drawer, matrizes: readonly MatrizesConhecidasKeys[], movimentKit: MovimentKit): Promise<void> => {
     const {x,y,z,m} = movimentKit
     
     await m.safelyReferenceSystemIfNecessary()
-    const allJobsForSingleDrawer = jobs.map( job => () => {
-        return performJobByItsName(job, movimentKit)
+    const allMatrizesForSingleDrawer = matrizes.map( matriz => () => {
+        return performMatrizByItsMsg(matriz, movimentKit)
     })
-    await executeInSequence(allJobsForSingleDrawer)
+    await executeInSequence(allMatrizesForSingleDrawer)
 
 }
 
-type DrawerWork = KnownJobsKeys[]
+type DrawerWork = MatrizesConhecidasKeys[]
 type Batch = DrawerWork[]
 const doBatchWork = (batch: Batch, intervalMS: number, repetition: number, movimentKit: MovimentKit) => {
     const arr = batch.map( drawerWork => async () => {

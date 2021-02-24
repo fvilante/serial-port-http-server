@@ -1,4 +1,4 @@
-// All known jobs
+// All known matrizs
 
 import { Milimeter } from "./axis-position"
 import { Printers } from "./global"
@@ -66,9 +66,9 @@ export type ImpressoesX = readonly [
 
 
 
-export type KnownJobsKeys = keyof KnownJobs
+export type MatrizesConhecidasKeys = keyof MatrizesConhecidas
 
-export type KnownJobs = {
+export type MatrizesConhecidas = {
     'T110': () => Matriz
     'T199': () => Matriz
     'T125': () => Matriz
@@ -104,41 +104,41 @@ export type KnownJobs = {
     'ST19': () => Matriz
 }
 
-export const getKnownJobs = ():KnownJobs => {    
+export const getMatrizesConhecidas = ():MatrizesConhecidas => {    
     return {
-        'T110':  getT110Job,
-        'T199': getT199Job,
-        'T125': getT125Job,
-        'E44.A1': getE44A1Job,
-        'E44.A2': getE44A2Job,
-        'E44.A3': getE44A3Job,
-        'E44.A5': getE44A5Job,
-        'E44.A6': getE44A6Job,
-        'E44.A7': getE44A7Job,
-        'E44.B1': getE44B1job,
-        'E44.B2': getE44B2job,
-        'E44.B6': getE44B6Job,
-        '2559370': getTermo2559370Job,
-        '2559371': getTermo2559371Job,
-        'M1': getTermoM1Job,
-        'P3': getP3job,
-        'T123': getT123Job,
-        'V2': getV2Job,
-        'T202': getT202Job,
-        'V120': getV120Job,
-        'V107': getV107Job,
+        'T110':  getT110,
+        'T199': getT199,
+        'T125': getT125,
+        'E44.A1': getE44A1,
+        'E44.A2': getE44A2,
+        'E44.A3': getE44A3,
+        'E44.A5': getE44A5,
+        'E44.A6': getE44A6,
+        'E44.A7': getE44A7,
+        'E44.B1': getE44B1,
+        'E44.B2': getE44B2,
+        'E44.B6': getE44B6,
+        '2559370': getTermo2559370,
+        '2559371': getTermo2559371,
+        'M1': getTermoM1,
+        'P3': getP3,
+        'T123': getT123,
+        'V2': getV2,
+        'T202': getT202,
+        'V120': getV120,
+        'V107': getV107,
 
         // iveco
-        'ST18': getST18job,
-        '25401': get25401Job,
-        '25002 B': get25002Bjob,
-        '25402 B': get25402Bjob,
-        "25006 A": get25006Ajob,
-        "25006 B": get25006Bjob,
-        'ST22': getST22Job,
-        'ST6': getST6Job,
-        'ST93': getST93Job,
-        'ST19': getST19Job,
+        'ST18': getST18,
+        '25401': get25401,
+        '25002 B': get25002B,
+        '25402 B': get25402B,
+        "25006 A": get25006A,
+        "25006 B": get25006B,
+        'ST22': getST22,
+        'ST6': getST6,
+        'ST93': getST93,
+        'ST19': getST19,
     }
     
 }
@@ -146,7 +146,7 @@ export const getKnownJobs = ():KnownJobs => {
 
 // ======================== JOB FUNCTIONS DEFINITIONS ===============================
 
-const getV107Job = ():Matriz => {
+const getV107 = ():Matriz => {
     const firstX = 150+13.66-8.15-4.5
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18+2
@@ -180,7 +180,7 @@ const getV107Job = ():Matriz => {
     }
 }
 
-const getST93Job = ():Matriz => {
+const getST93 = ():Matriz => {
     const firstX = 155-9.5-6+4.8+2.5+2.5-20+(70)
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1+10
@@ -211,7 +211,7 @@ const getST93Job = ():Matriz => {
 }
 
 
-const getST6Job = ():Matriz => {
+const getST6 = ():Matriz => {
     const firstX = 155-9.5-6+4.8+2.5+2.5
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1+10
@@ -241,7 +241,7 @@ const getST6Job = ():Matriz => {
     } 
 }
 
-const getST19Job = (): Matriz => {
+const getST19 = (): Matriz => {
     const firstX = 155-9.5-6+4.8+2.5+46.51+6.13
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1-5.9+2
@@ -271,7 +271,7 @@ const getST19Job = (): Matriz => {
     } 
 }
 
-const getST22Job = ():Matriz => {
+const getST22 = ():Matriz => {
     const firstX = 155-9.5-6+4.8+2.5  
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1    
@@ -301,37 +301,37 @@ const getST22Job = ():Matriz => {
     } 
 }
 
-const get25401Job = (): Matriz => {
+const get25401 = (): Matriz => {
     return {
-        ...get25002Bjob(),
+        ...get25002B(),
         msg: '25401'
     }
 }
 
-const get25402Bjob = (): Matriz => {
+const get25402B = (): Matriz => {
     return {
-        ...get25002Bjob(),
+        ...get25002B(),
         msg: '25402 B'
     }
 }
 
-const get25006Ajob = (): Matriz => {
+const get25006A = (): Matriz => {
     return {
-        ...get25002Bjob(),
+        ...get25002B(),
         msg: '25006 A'
     }
 }
 
-const get25006Bjob = (): Matriz => {
+const get25006B = (): Matriz => {
     return {
-        ...get25002Bjob(),
+        ...get25002B(),
         msg: '25006 B'
     }
 }
 
 
 
-const get25002Bjob = ():Matriz => {
+const get25002B = ():Matriz => {
     const firstX = 155-9.5-6+4.8
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1
@@ -361,7 +361,7 @@ const get25002Bjob = ():Matriz => {
     } 
 }
 
-const getST18job = ():Matriz => {
+const getST18 = ():Matriz => {
     const firstX = 150+13.66-28.5-10.10+70+23.3+(-70*1)
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87+10+10+5-3
@@ -392,7 +392,7 @@ const getST18job = ():Matriz => {
 }
 
 
-const getV120Job = (): Matriz => {
+const getV120 = (): Matriz => {
     const firstX = 150+13.66-8.15-5-3+1.5-2.5
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18+17-5
@@ -426,7 +426,7 @@ const getV120Job = (): Matriz => {
     } 
 }
 
-const getT202Job = (): Matriz => {
+const getT202 = (): Matriz => {
     const firstX = 150+13.66-8.15-5
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18+17
@@ -460,18 +460,18 @@ const getT202Job = (): Matriz => {
     }
 }
 
-const getE44B1job = ():Matriz => ({ 
-    ...getE44B6Job(), 
+const getE44B1 = ():Matriz => ({ 
+    ...getE44B6(), 
     msg: 'E44.B1', 
 })
 
-const getE44B2job = ():Matriz => ({ 
-    ...getE44B6Job(), 
+const getE44B2 = ():Matriz => ({ 
+    ...getE44B6(), 
     msg: 'E44.B2', 
 })
 
 
-const getP3job = (): Matriz => {
+const getP3 = (): Matriz => {
     const deltaX = 3-3.5-10.82
     const deltaY = -30+4+8+15-4
     const firstX = 150+13.66+3 + deltaX
@@ -506,14 +506,14 @@ const getP3job = (): Matriz => {
     }
 }
 
-const getT125Job = (): Matriz => {
+const getT125 = (): Matriz => {
     return {
-        ... getT199Job(),
+        ... getT199(),
         msg: 'T125',
     }
 }
 
-const getT199Job = (): Matriz => {
+const getT199 = (): Matriz => {
     const firstX = 150+13.66-8.15
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18
@@ -547,28 +547,28 @@ const getT199Job = (): Matriz => {
     }
 }
 
-const getE44A1Job = (): Matriz => {
+const getE44A1 = (): Matriz => {
     return {
-        ...getE44A2Job(),
+        ...getE44A2(),
         msg: 'E44.A1',
     }
 }
 
-const getE44A3Job = (): Matriz => {
+const getE44A3 = (): Matriz => {
     return {
-        ...getE44A2Job(),
+        ...getE44A2(),
         msg: 'E44.A3',
     }
 }
 
-const getE44A7Job = ():Matriz => {
+const getE44A7 = ():Matriz => {
     return {
-        ...getE44A2Job(),
+        ...getE44A2(),
         msg: 'E44.A7',
     }
 }
 
-const getV2Job = (): Matriz => {
+const getV2 = (): Matriz => {
     //const ref = 'T110'
     const deltaX = 3-3.5
     const deltaY = +1.5
@@ -606,7 +606,7 @@ const getV2Job = (): Matriz => {
 }
 
 
-const getTermo2559370Job = (): Matriz => {
+const getTermo2559370 = (): Matriz => {
     const firstX = 150+13.66-28.5-10.10+70-35.44-15+9.67-2.5
     const stepX = (104.96+15.24)
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87+13.6-(7+5)
@@ -636,7 +636,7 @@ const getTermo2559370Job = (): Matriz => {
     }
 }
 
-const getT123Job = (): Matriz => {
+const getT123 = (): Matriz => {
     const partNumber = ''
     const printer:Printers = 'printerWhite'
     const msg = 'T123'
@@ -674,14 +674,14 @@ const getT123Job = (): Matriz => {
     }
 }
 
-const getTermo2559371Job = (): Matriz => {
+const getTermo2559371 = (): Matriz => {
     return {
-        ...getTermo2559370Job(),
+        ...getTermo2559370(),
         msg: '2559371',
     }
 }
 
-const getE44A2Job = (): Matriz => {
+const getE44A2 = (): Matriz => {
     const firstX = 150+13.66-28.5-10.10+70
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87
@@ -711,9 +711,9 @@ const getE44A2Job = (): Matriz => {
     } 
 }
 
-const getE44B6Job = (): Matriz => {
+const getE44B6 = (): Matriz => {
 
-    const E44_A2 = getE44A2Job()
+    const E44_A2 = getE44A2()
     const {
         impressoesX,
         linhasY,
@@ -740,21 +740,21 @@ const getE44B6Job = (): Matriz => {
     }
 }
 
-const getE44A5Job = (): Matriz => {
+const getE44A5 = (): Matriz => {
     return {
-        ...getE44A2Job(),
+        ...getE44A2(),
         msg: 'E44.A5'
     }
 }
 
-const getE44A6Job = (): Matriz => {
+const getE44A6 = (): Matriz => {
     return {
-        ...getE44A2Job(),
+        ...getE44A2(),
         msg: 'E44.A6'
     }
 }
 
-const getT110Job = (): Matriz => {
+const getT110 = (): Matriz => {
     const firstX = 150+13.66-4
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18
@@ -789,7 +789,7 @@ const getT110Job = (): Matriz => {
 
 }
 
-const getTermoM1Job = (): Matriz => {
+const getTermoM1 = (): Matriz => {
     const firstX = 150+13.66-28.5-10.10+70-35.44
     const stepX = (104.96+15.24)
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87+13.6+3.21

@@ -1,10 +1,10 @@
 
-import { getKnownJobs, ImpressoesX, Matriz, KnownJobs, KnownJobsKeys} from './matrizes-conhecidas'
+import { getMatrizesConhecidas, ImpressoesX, Matriz, MatrizesConhecidas, MatrizesConhecidasKeys} from './matrizes-conhecidas'
 
 // print known jobs
 
 
-const jobsList = getKnownJobs()
+const jobsList = getMatrizesConhecidas()
 
 const formatJobNumbers = (job: Matriz, toFixedDigits: number = 2): Matriz => {
     const {
@@ -23,7 +23,7 @@ const formatJobNumbers = (job: Matriz, toFixedDigits: number = 2): Matriz => {
 }
 
 
-const jobs = Object.keys(jobsList).map( key => jobsList[(key as KnownJobsKeys)]())
+const jobs = Object.keys(jobsList).map( key => jobsList[(key as MatrizesConhecidasKeys)]())
     .map( job => formatJobNumbers(job))
 
 const jobsJSON = JSON.stringify(jobs)
