@@ -108,6 +108,7 @@ export type KnownJobsKeys = keyof KnownJobs
 export type KnownJobs = {
     'T110': () => Job__
     'T199': () => Job__
+    'T125': () => Job__
     'E44.A1': () => Job__
     'E44.A2': () => Job__
     'E44.A3': () => Job__
@@ -115,6 +116,7 @@ export type KnownJobs = {
     'E44.A7': () => Job__
     'E44.A6': () => Job__
     'E44.B1': () => Job__
+    'E44.B2': () => Job__
     'E44.B6': () => Job__
     '2559370': () => Job__
     '2559371': () => Job__
@@ -124,12 +126,15 @@ export type KnownJobs = {
     'V2': () => Job__
     'T202': () => Job__
     'V120': () => Job__
+    'V107': () => Job__
 
     // iveco
     'ST18': () => Job__
+    '25401': () => Job__
     '25002 B': () => Job__
     '25402 B': () => Job__
     '25006 A': () => Job__
+    '25006 B': () => Job__
     'ST22': () => Job__
     'ST6': () => Job__
     'ST93': () => Job__
@@ -140,6 +145,7 @@ export const getKnownJobs = ():KnownJobs => {
     return {
         'T110':  getT110Job,
         'T199': getT199Job,
+        'T125': getT125Job,
         'E44.A1': getE44A1Job,
         'E44.A2': getE44A2Job,
         'E44.A3': getE44A3Job,
@@ -147,6 +153,7 @@ export const getKnownJobs = ():KnownJobs => {
         'E44.A6': getE44A6Job,
         'E44.A7': getE44A7Job,
         'E44.B1': getE44B1job,
+        'E44.B2': getE44B2job,
         'E44.B6': getE44B6Job,
         '2559370': getTermo2559370Job,
         '2559371': getTermo2559371Job,
@@ -156,12 +163,15 @@ export const getKnownJobs = ():KnownJobs => {
         'V2': getV2Job,
         'T202': getT202Job,
         'V120': getV120Job,
+        'V107': getV107Job,
 
         // iveco
         'ST18': getST18job,
+        '25401': get25401Job,
         '25002 B': get25002Bjob,
         '25402 B': get25402Bjob,
         "25006 A": get25006Ajob,
+        "25006 B": get25006Bjob,
         'ST22': getST22Job,
         'ST6': getST6Job,
         'ST93': getST93Job,
@@ -183,6 +193,39 @@ const UNSAFECopyJobButChangeMessage = (jobToCopyKey: KnownJobsKeys, newMessage: 
 
 // ======================== JOB FUNCTIONS DEFINITIONS ===============================
 
+const getV107Job = ():Job__ => {
+    const firstX = 150+13.66-8.15-4.5
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18+2
+    const stepY = 70
+    const impressoesX: Job__['impressoesX'] = [
+        Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+        Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+        Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+    ]
+    const linhasY: Job__['linhasY'] = [
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
+    ]
+    return {
+        partNumber: '',
+        printer: 'printerWhite',
+        barCode: '',
+        msg:  'V107',
+        remoteFieldId: 3,
+        impressoesX,
+        linhasY,
+        printVelocity: 1700,
+        zLevel: Milimeter(0),
+        passes: 2
+        
+    }
+}
 
 const getST93Job = ():Job__ => {
     const firstX = 155-9.5-6+4.8+2.5+2.5-20+(70)
@@ -305,6 +348,13 @@ const getST22Job = ():Job__ => {
     } 
 }
 
+const get25401Job = (): Job__ => {
+    return {
+        ...get25002Bjob(),
+        msg: '25401'
+    }
+}
+
 const get25402Bjob = (): Job__ => {
     return {
         ...get25002Bjob(),
@@ -318,6 +368,14 @@ const get25006Ajob = (): Job__ => {
         msg: '25006 A'
     }
 }
+
+const get25006Bjob = (): Job__ => {
+    return {
+        ...get25002Bjob(),
+        msg: '25006 B'
+    }
+}
+
 
 
 const get25002Bjob = ():Job__ => {
@@ -454,6 +512,11 @@ const getE44B1job = ():Job__ => ({
     msg: 'E44.B1', 
 })
 
+const getE44B2job = ():Job__ => ({ 
+    ...getE44B6Job(), 
+    msg: 'E44.B2', 
+})
+
 
 const getP3job = (): Job__ => {
     const deltaX = 3-3.5-10.82
@@ -487,6 +550,13 @@ const getP3job = (): Job__ => {
         printVelocity: 1700,
         zLevel: Milimeter(0),
         passes: 2
+    }
+}
+
+const getT125Job = (): Job__ => {
+    return {
+        ... getT199Job(),
+        msg: 'T125',
     }
 }
 
@@ -599,7 +669,7 @@ const getTermo2559370Job = (): Job__ => {
         impressoesX: [
             Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
             Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
-            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+            //Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
         ],
         linhasY: [
             Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
@@ -782,7 +852,7 @@ const getTermoM1Job = (): Job__ => {
         impressoesX: [
             Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
             Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
-            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+            //Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
         ],
         linhasY: [
             Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),

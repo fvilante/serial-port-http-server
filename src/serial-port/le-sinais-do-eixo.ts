@@ -8,7 +8,7 @@ import { setParam_ } from './cmpp-memmap-layer'
 import { Driver } from "./mapa_de_memoria"
 import { Range } from "./utils"
 import { executeInSequence } from "./promise-utils"
-import { LeMSinais } from "./le-sinais-da-maquina"
+import { readMachineSignals } from "./le-sinais-da-maquina"
 
 // le sinais do eixto, fc+(giro), fc-, etc
 

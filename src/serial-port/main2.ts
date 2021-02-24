@@ -68,7 +68,7 @@ const programMessage = async (printer: Printers,remoteFieldId: number, msg: stri
     const e = Address['Printers'][printerToEnable]
     const d = Address['Printers'][printerToDisable]
     const emptyMessage = ''
-    //await sendPrinter2(e.portName, e.baudRate)(remoteFieldId,msg)
+    await sendPrinter2(e.portName, e.baudRate)(remoteFieldId,msg)
     //await sendPrinter2(d.portName, d.baudRate)(remoteFieldId,emptyMessage)
     await delay(500) // FIX: this delay May be unecessary
     return [remoteFieldId, msg]
@@ -112,7 +112,8 @@ const performJob = async (job: Job__, movimentKit: MovimentKit): Promise<void> =
             const ULTIMA = impressoes.length-1
             const positionFirstMessage = impressoes[PRIMEIRA]
             const positionLastMessage = impressoes[ULTIMA]
-            await ImprimeLinhaSomenteNoAvancoEInterpolando(positionFirstMessage, positionLastMessage, 6, movimentKit)
+            const numberOfMessages = impressoes.length
+            await ImprimeLinhaSomenteNoAvancoEInterpolando(positionFirstMessage, positionLastMessage, numberOfMessages, movimentKit)
             await x.goToAbsolutePosition(minX)
                 
             return
@@ -205,7 +206,7 @@ const performJobByItsName = async (jobName: KnownJobsKeys, movimentKit: Moviment
 
 type Drawer = 'Drawer1' | 'Drawer2'
 
-const doDrawerSingleWork = async (drawer: Drawer, jobs: readonly KnownJobsKeys[], movimentKit: MovimentKit): Promise<void> => {
+const doSingleDrawerWork = async (drawer: Drawer, jobs: readonly KnownJobsKeys[], movimentKit: MovimentKit): Promise<void> => {
     const {x,y,z,m} = movimentKit
     
     await m.safelyReferenceSystemIfNecessary()
@@ -214,6 +215,24 @@ const doDrawerSingleWork = async (drawer: Drawer, jobs: readonly KnownJobsKeys[]
     })
     await executeInSequence(allJobsForSingleDrawer)
 
+}
+
+type DrawerWork = KnownJobsKeys[]
+type Batch = DrawerWork[]
+const doBatchWork = (batch: Batch, intervalMS: number, repetition: number, movimentKit: MovimentKit) => {
+    const arr = batch.map( drawerWork => async () => {
+        return await doSingleDrawerWork('Drawer1',drawerWork, movimentKit)
+            .then( async () => { 
+                await delay(intervalMS) 
+            })
+    })
+    const oneBatch = () => executeInSequence(arr)
+    const run = () => repeatPromiseWithInterval(
+        oneBatch,
+        repetition,
+        intervalMS,
+    )
+    return run()
 }
 
 
@@ -228,16 +247,16 @@ const main2 = async () => {
     const [minZ, maxZ] = y._getAbsolutePositionRange()
 
    
-    const repeticoes = 10
-    const tempoDeAbastecimento = 1.5*60*1000
-    const drawerWork: readonly KnownJobsKeys[] = ['E44.A5']
-    const doDrawerSingleWork_ = () => doDrawerSingleWork('Drawer1',drawerWork, movimentKit)
+    const repeticoesDeLote = 10
+    const tempoDeAbastecimento = 20*1000
+    const P3: DrawerWork = ['P3'] //['P3'] ['25401'] //['2559371', 'M1']
+    const Termo371: DrawerWork = ['2559371', 'M1']
+    const Termo370: DrawerWork = ['2559370', 'M1']
+    const T125: DrawerWork = ['T125']
+    const lote: Batch = [ ['E44.B2'], Termo371 ]
+    
+    doBatchWork(lote, tempoDeAbastecimento, repeticoesDeLote, movimentKit)
 
-    console.log(`===========================================================================`)
-    console.log(`Iniciando batch: tempoDeAbastecimento (em segundos)= ${tempoDeAbastecimento}, lote (em num. de gavetas)=${repeticoes}`)
-    await repeatPromiseWithInterval(doDrawerSingleWork_ , repeticoes, tempoDeAbastecimento)
-    console.log(`Fim da producao`)
-    console.log(`===========================================================================`)
 }
 
 main2()
