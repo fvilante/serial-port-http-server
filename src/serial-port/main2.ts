@@ -140,12 +140,6 @@ const performJob = async (job: Matriz, movimentKit: MovimentKit): Promise<void> 
             return
         }
 
-        //FIX: Remove -> unused -> deprecated
-        const convertImpressoesMM2Pulse = (isMM: Matriz['impressoesX']): readonly Step[] => {
-            const iPulses = isMM.map( iMM => Step(x._convertMilimeterToPulseIfNecessary(iMM)))
-            return iPulses 
-        }
-
         //position y
         await y.goToAbsolutePosition(yPos)
         //do the line
