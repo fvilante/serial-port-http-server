@@ -34,17 +34,18 @@ type Job = {
 export type MachineControler = {
     safelyReferenceSystemIfNecessary: () => Promise<void>
     parkSafelyIfItisPossible: () => Promise<void>
-    doOneJob: (job: Job) => Promise<void>
+    goToGarageifItIsPossible: () => Promise<void>
+    //doOneJob: (job: Job) => Promise<void>
     _assureZisSafe: () => Promise<void>
 }
 
 export const MachineControler = async (
-    axisCommanders: {x: AxisControler, y: AxisControler, z: AxisControler}
+    axisControlers: {x: AxisControler, y: AxisControler, z: AxisControler}
     ): Promise<MachineControler> => {
 
         type T = MachineControler
 
-        const {x, y, z} = axisCommanders
+        const {x, y, z} = axisControlers
 
         const safelyReferenceSystemIfNecessary:T['safelyReferenceSystemIfNecessary'] = async () => {
             const referenceXandYIfNecessary = async () => {
@@ -107,11 +108,37 @@ export const MachineControler = async (
             
         }
 
-        const doOneJob: T['doOneJob'] = async (job) => {    
-            //
+        const goToGarageifItIsPossible: T['goToGarageifItIsPossible'] = async () => {
+            const [minX, maxX] = x._getAbsolutePositionRange()
+            const [minY, maxY] = y._getAbsolutePositionRange()
+            const [minZ, maxZ] = y._getAbsolutePositionRange()
+
+            const z_DeltaGarage = 445 // Steps
+            // posicao da garagem
+            const X_garage = maxX
+            const Y_garage = minZ
+            const Z_garage = minZ+z_DeltaGarage
+        
+            // Garante que Z esta no alto
+            await z.goToAbsolutePosition(minZ)
             
-          
-        }
+            // XY se direciona a garagem simultaneamente
+            await ExecuteInParalel([
+                () => x.goToAbsolutePosition(X_garage),
+                () => y.goToAbsolutePosition(Y_garage),
+            ])
+
+            // Ao XY chegarem na garagem, desce o eixo Z até o suporte de garagem
+            await z.goToAbsolutePosition(Z_garage)
+
+            // Desliga os 3 motores
+            await z._forceLooseReference()
+            await x._forceLooseReference()
+            await y._forceLooseReference()
+        
+        } 
+
+        
 
         // Z is safe if:
         //  - It is at the safe position
@@ -187,8 +214,8 @@ export const MachineControler = async (
 
         return {
             safelyReferenceSystemIfNecessary,
-            parkSafelyIfItisPossible: parkSafelyIfItisPossible,
-            doOneJob,
+            parkSafelyIfItisPossible,
+            goToGarageifItIsPossible,
             _assureZisSafe,
         }
 }
