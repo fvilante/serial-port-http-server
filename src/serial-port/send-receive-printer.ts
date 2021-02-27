@@ -2,6 +2,8 @@ import { BaudRate } from '../serial-local-driver'
 import { delay } from '../utils/delay'
 import { CommDriver, communicate } from './communicate'
 import { mkSetRemoteMessageFrame, mkSelectRemoteMessageFrame } from './printer-protocol'
+import { executeInSequence } from './promise-utils'
+import { Range } from './utils'
 
 const ACK = 6
 const NACK = 21
@@ -141,10 +143,10 @@ const Test1 = () => {
         portInfos.map( portInfo => {
     
             const port = portInfo.uid
-            sendPrinter(port, 9600)(1, 'oi')
+            sendPrinter(port, 9600)(2, 'oi')
                 .then( () => {
                     setTimeout( () => { 
-                        sendPrinter(port, 9600)(4,'E44.A7')
+                        sendPrinter(port, 9600)(2,'T202')
                     },1500)
                 })
                 .catch( err => {
@@ -155,8 +157,29 @@ const Test1 = () => {
     
     })
 }
-//11944724357
+
+
+const Test2 = async (): Promise<void> => {
+
+  const index = 3
+  await sendPrinter2('COM9',9600)(2,`EMS344`)
+// 30
+/*
+    const arr = Range(0,5,1).map( index => async (): Promise<void> => {
+
+        console.log(`CampoRemoto=${index}`)
+        await sendPrinter('COM9',9600)(index,`->${index}`)
+        await delay(7000)
+
+    })
+    await executeInSequence(arr)
+*/
+
+}
+
 
 //Test1();
+
+//Test2()
 
 
