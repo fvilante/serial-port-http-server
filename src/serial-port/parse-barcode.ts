@@ -6,6 +6,14 @@ import { performMatrizByItsMsg, } from "./matriz-router"
 import { makeMovimentKit } from "./machine-controler"
 
 
+// FIX: You can filter keystroks of barcode reader to differentiate to normal typing doing this:
+//      I verified inclusive in the LEONI_MACHINE computer what follows below: 
+//          - normal typing: even when I type as fast as possible rarely the keystrokes interval
+//            is less then 50ms (would say that certainly more than 90% of my typing is more than 50ms)
+//          - barcode reading: In other hand, certainly more than 90% of barcode 'typing' has an
+//          - interval less than 50ms
+//      conclusion, if the reading evolve some characters, it is possible to use average mean to
+//      calculate the probability of a sequence be typed by human or barcode reader.  
 
 //if string is not a valid barcode return Nothing
 //Fix: used Result instead of Maybe 
