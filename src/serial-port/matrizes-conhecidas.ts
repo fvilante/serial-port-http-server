@@ -80,6 +80,7 @@ export type MatrizesConhecidas = {
     'E44.A6': () => Matriz
     'E44.B1': () => Matriz
     'E44.B2': () => Matriz
+    'E44.B5': () => Matriz
     'E44.B6': () => Matriz
     '2559370': () => Matriz
     '2559371': () => Matriz
@@ -93,15 +94,23 @@ export type MatrizesConhecidas = {
 
     // iveco
     'ST18': () => Matriz
+    '25400': () => Matriz
     '25401': () => Matriz
     '25002 B': () => Matriz
+    '25002 A': () => Matriz
     '25402 B': () => Matriz
+    '25810': () => Matriz
     '25006 A': () => Matriz
     '25006 B': () => Matriz
     'ST22': () => Matriz
     'ST6': () => Matriz
+    'ST13': () => Matriz
     'ST93': () => Matriz
     'ST19': () => Matriz
+
+    // termo
+    '2327504': () => Matriz
+    'T5': () => Matriz // faz par com a de cima
 }
 
 export const getMatrizesConhecidas = ():MatrizesConhecidas => {    
@@ -117,6 +126,7 @@ export const getMatrizesConhecidas = ():MatrizesConhecidas => {
         'E44.A7': getE44A7,
         'E44.B1': getE44B1,
         'E44.B2': getE44B2,
+        'E44.B5': getE44B5,
         'E44.B6': getE44B6,
         '2559370': getTermo2559370,
         '2559371': getTermo2559371,
@@ -130,15 +140,21 @@ export const getMatrizesConhecidas = ():MatrizesConhecidas => {
 
         // iveco
         'ST18': getST18,
+        '25400': get25400,
         '25401': get25401,
         '25002 B': get25002B,
+        '25002 A': get25002A,
         '25402 B': get25402B,
+        '25810': get25810,
         "25006 A": get25006A,
         "25006 B": get25006B,
         'ST22': getST22,
         'ST6': getST6,
+        'ST13': getST13,
         'ST93': getST93,
         'ST19': getST19,
+        '2327504': get2327504,
+        'T5': getT5,
     }
     
 }
@@ -301,6 +317,13 @@ const getST22 = ():Matriz => {
     } 
 }
 
+const get25400 = (): Matriz => {
+    return {
+        ...get25002B(),
+        msg: '25400'
+    }
+}
+
 const get25401 = (): Matriz => {
     return {
         ...get25002B(),
@@ -322,6 +345,67 @@ const get25006A = (): Matriz => {
     }
 }
 
+const getST13 = (): Matriz => {
+    const firstX = 155-9.5-6+4.8-17.22+70
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 336+2-1+11-13-2
+    const stepY = 70
+    return {
+        partNumber: '',
+        barCode: '',
+        printer: 'printerBlack',
+        msg: 'ST13',
+        remoteFieldId: 2,
+        printVelocity: 1700,
+        zLevel: Milimeter(0),
+        impressoesX: [
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+        ],
+        linhasY: [
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
+        ]
+    } 
+}
+
+const get25810 = (): Matriz => {
+    const firstX = 155-9.5-6+4.8
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 336+2-1+11
+    const stepY = 70
+    return {
+        partNumber: '',
+        barCode: '',
+        printer: 'printerWhite',
+        msg: '25810',
+        remoteFieldId: 2,
+        printVelocity: 1700,
+        zLevel: Milimeter(0),
+        impressoesX: [
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+        ],
+        linhasY: [
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
+        ]
+    } 
+}
+
+
 const get25006B = (): Matriz => {
     return {
         ...get25002B(),
@@ -329,7 +413,35 @@ const get25006B = (): Matriz => {
     }
 }
 
-
+const get25002A = ():Matriz => {
+    const firstX = 155-9.5-6+4.8
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 336+2-1
+    const stepY = 70
+    return {
+        partNumber: '',
+        barCode: '',
+        printer: 'printerWhite',
+        msg: '25002 A',
+        remoteFieldId: 2,
+        printVelocity: 1700,
+        zLevel: Milimeter(0),
+        impressoesX: [
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+        ],
+        linhasY: [
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
+        ]
+    } 
+}
 
 const get25002B = ():Matriz => {
     const firstX = 155-9.5-6+4.8
@@ -470,6 +582,12 @@ const getE44B2 = ():Matriz => ({
     msg: 'E44.B2', 
 })
 
+const getE44B5 = ():Matriz => ({ 
+    ...getE44B6(), 
+    msg: 'E44.B5', 
+})
+
+
 
 const getP3 = (): Matriz => {
     const deltaX = 3-3.5-10.82
@@ -566,7 +684,7 @@ const getE44A7 = ():Matriz => {
         ...getE44A2(),
         msg: 'E44.A7',
     }
-}
+}   
 
 const getV2 = (): Matriz => {
     //const ref = 'T110'
@@ -617,7 +735,7 @@ const getTermo2559370 = (): Matriz => {
         printer: 'printerWhite',
         msg:  '2559370',
         remoteFieldId: 3,
-        printVelocity: 2000,
+        printVelocity: 1700,
         zLevel: Milimeter(0),
         impressoesX: [
             Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
@@ -692,7 +810,7 @@ const getE44A2 = (): Matriz => {
         printer: 'printerBlack',
         msg: 'E44.A2',
         remoteFieldId: 4,
-        printVelocity: 2000,
+        printVelocity: 1700,
         zLevel: Milimeter(0),
         impressoesX: [
             Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
@@ -709,6 +827,47 @@ const getE44A2 = (): Matriz => {
             Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
         ]
     } 
+}
+
+const get2327504 = (): Matriz => {
+    const firstX = 150+13.66-28.5-10.10+70-50-6.5
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87+34.40-6
+    const stepY = 70
+    return {
+        partNumber: '',
+        barCode: '',
+        printer: 'printerWhite',
+        msg: '2327504',
+        remoteFieldId: 3,
+        printVelocity: 1700,
+        zLevel: Milimeter(0),
+        impressoesX: [
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+        ],
+        linhasY: [
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
+        ]
+    } 
+}
+
+const getT5 = ():Matriz => {
+    const ref = get2327504()
+    const { impressoesX } = ref
+    const newImpressoesX = impressoesX.map( x => Milimeter(x.value + 25))
+    return {
+        ... ref,
+        msg: 'T5',
+        impressoesX: newImpressoesX,
+    }
 }
 
 const getE44B6 = (): Matriz => {
@@ -800,7 +959,7 @@ const getTermoM1 = (): Matriz => {
         printer: 'printerWhite',
         msg: 'M1',
         remoteFieldId: 3,
-        printVelocity: 2000,
+        printVelocity: 1700,
         zLevel: Milimeter(0),
         impressoesX: [
             Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
