@@ -1,48 +1,15 @@
-import { BaudRate } from "../serial-local-driver";
 
-export type Address = {
-    Printers: {
-        printerBlack: {
-            portName: string,
-            baudRate: BaudRate,
-        },
-        printerWhite: {
-            portName: string,
-            baudRate: BaudRate,
-        },
-    },
-    Axis: {
-        XAxis: {
-            portName: string,
-            baudRate: BaudRate,
-            channel: number,
-        },
-        YAxis: {
-            portName: string,
-            baudRate: BaudRate,
-            channel: number,
-        },
-        ZAxis: {
-            portName: string,
-            baudRate: BaudRate,
-            channel: number,
-        },
-    }
-}
-
-export type Peripherals = keyof Address
-export type Axis = keyof Address['Axis']
-export type Printers = keyof Address['Printers']
+import { Address } from "./global";
     
 
-export const Address: Address = {
+export const AddressFromLocal: Address = {
     Printers: {
         printerBlack: {
-            portName: 'com2',
+            portName: 'com9', //com17
             baudRate: 9600,
         },
         printerWhite: {
-            portName: 'com9',
+            portName: 'com9', 
             baudRate: 9600,
         },
     },
