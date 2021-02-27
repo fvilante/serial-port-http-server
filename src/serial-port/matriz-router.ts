@@ -1,7 +1,8 @@
 import { delay } from "../utils/delay"
+import { AxisControler } from "./axis-controler"
 import { Milimeter } from "./axis-position"
 import { Printers } from "./global"
-import { MovimentKit } from "./machine-controler"
+import { AxisKit, MovimentKit } from "./machine-controler"
 import { getMatrizesConhecidas, Matriz, MatrizesConhecidasKeys } from "./matrizes-conhecidas"
 import { programMessage } from "./program-message"
 import { executeInSequence, repeatPromiseWithInterval } from "./promise-utils"
@@ -12,26 +13,33 @@ import { executeInSequence, repeatPromiseWithInterval } from "./promise-utils"
 
 // ----------
 
-
-const ImprimeLinhaSomenteNoAvancoEInterpolando = async (xi: Milimeter, xf: Milimeter, qtde: number, movimentKit: MovimentKit): Promise<void> => {
+// Fix: reduce number of parameters extracting it to types
+export const ImprimeLinhaSomenteNoAvancoEInterpolando = async (
+    primeiraMensagem: Milimeter, 
+    ultimaMensagem: Milimeter, 
+    velocidadeDeImpressaoStepsPerSecond: number, 
+    rampaInSteps: number,
+    numeroDeMensagens: number, 
+    xControler: AxisControler
+    ): Promise<void> => {
 
     const defaults = { // in pulses
         acAv: 6000,
         acRet: 3000,
-        rampa: 640,
-        velAv: 1700,
+        // rampa: 640, // in steps
+        //velAv: 1700, // Fix: remove thsi, because we are getting this by parameter
         velRet: 2300, 
     }
 
-    const { acAv, velAv, acRet, velRet, rampa } = defaults
+    const { acAv, /*velAv,*/ acRet, velRet,/*rampa*/ } = defaults
 
-    const {x,y,z,m} = movimentKit
+    const x = xControler
 
-    const xi_InPulses = x._convertMilimeterToPulseIfNecessary(xi)
-    const xf_InPulses = x._convertMilimeterToPulseIfNecessary(xf)
+    const xi_InPulses = x._convertMilimeterToPulseIfNecessary(primeiraMensagem)
+    const xf_InPulses = x._convertMilimeterToPulseIfNecessary(ultimaMensagem)
 
     await x._setPrintMessages({
-        numeroDeMensagensNoAvanco: qtde,
+        numeroDeMensagensNoAvanco: numeroDeMensagens,
         posicaoDaPrimeiraMensagemNoAvanco: xi_InPulses,
         posicaoDaUltimaMensagemNoAvanco: xf_InPulses,
         numeroDeMensagensNoRetorno: 0,
@@ -41,15 +49,15 @@ const ImprimeLinhaSomenteNoAvancoEInterpolando = async (xi: Milimeter, xf: Milim
 
     const [minX, maxX] = x._getAbsolutePositionRange()
 
-    const POSINI = xi_InPulses-rampa
-    const POSFIN = xf_InPulses+rampa
+    const POSINI = xi_InPulses-rampaInSteps
+    const POSFIN = xf_InPulses+rampaInSteps
     const safePOSINI = POSINI < minX ? minX : POSINI
     const safePOSFIM = POSFIN > maxX ? maxX : POSFIN
 
-    console.log(`POSINI=${POSINI}`)
-    console.log(`POSFIN=${POSFIN}`)
+    //console.log(`POSINI=${POSINI}`)
+    //console.log(`POSFIN=${POSFIN}`)
 
-    await x.goToAbsolutePosition(safePOSFIM, (v,a) =>[velAv,acAv] )
+    await x.goToAbsolutePosition(safePOSFIM, (v,a) =>[velocidadeDeImpressaoStepsPerSecond,acAv] )
     await x.goToAbsolutePosition(safePOSINI, (v,a) => [velRet,acRet])
     await x._clearPrintingMessages() //FIX: should be unnecessary
 
@@ -58,7 +66,7 @@ const ImprimeLinhaSomenteNoAvancoEInterpolando = async (xi: Milimeter, xf: Milim
 }
 
 
-const performMatriz = async (matriz: Matriz, movimentKit: MovimentKit): Promise<void> => {
+export const performMatriz = async (matriz: Matriz, axisKit: AxisKit): Promise<void> => {
         
     const {
         printer,
@@ -68,47 +76,53 @@ const performMatriz = async (matriz: Matriz, movimentKit: MovimentKit): Promise<
         linhasY,
     } = matriz
 
-    const {x,y,z,m} = movimentKit
+    const {x,y,z} = axisKit
     const [minZ, maxZ] = z._getAbsolutePositionRange()
 
-    const doASingleXLine = async (yPos: Milimeter, impressoesX: Matriz['impressoesX'], movimentKit: MovimentKit): Promise<void> => {
+    const doASingleXLine = async (yPos: Milimeter, impressoesX: Matriz['impressoesX'], axisKit: AxisKit): Promise<void> => {
 
-        const {x,y,z,m} = movimentKit
+        const {x,y,z} = axisKit
 
         // Fix: Velocity must not be a constant
-        const fazLinhaXUmaVezInteira = async (movimentKit: MovimentKit, impressoes: Matriz['impressoesX']):Promise<void> => {
+        const fazLinhaXUmaVezInteira = async (axisKit: AxisKit, impressoes: Matriz['impressoesX']):Promise<void> => {
 
             const [minX, maxX] = x._getAbsolutePositionRange()
-            
             await x.goToAbsolutePosition(minX)
             const PRIMEIRA = 0
             const ULTIMA = impressoes.length-1
             const positionFirstMessage = impressoes[PRIMEIRA]
             const positionLastMessage = impressoes[ULTIMA]
             const numberOfMessages = impressoes.length
-            await ImprimeLinhaSomenteNoAvancoEInterpolando(positionFirstMessage, positionLastMessage, numberOfMessages, movimentKit)
-            await x.goToAbsolutePosition(minX)
-                
+            const velocidadeDeImpressaoStepsPerSecond = matriz.printVelocity
+            const rampa = 640
+            await ImprimeLinhaSomenteNoAvancoEInterpolando(
+                positionFirstMessage, 
+                positionLastMessage, 
+                velocidadeDeImpressaoStepsPerSecond,
+                rampa,
+                numberOfMessages,
+                x)
+            await x.goToAbsolutePosition(minX)            
             return
                     
         }
 
         
-        const fazLinhaXPreta = async (movimentKit: MovimentKit, impressoes: Matriz['impressoesX']):Promise<void> => {
-            await fazLinhaXUmaVezInteira(movimentKit, impressoes)
+        const fazLinhaXPreta = async (axisKit: AxisKit, impressoes: Matriz['impressoesX']):Promise<void> => {
+            await fazLinhaXUmaVezInteira(axisKit, impressoes)
         }
         
-        const fazLinhaXBranca = async (movimentKit: MovimentKit, impressoes: Matriz['impressoesX']):Promise<void> => {
-            await fazLinhaXUmaVezInteira(movimentKit, impressoes)
-            await fazLinhaXUmaVezInteira(movimentKit, impressoes)          
+        const fazLinhaXBranca = async (axisKit: AxisKit, impressoes: Matriz['impressoesX']):Promise<void> => {
+            await fazLinhaXUmaVezInteira(axisKit, impressoes)
+            await fazLinhaXUmaVezInteira(axisKit, impressoes)          
         }
 
         const printAtAParticularYanXLinInAnyColor = async (printer: Printers, modelo: Matriz['impressoesX']): Promise<void> => {
             if (printer==='printerWhite') {
-                await fazLinhaXBranca(movimentKit,modelo)
+                await fazLinhaXBranca(axisKit,modelo)
             } else {
                 // printer==='printerBlack'
-                await fazLinhaXPreta(movimentKit, modelo)
+                await fazLinhaXPreta(axisKit, modelo)
             }
             return
         }
@@ -144,7 +158,7 @@ const performMatriz = async (matriz: Matriz, movimentKit: MovimentKit): Promise<
         // executa linhas
         const fazTodasAsLinhas = linhasY.map( yPos => async () => {
             const ajusted_impressoesX = compensateLackOfAxisXYOrtogonality(yPos, impressoesX)
-            await doASingleXLine(yPos,ajusted_impressoesX, movimentKit)
+            await doASingleXLine(yPos,ajusted_impressoesX, axisKit)
         })
         await executeInSequence(fazTodasAsLinhas)
 
@@ -166,7 +180,7 @@ const performMatriz = async (matriz: Matriz, movimentKit: MovimentKit): Promise<
 }
 
 // helper
-const performMatrizByItsMsg = async (matrizMessage: MatrizesConhecidasKeys, movimentKit: MovimentKit): Promise<void> => {
+export const performMatrizByItsMsg = async (matrizMessage: MatrizesConhecidasKeys, movimentKit: MovimentKit): Promise<void> => {
     const matriz = getMatrizesConhecidas()[matrizMessage]()
     return performMatriz(matriz, movimentKit)
 }
@@ -197,7 +211,9 @@ export const doBatchWork = (batch: Batch, intervalMS: number, repetition: number
     const arr = batch.map( drawerWork => async () => {
         return await doSingleDrawerWork('Drawer1',drawerWork, movimentKit)
             .then( async () => { 
+                console.log(`contando tempo... ${intervalMS}ms`)
                 await delay(intervalMS) 
+                console.log(`tempo esgotado.`)
             })
     })
     const oneBatch = () => executeInSequence(arr)
