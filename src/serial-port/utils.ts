@@ -8,6 +8,7 @@
 // fix: make it a generator structure for performance
 // inclusive-exclusive]
 // fix: BUG -> IT DOES NOT WORKING WITH NON INTEGER 'STEP' (EX: Range(1,3,0.1) enter infinite loop)
+// fix: test if ini is negativa and end is postive works well
 export const Range = (ini: number, end: number, step: number = 1): readonly number[] => {
     const i = Math.floor(ini)
     const e = Math.floor(end)
