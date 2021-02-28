@@ -2,8 +2,8 @@
 
 // -------
 
-import { Duration, TimePoint, TimePoint_ } from "./time"
-import { now } from "./utils"
+import { Duration, TimePoint, TimePoint_ } from "../time"
+import { now } from "../utils"
 
 export type PushEmitter<A> = (receiver: (_:A) => void) => void 
 
