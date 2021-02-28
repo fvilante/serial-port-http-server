@@ -4,11 +4,20 @@
 
 // example valid frame: [0x1B,0x02,0x00,0x1C,0x00,0x00,0x1B,0x03,0xDF]
 
-const ESC = 0x1B as const ; type ESC = typeof ESC ;
-const STX = 0x02 as const ; type STX = typeof STX ;
-const ETX = 0x03 as const ; type ETX = typeof ETX ;
-const ACK = 0x06 as const ; type ACK = typeof ACK ;
-const NACK = 0x15 as const ; type NACK = typeof NACK ;
+type ESC = 0x1B
+type STX = 0x02
+type ETX = 0x03
+type ACK = 0x06
+type NACK = 0x15
+
+const ESC: ESC = 0x1B 
+const STX: STX = 0x02 
+const ETX: ETX = 0x03 
+const ACK: ACK = 0x06
+const NACK: NACK = 0x15 
+
+
+export type DirectionKeys = "Solicitacao" | "MascaraParaResetar" | "MascaraParaSetar" | "Envio"
 
 export const Direction = {
     Solicitacao: 0,
@@ -17,7 +26,6 @@ export const Direction = {
     Envio: 0xC0,
 } as const
 export type Direction = typeof Direction
-export type DirectoinKeys = keyof Direction
 
 const StartByte = {
     STX: STX,

@@ -1,5 +1,5 @@
 import { BaudRate } from "../serial-local-driver";
-import { DirectoinKeys, FrameCore, word2int } from "./cmpp-datalink-protocol";
+import { DirectionKeys, FrameCore, word2int } from "./cmpp-datalink-protocol";
 import { GetAllNames, HyperDriver, GetCastFromName, Driver, Param } from "./mapa_de_memoria";
 import { executeInSequence } from "./promise-utils";
 import { sendCmpp } from './send-receive-cmpp-datalink'
@@ -17,7 +17,7 @@ export const setParam_ =
         const valueToBoolean = (value:T): boolean => value as boolean
 
         const sendCmpp_ = sendCmpp(portName,baudRate)
-        let direction: DirectoinKeys = 'Solicitacao'
+        let direction: DirectionKeys = 'Solicitacao'
         const param = drive.find(p => p.name === name) as Param<string, unknown>
         const {waddr: waddr_,bitLen: bitLen_,startBit: startBit_} = param
         const waddr = waddr_ / 2
