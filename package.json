@@ -17,8 +17,11 @@
   },
   "dependencies": {
     "@types/jest": "^26.0.14",
+    "@types/node": "^14.14.31",
+    "@types/terminal-kit": "^1.28.2",
     "npx": "^10.2.2",
     "serialport": "^9.0.1",
+    "terminal-kit": "^2.0.3",
     "ts-node": "^9.0.0",
     "ws": "7.3.1"
   }
