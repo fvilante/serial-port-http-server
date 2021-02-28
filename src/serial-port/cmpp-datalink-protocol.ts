@@ -33,16 +33,25 @@ export const Direction: Direction = {
     Envio: 0xC0,
 } 
 
-const StartByte = {
+
+type StartByte = {
+    STX: STX;
+    ACK: ACK;
+    NACK: NACK;
+}
+
+const StartByte: StartByte = {
     STX: STX,
     ACK: ACK,
     NACK: NACK,
-}   ; type StartByte = typeof StartByte
-    ; type StartByteTxt = keyof StartByte
-    ; type StartByteNum = typeof StartByte[keyof StartByte]
+}   
+
+type StartByteTxt = keyof StartByte
+type StartByteNum = typeof StartByte[keyof StartByte]
 
 const StartByteToText = (_: StartByteNum):StartByteTxt => {
     //fix: should be less concrete
+    //      what seems we want is an object-invertion-operation of 'StartByte' (maybe this is possible)
     const StartByte = {
         [STX]: 'STX',
         [ACK]: 'ACK',
