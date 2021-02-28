@@ -17,15 +17,21 @@ const ACK: ACK = 0x06
 const NACK: NACK = 0x15 
 
 
-export type DirectionKeys = "Solicitacao" | "MascaraParaResetar" | "MascaraParaSetar" | "Envio"
+export type DirectionKeys = keyof Direction
 
-export const Direction = {
+export type Direction = {
+    readonly Solicitacao: 0;
+    readonly MascaraParaResetar: 64;
+    readonly MascaraParaSetar: 128;
+    readonly Envio: 192;
+}
+
+export const Direction: Direction = {
     Solicitacao: 0,
     MascaraParaResetar: 0x40,
     MascaraParaSetar: 0x80,
     Envio: 0xC0,
-} as const
-export type Direction = typeof Direction
+} 
 
 const StartByte = {
     STX: STX,
