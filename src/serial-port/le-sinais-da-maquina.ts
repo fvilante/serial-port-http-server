@@ -15,7 +15,7 @@ import { sendCmpp } from "./send-receive-cmpp-datalink"
 const CLOSED = 'Closed'
 const OPEN = 'Open'
 const ACTIVATED = 'Activated'
-const UNACTIVATED = 'Unactivateds'
+const UNACTIVATED = 'Unactivated'
 
 export type MachineSignals = {
     drawer_1: typeof CLOSED | typeof OPEN
