@@ -1,3 +1,4 @@
+import { Push } from "./adts/push-stream"
 import { bit_test } from "./bit-wise-utils"
 import { FrameCore } from "./cmpp-datalink-protocol"
 import { Address } from "./global"
@@ -69,6 +70,8 @@ export const readMachineSignals = ():Promise<MachineSignals> => new Promise( (re
 })
 
 
+
+
 const Test2 = () => {
 
     readMachineSignals()
@@ -80,4 +83,4 @@ const Test2 = () => {
         })
 }
 
-Test2();
+//Test2();

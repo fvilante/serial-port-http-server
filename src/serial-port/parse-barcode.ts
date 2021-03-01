@@ -4,6 +4,7 @@ import { Maybe, Nothing, Just } from "./adts/maybe"
 import { Push } from "./adts/push-stream"
 import { performMatrizByItsMsg, } from "./matriz-router"
 import { makeMovimentKit } from "./machine-controler"
+import { MachineSignals, readMachineSignals } from './le-sinais-da-maquina'
 
 
 // FIX: You can filter keystroks of barcode reader to differentiate to normal typing doing this:
@@ -37,18 +38,21 @@ const parseBarCode = (barCode:string): Maybe<BarCode> => {
 
 const convertKeyEventsToString = (ks: readonly KeyEvent[]): string => (ks.map( k => k.sequence)).join('')
 
-// inter
+const trimSpacesFromData = (barCode: BarCode): BarCode => {
+    return {
+        messageText: barCode.messageText.trim(),
+        partNumber: barCode.partNumber.trim(),
+        raw: barCode.raw.trim(),
+    }
+}
+
+// Get barcode, validate low level barcode aginst the structure of data expected, but not do other checks
 export const GetBarCodeFromSignal = (input: () => Push<KeyEvent>): Push<Maybe<BarCode>> => {
     return input()
         .dropletWith( keyEvent => keyEvent.name==='return')
         .map(convertKeyEventsToString)
-        //.tap( s => console.log(`BarCode para ser interpretado '${s}'`))
         .map(parseBarCode)
-        /*.tap( m => {
-            const barCode = m.unsafeRun()
-            console.log(`BarCode é valido='${barCode.hasValue}'    BarcodeProcessado=`,barCode.value)
-        })*/
-        
+        .map( ma => ma.map(trimSpacesFromData))
 }
 
 
