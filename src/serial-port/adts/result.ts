@@ -1,4 +1,6 @@
 
+export type InferResult<R> = R extends Result<infer A, infer E> ? {value: A, error: E} : never
+
 type ResultWorld<A,E> = { hasError: true, value: E} | { hasError: false, value: A}
 
 type ResultMatcher<A,E,X> = {
