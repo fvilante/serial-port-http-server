@@ -29,10 +29,10 @@ export const communicate = (
             id = undefined
         }
         if (portOpened!==undefined) {
-            //console.log(`fechando porta ${portName}...`)
+            console.log(`fechando porta ${portName}...`)
             portOpened.close()
                 .then( () => { 
-                    //console.log(`porta ${portName} fechada com sucesso.`)
+                    console.log(`porta ${portName} fechada com sucesso.`)
                     resolve();
                 })
                 .catch( err => reject(err))
@@ -42,21 +42,21 @@ export const communicate = (
         }
     })
 
-    //console.log(`Abrindo porta ${portName}...`)
+    console.log(`Abrindo porta ${portName}...`)
     CommDriver.open(portName, baudRate)
         .then( portOpened_ => {
             portOpened = portOpened_;
-            //console.log(`aberta ${portName}`);
-            //console.log(`gravando dados...`);
-            //console.log(`configurando reception handler.`)
+            console.log(`aberta ${portName}`);
+            console.log(`gravando dados...`);
+            console.log(`configurando reception handler.`)
             portOpened.onData( dataReceived => {
-                //console.log(`recebendo dado da ${portName}:`);
-                //console.log(dataReceived);
+                console.log(`recebendo dado da ${portName}:`);
+                console.log(dataReceived);
                 receiver(dataReceived, hasFinished_);
             })
             portOpened.write(dataToSend)
                 .then( () => {
-                    //console.log(`gravado.`);                      
+                    console.log(`gravado.`);                      
                     id = setTimeout( () => {
                         hasFinished_()
                             //.then( () => reject('Communication with serial device, timed out.'));
