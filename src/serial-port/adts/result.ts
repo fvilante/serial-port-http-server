@@ -12,26 +12,46 @@ export type Result<A,E> = {
     kind: 'Result'
     unsafeRun: () => { kind: Result<A,E>['kind'] } & ResultWorld<A,E>
     unsafeMatch: <X>(matcher: ResultMatcher<A,E,X>) => X 
+    map: <B>(f: (_:A) => B) => Result<B,E>
+    mapError: <E1>(f: (_:E) => E1) => Result<A,E1>
 }
 
-export const Result = <A,E>(world: () => ResultWorld<A,E>): Result<A,E> => {
+export const Result = <A,E>(world: () => { hasError: true, value: E} | { hasError: false, value: A}): Result<A,E> => {
 
     type T = Result<A,E>
 
     const unsafeRun: T['unsafeRun'] = () => ({ ...world(), kind: 'Result'}) 
 
     const unsafeMatch: T['unsafeMatch'] = matcher => {
-        const data = world()
-        const aOrE = data.value
-        return world().hasError
-            ? matcher.Error(aOrE as E)
-            : matcher.Ok(aOrE as A)
+        const world_ = world()
+        const value = world_.value
+        return world_.hasError
+            ? matcher.Error(value as E)
+            : matcher.Ok(value as A)
     }
+
+    const map: T['map'] = f => Result( () => {
+        const world_ = world()
+        const value = world_.value
+        return world_.hasError===true
+            ? world_
+            : { hasError: false, value: f(value as A)}
+    })
+
+    const mapError: T['mapError'] = f => Result( () => {
+        const world_ = world()
+        const value = world_.value
+        return world_.hasError===false
+            ? world_
+            : { hasError: true, value: f(value as E)}
+    })
 
     return {
         kind: 'Result',
         unsafeRun,
         unsafeMatch,
+        map,
+        mapError,
     }
 }
 
@@ -42,8 +62,6 @@ export type Result_ = {
 
 type T = Result_
 
-const Ok__ = <A>(value:A) => ({hasError: false, value})
-const Error__ = <A,E>(error:E) => ({hasError: true, value: error})
 
 const Ok_: T['Ok'] = <A,E>(value:A) => Result(() => ({hasError: false, value})) as unknown as Result<A,E>
 const Error_: T['Error'] = <A,E>(error:E) => Result(() => ({hasError: true, value: error})) as unknown as Result<A,E>
