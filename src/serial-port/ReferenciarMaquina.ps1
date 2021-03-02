@@ -1,0 +1,2 @@
+echo Aguarde, referenciando maquina. Rode este programa apenas para referenciar a maquina quando ela estiver desreferenciada. Depois que a maquina for referenciada pode fechar esta janela..
+npx ts-node ./main2.ts
