@@ -543,10 +543,10 @@ const getV120 = (): Matriz => {
 }
 
 const getP3A = ():Matriz => {
-    const firstX = 150+13.66-8.15-5
+    const firstX = 150+13.66-8.15-5-15-0.5
     const stepX = 70
-    const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18+17
-    const stepY = 70
+    const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18+17+12.16+1+21.10-3-60
+    const stepY = 60
     const impressoesX: Matriz['impressoesX'] = [
         Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
         Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
@@ -952,14 +952,14 @@ const getE44A6 = (): Matriz => {
 }
 
 const getV17 = (): Matriz => {
-    const firstX = 150+13.66-4
-    const stepX = 70
-    const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18
-    const stepY = 70
+    const firstX = 94+64.40-35.29
+    const stepX = 94
+    const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18+21.88+1.25+1.5
+    const stepY = 72
     const impressoesX: Matriz['impressoesX'] = [
         Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
         Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
-        Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+        Milimeter(firstX+(stepX*4)), //Milimeter(firstX+(stepX*5)),
     ]
     const linhasY: Matriz['linhasY'] = [
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
@@ -968,7 +968,7 @@ const getV17 = (): Matriz => {
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
-        Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
+        //Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
     return {
         partNumber: '',
