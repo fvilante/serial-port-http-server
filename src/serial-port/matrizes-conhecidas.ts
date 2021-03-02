@@ -727,7 +727,7 @@ const getE44A7 = ():Matriz => {
 const getV2 = (): Matriz => {
     //const ref = 'T110'
     const deltaX = 3-3.5
-    const deltaY = +1.5
+    const deltaY = -1
     const firstX = 150+13.66+3 + deltaX
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11+1.18 + deltaY
