@@ -4,9 +4,6 @@ import { listSerialPorts } from "./listSerialPorts"
 import { ExecuteInParalel } from "./promise-utils"
 import { sendCmpp } from "./send-receive-cmpp-datalink"
 
-
-
-
 type SerialChannel = {portName: string, baudRate: BaudRate}
 type CMPPDetectionResponse = Map<SerialChannel, {
     type: 'CMPP - Posijet Mortor Driver' | 'CMPP NOT present'

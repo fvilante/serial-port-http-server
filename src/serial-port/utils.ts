@@ -59,3 +59,12 @@ export const isInsideRange = (x: number, range: readonly [lowerBoundInclusive: n
         : false
 }
 
+
+// when you want to map an object (as you do with an Array)
+export const mapObject =<T, K extends keyof T> (obj:T, forEach: (value: T[K], key: K ) => void): void => {
+    const keys = Object.keys(obj) as (keyof T)[]
+    keys.forEach( (key, index) => {
+        const value = obj[key]
+        forEach(value as T[K],key as K)
+    })
+}
