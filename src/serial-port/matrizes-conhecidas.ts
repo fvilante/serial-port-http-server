@@ -341,14 +341,16 @@ const getST11 = ():Matriz => {
 }
 
 const getST14 = ():Matriz => {
-    const firstX = 155-9.5-6+4.8+2.5  
+
+	//igual ao st11 porem tinta preta
+    const firstX = 155-9.5-6+4.8+2.5 -18.05 +70
     const stepX = 70
-    const posicaoYDaLinha5EmMilimetros = 336+2-1    
+    const posicaoYDaLinha5EmMilimetros = 336+2-1-5 
     const stepY = 70
     return {
         partNumber: '',
         barCode: '',
-        printer: 'printerWhite',
+        printer: 'printerBlack',
         msg: 'ST14',
         remoteFieldId: 2,
         printVelocity: 1700,
@@ -367,8 +369,9 @@ const getST14 = ():Matriz => {
             Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
             Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
         ]
-    } 
+    }
 }
+
 
 const getST22 = ():Matriz => {
     const firstX = 155-9.5-6+4.8+2.5  
@@ -401,14 +404,16 @@ const getST22 = ():Matriz => {
 }
 
 const getST12 = ():Matriz => {
-    const firstX = 155-9.5-6+4.8+2.5  
+
+	//igual ao st11 porem tinta preta
+    const firstX = 155-9.5-6+4.8+2.5 -18.05+70
     const stepX = 70
-    const posicaoYDaLinha5EmMilimetros = 336+2-1    
+    const posicaoYDaLinha5EmMilimetros = 336+2-1-5 
     const stepY = 70
     return {
         partNumber: '',
         barCode: '',
-        printer: 'printerWhite',
+        printer: 'printerBlack',
         msg: 'ST12',
         remoteFieldId: 2,
         printVelocity: 1700,
@@ -427,7 +432,7 @@ const getST12 = ():Matriz => {
             Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
             Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
         ]
-    } 
+    }
 }
 
 const get25400 = (): Matriz => {
@@ -451,11 +456,34 @@ const get25402A = (): Matriz => {
     }
 }
 
-const get25603 = (): Matriz => {
+const get25603 = ():Matriz => {
+    const firstX = 155-9.5-6+4.8-1+2
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 336+2-1-1
+    const stepY = 70
     return {
-        ...get25002B(),
-        msg: '25603'
-    }
+        partNumber: '',
+        barCode: '',
+        printer: 'printerWhite',
+        msg: '25603',
+        remoteFieldId: 2,
+        printVelocity: 1700,
+        zLevel: Milimeter(0),
+        impressoesX: [
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+        ],
+        linhasY: [
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
+        ]
+    } 
 }
 
 const get25402B = (): Matriz => {
@@ -472,12 +500,38 @@ const get25006A = (): Matriz => {
     }
 }
 
-const get61140 = (): Matriz => {
+// formato do conector: "Robozinho"
+const get61140 = ():Matriz => {
+    const firstX = 155-9.5-6+4.8-1+2
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 336+2-1-1
+    const stepY = 70
     return {
-        ...get25002B(),
-        msg: '61140'
-    }
+        partNumber: '',
+        barCode: '',
+        printer: 'printerWhite',
+        msg: '61140',
+        remoteFieldId: 2,
+        printVelocity: 1700,
+        zLevel: Milimeter(0),
+        impressoesX: [
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+        ],
+        linhasY: [
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
+        ]
+    } 
 }
+
+
 
 
 const getST13 = (): Matriz => {
@@ -582,7 +636,7 @@ const get25002A = ():Matriz => {
 const get25402 = ():Matriz => {
     const firstX = 155-9.5-6+4.8
     const stepX = 70
-    const posicaoYDaLinha5EmMilimetros = 336+2-1
+    const posicaoYDaLinha5EmMilimetros = 336+2-1+13
     const stepY = 70
     return {
         partNumber: '',
@@ -613,7 +667,7 @@ const get25402 = ():Matriz => {
 const get25705 = ():Matriz => {
     const firstX = 155-9.5-6+4.8
     const stepX = 70
-    const posicaoYDaLinha5EmMilimetros = 336+2-1
+    const posicaoYDaLinha5EmMilimetros = 336+2-1+13
     const stepY = 70
     return {
         partNumber: '',
@@ -644,7 +698,7 @@ const get25705 = ():Matriz => {
 const get25894 = ():Matriz => {
     const firstX = 155-9.5-6+4.8
     const stepX = 70
-    const posicaoYDaLinha5EmMilimetros = 336+2-1
+    const posicaoYDaLinha5EmMilimetros = 336+2-1+13
     const stepY = 70
     return {
         partNumber: '',
@@ -673,9 +727,9 @@ const get25894 = ():Matriz => {
 
 // formato do conector: "Robozinho"
 const get25002B = ():Matriz => {
-    const firstX = 155-9.5-6+4.8
+    const firstX = 155-9.5-6+4.8-1
     const stepX = 70
-    const posicaoYDaLinha5EmMilimetros = 336+2-1
+    const posicaoYDaLinha5EmMilimetros = 336+2-1-1
     const stepY = 70
     return {
         partNumber: '',
