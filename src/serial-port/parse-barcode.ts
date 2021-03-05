@@ -20,15 +20,19 @@ import { MachineSignals, readMachineSignals } from './le-sinais-da-maquina'
 //Fix: used Result instead of Maybe 
 const parseBarCode = (barCode:string): Maybe<BarCode> => {
     const mSharp = "M#"
-    const minus = '-'
+    const minus = '-' //fix (im place of minus we should accept also ' ' and '_' even something else)
     const hasMSharp = barCode.startsWith(mSharp)
     const hasMinus = barCode.includes(minus)
     const barCodeWithoutMSharp = barCode.slice(2,barCode.length)
     const isBarCodeStructureOk = hasMSharp && hasMinus
     const [partNumber, messageText] = barCodeWithoutMSharp.split(minus)
 
-    return isBarCodeStructureOk===false 
-        ? Nothing<BarCode>()
+    return isBarCodeStructureOk===false // fIX: I'm not saving this lack of infrastructure
+        ? Just({
+            raw: barCode, 
+            partNumber,
+            messageText,
+        })
         : Just({
             raw: barCode, 
             partNumber,
@@ -40,7 +44,7 @@ const convertKeyEventsToString = (ks: readonly KeyEvent[]): string => (ks.map( k
 
 const trimSpacesFromData = (barCode: BarCode): BarCode => {
     return {
-        messageText: barCode.messageText.trim(),
+        messageText: String(barCode.messageText).trim(),
         partNumber: barCode.partNumber.trim(),
         raw: barCode.raw.trim(),
     }
@@ -59,7 +63,8 @@ export const GetBarCodeFromSignal = (input: () => Push<KeyEvent>): Push<Maybe<Ba
 export type BarCode = {
     readonly raw: string
     readonly partNumber: string
-    readonly messageText: string 
+    readonly messageText: string
+    //fix: include a field named (is barcode structured identified=boolean)
 }
 
 
