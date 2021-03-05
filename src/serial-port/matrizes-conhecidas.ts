@@ -118,8 +118,8 @@ export type MatrizesConhecidas = {
     'ST19': () => Matriz
 
     // termo
-    '2327504': () => Matriz
-    'T5': () => Matriz // faz par com a de cima
+    //'2327504': () => Matriz
+    //'T5': () => Matriz // faz par com a de cima
 }
 
 export const getMatrizesConhecidas = ():MatrizesConhecidas => {    
@@ -174,9 +174,9 @@ export const getMatrizesConhecidas = ():MatrizesConhecidas => {
         'ST93': getST93,
         'ST19': getST19,
         
-        // termo
-        '2327504': get2327504,
-        'T5': getT5,
+        // termo feita em outra maquina
+        //'2327504': get2327504,
+        //'T5': getT5,
     }
     
 }
@@ -203,11 +203,15 @@ const getV107 = ():Matriz => {
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
+
+    const partNumber = 'P00146384'
+    const msg = 'V107'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
+        partNumber,
         printer: 'printerWhite',
-        barCode: '',
-        msg:  'V107',
+        barCode,
+        msg,
         remoteFieldId: 3,
         impressoesX,
         linhasY,
@@ -223,11 +227,14 @@ const getST93 = ():Matriz => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1+10
     const stepY = 70
+    const partNumber = '418720501'
+    const msg = 'ST93'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerBlack',
-        msg: 'ST93',
+        msg,
         remoteFieldId: 2,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -254,11 +261,14 @@ const getST6 = ():Matriz => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1+10
     const stepY = 70
+    const partNumber = '418900110'
+    const msg = 'ST6'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerWhite',
-        msg: 'ST6',
+        msg,
         remoteFieldId: 2,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -284,11 +294,14 @@ const getST19 = (): Matriz => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1-5.9+2
     const stepY = 70
+    const partNumber = '418720407'
+    const msg = 'ST19'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerBlack',
-        msg: 'ST19',
+        msg,
         remoteFieldId: 2,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -315,11 +328,14 @@ const getST11 = ():Matriz => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1    
     const stepY = 70
+    const partNumber = '418930907'
+    const msg = 'ST11'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerWhite',
-        msg: 'ST11',
+        msg,
         remoteFieldId: 2,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -345,11 +361,14 @@ const getST14 = ():Matriz => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1    
     const stepY = 70
+    const partNumber = '418720608'
+    const msg = 'ST14'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerWhite',
-        msg: 'ST14',
+        msg,
         remoteFieldId: 2,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -375,11 +394,14 @@ const getST22 = ():Matriz => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1    
     const stepY = 70
+    const partNumber = '418720607'
+    const msg = 'ST22'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerWhite',
-        msg: 'ST22',
+        msg,
         remoteFieldId: 2,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -405,11 +427,14 @@ const getST12 = ():Matriz => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1    
     const stepY = 70
+    const partNumber = '418948706'
+    const msg = 'ST12'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerWhite',
-        msg: 'ST12',
+        msg,
         remoteFieldId: 2,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -431,51 +456,72 @@ const getST12 = ():Matriz => {
 }
 
 const get25400 = (): Matriz => {
+    const partNumber = 'P00171172'
+    const msg = '25400'
+    const barCode = `M#${partNumber}-${msg}`
     return {
         ...get25002B(),
-        msg: '25400'
+        msg, partNumber, barCode,
     }
 }
 
 const get25401 = (): Matriz => {
+    const partNumber = 'P00171172'
+    const msg = '25401'
+    const barCode = `M#${partNumber}-${msg}`
     return {
         ...get25002B(),
-        msg: '25401'
+        msg, partNumber, barCode,
     }
 }
 
 const get25402A = (): Matriz => {
+    const partNumber = 'P00171172'
+    const msg = '25402 A'
+    const barCode = `M#${partNumber}-${msg}`
     return {
         ...get25002B(),
-        msg: '25402 A'
+        msg, partNumber, barCode,
     }
 }
 
 const get25603 = (): Matriz => {
+    const partNumber = 'P00171172'
+    const msg = '25603'
+    const barCode = `M#${partNumber}-${msg}`
     return {
         ...get25002B(),
-        msg: '25603'
+        msg, partNumber, barCode,
     }
 }
 
 const get25402B = (): Matriz => {
+    const partNumber = 'P00171172'
+    const msg = '25402 B'
+    const barCode = `M#${partNumber}-${msg}`
     return {
         ...get25002B(),
-        msg: '25402 B'
+        msg, partNumber, barCode,
     }
 }
 
 const get25006A = (): Matriz => {
+    const partNumber = 'P00171172'
+    const msg = '25006 A'
+    const barCode = `M#${partNumber}-${msg}`
     return {
         ...get25002B(),
-        msg: '25006 A'
+        msg, partNumber, barCode,
     }
 }
 
 const get61140 = (): Matriz => {
+    const partNumber = 'P00171172'
+    const msg = '61140'
+    const barCode = `M#${partNumber}-${msg}`
     return {
         ...get25002B(),
-        msg: '61140'
+        msg, partNumber, barCode,
     }
 }
 
@@ -485,11 +531,14 @@ const getST13 = (): Matriz => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1+11-13-2
     const stepY = 70
+    const partNumber = '418720301'
+    const msg = 'ST13'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerBlack',
-        msg: 'ST13',
+        msg,
         remoteFieldId: 2,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -515,11 +564,14 @@ const get25810 = (): Matriz => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1+11
     const stepY = 70
+    const partNumber = '418718110'
+    const msg = '25810'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerWhite',
-        msg: '25810',
+        msg,
         remoteFieldId: 2,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -542,9 +594,12 @@ const get25810 = (): Matriz => {
 
 
 const get25006B = (): Matriz => {
+    const partNumber = 'P00171172'
+    const msg = '25006 B'
+    const barCode = `M#${partNumber}-${msg}`
     return {
         ...get25002B(),
-        msg: '25006 B'
+        msg, partNumber, barCode,
     }
 }
 
@@ -553,11 +608,14 @@ const get25002A = ():Matriz => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1
     const stepY = 70
+    const partNumber = 'P00171172'
+    const msg = '25002 A'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerWhite',
-        msg: '25002 A',
+        msg,
         remoteFieldId: 2,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -584,11 +642,14 @@ const get25402 = ():Matriz => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1
     const stepY = 70
+    const partNumber = '418718110'
+    const msg = '25402'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerWhite',
-        msg: '25402',
+        msg,
         remoteFieldId: 2,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -615,11 +676,14 @@ const get25705 = ():Matriz => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1
     const stepY = 70
+    const partNumber = '418718110'
+    const msg = '25705'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerWhite',
-        msg: '25705',
+        msg,
         remoteFieldId: 2,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -646,11 +710,14 @@ const get25894 = ():Matriz => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1
     const stepY = 70
+    const partNumber = '418718110'
+    const msg = '25894'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerWhite',
-        msg: '25894',
+        msg,
         remoteFieldId: 2,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -677,11 +744,14 @@ const get25002B = ():Matriz => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 336+2-1
     const stepY = 70
+    const partNumber = 'P00171172'
+    const msg = '25002 B'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerWhite',
-        msg: '25002 B',
+        msg,
         remoteFieldId: 2,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -707,11 +777,14 @@ const getST18 = ():Matriz => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87+10+10+5-3
     const stepY = 70
+    const partNumber = '418720304'
+    const msg = 'ST18'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerWhite',
-        msg: 'ST18',
+        msg,
         remoteFieldId: 2,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -752,11 +825,14 @@ const getV120 = (): Matriz => {
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
+    const partNumber = '418041170'
+    const msg = 'V120'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
+        partNumber,
         printer: 'printerWhite',
-        barCode: '',
-        msg:  'V120',
+        barCode,
+        msg,
         remoteFieldId: 2,
         impressoesX,
         linhasY,
@@ -786,11 +862,14 @@ const getP3A = ():Matriz => {
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
+    const partNumber = '418914690'
+    const msg = 'P3.A'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
+        partNumber,
         printer: 'printerWhite',
-        barCode: '',
-        msg:  'P3.A',
+        barCode,
+        msg,
         remoteFieldId: 2,
         impressoesX,
         linhasY,
@@ -820,11 +899,14 @@ const getT202 = (): Matriz => {
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
+    const partNumber = '418630400'
+    const msg = 'T202'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
+        partNumber,
         printer: 'printerWhite',
-        barCode: '',
-        msg:  'T202',
+        barCode,
+        msg,
         remoteFieldId: 2,
         impressoesX,
         linhasY,
@@ -835,20 +917,35 @@ const getT202 = (): Matriz => {
     }
 }
 
-const getE44B1 = ():Matriz => ({ 
-    ...getE44B6(), 
-    msg: 'E44.B1', 
-})
+const getE44B1 = ():Matriz => {
+    const partNumber = 'P00146913'
+    const msg = 'E44.B1'
+    const barCode = `M#${partNumber}-${msg}`
+    return { 
+        ...getE44B6(), 
+        msg, partNumber, barCode, 
+    }
+}
 
-const getE44B2 = ():Matriz => ({ 
-    ...getE44B6(), 
-    msg: 'E44.B2', 
-})
+const getE44B2 = ():Matriz => {
+    const partNumber = 'P00146394'
+    const msg = 'E44.B2'
+    const barCode = `M#${partNumber}-${msg}`
+    return { 
+        ...getE44B6(), 
+        msg, partNumber, barCode,
+    }
+}
 
-const getE44B5 = ():Matriz => ({ 
-    ...getE44B6(), 
-    msg: 'E44.B5', 
-})
+const getE44B5 = ():Matriz => {
+    const partNumber = 'P00124697'
+    const msg = 'E44.B5'
+    const barCode = `M#${partNumber}-${msg}`
+    return { 
+        ...getE44B6(), 
+        msg, partNumber, barCode,
+    }
+}
 
 
 
@@ -873,11 +970,14 @@ const getP3 = (): Matriz => {
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
+    const partNumber = '491022010'
+    const msg = 'P3'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
+        partNumber,
         printer: 'printerWhite',
-        barCode: '',
-        msg:  'P3',
+        barCode,
+        msg,
         remoteFieldId: 3,
         impressoesX,
         linhasY,
@@ -888,9 +988,12 @@ const getP3 = (): Matriz => {
 }
 
 const getT125 = (): Matriz => {
+    const partNumber = 'P00105452'
+    const msg = 'T125'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        ... getT199(),
-        msg: 'T125',
+        ...getT199(),
+        msg, partNumber, barCode,
     }
 }
 
@@ -913,11 +1016,14 @@ const getT199 = (): Matriz => {
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
+    const partNumber = 'P00105452'
+    const msg = 'T199'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
+        partNumber,
         printer: 'printerWhite',
-        barCode: '',
-        msg:  'T199',
+        barCode,
+        msg,
         remoteFieldId: 3,
         impressoesX,
         linhasY,
@@ -929,23 +1035,32 @@ const getT199 = (): Matriz => {
 }
 
 const getE44A1 = (): Matriz => {
+    const partNumber = 'P00147559'
+    const msg = 'E44.A1'
+    const barCode = `M#${partNumber}-${msg}`
     return {
         ...getE44A2(),
-        msg: 'E44.A1',
+        msg, partNumber, barCode,
     }
 }
 
 const getE44A3 = (): Matriz => {
+    const partNumber = 'P00146390'
+    const msg = 'E44.A3'
+    const barCode = `M#${partNumber}-${msg}`
     return {
         ...getE44A2(),
-        msg: 'E44.A3',
+        msg, partNumber, barCode,
     }
 }
 
 const getE44A7 = ():Matriz => {
+    const partNumber = 'P00146396'
+    const msg = 'E44.A7'
+    const barCode = `M#${partNumber}-${msg}`
     return {
         ...getE44A2(),
-        msg: 'E44.A7',
+        msg, partNumber, barCode,
     }
 }   
 
@@ -971,11 +1086,14 @@ const getV2 = (): Matriz => {
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
+    const partNumber = 'P00106422'
+    const msg = 'V2'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
+        partNumber,
         printer: 'printerWhite',
-        barCode: '',
-        msg:  'V2',
+        barCode,
+        msg,
         remoteFieldId: 3,
         impressoesX,
         linhasY,
@@ -992,11 +1110,14 @@ const getTermo2559370 = (): Matriz => {
     const stepX = (104.96+15.24)
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87+13.6-(7+5)
     const stepY = 60
+    const partNumber = '491022010'
+    const msg = '2559370'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerWhite',
-        msg:  '2559370',
+        msg,
         remoteFieldId: 3,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -1018,10 +1139,6 @@ const getTermo2559370 = (): Matriz => {
 }
 
 const getT123 = (): Matriz => {
-    const partNumber = ''
-    const printer:Printers = 'printerWhite'
-    const msg = 'T123'
-    const remoteFieldId = 3
     const zLevel = Milimeter(0) // (o quanto o cabecote desce em milimetros) in milimeter relative to MinZ
     const firstX = 150+13.66-28.5-10.10+70-35.44-15+9.67-2.5+4.3+8.68-2.72
     const stepX = 70
@@ -1041,11 +1158,14 @@ const getT123 = (): Matriz => {
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
+    const partNumber = 'P00205916'
+    const msg = 'T123'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerWhite',
-        msg: 'T123',
+        msg,
         printVelocity: 1700,
         passes: 2,
         remoteFieldId: 3,
@@ -1056,9 +1176,12 @@ const getT123 = (): Matriz => {
 }
 
 const getTermo2559371 = (): Matriz => {
+    const partNumber = '491022010'
+    const msg = '2559371'
+    const barCode = `M#${partNumber}-${msg}`
     return {
         ...getTermo2559370(),
-        msg: '2559371',
+        msg, partNumber, barCode,
     }
 }
 
@@ -1067,11 +1190,14 @@ const getE44A2 = (): Matriz => {
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87
     const stepY = 70
+    const partNumber = 'P00147560'
+    const msg = 'E44.A2'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerBlack',
-        msg: 'E44.A2',
+        msg,
         remoteFieldId: 4,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -1092,16 +1218,19 @@ const getE44A2 = (): Matriz => {
     } 
 }
 
-const get2327504 = (): Matriz => {
+/*const get2327504 = (): Matriz => {
     const firstX = 150+13.66-28.5-10.10+70-50-6.5
     const stepX = 70
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87+34.40-6
     const stepY = 70
+    const partNumber = // mensagem e partnuber nao localizado na tabela, ver com carlos (é o mesmo o T5 abaixo?)
+    const msg = '2327504'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerWhite',
-        msg: '2327504',
+        msg,
         remoteFieldId: 3,
         printVelocity: 1700,
         zLevel: Milimeter(0),
@@ -1126,13 +1255,16 @@ const getT5 = ():Matriz => {
     const ref = get2327504()
     const { impressoesX } = ref
     const newImpressoesX = impressoesX.map( x => Milimeter(x.value + 25))
+    const partNumber = // mensagem e partnuber nao localizado na tabela, ver com carlos (é o mesmo da Matriz acima)
+    const msg = 'T5'
+    const barCode = `M#${partNumber}-${msg}`
     return {
         ... ref,
-        msg: 'T5',
+        msg, partNumber, barCode,
         impressoesX: newImpressoesX,
     }
 }
-
+*/
 const getE44B6 = (): Matriz => {
 
     const E44_A2 = getE44A2()
@@ -1149,11 +1281,15 @@ const getE44B6 = (): Matriz => {
 
     const test = [linhasY_adjusted[0], linhasY_adjusted[6]]
 
+    const partNumber = 'P00124718'
+    const msg = 'E44.B6'
+    const barCode = `M#${partNumber}-${msg}`
+
     return {
         ...E44_A2,
-        partNumber: '',
-        barCode: '',
-        msg: 'E44.B6',
+        partNumber,
+        barCode,
+        msg,
         passes:2,
         remoteFieldId: 3,
         printer: 'printerWhite',
@@ -1163,16 +1299,22 @@ const getE44B6 = (): Matriz => {
 }
 
 const getE44A5 = (): Matriz => {
+    const partNumber = 'P00146389'
+    const msg = 'E44.A5'
+    const barCode = `M#${partNumber}-${msg}`
     return {
         ...getE44A2(),
-        msg: 'E44.A5'
+        msg, partNumber, barCode
     }
 }
 
 const getE44A6 = (): Matriz => {
+    const partNumber = 'P00146388'
+    const msg = 'E44.A6'
+    const barCode = `M#${partNumber}-${msg}`
     return {
         ...getE44A2(),
-        msg: 'E44.A6'
+        msg, partNumber, barCode
     }
 }
 
@@ -1196,11 +1338,14 @@ const getV17 = (): Matriz => {
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
         //Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
+    const partNumber = '418889500'
+    const msg = 'V17'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
+        partNumber,
         printer: 'printerWhite',
-        barCode: '',
-        msg:  'V17',
+        barCode,
+        msg,
         remoteFieldId: 3,
         impressoesX,
         linhasY,
@@ -1231,11 +1376,14 @@ const getT110 = (): Matriz => {
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
         Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
     ]
+    const partNumber = 'P00146385'
+    const msg = 'T110'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
+        partNumber,
         printer: 'printerWhite',
-        barCode: '',
-        msg:  'T110',
+        barCode,
+        msg,
         remoteFieldId: 3,
         impressoesX,
         linhasY,
@@ -1252,11 +1400,14 @@ const getTermoM1 = (): Matriz => {
     const stepX = (104.96+15.24)
     const posicaoYDaLinha5EmMilimetros = 150+220-10-10+3-2-2.6+1.5-8.26-3.11-20+3.87+13.6+3.21
     const stepY = 60
+    const partNumber = '491022010'
+    const msg = 'M1'
+    const barCode = `M#${partNumber}-${msg}`
     return {
-        partNumber: '',
-        barCode: '',
+        partNumber,
+        barCode,
         printer: 'printerWhite',
-        msg: 'M1',
+        msg,
         remoteFieldId: 3,
         printVelocity: 1700,
         zLevel: Milimeter(0),
