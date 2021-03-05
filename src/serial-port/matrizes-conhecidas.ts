@@ -357,9 +357,11 @@ const getST11 = ():Matriz => {
 }
 
 const getST14 = ():Matriz => {
-    const firstX = 155-9.5-6+4.8+2.5  
+
+	//igual ao st11 porem tinta preta
+    const firstX = 155-9.5-6+4.8+2.5 -18.05 +70
     const stepX = 70
-    const posicaoYDaLinha5EmMilimetros = 336+2-1    
+    const posicaoYDaLinha5EmMilimetros = 336+2-1-5 
     const stepY = 70
     const partNumber = '418720608'
     const msg = 'ST14'
@@ -386,8 +388,9 @@ const getST14 = ():Matriz => {
             Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
             Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
         ]
-    } 
+    }
 }
+
 
 const getST22 = ():Matriz => {
     const firstX = 155-9.5-6+4.8+2.5  
@@ -423,9 +426,11 @@ const getST22 = ():Matriz => {
 }
 
 const getST12 = ():Matriz => {
-    const firstX = 155-9.5-6+4.8+2.5  
+
+	//igual ao st11 porem tinta preta
+    const firstX = 155-9.5-6+4.8+2.5 -18.05+70
     const stepX = 70
-    const posicaoYDaLinha5EmMilimetros = 336+2-1    
+    const posicaoYDaLinha5EmMilimetros = 336+2-1-5 
     const stepY = 70
     const partNumber = '418948706'
     const msg = 'ST12'
@@ -452,7 +457,7 @@ const getST12 = ():Matriz => {
             Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
             Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
         ]
-    } 
+    }
 }
 
 const get25400 = (): Matriz => {
@@ -485,14 +490,37 @@ const get25402A = (): Matriz => {
     }
 }
 
-const get25603 = (): Matriz => {
+const get25603 = ():Matriz => {
+    const firstX = 155-9.5-6+4.8-1+2
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 336+2-1-1
+    const stepY = 70
     const partNumber = 'P00171172'
     const msg = '25603'
     const barCode = `M#${partNumber}-${msg}`
     return {
-        ...get25002B(),
-        msg, partNumber, barCode,
-    }
+        partNumber,
+        barCode,
+        printer: 'printerWhite',
+        msg,
+        remoteFieldId: 2,
+        printVelocity: 1700,
+        zLevel: Milimeter(0),
+        impressoesX: [
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+        ],
+        linhasY: [
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
+        ]
+    } 
 }
 
 const get25402B = (): Matriz => {
@@ -515,15 +543,41 @@ const get25006A = (): Matriz => {
     }
 }
 
-const get61140 = (): Matriz => {
+// formato do conector: "Robozinho"
+const get61140 = ():Matriz => {
+    const firstX = 155-9.5-6+4.8-1+2
+    const stepX = 70
+    const posicaoYDaLinha5EmMilimetros = 336+2-1-1
+    const stepY = 70
     const partNumber = 'P00171172'
     const msg = '61140'
     const barCode = `M#${partNumber}-${msg}`
     return {
-        ...get25002B(),
-        msg, partNumber, barCode,
-    }
+        partNumber,
+        barCode,
+        printer: 'printerWhite',
+        msg,
+        remoteFieldId: 2,
+        printVelocity: 1700,
+        zLevel: Milimeter(0),
+        impressoesX: [
+            Milimeter(firstX+(stepX*0)),Milimeter(firstX+(stepX*1)),
+            Milimeter(firstX+(stepX*2)),Milimeter(firstX+(stepX*3)),
+            Milimeter(firstX+(stepX*4)),Milimeter(firstX+(stepX*5)),
+        ],
+        linhasY: [
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-4))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-3))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-2))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(-1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(0))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(1))),
+            Milimeter(posicaoYDaLinha5EmMilimetros+(stepY*(2))),
+        ]
+    } 
 }
+
+
 
 
 const getST13 = (): Matriz => {
@@ -640,7 +694,7 @@ const get25002A = ():Matriz => {
 const get25402 = ():Matriz => {
     const firstX = 155-9.5-6+4.8
     const stepX = 70
-    const posicaoYDaLinha5EmMilimetros = 336+2-1
+    const posicaoYDaLinha5EmMilimetros = 336+2-1+13
     const stepY = 70
     const partNumber = '418718110'
     const msg = '25402'
@@ -674,7 +728,7 @@ const get25402 = ():Matriz => {
 const get25705 = ():Matriz => {
     const firstX = 155-9.5-6+4.8
     const stepX = 70
-    const posicaoYDaLinha5EmMilimetros = 336+2-1
+    const posicaoYDaLinha5EmMilimetros = 336+2-1+13
     const stepY = 70
     const partNumber = '418718110'
     const msg = '25705'
@@ -708,7 +762,7 @@ const get25705 = ():Matriz => {
 const get25894 = ():Matriz => {
     const firstX = 155-9.5-6+4.8
     const stepX = 70
-    const posicaoYDaLinha5EmMilimetros = 336+2-1
+    const posicaoYDaLinha5EmMilimetros = 336+2-1+13
     const stepY = 70
     const partNumber = '418718110'
     const msg = '25894'
@@ -740,9 +794,9 @@ const get25894 = ():Matriz => {
 
 // formato do conector: "Robozinho"
 const get25002B = ():Matriz => {
-    const firstX = 155-9.5-6+4.8
+    const firstX = 155-9.5-6+4.8-1
     const stepX = 70
-    const posicaoYDaLinha5EmMilimetros = 336+2-1
+    const posicaoYDaLinha5EmMilimetros = 336+2-1-1
     const stepY = 70
     const partNumber = 'P00171172'
     const msg = '25002 B'
@@ -1218,6 +1272,8 @@ const getE44A2 = (): Matriz => {
     } 
 }
 
+// ISTO AQUI FOI UM DESVIO POIS UMA MAQUINA DELES QUEBROU E ELES QUISERAM TENTAR IMPRIMIR NA MAQUINA POSIJET
+// DAI DEU CERTO, POREM ESTOU EXCLUINDO APENAS PORQUE FOI UMA QUESTAO PROVISORIA (O PRODUTO ERA UMA TERMO-RETRATIL ONDE DEVERIA HAVER UMA IMPRESSAO)
 /*const get2327504 = (): Matriz => {
     const firstX = 150+13.66-28.5-10.10+70-50-6.5
     const stepX = 70
