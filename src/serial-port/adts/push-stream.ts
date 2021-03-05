@@ -1,17 +1,16 @@
 
 
+// enhancers
+export type HasComplete = Symbol
+export const HasFinished: HasComplete = Symbol()
+export type FinishablePush<A> = Push<A & HasComplete> 
+
 // -------
 
 import { Duration, TimePoint, TimePoint_ } from "../time"
 import { now } from "../utils"
 
 export type PushEmitter<A> = (receiver: (_:A) => void) => void 
-
-type PushAll<T extends readonly Push<any>[]> = {
-    [K in keyof T]: T[K] extends Push<infer R> ? R : never
-}
-type X = readonly [Push<number>, Push<string>, Push<number> ]
-type x = PushAll<X>
 
 // Push stream
 export type Push<A> = {
