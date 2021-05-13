@@ -1,8 +1,8 @@
 
-type NothingObject = undefined // should be used 'Symbol', but it is a little bit slower
-const NothingObject: NothingObject = undefined
+export type NothingObject = undefined // should be used 'Symbol', but it is a little bit slower
+export const NothingObject: NothingObject = undefined
 
-export type MaybeWorld<A> = { hasValue: true, value: A } | { hasValue: false, value: NothingObject }
+export type MaybeWorld<A> = ReturnType<Maybe<A>['unsafeRun']>
 
 export type Maybe<A> = {
     kind: 'Maybe'
@@ -88,7 +88,7 @@ const flatten: T['flatten'] = mma => Maybe( () => {
         return { hasValue: true, value: ma.value.unsafeRun().value as A}
 })
 
-const Maybe_: Maybe_ = {
+export const Maybe_: Maybe_ = {
     fromJust,
     fromNothing,
     flatten,
