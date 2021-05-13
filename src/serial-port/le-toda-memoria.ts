@@ -1,5 +1,5 @@
 import { BaudRate } from "../serial-local-driver";
-import { FrameCore } from "./cmpp-datalink-protocol";
+import { FrameCore } from "./cmpp/datalink/cmpp-datalink-protocol";
 import { executeInSequence } from "./promise-utils";
 import { Address, Axis } from "./global";
 import { sendCmpp } from "./send-receive-cmpp-datalink";

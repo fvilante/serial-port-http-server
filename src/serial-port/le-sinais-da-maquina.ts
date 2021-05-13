@@ -1,6 +1,6 @@
 import { Push } from "./adts/push-stream"
 import { bit_test } from "./bit-wise-utils"
-import { FrameCore } from "./cmpp-datalink-protocol"
+import { FrameCore } from "./cmpp/datalink/cmpp-datalink-protocol"
 import { Address } from "./global"
 import { sendCmpp } from "./send-receive-cmpp-datalink"
 

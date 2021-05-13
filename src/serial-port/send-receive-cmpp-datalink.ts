@@ -6,7 +6,7 @@ import {
     compileCoreFrame,
     flattenFrameSerialized,
     CmppDataLinkInterpreter,
-} from './cmpp-datalink-protocol'
+} from './cmpp/datalink/cmpp-datalink-protocol'
 import { BaudRate } from '../serial-local-driver'
 
 const CmppTimeout = 5000
@@ -37,10 +37,10 @@ export const sendCmpp = (
                 const handleByte = CmppDataLinkInterpreter(
                     //onFinished
                     (frameInterpreted, rawInput) => {
-                        //console.log(`Received a frame from CMPP on port ${portName}/${String(baudRate)}`)
-                        //console.log(`original input raw:`, rawInput)
-                        //console.log("Frame interpreted:")
-                        //console.table(frameInterpreted)
+                        console.log(`Received a frame from CMPP on port ${portName}/${String(baudRate)}`)
+                        console.log(`original input raw:`, rawInput)
+                        console.log("Frame interpreted:")
+                        console.table(frameInterpreted)
                         hasFinished().then( () => {
                             resolve(frameInterpreted)
                         })
@@ -48,7 +48,7 @@ export const sendCmpp = (
                     },
                     //onError
                     (errMsg, partialFrame, rawInput, state) => {
-                        //console.log(`Error on interpreting cmpp returned frame: ${errMsg}`) 
+                        console.log(`Error on interpreting cmpp returned frame: ${errMsg}`) 
                         hasError = true
                         hasFinished().then( () => {
                             const err = {errMsg, partialFrame, rawInput, state}

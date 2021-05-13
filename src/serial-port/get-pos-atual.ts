@@ -1,5 +1,5 @@
 import { BaudRate } from "../serial-local-driver"
-import { FrameCore, word2int } from "./cmpp-datalink-protocol"
+import { FrameCore, word2int } from "./cmpp/datalink/cmpp-datalink-protocol"
 import { setParam_ } from "./cmpp-memmap-layer"
 import { Driver } from "./mapa_de_memoria"
 import { sendCmpp } from "./send-receive-cmpp-datalink"
