@@ -12,6 +12,8 @@ export const setParam_ =
     <N extends GetAllNames<D>, T extends GetCastFromName<D,N>>(name: N, value: T)
     : Promise<void> => new Promise ( (resolve, reject) => {
 
+        console.log(`Enviando para cmpp parametro: '${name}' --> `,value)
+
         const valueToUint16 = (value:T):number => value as number
         const valueToUint8 = (value: T): number => value as number
         const valueToBoolean = (value:T): boolean => value as boolean

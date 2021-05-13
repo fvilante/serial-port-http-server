@@ -56,11 +56,12 @@ export const communicate = (
             })
             portOpened.write(dataToSend)
                 .then( () => {
-                    console.log(`gravado.`);                      
+                    console.log(`gravado.`, dataToSend);                      
                     id = setTimeout( () => {
+                        console.log('timeout de recepcao')
                         hasFinished_()
                             //.then( () => reject('Communication with serial device, timed out.'));
-                    }, timeout);
+                    }, 10000 /*timeout*/);
                 })
         })
 
