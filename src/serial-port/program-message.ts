@@ -12,8 +12,9 @@ export const programMessage = async (printer: Printers,remoteFieldId: number, ms
     const e = Address['Printers'][printerToEnable]
     const d = Address['Printers'][printerToDisable]
     const emptyMessage = ''
-    await sendPrinter2(d.portName, d.baudRate)(remoteFieldId,emptyMessage)
-    await sendPrinter2(e.portName, e.baudRate)(remoteFieldId,msg)
+    // FIX: I turned off the print communication because I'm in Posijet lab
+    //await sendPrinter2(d.portName, d.baudRate)(remoteFieldId,emptyMessage)
+    //await sendPrinter2(e.portName, e.baudRate)(remoteFieldId,msg)
     await delay(500) // FIX: this delay May be unecessary
     return [remoteFieldId, msg]
 }
