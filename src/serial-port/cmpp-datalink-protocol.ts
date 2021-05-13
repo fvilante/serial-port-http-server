@@ -4,6 +4,11 @@
 
 // example valid frame: [0x1B,0x02,0x00,0x1C,0x00,0x00,0x1B,0x03,0xDF]
 
+// -------
+
+// ======== COMMON DEFINITIONS =============
+
+// Define protocol's control chars
 type ESC = 0x1B
 type STX = 0x02
 type ETX = 0x03
@@ -17,30 +22,19 @@ const ACK: ACK = 0x06
 const NACK: NACK = 0x15 
 
 
+// Define protocol direction chars
 export type DirectionKeys = keyof Direction
-
-export type Direction = {
-    readonly Solicitacao: 0;
-    readonly MascaraParaResetar: 64;
-    readonly MascaraParaSetar: 128;
-    readonly Envio: 192;
-}
-
-export const Direction: Direction = {
-    Solicitacao: 0,
-    MascaraParaResetar: 0x40,
-    MascaraParaSetar: 0x80,
-    Envio: 0xC0,
+export type Direction = typeof Direction
+export const Direction = {
+    Solicitacao: 0 as const,
+    MascaraParaResetar: 0x40 as const,
+    MascaraParaSetar: 0x80 as const,
+    Envio: 0xC0 as const,
 } 
 
-
-type StartByte = {
-    STX: STX;
-    ACK: ACK;
-    NACK: NACK;
-}
-
-const StartByte: StartByte = {
+// Define what is considered start byte
+type StartByte = typeof StartByte
+const StartByte= {
     STX: STX,
     ACK: ACK,
     NACK: NACK,
@@ -61,7 +55,7 @@ const StartByteToText = (_: StartByteNum):StartByteTxt => {
 }
 
 
-// out
+// ======== 16 BITS WORD CONVERSIONS =============
 
 export function word2int(dadoH: number, dadoL: number): number {
     // fix: check if dadoH and dadoL is beetween 0 and 0xff
@@ -76,38 +70,7 @@ export function int2word(uint16: number): [dadoH: number, dadoL: number] {
     return [dadoH, dadoL]
 }
 
-
-export type FrameCore = {
-    startByte: StartByteTxt
-    direction: keyof Direction
-    channel: number
-    waddr: number // abbreviation of 'word address', this is how I call 'cmd'
-    uint16: number // data
-}
-export const FrameCore = (startByte: StartByteTxt, direction: keyof Direction, channel: number, waddr: number, uint16: number): FrameCore => 
-    ({ startByte, direction, channel, waddr, uint16})
-
-
-export type FrameSerialized = [
-    [firstEsc: ESC],
-    [startByte: StartByteNum],
-    [dirChan: number] | [dirChan: ESC, escDup: ESC],
-    [waddr: number] | [waddr: ESC, escDup: ESC],
-    [dataLow: number] | [dataLow: ESC, escDup: ESC],
-    [dataHigh: number] | [dataHigh: ESC, escDup: ESC],
-    [lastEsc: ESC],
-    [etx: ETX],
-    [checkSum: number] | [checkSum: ESC, escDup: ESC],
-]
-
-export const flattenFrameSerialized = (a:FrameSerialized): readonly number[] => {
-    let acc: readonly number[] = []
-    for (const each of a) {
-        acc = [...acc, ...each]
-    }
-    return acc
-}
-
+// ======== COMMON FUNCTIONS =============
 
 const calcChecksum = (
     obj: readonly [dirChan: number, waddr: number, dataH: number, dataL: number], 
@@ -125,26 +88,63 @@ const calcChecksum = (
         return adjusted
 }
 
+
+// ======== OUTGOING DATA PROCESSING =============
+
+//
+export type FrameCore = {
+    startByte: StartByteTxt
+    direction: keyof Direction
+    channel: number
+    waddr: number // abbreviation of 'word address', this is how I call 'cmd'
+    uint16: number // data
+}
+
+// TODO: Create CoreFrame class, with method: Serialize and SerializeFlatten, getWord, getByteLow, and other picks
+//       You can use an interpreter to construct this kind of object when you are receiving data from cmpp.
+//       Also you can map the word of the frame and the mapping my send it in many formats (word, byte+byte, 16bits, etc)
+export const FrameCore = (startByte: StartByteTxt, direction: keyof Direction, channel: number, waddr: number, uint16: number): FrameCore => 
+    ({ startByte, direction, channel, waddr, uint16})
+
+
+export type FrameSerialized = [
+    [firstEsc: ESC],
+    [startByte: StartByteNum],
+    [dirChan: number] | [dirChan: ESC, escDup: ESC],
+    [waddr: number] | [waddr: ESC, escDup: ESC],
+    [dataLow: number] | [dataLow: ESC, escDup: ESC],
+    [dataHigh: number] | [dataHigh: ESC, escDup: ESC],
+    [lastEsc: ESC],
+    [etx: ETX],
+    [checkSum: number] | [checkSum: ESC, escDup: ESC],
+]
+
+export const flattenFrameSerialized = (a: FrameSerialized): readonly number[] => {
+    // FIX: this function may be generalized for flatten any type of array
+    let acc: readonly number[] = []
+    for (const each of a) {
+        acc = [...acc, ...each]
+    }
+    return acc
+}
+
+// fix: change name to 'serializeFrameCore' or 'serializeCoreFrame'
 export const compileCoreFrame = (core: FrameCore): FrameSerialized => {
 
-    const dupIfNecessary = 
-        (uint8: number): [uint8: number] | [uint8: ESC, escDup: ESC] => {
+    const dupIfNecessary = (uint8: number): [uint8: number] | [uint8: ESC, escDup: ESC] => {
             return uint8 !== ESC 
                 ? [uint8]
                 : [uint8, ESC]
     }
 
     // fix: validate range of channel, waddr, etc.
-    const { startByte, channel, waddr} = core
+    const { startByte, direction, channel, waddr, uint16} = core
     const startByte_ = StartByte[startByte]
-    const dir = Direction[core.direction]
-    const dirChan = dir + channel
-    const [dataHigh, dataLow] = int2word(core.uint16)
+    const direction_ = Direction[direction]
+    const dirChan = direction_ + channel
+    const [dataHigh, dataLow] = int2word(uint16)
     const checksum = calcChecksum([dirChan, waddr, dataHigh, dataLow], startByte)
-    // tip: What if we return a unflatted array, where dup esc is inside an array
-    //      ex: [ESC, STX, [dirChan] | [dirChan, escDup], ...]
-    //      I just will not do that now because I don't have an easily accessible 
-    //      array flattening function.
+
     return [
         [ESC], 
         [startByte_], 
@@ -201,10 +201,6 @@ const resetInterpreter = ():void => {
     state = 'Waiting first Esc'
     waitingEscDup = false
     frame = { }
-    /*if (tid !== undefined) { 
-        clearTimeoutFunc(tid);
-        tid = undefined
-    }*/
 };
 resetInterpreter();
 
@@ -241,22 +237,11 @@ const InterpretIncomming = (
             const waddr = frame__.waddr === undefined ? 0 : frame__.waddr[0]
             const dataH = frame__.dataHigh === undefined ? 0 : frame__.dataHigh[0]
             const dataL = frame__.dataLow === undefined ? 0 : frame__.dataLow[0]
-            const defaultStByte =  StartByteToText(validStartBytes[0]) // anything
+            const defaultStByte = StartByteToText(validStartBytes[0]) // anything
             const startByte = frame__.startByte === undefined ? defaultStByte : StartByteToText(frame__.startByte[0])
             const chksum = calcChecksum([dirChan, waddr, dataH, dataL], startByte)
             return chksum
         }
-
-        /*
-        const timeOut = () => {
-            error_(`Timeout on cmpp datalink input interpretation. Timeout defined in ${timeOutMilisec} milisecs.`,
-            frame,
-            acc,
-            state)
-            resetInterpreter();
-        }
-        tid = setTimeoutFunc( () => timeOut(), timeOutMilisec);
-        */
 
         const cur_ = uint8 // current byte
         acc = [...acc, uint8]
@@ -271,6 +256,15 @@ const InterpretIncomming = (
                     frame = { ...frame, [pos]: [cur_] }
                     state = nextState
                 } else {
+                    //console.log(`WARNING: Expected First Esc (${ESC} decimal) but got other thing (${cur_} decimal)`)
+                    //resetInterpreter()
+                    
+                    // NOTE: I found a bug which is, CMPP00LG on operation for some reason I don't know,
+                    // send some trash data between frame packet it sends.
+                    // I'm not sure it is a 'noise' problem, because it consistently happens between frames
+                    // and not inside the frame. It occurs after tenths or hundreds of packet sent.
+                    // For this reason I'll remove below lines which is causing a fatal error when this
+                    // phenomenon happnes, and exchange the error for a warning instead.
                     error_(
                         `Expected First Esc (${ESC} decimal) but got other thing (${cur_} decimal)`,
                         frame,
@@ -471,6 +465,12 @@ const InterpretIncomming = (
 
         if (onInternalStateChange!==undefined) {
             onInternalStateChange(state,frame,waitingEscDup,acc)
+        } else {
+            console.log(`-----------------------------`)
+            console.log(`state =`,state )
+            console.log(`frame =`,frame)
+            console.log(`waitingEscDup = `, waitingEscDup)
+            console.log(`acc = `, acc)
         }
 
         return resetInterpreter
