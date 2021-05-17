@@ -1,3 +1,4 @@
+import { Push } from "../push-stream"
 
 export type Iterated<A> = ReturnType<PullWorld<A>['next']>
 
@@ -10,6 +11,9 @@ export type Pull<A> = {
     }
     forEach: (f: (_:A) => void) => void
     map: <B>(f: (_:A) => B) => Pull<B>
+
+    // tools
+    pushWith: <B>(p: Push<B>) => Push<[Iterated<A>,B]>
 }
 
 export const Pull = <A>(world: () => PullWorld<A>): Pull<A> => {
@@ -39,13 +43,19 @@ export const Pull = <A>(world: () => PullWorld<A>): Pull<A> => {
             }
         })
 
-  
+        const pushWith: T['pushWith'] = p => Push( receiver => {
+            const itor = unsafeRun()
+            p.unsafeRun( b => {
+                receiver([itor.next(), b])
+            })
+        })
 
     return {
         kind: 'Pull',
         unsafeRun,
         forEach,
         map,
+        pushWith,
     }
 }
 

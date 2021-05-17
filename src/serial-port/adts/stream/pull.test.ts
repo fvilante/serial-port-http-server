@@ -1,3 +1,4 @@
+import { Push_ } from "../push-stream"
 import { Pull, Pull_ } from "./pull"
 
 
@@ -108,6 +109,23 @@ describe('basic tests', () => {
         arr.forEach( value => buf.push(value) )
         //check
         expect(buf).toEqual(probe)
+    })
+
+    it('Can pull with a push working as a "venture" tube', async () => {
+        //prepare
+        let buf: [a:number|undefined, b:number][] = []
+        const as = [1,2,3]
+        const bs = [10,20,30,40,50,60]
+        const expected = [[1,10],[2,20],[3,30],[undefined,40],[undefined,50],[undefined,60]]
+        const as_ = Pull_.fromArray(as)
+        const bs_ = Push_.fromArray(bs)
+        //act
+        const action = as_.pushWith(bs_)
+        //check
+        action.unsafeRun( i => {
+            buf.push([i[0].value,i[1]])
+        })
+        expect(buf).toEqual(expected)
     })
 
 })
