@@ -1,5 +1,9 @@
 import { InferResult, Result_, Result } from "./result"
 
+// FIX: Can future be cancelated ? how ?
+//      I think it's possible to return an unsubscriber from the emitter function
+//      but how to make it not imperative and functional ? what methods should emerge from this pattern and how it's related to concept of 'fiber'
+
 type Receiver<A> = (received: A) => void
 type Emitter<A> = (receiver: Receiver<A>) => void
 
