@@ -1,5 +1,7 @@
 import { Push } from "../push-stream"
 
+// represents same data stream that may finish
+// FIX: I'm using this concept not only with pull but in push, should exists a better name
 export type Iterated<A> = ReturnType<PullWorld<A>['next']>
 
 export type PullWorld<A> = ReturnType<Pull<A>['unsafeRun']>
