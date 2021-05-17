@@ -9,8 +9,11 @@ export type FinishablePush<A> = Push<A & HasComplete>
 
 import { Duration, TimePoint, TimePoint_ } from "../time"
 import { now } from "../utils"
+import { Either, Either_ } from "./maybe/either"
 
 export type PushEmitter<A> = (receiver: (_:A) => void) => void 
+
+export type InferPush<T extends Push<unknown>> = T extends Push<infer A> ? A : never
 
 // Push stream
 export type Push<A> = {
@@ -21,7 +24,7 @@ export type Push<A> = {
     filter: (f: (_:A) => boolean) => Push<A>
     scan: <B>(reducer: (acc: B, cur: A) => B, initial: B) => Push<B>
     transform: <X>(f: (me:Push<A>) => X) => X
-    flatten: () => A extends Push<A> ? Push<A> : never
+    //flatten: () => A extends Push<A> ? Push<A> : never
     //all: <T extends Push<unknown>[]>(arr: T) => PushAll<T>
     tap: (f: (_:A) => void) => Push<A> // tap-before
     dropletWith: (f: (_:A) => boolean) => Push<readonly A[]> //fix: f should be a State<A> or other type (ie: Pull<A>... etc)
@@ -34,6 +37,10 @@ export type Push<A> = {
     timeStamp: () => Push<{value: A, timePoint: TimePoint}>
     timeInterval: () => Push<{value: A, interval: Duration}>
     //openClose: (open: A, close: A) => Push<readonly [open: A, middle: readonly A[], close: A]> //, continuation: Push<A>, beforeOpen: A[]]> // fix: change type of beforeOpen from A[] to a tuple based with length  based on static size 
+
+    //
+    take: (size: number) => Push<Either<'eof',A>>
+    //_collectAll: () => Future<readonly A[]> // attention: if timeout is not specified, then program can halt if size is not reached. Fix: Should be either readonly A or FixedArray<N,A>
 
 }
 
@@ -79,7 +86,7 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
 
     const transform: T['transform'] = f => f(Push(emitter))
 
-    const flatten: T['flatten'] = () => Push( receiver => {
+    /*const flatten: T['flatten'] = () => Push( receiver => {
         emitter( pa_ => {
             const pa = pa_ as unknown as Push<A>
             pa.unsafeRun( a => {
@@ -88,6 +95,7 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
 
         })
     }) as unknown as A extends Push<A> ? Push<A> : never
+    */
 
     const tap: T['tap'] = f => Push( receiver => {
         emitter( a => {
@@ -160,6 +168,19 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
             interval: state.delta as Duration,
         }))
 
+    const take: T['take'] = size => Push(receiver => {
+        let taken = 0
+        emitter( a => {
+            type A = typeof a
+            taken = taken + 1
+            if(taken <= size ) {
+                receiver(Either_.fromRight(a))
+            } else {
+                receiver(Either_.fromLeft('eof'))
+            }
+            
+        })
+    })
 
     
 
@@ -170,7 +191,7 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
         filter,
         scan,
         transform,
-        flatten: flatten,
+        //flatten: flatten,
         tap: tap,
         dropletWith: dropletWith,
 
@@ -180,5 +201,25 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
         // utils
         timeStamp,
         timeInterval,
+        take,
     }
+}
+
+export type Push_ = {
+    concat: <A>(mma: Push<Push<A>>) => Push<A>
+}
+
+type T = Push_
+
+const concat: T['concat'] = mma => Push( receiver => {
+        mma.unsafeRun( pa => {
+            pa.unsafeRun( a => {
+                receiver(a)
+            })
+        })
+    }) 
+
+
+export const Push_: Push_ = {
+    concat,
 }
