@@ -9,7 +9,7 @@ export type Future<A> = {
     kind: 'Future'
     unsafeRun: (_: Receiver<A>) => void
     runToAsync: () => () => Promise<A> // never should fails, all error treatment SHOULD be made inside A
-    async: () => Promise<A>
+    async: () => Promise<A> //async is designed to use 'await' keyword on futures
     map: <B>(f: (_:A) => B) => Future<B>
 }
 
