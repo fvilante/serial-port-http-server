@@ -8,8 +8,9 @@ export type FinishablePush<A> = Push<A & HasComplete>
 // -------
 
 import { Duration, TimePoint, TimePoint_ } from "../time"
-import { now } from "../utils"
+import { now, Range } from "../utils"
 import { Either, Either_ } from "./maybe/either"
+import { Iterated, Pull, Pull_ } from "./stream/pull"
 
 export type PushEmitter<A> = (receiver: (_:A) => void) => void 
 
@@ -206,10 +207,39 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
 }
 
 export type Push_ = {
+    fromArray: <A>(arr: readonly A[]) => Push<A>
+    fromInterval: <A>(intervals: Pull<number>) => Push<Iterated<number>>
+    //intervalG: <A>(f:(seq: number) => number, totalSeqs?: number) => Push<number> //attention f: must be monotonic function else behaviour should be unexpected (https://en.wikipedia.org/wiki/Monotonic_function)
     concat: <A>(mma: Push<Push<A>>) => Push<A>
+    range: (initialIncluded: number, finalNotIncluded: number, step: number) => Push<number>
 }
 
 type T = Push_
+
+const fromArray: T['fromArray'] = arr => Push(receiver => {
+    arr.map(receiver)
+})
+
+const fromInterval: T['fromInterval'] = intervals => Push( receiver => {
+    const itor = intervals.unsafeRun()
+    const timer = (timeout: number, run: () => void) => setTimeout( run, timeout)
+
+    const loop = () => {
+        //Fix: should use tail call optimization ADT for memory safety.
+        const i = itor.next()
+        if(i.done!==true) {
+            receiver(i)
+            timer(i.value, loop)
+        }
+    }
+
+    loop(); //start loop
+    //Note: Each step is created only after previous step has been finished.
+    //      This reduce any overload into run-time scheduler
+    
+
+
+})
 
 const concat: T['concat'] = mma => Push( receiver => {
         mma.unsafeRun( pa => {
@@ -219,7 +249,21 @@ const concat: T['concat'] = mma => Push( receiver => {
         })
     }) 
 
+const range: T['range'] = (ini, end, step) => Push( yield_ => {
+    //fix: use a safer algorithm, should use ../utils/range.ts ? 
+    for (let k=ini; k<end; k=k+step) {
+        console.log('teste*********************')
+        yield_(k)
+    }
+    
+})
 
 export const Push_: Push_ = {
+    fromArray,
+    fromInterval,
+    //intervalG,
     concat,
+    range,
 }
+
+

@@ -1,4 +1,5 @@
 
+export type Iterated<A> = ReturnType<PullWorld<A>['next']>
 
 export type PullWorld<A> = ReturnType<Pull<A>['unsafeRun']>
 
@@ -7,7 +8,7 @@ export type Pull<A> = {
     unsafeRun: () => {
         next: () => { done: false, value: A } | { done: true, value: undefined }
     }
-
+    forEach: (f: (_:A) => void) => void
     map: <B>(f: (_:A) => B) => Pull<B>
 }
 
@@ -16,6 +17,15 @@ export const Pull = <A>(world: () => PullWorld<A>): Pull<A> => {
     type T = Pull<A>
 
     const unsafeRun: T['unsafeRun'] = world
+
+    const forEach: T['forEach'] = f => {
+        const itor = world()
+        let i = itor.next()
+        while(i.done===false) {
+            f(i.value as A)
+            i = itor.next()
+        }
+    }
 
     const map: T['map'] = f => Pull( () => {
         const itor = unsafeRun()
@@ -34,6 +44,7 @@ export const Pull = <A>(world: () => PullWorld<A>): Pull<A> => {
     return {
         kind: 'Pull',
         unsafeRun,
+        forEach,
         map,
     }
 }
@@ -42,6 +53,7 @@ export const Pull = <A>(world: () => PullWorld<A>): Pull<A> => {
 export type Pull_ = {
     //range: (ini: number, end:number, step: number) => Pull<number>
     fromArray: <A>(arr: readonly A[]) => Pull<A>
+    //makeIntervals: (intervals: Pull<number>) => Pull<Future<number>> // each number pulled is used to configure a timeout in relation from the last one
 }
 
 type T = Pull_
@@ -58,8 +70,6 @@ const fromArray: T['fromArray'] = arr => Pull( () => {
             
         }
     })
-
-
 
 export const Pull_: Pull_ = {
     fromArray,

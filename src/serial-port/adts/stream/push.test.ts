@@ -1,4 +1,5 @@
 import { Push, Push_ } from "../push-stream"
+import { Pull_ } from "./pull"
 
 
 describe('basic tests', () => {
@@ -153,6 +154,38 @@ describe('basic tests', () => {
             buf.push(val)
         })
         expect(buf).toEqual(expected)   
+    })
+
+    it('Can push a range of numbers', async () => {
+        //prepare
+        let buf: number[] = []
+        const expected = [10,12,14,16,18]
+        //act
+        const stream = Push_.range(10,20,2)
+        //check
+        stream.unsafeRun( actual => {
+            buf.push(actual)
+        })
+        expect(buf).toEqual(expected)
+        
+    })
+
+    it("Can push a stream of timed intervals", async () => {
+        //prepare
+        jest.useFakeTimers();
+        const intervals = Pull_.fromArray([1000,2000,3000])
+        //act
+        const stream = Push_.fromInterval(intervals)
+        //check
+        
+        stream.unsafeRun( actual => {
+            console.log(`********** Dentro= ${actual.value}**********`)
+
+        })
+        //jest.runOnlyPendingTimers();
+        jest.runAllTimers();
+        expect(setTimeout).toHaveBeenCalledTimes(3)
+        
     })
     
 })

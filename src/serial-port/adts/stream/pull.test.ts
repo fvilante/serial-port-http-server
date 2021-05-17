@@ -15,6 +15,18 @@ describe('basic tests', () => {
         expect(actual).toEqual(expected)
     })
 
+    it('Can pull no value from an Array', async () => {
+        //prepare
+        const arr: any[] = []
+        //act
+        const action = Pull_.fromArray(arr)
+        //check
+        const itor = action.unsafeRun()
+        const actual = itor.next()
+        const expected = { done: true, value: undefined}
+        expect(actual).toEqual(expected)
+    })
+
     it('Can pull multiple values from an Array', async () => {
         //prepare
         let buf = []
@@ -85,6 +97,17 @@ describe('basic tests', () => {
         const actual = [actual1, actual2, actual3, actual4, actual5]
         const expected = [expected1, expected2, expected3, expected4, expected5]
         expect(actual).toEqual(expected)
+    })
+
+    it('Can perform a forEach in all values as fast as possible', async () => {
+        //prepare
+        let buf: number[] = []
+        const probe = [1,2,3,4,5]
+        const arr = Pull_.fromArray(probe)
+        //act
+        arr.forEach( value => buf.push(value) )
+        //check
+        expect(buf).toEqual(probe)
     })
 
 })
