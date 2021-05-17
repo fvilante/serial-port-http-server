@@ -1,7 +1,3 @@
-import { Push } from "./push-stream"
-
-
-
 
 export type Reduce<S,A> = {
     kind: 'Reduce'

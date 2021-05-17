@@ -1,4 +1,6 @@
-import { Push } from '../../serial-port/adts/push-stream'
+//import { Push } from '../../serial-port/adts/push-stream'
+
+type Push<A> = unknown //to be implemented
 
 const file = 'CMPP00LG-ASMCAST'
 const path = './' 
