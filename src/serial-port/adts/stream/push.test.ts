@@ -172,19 +172,16 @@ describe('basic tests', () => {
 
     it("Can push a stream of timed intervals", async () => {
         //prepare
-        jest.useFakeTimers();
+        jest.useFakeTimers(); // we don't need to wait real time to pass :)
         const intervals = Pull_.fromArray([1000,2000,3000])
         //act
         const stream = Push_.fromInterval(intervals)
         //check
-        
         stream.unsafeRun( actual => {
-            console.log(`********** Dentro= ${actual.value}**********`)
-
+            //nop
         })
-        //jest.runOnlyPendingTimers();
-        jest.runAllTimers();
-        expect(setTimeout).toHaveBeenCalledTimes(3)
+        jest.runAllTimers(); // but we need to wait all timers to run :)
+        expect(setTimeout).toHaveBeenCalledTimes(3) // I'm just couting how many times Setimeout has been called.
         
     })
     
