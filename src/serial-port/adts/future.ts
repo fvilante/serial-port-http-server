@@ -1,8 +1,18 @@
+import { Maybe, Maybe_ } from "./maybe"
+import { Either, Either_ } from "./maybe/either"
 import { InferResult, Result_, Result } from "./result"
+
+// fix: setTimeout should be hiden from implementation
+//      if all call to setTimeout pass through this future, we can
+//      distort time frame in the effects of application
+// fix: substitute all calls to setTimeout in all files by a call to setTimeout___
+const ____setTimeout = setTimeout 
+
 
 // FIX: Can future be cancelated ? how ?
 //      I think it's possible to return an unsubscriber from the emitter function
 //      but how to make it not imperative and functional ? what methods should emerge from this pattern and how it's related to concept of 'fiber'
+//      I think that Future<A,B> should be exists, where A is the emitter result, but B is the sync and imediate result from run the emiter once
 
 type Receiver<A> = (received: A) => void
 type Emitter<A> = (receiver: Receiver<A>) => void
@@ -21,6 +31,7 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
 
     type T = Future<A>
 
+    //fix: Assure that once settled future to not emit more values, even if a buggy emiter continues to send signals
     const unsafeRun: T['unsafeRun'] = receiver => emitter(receiver)
 
     const runToAsync: T['runToAsync'] = () => () => new Promise( (resolve, reject) => emitter(resolve) )
@@ -47,39 +58,109 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
 // static part
 
 export type Future_ = {
+    // FIX: milisecs should be a unit of time not of natural number
+    //_alarm: (milisecs: number ) => Future<[timePoint: Future<Maybe<number>>, cancelation: () => void]>  // if you cancel it'll return nothing, else it will return the number of msecs programmed after the time msecs has been passed
+    fromValue: <A>(value:A) => Future<A>
+    delay: <N extends number>(msecs: N) => Future<N> //Note: cannot be canceled, returns the number of msecs programed
+    delayCancelable: <A, N extends number = number>(msecs: N, cancelation: Future<A>) => Future<Either<N,A>> // left if not has been canceled (returns the msecs programed), right if has been canceled (returns the type of the cancelation promise)
+    race: <A,B>(f0: Future<A>, f1: Future<B>) => Future<Either<A,B>>
     mapResultA: <A,E,B>(mma: Future<Result<A,E>>, f: (_:A) => B) => Future<Result<B,E>>
     mapResultError: <A,E,E1>(mma: Future<Result<A,E>>, f: (_:E) => E1) => Future<Result<A,E1>>
+    
 }
 
 type T = Future_
+
+const fromValue: T['fromValue'] = value => Future( yield_ => yield_(value))
+
+const delay: T['delay'] = msecs => Future( yield_ => {
+    ____setTimeout( () => {
+        yield_(msecs);
+    }, msecs)
+})
+
+const delayCancelable: T['delayCancelable'] = (msecs, cancel) => {
+
+    return Future( yield_ => {
+        
+        let hasFullfilled = false
+
+        // fix: I ask myself if I could transform hasFullfilled into an Ref<A> or something in ADT format. If it's possible, how should it be and look like ? And if there is any advantage...
+        const timepoint = ____setTimeout( () => {
+            if(hasFullfilled===false) { // in theory this if check is unnecessary may be removed for improvement
+                hasFullfilled = true
+                yield_(Either_.fromLeft(msecs))
+            }
+        }, msecs)
+
+        cancel.unsafeRun( message => {
+            if(hasFullfilled===false) {
+                hasFullfilled = true
+                clearTimeout(timepoint)
+                yield_(Either_.fromRight(message))
+            }
+        })
+    })
+}
+
+
+const race: T['race'] = (f0, f1) => Future( yield_ => {
+
+    let hasFullfilled = false
+
+    f0.unsafeRun( a => {
+        if (hasFullfilled === false) {
+            hasFullfilled = true;
+            yield_(Either_.fromLeft(a));
+        }
+    })
+
+    f1.unsafeRun( b => {
+        if (hasFullfilled === false) {
+            hasFullfilled = true;
+            yield_(Either_.fromRight(b));
+        }
+    })
+
+})
+
 
 const mapResultA: T['mapResultA'] = (mma, f) => mma.map( ra => ra.map(f))
 
 const mapResultError: T['mapResultError'] = (mma, f) => mma.map( ra => ra.mapError(f))
 
 
+
 export const Future_: Future_ = {
+    //_alarm: _alarm,
+    
+    fromValue,
+    delay,
+    delayCancelable,
+    race,
     mapResultA,
     mapResultError,
 }
 
-
-
-// --------
-
+/*
 const Test1 = async () => {
 
-
-    const x = Future<Result<number,string>>( receiver => {
-        receiver(Result_.Ok(2))
+    console.log(`Setei alarme`)
+    const [run, cancel] = Future_._alarm(7000)
+    run.async().then( m => {
+        console.log('milisecs=',m)
+        console.log(`Alarme tocou`)
     })
 
-    const x2 = Future_.mapResultError(x, t => Number(t))
+    const [whatchDog] = Future_._alarm(12000)
+    whatchDog.unsafeRun( () => {
+        console.log('cancelando')
+        cancel();
+        console.log('cancelei')
+    })
 
-
-
-
+    
 
 }
 
-Test1();
+Test1();*/
