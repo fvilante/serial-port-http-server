@@ -9,17 +9,17 @@
 // ======== COMMON DEFINITIONS =============
 
 // Define protocol's control chars
-type ESC = 0x1B
-type STX = 0x02
-type ETX = 0x03
-type ACK = 0x06
-type NACK = 0x15
+export type ESC = 0x1B
+export type STX = 0x02
+export type ETX = 0x03
+export type ACK = 0x06
+export type NACK = 0x15
 
-const ESC: ESC = 0x1B 
-const STX: STX = 0x02 
-const ETX: ETX = 0x03 
-const ACK: ACK = 0x06
-const NACK: NACK = 0x15 
+export const ESC: ESC = 0x1B 
+export const STX: STX = 0x02 
+export const ETX: ETX = 0x03 
+export const ACK: ACK = 0x06
+export const NACK: NACK = 0x15 
 
 
 // Define protocol direction chars
@@ -33,8 +33,8 @@ export const Direction = {
 } 
 
 // Define what is considered start byte
-type StartByte = typeof StartByte
-const StartByte= {
+export type StartByte = typeof StartByte
+export const StartByte = {
     STX: STX,
     ACK: ACK,
     NACK: NACK,
@@ -43,7 +43,7 @@ const StartByte= {
 type StartByteTxt = keyof StartByte
 type StartByteNum = typeof StartByte[keyof StartByte]
 
-const StartByteToText = (_: StartByteNum):StartByteTxt => {
+export const StartByteToText = (_: StartByteNum):StartByteTxt => {
     //fix: should be less concrete
     //      what seems we want is an object-invertion-operation of 'StartByte' (maybe this is possible)
     const StartByte = {
@@ -72,7 +72,7 @@ export function int2word(uint16: number): [dadoH: number, dadoL: number] {
 
 // ======== COMMON FUNCTIONS =============
 
-const calcChecksum = (
+export const calcChecksum = (
     obj: readonly [dirChan: number, waddr: number, dataH: number, dataL: number], 
     startByte: StartByteTxt
     ): number  => {
@@ -207,7 +207,7 @@ resetInterpreter();
 // pushed interpretation, with talkback feedback for finished or error signaling
 // executes until error or finish
 // note: Should be in parameter a config data with what means the 'ESC' 'STX' etc.
-const InterpretIncomming = (
+export const InterpretIncomming = (
         ESC: ESC,
         validStartBytes: readonly [STX, ACK, NACK],
         ETX: ETX,
@@ -478,7 +478,6 @@ const InterpretIncomming = (
 }
 
 export const CmppDataLinkInterpreter = InterpretIncomming(ESC, [STX,ACK,NACK], ETX)   
-
 
 
 
