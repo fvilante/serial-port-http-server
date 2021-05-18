@@ -184,5 +184,26 @@ describe('basic tests', () => {
         expect(setTimeout).toHaveBeenCalledTimes(3) // I'm just couting how many times Setimeout has been called.
         
     })
+
+    it('it can scan simple numbers', async () => {
+        //prepare
+        const probe = [1,2,2,5,10,20,10] //total_sum=50
+        type S = number
+        const sum_ = (state: S, action: number):S => {
+            return action+state
+        }
+        //act
+        const stream = Push_
+            .fromArray(probe)
+            .scan(sum_,0)
+        //check
+        let actual: number[]  = []
+        stream.unsafeRun( actual_ => {
+            actual.push(actual_)
+        })
+        const expected = [1,3,5,10,20,40,50]
+        expect(actual).toEqual(expected)
+        
+    })
     
 })
