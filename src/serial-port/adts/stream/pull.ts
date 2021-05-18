@@ -13,6 +13,7 @@ export type Pull<A> = {
     }
     forEach: (f: (_:A) => void) => void
     map: <B>(f: (_:A) => B) => Pull<B>
+    //scanA: <B>(reducer: (acc:B, cur: A) => Future<B>, initial: Future<B>) => Pull<B>
 
     // tools
     pushWith: <B>(p: Push<B>) => Push<[Iterated<A>,B]>
@@ -45,6 +46,7 @@ export const Pull = <A>(world: () => PullWorld<A>): Pull<A> => {
             }
         })
 
+        //fix: rename this call to 'pullWith' instead 'pushWith'. I think it would be better
         const pushWith: T['pushWith'] = p => Push( receiver => {
             const itor = unsafeRun()
             p.unsafeRun( b => {
