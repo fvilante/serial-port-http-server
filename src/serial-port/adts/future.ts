@@ -6,6 +6,7 @@ import { InferResult, Result_, Result } from "./result"
 //      if all call to setTimeout pass through this future, we can
 //      distort time frame in the effects of application
 // fix: substitute all calls to setTimeout in all files by a call to setTimeout___
+// fix2: I substitute this const below to Future.__setTimeout
 const ____setTimeout = setTimeout 
 
 
@@ -58,6 +59,7 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
 // static part
 
 export type Future_ = {
+    __setTimeout: <N extends number,A>(run: (msecs:N) => void, msecs: N) => { cancel: () => void } // this is the master substitute of run-time original setTimeout
     // FIX: milisecs should be a unit of time not of natural number
     //_alarm: (milisecs: number ) => Future<[timePoint: Future<Maybe<number>>, cancelation: () => void]>  // if you cancel it'll return nothing, else it will return the number of msecs programmed after the time msecs has been passed
     fromValue: <A>(value:A) => Future<A>
@@ -71,10 +73,19 @@ export type Future_ = {
 
 type T = Future_
 
+const __setTimeout: T['__setTimeout'] = (run, msecs) => {
+    const timepoint = ____setTimeout( () => {
+        run(msecs);
+    }, msecs)
+    return {
+        cancel: () => clearTimeout(timepoint)
+    }
+}
+
 const fromValue: T['fromValue'] = value => Future( yield_ => yield_(value))
 
 const delay: T['delay'] = msecs => Future( yield_ => {
-    ____setTimeout( () => {
+    Future_.__setTimeout( () => {
         yield_(msecs);
     }, msecs)
 })
@@ -86,7 +97,7 @@ const delayCancelable: T['delayCancelable'] = (msecs, cancel) => {
         let hasFullfilled = false
 
         // fix: I ask myself if I could transform hasFullfilled into an Ref<A> or something in ADT format. If it's possible, how should it be and look like ? And if there is any advantage...
-        const timepoint = ____setTimeout( () => {
+        const timepoint = Future_.__setTimeout( () => {
             if(hasFullfilled===false) { // in theory this if check is unnecessary may be removed for improvement
                 hasFullfilled = true
                 yield_(Either_.fromLeft(msecs))
@@ -96,7 +107,7 @@ const delayCancelable: T['delayCancelable'] = (msecs, cancel) => {
         cancel.unsafeRun( message => {
             if(hasFullfilled===false) {
                 hasFullfilled = true
-                clearTimeout(timepoint)
+                timepoint.cancel();
                 yield_(Either_.fromRight(message))
             }
         })
@@ -133,7 +144,7 @@ const mapResultError: T['mapResultError'] = (mma, f) => mma.map( ra => ra.mapErr
 
 export const Future_: Future_ = {
     //_alarm: _alarm,
-    
+    __setTimeout,
     fromValue,
     delay,
     delayCancelable,
