@@ -4,10 +4,16 @@ export const NothingObject: NothingObject = undefined
 
 export type MaybeWorld<A> = ReturnType<Maybe<A>['unsafeRun']>
 
+export type MaybeMatcher<A,T> = {
+    Just: (value:A) => T
+    Nothing: () => T
+}
+
 export type Maybe<A> = {
     kind: 'Maybe'
     unsafeRun: () => { hasValue: true, value: A } | { hasValue: false, value: NothingObject }
     forEach: (f: (_:A) => void) => void
+    match: <T>(f: MaybeMatcher<A,T>) => T
     transform: <X>(f: (this_: Maybe<A>) => X) => X
     map: <B>(f: (_:A) => B) => Maybe<B>
     fmap: <B>(f: (_:A) => Maybe<B>) => Maybe<B>
@@ -33,6 +39,13 @@ export const Maybe = <A>(world: () => MaybeWorld<A>): Maybe<A> => {
         }
     }
 
+    const match: T['match'] = m => {
+        const r = unsafeRun()
+        return r.hasValue 
+            ? m.Just(r.value)
+            : m.Nothing()
+    }
+
     const transform: T['transform'] = f => f(Maybe(world))
 
     const map: T['map'] = f => {
@@ -56,6 +69,7 @@ export const Maybe = <A>(world: () => MaybeWorld<A>): Maybe<A> => {
         kind: 'Maybe',
         unsafeRun,
         forEach,
+        match,
         transform,
         map,
         fmap,

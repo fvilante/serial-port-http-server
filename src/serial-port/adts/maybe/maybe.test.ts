@@ -89,4 +89,21 @@ describe('Basic Tests', () => {
         expect(actual).toEqual(expected)
     })
 
+    it('Can match (eager)', async () => {
+        // prepare
+        const just = Maybe_.fromJust(2)
+        const nothing = Maybe_.fromNothing<number>()
+        const probe = [just, just, nothing, nothing] as const
+        const expected = [4,4,0,0] as const
+        const matcher = {
+            Just: (n:number) => n+2,
+            Nothing: () => 0 as const,
+        }
+        // act
+        const actual = probe.map( ma => ma.match(matcher))
+        //test
+        
+        expect(actual).toEqual(expected)
+    })
+
 })
