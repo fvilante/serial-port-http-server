@@ -20,12 +20,20 @@ type Emitter<A> = (receiver: Receiver<A>) => void
 
 type FutureWorld<A> = Emitter<A>
 
+export type InferFuture<T extends Future<unknown>> = T extends Future<infer A> ? A : never
+
+type Flatten<T extends readonly unknown[]> = T extends unknown[] ? _Flatten<T>[] : readonly _Flatten<T>[];
+type _Flatten<T> = T extends readonly (infer U)[] ? _Flatten<U> : T;
+
 export type Future<A> = {
     kind: 'Future'
     unsafeRun: (_: Receiver<A>) => void
     runToAsync: () => () => Promise<A> // never should fails, all error treatment SHOULD be made inside A
     async: () => Promise<A> //async is designed to use 'await' keyword on futures
     map: <B>(f: (_:A) => B) => Future<B>
+    fmap: <B>(f: (_:A) => Future<B>) => Future<B>
+    tap: (f: (_:A) => void) => Future<A> //tap 'before' yield the value to the downstream
+
 }
 
 export const Future = <A>(emitter: (receiver: (received: A) => void) => void): Future<A> => {
@@ -40,9 +48,18 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
     const async: T['async'] = runToAsync()
 
     const map: T['map'] = f => Future( receiver => {
-        emitter( a => {
+        emitter( a => { //fix: change 'emitter' to unsafeRun
             const b = f(a)
             receiver(b)
+        })
+    })
+
+    const fmap: T['fmap'] = f => Future_.flatten(map(f))
+
+    const tap: T['tap'] = f => Future( receiver => {
+        unsafeRun( a => {
+            const x = f(a)
+            receiver(a)
         })
     })
 
@@ -52,11 +69,21 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
         runToAsync,
         async,
         map,
+        fmap,
+        tap,
     }
 
 } 
 
 // static part
+
+type UnFuturifyArray<T extends readonly Future<unknown>[]>  = {
+    readonly [K in keyof T]: T[K] extends Future<infer U> ? U : never
+}
+
+type InferFutures<T extends readonly Future<unknown>[]> = T extends readonly [...infer A] ? A : never
+type T0 = InferFutures<[Future<number>, Future<'oi'>, Future<'juca'>]>
+type T1 = UnFuturifyArray<T0>
 
 export type Future_ = {
     __setTimeout: <N extends number,A>(run: (msecs:N) => void, msecs: N) => { cancel: () => void } // this is the master substitute of run-time original setTimeout
@@ -66,6 +93,8 @@ export type Future_ = {
     delay: <N extends number>(msecs: N) => Future<N> //Note: cannot be canceled, returns the number of msecs programed
     delayCancelable: <A, N extends number = number>(msecs: N, cancelation: Future<A>) => Future<Either<N,A>> // left if not has been canceled (returns the msecs programed), right if has been canceled (returns the type of the cancelation promise)
     race: <A,B>(f0: Future<A>, f1: Future<B>) => Future<Either<A,B>>
+    all: <T extends readonly Future<unknown>[]>(fs: T) => Future<UnFuturifyArray<T>>
+    flatten: <A>(mma: Future<Future<A>>) => Future<A> 
     mapResultA: <A,E,B>(mma: Future<Result<A,E>>, f: (_:A) => B) => Future<Result<B,E>>
     mapResultError: <A,E,E1>(mma: Future<Result<A,E>>, f: (_:E) => E1) => Future<Result<A,E1>>
     
@@ -135,6 +164,26 @@ const race: T['race'] = (f0, f1) => Future( yield_ => {
 
 })
 
+// Note: If just one of the future do not resolves, all will not resolve as well. Recomended to use Futures with timeout implemented if needed.
+//       executions happens in parallel
+const all: T['all'] = fs => Future( yield_ => {
+    const length = fs.length
+    let c = 0
+    let buf: unknown[] = []
+    fs.forEach( (f, index) => {
+        f.unsafeRun( value => {
+            c = c + 1
+            buf[index] = value
+            if (c===length) {
+                yield_(buf as any) //fix: remove the 'any' type
+            }
+        })
+    })
+})
+
+const flatten: T['flatten'] = mma => Future( yield_ => {
+    mma.unsafeRun( fa => fa.unsafeRun( a => yield_(a)))
+})
 
 const mapResultA: T['mapResultA'] = (mma, f) => mma.map( ra => ra.map(f))
 
@@ -149,6 +198,8 @@ export const Future_: Future_ = {
     delay,
     delayCancelable,
     race,
+    all,
+    flatten,
     mapResultA,
     mapResultError,
 }

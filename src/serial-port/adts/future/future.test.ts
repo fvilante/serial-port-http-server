@@ -131,7 +131,72 @@ describe('basic tests', () => {
         
     })
 
+    it('Can process a tuple of futures in paralel and wait then all to resolve', async () => {
+        //prepare
+        jest.useFakeTimers(); // we don't need to wait real time to pass :)
+        const t = 100
+        const f0 = Future_.delay(t-1)
+        const f1 = Future_.delay(t-0).map( n => 'oi' as const)
+        const f2 = Future_.delay(t+1).map( n => String(n))
+        const probe = [f0,f1,f2] as const
+        const expected = [t-1, "oi", "101"]
+        //act
+        const ma = Future_.all(probe)
+        //check
+        const actual = await ma.async()
+        
+        jest.runAllTimers(); // but we need to wait all timers to run :)
+        expect(actual).toEqual(expected)
+        // Note: I don't know, why bellow is called 0 times, the expected should be two times: cancelation and probe, but... :(
+        expect(setTimeout).toHaveBeenCalledTimes(0) // I'm just couting how many times Setimeout has been called.
+        
+    })
+
     
+    it('it can flatten', async () => {
+        //prepare
+        jest.useFakeTimers(); // we don't need to wait real time to pass :)
+        const t = 100
+        const f0 = Future_.delay(t)
+        const f1 = f0.map( a => Future_.delay(a))
+        const expected = 100
+        //act
+        const ma = Future_.flatten(f1)
+        //check
+        const actual = await ma.async()
+        
+        jest.runAllTimers(); // but we need to wait all timers to run :)
+        expect(actual).toEqual(expected)
+        // Note: I don't know, why bellow is called 0 times, the expected should be two times: cancelation and probe, but... :(
+        expect(setTimeout).toHaveBeenCalledTimes(0) // I'm just couting how many times Setimeout has been called.  
+    })
 
+    it('it can execute some futures in waterflow sequence (fmap)', async () => {
+        //prepare
+        jest.useFakeTimers(); // we don't need to wait real time to pass :)
+        const t = 100
+        let buf: number[] = []
+        const save = (n:number) => { buf.push(n) }
+        const f0 = Future_.delay(0).tap(save)
+        const f1 = Future_.delay(1).tap(save)
+        const f2 = Future_.delay(2).tap(save)
+        const f3 = Future_.delay(3).tap(save)
+        const f4 = Future_.delay(4).tap(save)
+        const expected = [0,1,2,3,4]
+        //act
+        const ma = f0
+            .fmap( t0 =>    f1.map( t1 => [t0,t1] as const))
+            .fmap( t =>     f2.map( t2 => [...t, t2] as const))
+            .fmap( t =>    f3.map( t3 => [...t,t3] as const))
+            .fmap( t =>    f4.map( t4 => [...t,t4] as const))
 
+        //check
+        const actual = await ma.async()
+        
+        jest.runAllTimers(); // but we need to wait all timers to run :)
+        expect(buf).toEqual(expected)
+        expect(actual).toEqual(expected)
+        // Note: I don't know, why bellow is called 0 times, the expected should be two times: cancelation and probe, but... :(
+        expect(setTimeout).toHaveBeenCalledTimes(0) // I'm just couting how many times Setimeout has been called.  
+    })
 })
