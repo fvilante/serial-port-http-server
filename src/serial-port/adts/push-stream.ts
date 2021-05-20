@@ -25,7 +25,7 @@ export type Push<A> = {
     filter: (f: (_:A) => boolean) => Push<A>
     scan: <B>(reducer: (acc: B, cur: A) => B, initial: B) => Push<B>
     transform: <X>(f: (me:Push<A>) => X) => X
-    //flatten: () => A extends Push<A> ? Push<A> : never
+    //flatten: () => Push<A> see 'concat'
     //all: <T extends Push<unknown>[]>(arr: T) => PushAll<T>
     tap: (f: (_:A) => void) => Push<A> // tap-before
     dropletWith: (f: (_:A) => boolean) => Push<readonly A[]> //fix: f should be a State<A> or other type (ie: Pull<A>... etc)
@@ -86,17 +86,6 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
     })
 
     const transform: T['transform'] = f => f(Push(emitter))
-
-    /*const flatten: T['flatten'] = () => Push( receiver => {
-        emitter( pa_ => {
-            const pa = pa_ as unknown as Push<A>
-            pa.unsafeRun( a => {
-                receiver(a)
-            })
-
-        })
-    }) as unknown as A extends Push<A> ? Push<A> : never
-    */
 
     const tap: T['tap'] = f => Push( receiver => {
         emitter( a => {
@@ -206,10 +195,14 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
     }
 }
 
+
+// static part
+
 export type Push_ = {
     fromArray: <A>(arr: readonly A[]) => Push<A>
     fromInterval: <A>(intervals: Pull<number>) => Push<Iterated<number>>
     //intervalG: <A>(f:(seq: number) => number, totalSeqs?: number) => Push<number> //attention f: must be monotonic function else behaviour should be unexpected (https://en.wikipedia.org/wiki/Monotonic_function)
+    //NOTE: concat is the flatten
     concat: <A>(mma: Push<Push<A>>) => Push<A>
     range: (initialIncluded: number, finalNotIncluded: number, step: number) => Push<number>
 }
