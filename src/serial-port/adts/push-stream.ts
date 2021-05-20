@@ -156,13 +156,13 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
     const ignoreAll: T['ignoreAll'] = () => filter( a => false)
 
     const collect: T['collect'] = size => Push( yield_ => {
-        let buf: A[] = []
+        let buf: readonly A[] = []
         emitter( a => {
             if (buf.length >= size-1) {
                 yield_([[...buf,a], size])
                 buf = []
             } else {
-                buf.push(a) // buferize data
+                buf = [...buf,a] // buferize data
             }
         })
     })
