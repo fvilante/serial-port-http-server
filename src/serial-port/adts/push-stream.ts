@@ -1,3 +1,12 @@
+import { Duration, TimePoint, TimePoint_ } from "../time"
+import { now, Range } from "../utils"
+import { Either, Either_ } from "./maybe/either"
+import { Iterated, Pull, Pull_ } from "./stream/pull"
+
+// helper types
+// fix: extract to 'type utils'
+export type TupleOf<T, N extends number> = N extends N ? number extends N ? T[] : _TupleOf<T, N, []> : never;
+export type _TupleOf<T, N extends number, R extends unknown[]> = R['length'] extends N ? R : _TupleOf<T, N, [T, ...R]>;
 
 
 // enhancers
@@ -6,11 +15,6 @@ export const HasFinished: HasComplete = Symbol()
 export type FinishablePush<A> = Push<A & HasComplete> 
 
 // -------
-
-import { Duration, TimePoint, TimePoint_ } from "../time"
-import { now, Range } from "../utils"
-import { Either, Either_ } from "./maybe/either"
-import { Iterated, Pull, Pull_ } from "./stream/pull"
 
 export type PushEmitter<A> = (receiver: (_:A) => void) => void 
 
@@ -22,6 +26,7 @@ export type Push<A> = {
     //run: () => PushWorld<A>
     unsafeRun: (receiver: (_:A) => void) => void
     map: <B>(f: (_: A) => B) => Push<B>
+    step: <N extends number>(size: N, step: number) => Push<[collected: readonly A[],size: N]>
     filter: (f: (_:A) => boolean) => Push<A>
     scan: <B>(reducer: (acc: B, cur: A) => B, initial: B) => Push<B>
     transform: <X>(f: (me:Push<A>) => X) => X
@@ -29,6 +34,8 @@ export type Push<A> = {
     //all: <T extends Push<unknown>[]>(arr: T) => PushAll<T>
     tap: (f: (_:A) => void) => Push<A> // tap-before
     dropletWith: (f: (_:A) => boolean) => Push<readonly A[]> //fix: f should be a State<A> or other type (ie: Pull<A>... etc)
+    ignoreAll: () => Push<A> // will never emit an A
+    collect: <N extends number>(size: N) => Push<[collected: readonly A[],size: N]>
     //drop: (size: number, step: number) => Push<readonly A[]>
 
     // combinators
@@ -58,6 +65,45 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
             receiver(b);
         })
     })
+
+    // Fix: result is unpredictable for 'size' less than 0 and other edge or invalid cases
+    const step: T['step'] = (size, step) => {
+        
+        if(size===step) {
+            return collect(size)
+        }
+        else if(step<size) {
+            return Push( receiver => {
+                let buf:  readonly A[] = []
+                unsafeRun( a => {
+                    buf = [...buf, a]
+                    if (buf.length===size) {
+                        receiver([buf,size])
+                        buf = buf.slice(step,size)
+                    }  
+                })
+            })
+        } else /*if(size>step)*/ {
+            return Push( receiver => {
+                let buf:  readonly A[] = []
+                let i = 0
+                unsafeRun( a => {
+                    i++;
+                    if (buf.length<=size) {
+                        buf = [...buf, a]
+                    }
+                    if (buf.length===size) {
+                        receiver([buf,size])
+                    }
+                    if (i===step) {
+                        i = 0;
+                        buf = []
+                    }
+                })
+            })
+        }
+            
+    }
 
     const filter: T['filter'] = f => Push( receiver => {
         emitter( a => {
@@ -104,6 +150,20 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
                 collected = [...collected, a]
             }
            
+        })
+    })
+
+    const ignoreAll: T['ignoreAll'] = () => filter( a => false)
+
+    const collect: T['collect'] = size => Push( yield_ => {
+        let buf: A[] = []
+        emitter( a => {
+            if (buf.length >= size-1) {
+                yield_([[...buf,a], size])
+                buf = []
+            } else {
+                buf.push(a) // buferize data
+            }
         })
     })
 
@@ -178,13 +238,15 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
         kind: 'Push',
         unsafeRun,
         map,
+        step,
         filter,
         scan,
         transform,
         //flatten: flatten,
         tap: tap,
         dropletWith: dropletWith,
-
+        ignoreAll,
+        collect,
         // combinators
         combineWith: combineWith,
 
@@ -245,7 +307,6 @@ const concat: T['concat'] = mma => Push( receiver => {
 const range: T['range'] = (ini, end, step) => Push( yield_ => {
     //fix: use a safer algorithm, should use ../utils/range.ts ? 
     for (let k=ini; k<end; k=k+step) {
-        console.log('teste*********************')
         yield_(k)
     }
     

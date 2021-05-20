@@ -43,6 +43,68 @@ describe('basic tests', () => {
         expect(actual).toEqual(probe.map(f))   
     })
 
+    it('Can collect sized data', async () => {
+        //prepare
+        let actual: [collected: readonly number[], size: 3][] = []
+        const probe = [1,2,3,4,5,6,7,8,9,10,11]
+        const expected =  [[[1, 2, 3], 3], [[4, 5, 6], 3], [[7, 8, 9], 3]]
+        //act
+        const action = Push_.fromArray(probe)
+            .collect(3)
+        //check
+        action.unsafeRun( value => {
+            actual.push(value)
+        });
+        expect(actual).toEqual(expected) 
+    })
+
+    describe('Can step data', () => {
+        it('Can step data when size===step', async () => {
+             //prepare
+            let actual: [collected: readonly number[], size: 3][] = []
+            const probe = [1,2,3,4,5,6,7,8,9,10,11]
+            const expected =  [[[1, 2, 3], 3], [[4, 5, 6], 3], [[7, 8, 9], 3]]
+            //act
+            const action = Push_.fromArray(probe)
+                .step(3,3)
+            //check
+            action.unsafeRun( value => {
+                actual.push(value)
+            });
+            expect(actual).toEqual(expected) 
+        })
+
+        it('Can step data when step<size', async () => {
+            //prepare
+           let actual: [collected: readonly unknown[], size: number][] = []
+           const probe = ['a','b','c','d',0,1,2,3,4,5]
+           const expected = [[["a", "b", "c", "d"], 4], [["c", "d", 0, 1], 4], [[0, 1, 2, 3], 4], [[2, 3, 4, 5], 4]]
+           //act
+           const action = Push_.fromArray(probe)
+               .step(4,2)
+           //check
+           action.unsafeRun( value => {
+               actual.push(value)
+           });
+           expect(actual).toEqual(expected) 
+       })
+
+       it('Can step data when step>size', async () => {
+            //prepare
+            let actual: unknown[] = []
+            const probe = [0,1,2,3,4,5,6,7,8,9,10,11,12,13]
+            const expected = [[0,1,2],[5,6,7],[10,11,12]]
+            //act
+            const action = Push_.fromArray(probe)
+                .step(3,5)
+            //check
+            action.unsafeRun( value => {
+                actual.push(value[0])
+            });
+            expect(actual).toEqual(expected) 
+   })
+    })
+
     it('Can filter among some vanila values', async () => {
         //prepare
         let actual: number[] = []
@@ -55,6 +117,20 @@ describe('basic tests', () => {
             actual.push(value)
         });
         expect(actual).toEqual(probe.filter(f))   
+    })
+
+    it('Can ignore all', async () => {
+        //prepare
+        let actual: number[] = []
+        const probe = [1,2,3,4,5,6,7,8,9,10]
+        const f = (n: number) => n>=5
+        //act
+        const stream = Push<number>( receiver => probe.map(receiver) )
+        //check
+        stream.ignoreAll().unsafeRun( value => {
+            actual.push(value)
+        });
+        expect(actual).toEqual([])   
     })
 
     it('Can transform to something else', async () => {
