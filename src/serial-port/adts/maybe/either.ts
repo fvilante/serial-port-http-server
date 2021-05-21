@@ -49,7 +49,7 @@ export const Either = <A,B>(world: () => EitherWorld<A,B>): Either<A,B> => {
 }
 
 export type Either_ = {
-    fromLeft: <A,B>(value: A) => Either<A,B>
+    fromLeft: <A,B>(value: A) => Either<A,B> // FIX: I'm in doubt if this is necessary to be a lazy value or not. Decide on future.
     fromRight: <A,B>(value: B) => Either<A,B>
     flattenLeft: <A,B>(mma: Either<Either<A,B>,B>) => Either<A,B>
     flattenRight: <A,B>(mma: Either<A,Either<A,B>>) => Either<A,B>
