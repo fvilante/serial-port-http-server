@@ -28,6 +28,7 @@ export type Push<A> = {
     map: <B>(f: (_: A) => B) => Push<B>
     step: <N extends number>(size: N, step: number) => Push<[collected: readonly A[],size: N]>
     filter: (f: (_:A) => boolean) => Push<A>
+    fork: (criteriaForLeft: (_:A) => boolean) => Push<Either<A,A>>
     scan: <B>(reducer: (acc: B, cur: A) => B, initial: B) => Push<B>
     transform: <X>(f: (me:Push<A>) => X) => X
     //flatten: () => Push<A> see 'concat'
@@ -113,6 +114,17 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
             }
         })
     })
+
+    const fork: T['fork'] = f => {
+        return map( a => {
+            const criteria = f(a)
+            return criteria===true
+                ? Either_.fromLeft(a)
+                : Either_.fromRight(a)
+              
+            })
+        }
+    
 
     const scan: T['scan'] = (f,ini) => Push( receiver => {
         type B = Parameters<typeof receiver>[0]
@@ -240,6 +252,7 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
         map,
         step,
         filter,
+        fork,
         scan,
         transform,
         //flatten: flatten,

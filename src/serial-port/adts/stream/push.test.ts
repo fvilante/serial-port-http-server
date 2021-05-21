@@ -119,6 +119,28 @@ describe('basic tests', () => {
         expect(actual).toEqual(probe.filter(f))   
     })
 
+    it('Can fork the stream', async () => {
+        //prepare
+        let actualLeft: number[] = []
+        let actualRight: number[] = []
+        const probe = [1,2,3,4,5,6,7,8,9,10]
+        const criteria = (n: number) => n>=5
+        //act
+        const stream = Push_.fromArray(probe)
+            .fork(criteria)
+        //check
+        stream.unsafeRun( value => {
+            const x = value.unsafeRun()
+            if(x.isLeft===true) 
+                actualLeft.push(x.value)
+            else   
+                actualRight.push(x.value)
+        });
+        const invert = (f: (_: number) => boolean) => (n:number) => !f(n)
+        expect(actualLeft).toEqual(probe.filter(criteria))
+        expect(actualRight).toEqual(probe.filter(invert(criteria)))    
+    })
+
     it('Can ignore all', async () => {
         //prepare
         let actual: number[] = []
