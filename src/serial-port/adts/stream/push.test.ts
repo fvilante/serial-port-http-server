@@ -280,7 +280,6 @@ describe('basic tests', () => {
         })
         jest.runAllTimers(); // but we need to wait all timers to run :)
         expect(setTimeout).toHaveBeenCalledTimes(3) // I'm just couting how many times Setimeout has been called.
-        
     })
 
     it('it can scan simple numbers', async () => {
@@ -301,7 +300,23 @@ describe('basic tests', () => {
         })
         const expected = [1,3,5,10,20,40,50]
         expect(actual).toEqual(expected)
-        
     })
+
+    it('it can droplet', async () => {
+        //prepare
+        let actual: number[]  = []
+        const probe = [[1,2,3],[4],[5,6],[7]] 
+        const expected = [1,2,3,4,5,6,7]
+        const stream = Push_.fromArray(probe)
+        //act
+        const action = Push_.droplet(stream)
+        //check
+        action.unsafeRun( actual_ => {
+            actual.push(actual_)
+        })
+        expect(actual).toEqual(expected)
+    })
+
+
     
 })

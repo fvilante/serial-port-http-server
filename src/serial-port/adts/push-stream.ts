@@ -34,6 +34,7 @@ export type Push<A> = {
     //flatten: () => Push<A> see 'concat'
     //all: <T extends Push<unknown>[]>(arr: T) => PushAll<T>
     tap: (f: (_:A) => void) => Push<A> // tap-before
+    //fix: 'dropletWith' is not a good name for what this method does, and it could be more generic in 'f'. Improove when possible
     dropletWith: (f: (_:A) => boolean) => Push<readonly A[]> //fix: f should be a State<A> or other type (ie: Pull<A>... etc)
     ignoreAll: () => Push<A> // will never emit an A
     collect: <N extends number>(size: N) => Push<[collected: readonly A[],size: N]>
@@ -278,6 +279,8 @@ export type Push_ = {
     fromInterval: <A>(intervals: Pull<number>) => Push<Iterated<number>>
     //intervalG: <A>(f:(seq: number) => number, totalSeqs?: number) => Push<number> //attention f: must be monotonic function else behaviour should be unexpected (https://en.wikipedia.org/wiki/Monotonic_function)
     //NOTE: concat is the flatten
+    // Fix: Maybe I can construct a droplet on dynamic part, just by infering in run time if its an array and in case it is flatten it, else just pass data forward as is. 
+    droplet: <A>(mma: Push<readonly A[]>) => Push<A>
     concat: <A>(mma: Push<Push<A>>) => Push<A>
     range: (initialIncluded: number, finalNotIncluded: number, step: number) => Push<number>
 }
@@ -309,13 +312,19 @@ const fromInterval: T['fromInterval'] = intervals => Push( receiver => {
 
 })
 
+const droplet: T['droplet'] = mma => Push( receiver => {
+    mma.unsafeRun( ar => {
+        ar.map(receiver)
+    })
+})
+
 const concat: T['concat'] = mma => Push( receiver => {
-        mma.unsafeRun( pa => {
-            pa.unsafeRun( a => {
-                receiver(a)
-            })
+    mma.unsafeRun( pa => {
+        pa.unsafeRun( a => {
+            receiver(a)
         })
-    }) 
+    })
+}) 
 
 const range: T['range'] = (ini, end, step) => Push( yield_ => {
     //fix: use a safer algorithm, should use ../utils/range.ts ? 
@@ -329,6 +338,7 @@ export const Push_: Push_ = {
     fromArray,
     fromInterval,
     //intervalG,
+    droplet,
     concat,
     range,
 }
