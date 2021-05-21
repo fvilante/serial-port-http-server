@@ -2,6 +2,10 @@
 
 // cmpp protocol
 
+import { Either } from "../../adts/maybe/either"
+import { Push } from "../../adts/push-stream"
+import { InferKinded, Kinded, Kinded_ } from "../../adts/validated/kind"
+
 // example valid frame: [0x1B,0x02,0x00,0x1C,0x00,0x00,0x1B,0x03,0xDF]
 
 // -------
@@ -178,7 +182,7 @@ export type FrameInterpreted = {
 }
 
 
-type State = 
+export type State = 
             | 'Waiting first Esc'
             | 'Waiting start byte'
             | 'Waiting direction and channel'
@@ -207,6 +211,7 @@ resetInterpreter();
 // pushed interpretation, with talkback feedback for finished or error signaling
 // executes until error or finish
 // note: Should be in parameter a config data with what means the 'ESC' 'STX' etc.
+// Fix: Refactor this function to be more functional decomposable and easier to read
 export const InterpretIncomming = (
         ESC: ESC,
         validStartBytes: readonly [STX, ACK, NACK],
@@ -436,8 +441,17 @@ export const InterpretIncomming = (
                     } else {
                         frame = {...frame, [pos]: [cur_]};
                         const expectedChecksum = calcChecksum__(frame);
-                        frame = {...frame, expectedChecksum };
-                        state = nextState;;
+                        if(expectedChecksum===cur_) {
+                            frame = {...frame, expectedChecksum };
+                            state = nextState;;
+                        } else {
+                            error_(
+                                `Expected ${pos} should be '${expectedChecksum}' but got '${cur_}' (numbers are showed in this message in decimal)`,
+                                frame,
+                                acc,
+                                state)
+                        }
+                        
                     }
                 } else /* waitingEscDup === true */ {
                     if (cur_ === ESC) {
@@ -478,4 +492,92 @@ export const InterpretIncomming = (
 }
 
 export const CmppDataLinkInterpreter = InterpretIncomming(ESC, [STX,ACK,NACK], ETX)   
+
+
+// new proposal of API for interpreter
+
+export type InterpreterError = {
+    kind: 'InterpreterError'
+    errorMessage: string
+    partialFrame: Partial<FrameInterpreted>
+    rawInput: readonly number[]
+}
+
+export type InterpreterState = {
+    kind: 'InterpreterState'
+    currentState: State
+    partialFrame: Partial<FrameInterpreted>
+    waitingEscDupFlag: boolean
+    rawInputBuffer: readonly number[]
+}
+
+export type Interpreter = (_: Push<number>) => {
+    FrameInterpreted: Push<FrameInterpreted>,
+    onError: Push<InterpreterError> 
+    onStateChange: Push<InterpreterState>
+}
+
+export const Interpreter: Interpreter = stream => {
+    
+    type Event = 
+        | ['FrameInterpreted', FrameInterpreted]
+        | ['InterpreterError', InterpreterError]
+        | ['InterpreterState', InterpreterState]
+
+    
+    const runInterpreter = ():Push<Event> => {
+        // get all events of the interpreter
+        return Push( yield_ => {
+
+            const config = [ESC, [STX,ACK,NACK], ETX] as const
+            
+            const byteProcessor = InterpretIncomming(...config)(
+                //onFinished
+                (frame, rawInput) => {
+                    //Fix: I'm not using rawInput here for simplicity. Maybe necessary to have it or not. Decide in future.
+                    yield_(['FrameInterpreted', frame])
+                },
+                //onError
+                (msg, partialFrame, rawInput) => {
+                    const err: InterpreterError = {
+                        kind: 'InterpreterError',
+                        errorMessage: msg,
+                        partialFrame,
+                        rawInput,
+                    }
+                    yield_(['InterpreterError', err])
+                },
+                //onInternalStateChange?
+                (currentState, partialFrame, waitingEscDup, rawInput) => {
+                    const state: InterpreterState = {
+                        kind: 'InterpreterState',
+                        currentState,
+                        partialFrame,
+                        waitingEscDupFlag: waitingEscDup,
+                        rawInputBuffer: rawInput,
+                    }
+                    yield_(['InterpreterState', state])
+            })
+
+            // produces the effect
+            stream.unsafeRun( byte => {
+                // N|OTE: if you would, you can introduce here, some input transformation (for example: to emulate noise on reception to test error correction robustness, etc). Not inplemented yet for time constraints. Maybe this comment be converted from 'NOTE' to 'FIX'.
+                byteProcessor(byte)
+            })
+
+        })
+    }
+
+    const interpreterStream = runInterpreter()
+
+    return {
+        FrameInterpreted: interpreterStream.filter( ev => ev[0]==='FrameInterpreted').map( ev => ev[1] as FrameInterpreted),
+        onError: interpreterStream.filter( ev => ev[0]==='InterpreterError').map( ev => ev[1] as InterpreterError),
+        onStateChange: interpreterStream.filter( ev => ev[0]==='InterpreterState').map( ev => ev[1] as InterpreterState),
+    }
+    
+    
+
+}
+
 
