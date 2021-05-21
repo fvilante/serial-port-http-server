@@ -2,6 +2,11 @@ import { Maybe, Maybe_ } from "./maybe"
 import { Either, Either_ } from "./maybe/either"
 import { InferResult, Result_, Result } from "./result"
 
+// IMPORTANT: 
+//  the idea of future is that he never trows an error
+//  you must design the future to never trow.
+//  use Future_.fromUnsafePromise and similars to assure your ADTs constructions are safe
+
 // fix: setTimeout should be hiden from implementation
 //      if all call to setTimeout pass through this future, we can
 //      distort time frame in the effects of application
@@ -85,11 +90,19 @@ type InferFutures<T extends readonly Future<unknown>[]> = T extends readonly [..
 type T0 = InferFutures<[Future<number>, Future<'oi'>, Future<'juca'>]>
 type T1 = UnFuturifyArray<T0>
 
+export type UnsafePromiseError = {
+    kind: 'UnsafePromiseError'
+    errorMessage: `Tried to execute a promise but it trowed an error`
+    details: {
+        catchedError: unknown
+    }
+}
 export type Future_ = {
     __setTimeout: <N extends number,A>(run: (msecs:N) => void, msecs: N) => { cancel: () => void } // this is the master substitute of run-time original setTimeout
     // FIX: milisecs should be a unit of time not of natural number
     //_alarm: (milisecs: number ) => Future<[timePoint: Future<Maybe<number>>, cancelation: () => void]>  // if you cancel it'll return nothing, else it will return the number of msecs programmed after the time msecs has been passed
     fromValue: <A>(value:A) => Future<A>
+    fromUnsafePromise: <A>(f: () => Promise<A>) => Future<Result<A,UnsafePromiseError>>
     delay: <N extends number>(msecs: N) => Future<N> //Note: cannot be canceled, returns the number of msecs programed
     delayCancelable: <A, N extends number = number>(msecs: N, cancelation: Future<A>) => Future<Either<N,A>> // left if not has been canceled (returns the msecs programed), right if has been canceled (returns the type of the cancelation promise)
     race: <A,B>(f0: Future<A>, f1: Future<B>) => Future<Either<A,B>>
@@ -112,6 +125,28 @@ const __setTimeout: T['__setTimeout'] = (run, msecs) => {
 }
 
 const fromValue: T['fromValue'] = value => Future( yield_ => yield_(value))
+
+const fromUnsafePromise: T['fromUnsafePromise'] = runPromise => Future( yield_ => {
+
+    const makeError = (catchedError: unknown): UnsafePromiseError => {
+        return {
+            kind: 'UnsafePromiseError',
+            errorMessage: 'Tried to execute a promise but it trowed an error',
+            details: {
+                catchedError,
+            }
+        }
+    }
+
+    // try to executes
+    try {
+        runPromise()
+            .then( a => yield_(Result_.Ok(a)))
+            .catch( err => yield_(Result_.Error(makeError(err))))
+    } catch (err) {
+        yield_(Result_.Error(makeError(err)))
+    }
+})
 
 const delay: T['delay'] = msecs => Future( yield_ => {
     Future_.__setTimeout( () => {
@@ -195,6 +230,7 @@ export const Future_: Future_ = {
     //_alarm: _alarm,
     __setTimeout,
     fromValue,
+    fromUnsafePromise,
     delay,
     delayCancelable,
     race,

@@ -1,4 +1,4 @@
-import { Future, Future_ } from "../future"
+import { Future, Future_, UnsafePromiseError } from "../future"
 
 
 describe('basic tests', () => {
@@ -28,6 +28,46 @@ describe('basic tests', () => {
         //'async/await' format
         const actual = await p()
         expect(actual).toEqual(probe)
+    })
+
+    
+    it('Can construct future from unsafe promise', async (done) => {
+        //prepare
+        //jest.useFakeTimers(); // we don't need to wait real time to pass :)
+        const asyncError = () => new Promise<void>( () => {
+            throw new Error('Unsafe Promise return')
+        })
+        const syncError = () => {
+            throw new Error('Unsafe Promise return')
+            return new Promise<string>( resolve => resolve('this is impossible!') )
+        }
+        const noError = () => new Promise<string>( resolve => resolve('normal thing'))
+        const expected1 = ['UnsafePromiseError']
+        const expected2 = ['UnsafePromiseError']
+        const expected3 = ['normal thing']
+        //act
+        const action1 = Future_.fromUnsafePromise(asyncError)
+        const action2 = Future_.fromUnsafePromise(syncError)
+        const action3 = Future_.fromUnsafePromise(noError)
+        
+        //check
+        let buf1: string[] = []
+        let buf2: string[] = []
+        let buf3: string[] = []
+        const all_ = Future_.all([action1, action2, action3] as const)
+        all_.unsafeRun( r => {
+            const [r1, r2, r3] = r
+            r1.forError( err => buf1.push(err.kind)) // note: I'm just comparing kind for short. Could be better to check more details but I'm not sure for now.
+            r2.forError( err => buf2.push(err.kind))
+            r3.forOk( value => buf3.push(value))
+
+            expect(buf1).toEqual(expected1)
+            expect(buf2).toEqual(expected2)
+            expect(buf3).toEqual(expected3)
+            
+            done();
+        })
+        
     })
 
     it('Can construct a eager promise from a future', async () => {
