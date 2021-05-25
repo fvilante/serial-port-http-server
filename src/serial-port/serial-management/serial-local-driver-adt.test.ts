@@ -85,29 +85,27 @@ describe('basic tests', () => {
                                         r.forError( PortWriteError => yield_(Result_.Error(PortWriteError)))
                                         //receive data
                                         rx.unsafeRun( r => {
-                                            r.tapError( PortReadError => yield_(Result_.Error(PortReadError)))
-                                            r.forOk( dataReceived => {
-                                                //console.log('data received', dataReceived)
-                                                const closePorts = [p1_.close(), p2_.close()] as const
-                                                const a = Future_.all(closePorts)
-                                                    .map( rs => rs.map( r => r.tapError( PortCloseError =>yield_(Result_.Error(PortCloseError)) )))
-                                                    .unsafeRun( rs => {
-                                                        const [r1, r2] = rs
-                                                        r1.match({
-                                                            Error: PortCloseError =>yield_(Result_.Error(PortCloseError)),
-                                                            Ok: () => undefined,
-                                                        });
-                                                        r2.match({
-                                                            Error: PortCloseError =>yield_(Result_.Error(PortCloseError)),
-                                                            Ok: () => undefined,
-                                                        });
-                                                        yield_(Result_.Ok(dataReceived))
-                                                    })
-                                                
-                                                
-                                                
+                                            r.match({
+                                                Error: PortReadError => yield_(Result_.Error(PortReadError)),
+                                                Ok: dataReceived => {
+                                                    //console.log('data received', dataReceived)
+                                                    const closePorts = [p1_.close(), p2_.close()] as const
+                                                    const a = Future_.all(closePorts)
+                                                        .map( rs => rs.map( r => r.tapError( PortCloseError =>yield_(Result_.Error(PortCloseError)) )))
+                                                        .unsafeRun( rs => {
+                                                            const [r1, r2] = rs
+                                                            r1.match({
+                                                                Error: PortCloseError =>yield_(Result_.Error(PortCloseError)),
+                                                                Ok: () => undefined,
+                                                            });
+                                                            r2.match({
+                                                                Error: PortCloseError =>yield_(Result_.Error(PortCloseError)),
+                                                                Ok: () => undefined,
+                                                            });
+                                                            yield_(Result_.Ok(dataReceived))
+                                                        })  
+                                                    }
                                             })
-
                                         })
 
                                     })
