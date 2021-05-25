@@ -38,6 +38,8 @@ export type Future<A> = {
     map: <B>(f: (_:A) => B) => Future<B>
     fmap: <B>(f: (_:A) => Future<B>) => Future<B>
     tap: (f: (_:A) => void) => Future<A> //tap 'before' yield the value to the downstream
+    transform: <X>(f: (me: Future<A>) => X) => X 
+    ignoreContent: () => Future<void> // maps A to void
 
 }
 
@@ -68,6 +70,10 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
         })
     })
 
+    const transform: T['transform'] = f => f(Future(emitter))
+
+    const ignoreContent: T['ignoreContent'] = () => map( a => undefined)
+
     return {
         kind: 'Future',
         unsafeRun,
@@ -76,6 +82,8 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
         map,
         fmap,
         tap,
+        transform,
+        ignoreContent,
     }
 
 } 
@@ -142,7 +150,10 @@ const fromUnsafePromise: T['fromUnsafePromise'] = runPromise => Future( yield_ =
     try {
         runPromise()
             .then( a => yield_(Result_.Ok(a)))
-            .catch( err => yield_(Result_.Error(makeError(err))))
+            .catch( err => {
+                yield_(Result_.Error(makeError(err)));
+            
+            })
     } catch (err) {
         yield_(Result_.Error(makeError(err)))
     }
@@ -223,7 +234,6 @@ const flatten: T['flatten'] = mma => Future( yield_ => {
 const mapResultA: T['mapResultA'] = (mma, f) => mma.map( ra => ra.map(f))
 
 const mapResultError: T['mapResultError'] = (mma, f) => mma.map( ra => ra.mapError(f))
-
 
 
 export const Future_: Future_ = {

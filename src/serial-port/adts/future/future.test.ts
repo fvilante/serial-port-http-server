@@ -239,4 +239,12 @@ describe('basic tests', () => {
         // Note: I don't know, why bellow is called 0 times, the expected should be two times: cancelation and probe, but... :(
         expect(setTimeout).toHaveBeenCalledTimes(0) // I'm just couting how many times Setimeout has been called.  
     })
+
+    it('it can ignore value', async () => {
+        //fix: test 'ignore' method
+    })
+
+    it('it can transform', async () => {
+        //fix: test 'transform' method
+    })
 })
