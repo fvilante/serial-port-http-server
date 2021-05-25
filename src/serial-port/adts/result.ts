@@ -1,3 +1,4 @@
+import { Either, Either_ } from "./maybe/either"
 
 export type InferResult<R> = R extends Result<infer A, infer E> ? {value: A, error: E} : never
 
@@ -17,6 +18,9 @@ export type Result<A,E> = {
     match: <X>(matcher: ResultMatcher<A,E,X>) => X 
     map: <B>(f: (_:A) => B) => Result<B,E> //maps 'ok'
     mapError: <E1>(f: (_:E) => E1) => Result<A,E1>
+    transform: <X>(f: (me: Result<A,E>) => X) => X
+    tap: (f: (_:A) => void) => Result<A,E>
+    tapError: (f: (_:E) => void) => Result<A,E>
 }
 
 export const Result = <A,E>(world: () => ResultWorld<A,E>): Result<A,E> => {
@@ -38,7 +42,7 @@ export const Result = <A,E>(world: () => ResultWorld<A,E>): Result<A,E> => {
     }
 
     const match: T['match'] = matcher => {
-        const world_ = world()
+        const world_ = unsafeRun()
         const value = world_.value
         return world_.hasError
             ? matcher.Error(value as E)
@@ -46,7 +50,7 @@ export const Result = <A,E>(world: () => ResultWorld<A,E>): Result<A,E> => {
     }
 
     const map: T['map'] = f => Result( () => {
-        const world_ = world()
+        const world_ = unsafeRun()
         const value = () => world_.value
         return world_.hasError===true
             ? world_
@@ -54,11 +58,25 @@ export const Result = <A,E>(world: () => ResultWorld<A,E>): Result<A,E> => {
     })
 
     const mapError: T['mapError'] = f => Result( () => {
-        const world_ = world()
+        const world_ = unsafeRun()
         const value = () => world_.value
         return world_.hasError===false
             ? world_
             : { hasError: true, value: f(value() as E)}
+    })
+
+    const transform: T['transform'] = f => f(Result(world))
+
+    const tap: T['tap'] = f => Result( () => {
+        const id = unsafeRun()
+        if(id.hasError===false) f(id.value)
+        return id
+    })
+
+    const tapError: T['tapError'] = f => Result( () => {
+        const id = unsafeRun()
+        if(id.hasError===true) f(id.value)
+        return id
     })
 
     return {
@@ -70,12 +88,29 @@ export const Result = <A,E>(world: () => ResultWorld<A,E>): Result<A,E> => {
         forOk,
         map,
         mapError,
+        transform,
+        tap,
+        tapError,
+    }
+}
+
+
+// static part
+
+export type UnsafeSyncCallError = {
+    kind: 'UnsafeSyncCallError'
+    errorMessage: `Tried to execute a unsafe sync function but got an error`
+    details: {
+        catchedError: unknown
     }
 }
 
 export type Result_ = {
     Ok: <A,E>(_:A) => Result<A,E>
     Error: <A,E>(_:E) => Result<A,E>
+    fromUnsafeSyncCall: <A>(f: () => A) => Result<A,UnsafeSyncCallError>
+    andThen: <A,E,B,E1>(ma: Result<A,E>, mb: Result<B,E1>) => Result<readonly [A,B], E | E1>
+    orElse: <A,E,B,E1>(ma: Result<A,E>, mb: Result<B,E1>) => Result<Either<A,B>, readonly [E, E1]>
 }
 
 type T = Result_
@@ -85,10 +120,89 @@ const Ok_: T['Ok'] = <A,E>(value:A) => Result(() => ({hasError: false, value})) 
 
 const Error_: T['Error'] = <A,E>(error:E) => Result(() => ({hasError: true, value: error})) as unknown as Result<A,E>
 
+const fromUnsafeSyncCall: T['fromUnsafeSyncCall'] = <A>(f: () => A) => {
+    return Result<A,UnsafeSyncCallError>( () => {
+        const mapCatchedError = (catchedError: unknown): UnsafeSyncCallError => {
+            return {
+                kind: 'UnsafeSyncCallError',
+                errorMessage: 'Tried to execute a unsafe sync function but got an error',
+                details: {
+                    catchedError,
+                }
+            }
+        }
 
-export const Result_ = {
+        // try to execute
+        try {
+            const a = f()
+            return { hasError: false, value: a }
+            
+        } catch (err) {
+            const mappedError = mapCatchedError(err)
+            return { hasError: true, value: mappedError }
+        }
+    })
+}
+
+const andThen: T['andThen'] = <A, E, B, E1>(ma: Result<A, E>, mb: Result<B, E1>): Result<readonly [A, B], E | E1> => {
+
+    return Result<readonly [A, B], E | E1>( () => {
+
+        const a = ma.unsafeRun()
+        if (a.hasError===true) {
+            return a
+        } else {
+            const b = mb.unsafeRun()
+            if (b.hasError===true) {
+                return b
+            } else {
+                const ab = [a.value, b.value] as const
+                return {
+                    hasError: false,
+                    value: ab
+
+                }
+            }
+        }
+
+
+
+    })
+
+}
+
+const orElse: T['orElse'] = <A, E, B, E1>(ma: Result<A, E>, mb: Result<B, E1>): Result<Either<A, B>, readonly [E, E1]> => {
+    return Result<Either<A, B>, readonly [E, E1]>(() => {
+        const a = ma.unsafeRun()
+        if(a.hasError===false) {
+            return {
+                hasError: false,
+                value: Either_.fromLeft<A,B>(a.value),
+            }
+        } else {
+            const b = mb.unsafeRun()
+            if(b.hasError===false) {
+                return {
+                    hasError: false,
+                    value: Either_.fromRight<A,B>(b.value),
+                }
+            } else {
+                const errAB = [a.value, b.value] as const
+                return {
+                    hasError: true,
+                    value: errAB,
+                }
+            }
+        }
+    })
+}
+
+export const Result_: Result_ = {
     Ok: Ok_,
     Error: Error_,
+    fromUnsafeSyncCall,
+    andThen,
+    orElse,
 }
 
 // test
