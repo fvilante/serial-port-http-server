@@ -1,10 +1,15 @@
 
 export type EitherWorld<A,B> = ReturnType<Either<A,B>['unsafeRun']>
 
+type EitherMatcher<A,B,X> = {
+    Left: (_: A) => X
+    Right: (_:B) => X
+}
 
 export type Either<A,B> = {
     kind: 'Either'
     unsafeRun: () => { isLeft: true, value: A } | { isLeft: false, value: B }
+    match: <X>(m: EitherMatcher<A,B,X>) => X
     transform: <X>(f: (this_: Either<A,B>) => X) => X
     bimap: <C,D>(f: (_:A) => C, g: (_:B) => D) => Either<C,D>
     mapLeft: <C>(f: (_:A) => C) => Either<C,B>
@@ -20,6 +25,17 @@ export const Either = <A,B>(world: () => EitherWorld<A,B>): Either<A,B> => {
     const id = <A>(a:A) => a
 
     const unsafeRun: T['unsafeRun'] = () => world()
+
+    const match: T['match'] = matcher => {
+        const data = unsafeRun()
+        if(data.isLeft===true) {
+            return matcher.Left(data.value)
+        } else {
+            return matcher.Right(data.value)
+        }
+    }
+
+    
 
     const transform: T['transform'] = f => f(Either(world))
 
@@ -40,6 +56,7 @@ export const Either = <A,B>(world: () => EitherWorld<A,B>): Either<A,B> => {
     return {
         kind: 'Either',
         unsafeRun,
+        match,
         transform,
         bimap,
         mapLeft,

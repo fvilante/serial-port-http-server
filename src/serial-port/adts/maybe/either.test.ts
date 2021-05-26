@@ -117,5 +117,20 @@ describe('Basic Tests', () => {
         expect(actual).toEqual(expected)
     })
 
+    it('Can match', async () => {
+        //prepare
+        let buf: unknown[] = []
+        const probe:B = 'hi'
+        const ma = Either_.fromRight<A,B>(probe)
+        //act
+        const action = ma.match({
+            Left: val => {buf.push(val)},
+            Right: val => {buf.push(val)},
+        })
+        //test
+        const expected = [probe]
+        expect(buf).toStrictEqual(expected)
+    })
+
    
 })
