@@ -1,7 +1,7 @@
 // =====================================================================================
 // ADTs in my subset - normaly a part of a std-lib
 // =====================================================================================
-
+/*
 // Future<A> - Represents a single future value of type A
 type FutureModel<A> = (resolve: (_:A) => void) => void
 type Future<A> = {
@@ -60,3 +60,5 @@ const dataValidated = dataFetchedUnsafe.validate(dataValidator)
 
 //unsaferun
 const unsaferun = await dataValidated.unsafeRun()
+
+*/
