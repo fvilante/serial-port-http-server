@@ -86,7 +86,7 @@ const Test1 = () => {
     const b = UInt8(255)
     const c = UInt8(256)
 
-    const d = [a,b,c].map( r => r.unsafeMatch<string>({
+    const d = [a,b,c].map( r => r.match<string>({
         Error: err => err,
         Ok: val => String(val),
     }))
