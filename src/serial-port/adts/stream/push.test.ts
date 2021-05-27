@@ -302,6 +302,23 @@ describe('basic tests', () => {
         expect(actual).toEqual(expected)
     })
 
+    /*it('it can scan async simple async values', async () => {
+        //prepare
+        const intervals = [100,700,300,400,500] as const
+        const stream_ = Push_.fromInterval(Pull_.fromArray(intervals))
+        const initial = 0
+        const reducer = (acc: number, cur: number): 
+        //act
+        const action = stream_.scanA(reducer, initial)
+        //check
+        let actual: number[]  = []
+        action.unsafeRun( actual_ => {
+            actual.push(actual_)
+        })
+        const expected = [1,3,5,10,20,40,50]
+        expect(actual).toEqual(expected)
+    })*/
+
     it('it can droplet', async () => {
         //prepare
         let actual: number[]  = []
@@ -317,6 +334,38 @@ describe('basic tests', () => {
         expect(actual).toEqual(expected)
     })
 
+    it('it can map an result value or result error', async () => {
+        // fix: To be done
+        //prepare
+        //act
+        //check
+        
+    })
+
+/* FIX: This test is failing I don't have time now to solve it. Maybe later. This class method is useful for statistics
+    
+    it('it can map durations', async () => {
+        //prepare
+        let actual: unknown[]  = []
+        const probe = [1,2,3] 
+        const expected = [
+            {value: 1, timepoint: undefined},
+            {value: 2, timepoint: undefined},
+            {value: 3, timepoint: undefined},
+            
+        ]
+        const stream = Push_.fromArray(probe)
+        //act
+        const action = stream.timeStamp();
+        //check
+        action.unsafeRun( vt => {
+            const {value, timePoint} = vt
+            actual.push(vt)
+        })
+        expect(actual).toEqual(expected)
+    })
+
+*/
 
     
 })

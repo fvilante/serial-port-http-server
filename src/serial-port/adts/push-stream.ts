@@ -1,6 +1,9 @@
 import { Duration, TimePoint, TimePoint_ } from "../time"
 import { now, Range } from "../utils"
+import { Future } from "./future";
+import { Maybe } from "./maybe";
 import { Either, Either_ } from "./maybe/either"
+import { Result } from "./result";
 import { Iterated, Pull, Pull_ } from "./stream/pull"
 
 // helper types
@@ -30,6 +33,7 @@ export type Push<A> = {
     filter: (f: (_:A) => boolean) => Push<A>
     fork: (criteriaForLeft: (_:A) => boolean) => Push<Either<A,A>>
     scan: <B>(reducer: (acc: B, cur: A) => B, initial: B) => Push<B>
+    //scanA: <B,E,S>(reducer: (state:S, cur:A) => Future<Result<readonly [state: S, result: Maybe<B>], E>>, initialState: S) => Push<Result<readonly [state: S, result: Maybe<B>], E>>
     transform: <X>(f: (me:Push<A>) => X) => X
     //flatten: () => Push<A> see 'concat'
     //all: <T extends Push<unknown>[]>(arr: T) => PushAll<T>
@@ -144,6 +148,10 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
         })
     })
 
+    /*const scanA: T['scanA'] = (f,ini) => Push( yield_ => {
+
+    })*/
+
     const transform: T['transform'] = f => f(Push(emitter))
 
     const tap: T['tap'] = f => Push( receiver => {
@@ -255,6 +263,8 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
         filter,
         fork,
         scan,
+        //scanA,
+        //scanG,
         transform,
         //flatten: flatten,
         tap: tap,
@@ -276,13 +286,15 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
 
 export type Push_ = {
     fromArray: <A>(arr: readonly A[]) => Push<A>
-    fromInterval: <A>(intervals: Pull<number>) => Push<Iterated<number>>
+    fromInterval: <N extends number>(intervals: Pull<N>) => Push<Iterated<N>>
     //intervalG: <A>(f:(seq: number) => number, totalSeqs?: number) => Push<number> //attention f: must be monotonic function else behaviour should be unexpected (https://en.wikipedia.org/wiki/Monotonic_function)
     //NOTE: concat is the flatten
     // Fix: Maybe I can construct a droplet on dynamic part, just by infering in run time if its an array and in case it is flatten it, else just pass data forward as is. 
     droplet: <A>(mma: Push<readonly A[]>) => Push<A>
     concat: <A>(mma: Push<Push<A>>) => Push<A>
     range: (initialIncluded: number, finalNotIncluded: number, step: number) => Push<number>
+    mapResultA: <A,E,B>(mma: Push<Result<A,E>>, f: (_:A) => B) => Push<Result<B,E>>
+    mapResultError: <A,E,E1>(mma: Push<Result<A,E>>, f: (_:E) => E1) => Push<Result<A,E1>>
 }
 
 type T = Push_
@@ -334,6 +346,15 @@ const range: T['range'] = (ini, end, step) => Push( yield_ => {
     
 })
 
+const mapResultA: T['mapResultA'] = (mma, f) => {
+    return mma.map( r => r.map(f))
+}
+
+const mapResultError: T['mapResultError'] = (mma, f) => {
+    return mma.map( r => r.mapError(f))
+}
+
+
 export const Push_: Push_ = {
     fromArray,
     fromInterval,
@@ -341,6 +362,8 @@ export const Push_: Push_ = {
     droplet,
     concat,
     range,
+    mapResultA,
+    mapResultError,
 }
 
 
