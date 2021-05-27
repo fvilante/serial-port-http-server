@@ -113,7 +113,7 @@ describe('basic tests', () => {
 
     it('Can pull with a push working as a "venture" tube', async () => {
         //prepare
-        let buf: [a:number|undefined, b:number][] = []
+        let buf: [a:number|void, b:number][] = []
         const as = [1,2,3]
         const bs = [10,20,30,40,50,60]
         const expected = [[1,10],[2,20],[3,30],[undefined,40],[undefined,50],[undefined,60]]
@@ -122,8 +122,10 @@ describe('basic tests', () => {
         //act
         const action = as_.pushWith(bs_)
         //check
-        action.unsafeRun( i => {
-            buf.push([i[0].value,i[1]])
+        action.unsafeRun( data => {
+            const i = data[0]
+            const value = i.value
+            buf.push([data[0].value,data[1]])
         })
         expect(buf).toEqual(expected)
     })

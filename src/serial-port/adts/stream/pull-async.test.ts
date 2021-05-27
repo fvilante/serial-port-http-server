@@ -43,7 +43,7 @@ describe('basic tests', () => {
         //prepare
         jest.useFakeTimers(); // we don't need to wait real time to pass :)
         const t = 50
-        let buf: [pulled: (5 | 6 | 7 | undefined), pushed: number | undefined][] = []
+        let buf: [pulled: (5 | 6 | 7 | void), pushed: number | void][] = []
         const probe = [5,6,7] as const
         const itor = PullAsync_.fromArray(probe)
         const delays = [t,t+1,t+2,t+3,t+4,t+5] as const

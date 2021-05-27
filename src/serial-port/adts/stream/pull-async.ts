@@ -8,14 +8,14 @@ import { Iterated } from './pull'
 
 // represents same data stream that may finish
 // FIX: I'm using this concept not only with pull but in push, should exists a better name
-export type IteratedAsync<A> = ReturnType<PullWorld<A>['next']>
+export type IteratedAsync<A,R = void> = ReturnType<PullWorld<A,R>['next']>
 
-export type PullWorld<A> = ReturnType<PullAsync<A>['unsafeRun']>
+export type PullWorld<A,R = void> = ReturnType<PullAsync<A,R>['unsafeRun']>
 
-export type PullAsync<A> = {
+export type PullAsync<A,R = void> = {
     kind: 'PullAsync'
     unsafeRun: () => {
-        next: () => Future<{ done: false, value: A } | { done: true, value: undefined }>
+        next: () => Future<{ done: false, value: A } | { done: true, value: R }>
     }
     unsafeRunM: () => {
         next: () => Future<Maybe<A>>

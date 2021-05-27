@@ -3,14 +3,18 @@ import { Push } from "../push-stream"
 // represents same data stream that may finish
 // FIX: I'm using this concept not only with pull but in push, should exists a better name
 // FIX: Extracted Iterated to a ADT named Iterated<A>
-export type Iterated<A> = ReturnType<PullWorld<A>['next']>
+export type Iterated<A,R = void> = 
+    | { done: false, value: A } 
+    | { done: true, value: R }
+
+//ReturnType<PullWorld<A>['next']>
 
 export type PullWorld<A> = ReturnType<Pull<A>['unsafeRun']>
 
-export type Pull<A> = {
+export type Pull<A,R = void> = {
     kind: 'Pull'
     unsafeRun: () => {
-        next: () => { done: false, value: A } | { done: true, value: undefined }
+        next: () => Iterated<A,R>
     }
     forEach: (f: (_:A) => void) => void
     map: <B>(f: (_:A) => B) => Pull<B>
@@ -74,18 +78,25 @@ export type Pull_ = {
 type T = Pull_
 
 //fix: arr should be not empty ?
-const fromArray: T['fromArray'] = arr => Pull( () => {
-    let buf = [...arr]
-    type A = typeof buf extends (infer A)[] ? A : never
-    return {
-        next: () => 
-            buf.length === 0 //empty?
-                ? { done: true, value: undefined }
-                : { done: false, value: buf.shift() as A},
-            
+const fromArray: T['fromArray'] = arr => {
+    return Pull( () => {
+        let buf = [...arr]
+        type A = typeof buf extends (infer A)[] ? A : never
+        return {
+            next: () => {
+                const nextValue = buf.shift()
+                const done = nextValue===undefined ? true : false
+                const value = done===true ? undefined : nextValue
+                if(done===false) {
+                    return ({done: false, value: value as A} as Iterated<A>)
+                } else {
+                    //is done
+                    return ({done: true, value} as Iterated<A>)
+                }
+            }     
         }
     })
-
+}
 export const Pull_: Pull_ = {
     fromArray,
 }
