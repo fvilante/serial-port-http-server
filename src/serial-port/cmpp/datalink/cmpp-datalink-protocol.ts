@@ -511,6 +511,7 @@ export type InterpreterState = {
     rawInputBuffer: readonly number[]
 }
 
+//just an idea (this interface is not being used)
 export type Interpreter = (_: Push<number>) => {
     FrameInterpreted: Push<FrameInterpreted>,
     onError: Push<InterpreterError> 
