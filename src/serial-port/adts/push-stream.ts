@@ -55,6 +55,7 @@ export type Push<A> = {
     //
     take: (size: number) => Push<Either<'eof',A>>
     takeByIndex: (elementIndex: number) => Future<A> // first element is index 0
+    takeFirst: () => Future<A>
     //_collectAll: () => Future<readonly A[]> // attention: if timeout is not specified, then program can halt if size is not reached. Fix: Should be either readonly A or FixedArray<N,A>
 
 }
@@ -266,6 +267,8 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
         })
     })
 
+    const takeFirst: T['takeFirst'] = () => takeByIndex(0);
+
     
 
     return {
@@ -291,7 +294,8 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
         timeStamp,
         timeInterval,
         take,
-        takeByIndex: takeByIndex,
+        takeByIndex,
+        takeFirst,
     }
 }
 
