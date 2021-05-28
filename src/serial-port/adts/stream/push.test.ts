@@ -373,6 +373,21 @@ describe('basic tests', () => {
         
     })
 
+    it('it can takeByIndex', async () => {
+        //prepare
+        let buf: number[]  = []
+        const probe = [0,1,2,3,4,5,6,7] as const
+        const expected = [3]
+        const stream = Push_.fromArray(probe)
+        //act
+        const action = stream.takeByIndex(3)
+        //check
+        action.unsafeRun( actual_ => {
+            buf.push(actual_)
+        })
+        expect(buf).toEqual(expected)
+    })
+
 /* FIX: This test is failing I don't have time now to solve it. Maybe later. This class method is useful for statistics
     
     it('it can map durations', async () => {
