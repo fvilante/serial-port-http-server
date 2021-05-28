@@ -132,5 +132,22 @@ describe('Basic Tests', () => {
         expect(buf).toStrictEqual(expected)
     })
 
+    it('Can convert to "Result" adt', async () => {
+        //prepare
+        let buf: unknown[] = []
+        const probeR:B = 'hi'
+        const probeL:A = 7
+        const maR = Either_.fromRight<A,B>(probeR)
+        const maL = Either_.fromLeft<A,B>(probeL)
+        const expected1 = {hasError: true, value: probeR }
+        const expected2 = {hasError: false, value: probeL}
+        //act
+        const action1 = maR.toResult().unsafeRun()
+        const action2 = maL.toResult().unsafeRun()
+        //test
+        expect(action1).toStrictEqual(expected1)
+        expect(action2).toStrictEqual(expected2)
+    })
+
    
 })
