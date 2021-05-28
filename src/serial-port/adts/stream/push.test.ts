@@ -187,6 +187,37 @@ describe('basic tests', () => {
         expect(buf).toEqual(expected)   
     })
 
+    it('Can union simple async stream', async (done) => {
+        //prepare
+        jest.useFakeTimers("modern"); // we don't need to wait real time to pass :)
+        const as = [100,50,151] as const
+        const bs = [100,150,80] as const
+        const pas = Push_.fromInterval(Pull_.fromArray(as))
+        const pbs = Push_.fromInterval(Pull_.fromArray(bs))
+         
+        let buf: number[] = []
+        const expected: number[] =  [ 100, 100, 50, 150, 151, 80 ]
+        
+        //act
+        const action = Push_.union(pas,pbs)
+        
+        //check
+        action.unsafeRun( either => {
+            const {isLeft, value:a} = either.unsafeRun()
+            const {done: done_, value} = a
+            if(value!==undefined) {
+                buf.push(value)
+                //console.log(buf)
+            }
+            if(buf.length===expected.length) {
+                //last bit of data
+                expect(buf).toEqual(expected)  ;
+                done()
+            }
+        })
+        jest.runAllTimers(); // but we need to wait all timers to run :)     
+    })
+
     it('Can concat a multiple signals from a single stream', async () => {
         //prepare
         const signal = 2

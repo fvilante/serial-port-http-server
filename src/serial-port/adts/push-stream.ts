@@ -292,6 +292,7 @@ export type Push_ = {
     // Fix: Maybe I can construct a droplet on dynamic part, just by infering in run time if its an array and in case it is flatten it, else just pass data forward as is. 
     droplet: <A>(mma: Push<readonly A[]>) => Push<A>
     concat: <A>(mma: Push<Push<A>>) => Push<A>
+    union: <A,B>(a: Push<A>, b: Push<B>) => Push<Either<A,B>>
     range: (initialIncluded: number, finalNotIncluded: number, step: number) => Push<number>
     mapResultA: <A,E,B>(mma: Push<Result<A,E>>, f: (_:A) => B) => Push<Result<B,E>>
     mapResultError: <A,E,E1>(mma: Push<Result<A,E>>, f: (_:E) => E1) => Push<Result<A,E1>>
@@ -311,8 +312,10 @@ const fromInterval: T['fromInterval'] = intervals => Push( receiver => {
         //Fix: should use tail call optimization ADT for memory safety.
         const i = itor.next()
         if(i.done!==true) {
-            receiver(i)
-            timer(i.value, loop)
+            timer(i.value, () => {
+                receiver(i);
+                loop();
+            })
         }
     }
 
@@ -338,6 +341,12 @@ const concat: T['concat'] = mma => Push( receiver => {
     })
 }) 
 
+//NOTE: if pa and pb are synchronous emission it will works like concat
+const union: T['union'] = (pa,pb) => Push( yield_ => {
+    pa.unsafeRun(a => yield_( Either_.fromLeft(a)));
+    pb.unsafeRun(b => yield_( Either_.fromRight(b)));
+})
+
 const range: T['range'] = (ini, end, step) => Push( yield_ => {
     //fix: use a safer algorithm, should use ../utils/range.ts ? 
     for (let k=ini; k<end; k=k+step) {
@@ -361,6 +370,7 @@ export const Push_: Push_ = {
     //intervalG,
     droplet,
     concat,
+    union,
     range,
     mapResultA,
     mapResultError,
