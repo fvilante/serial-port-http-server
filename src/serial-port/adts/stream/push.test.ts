@@ -1,3 +1,4 @@
+import { Future_ } from "../future"
 import { Push, Push_ } from "../push-stream"
 import { Pull_ } from "./pull"
 
@@ -386,6 +387,35 @@ describe('basic tests', () => {
             buf.push(actual_)
         })
         expect(buf).toEqual(expected)
+    })
+
+    it('it use with async talkback', async (done) => {
+        //prepare
+        let buf: unknown[]  = []
+        const probe = [0,1,2,3,4,5,6,7] 
+        const expected: unknown[] = ['talked_back  delay=10ms / num=6']
+        const stream = Push_.fromArray(probe).map( num => {
+            return {
+                number: num,
+                talkback: () => {
+                    return Future_.delay(10).map( delay => {
+                        buf.push(`talked_back  delay=${delay}ms / num=${num}` as const)
+                    })
+                }
+            }
+        })
+        //act
+        const action = stream.filter( x => x.number===6)
+        //check
+        action.unsafeRun( actual_ => {
+            actual_.talkback().unsafeRun( talkedback => {
+                expect(buf).toEqual(expected);
+                done();
+            });
+            
+        })
+        
+        
     })
 
 /* FIX: This test is failing I don't have time now to solve it. Maybe later. This class method is useful for statistics
