@@ -1,17 +1,39 @@
+import { now } from "../../utils"
 import { Future, Future_, UnsafePromiseError } from "../future"
 
 
 describe('basic tests', () => {
 
-    it('Can construct a single value', async () => {
+    it('Can construct a single value', async (done) => {
         //prepare
         const probe = 2
         //act
         const ma = Future<number>( yield_ => yield_(probe) )
         //check
         ma.unsafeRun( actual => {
-            expect(actual).toEqual(probe)
+            expect(actual).toEqual(2)
+            done();
         })
+    })
+
+    it('Can construct a single __setTimeout interval', async (done) => {
+        //prepare
+        const deltaTime = 100
+        const tolerance = 5/100 // arbitrary defined
+        const probe = 2
+        const t0 = now()
+        //act
+        const canceller = Future_.__setTimeout((ms) => {
+            const t1 = now()
+            const deltaTime_actual = t1 - t0
+            //check
+            expect(ms).toBe(deltaTime)
+            expect(deltaTime_actual).toBeGreaterThan(deltaTime*(1-tolerance))
+            expect(deltaTime_actual).toBeLessThan(deltaTime*(1+tolerance))
+            done();
+        }, deltaTime)
+        
+        
     })
 
     it('Can construct a lazy promise from a future', async () => {
@@ -102,14 +124,14 @@ describe('basic tests', () => {
 
     it('Can race two async Futures, test left and right side individually', async () => {
         //prepare
-        jest.useFakeTimers(); // we don't need to wait real time to pass :)
-        const t = 100 as const
+        //jest.useFakeTimers('modern'); // we don't need to wait real time to pass :)
+        const t = 300 as const
         const f0 = Future_.delay(t)
-        const f1 = Future_.delay(t+1).map( () => 'depois' as const)
-        const f2 = Future_.delay(t-1).map( () => 'antes' as const)
+        const f1 = Future_.delay(t+100).map( () => 'depois' as const)
+        const f2 = Future_.delay(t-100).map( () => 'antes' as const)
         //act
         const action1 = Future_.race(f0,f1)
-        const action2 = Future_.race(f0,f2)
+        const action2 = Future_.race(f0,f2) //f2 wins
         const action3 = Future_.race(f1,f0)
         const action4 = Future_.race(f2,f0)
         //check
@@ -125,13 +147,13 @@ describe('basic tests', () => {
         const expected2 = {isLeft: false, value: 'antes'}
         const expected3 = {isLeft: false, value: t}
         const expected4 = {isLeft: true, value: 'antes'}
-        jest.runAllTimers(); // but we need to wait all timers to run :)
+        //jest.runAllTimers(); // but we need to wait all timers to run :)
         expect(actual1).toEqual(expected1)
-        expect(actual2).toEqual(expected2)
+        expect(actual2).toEqual(expected2) //has error ***
         expect(actual3).toEqual(expected3)
         expect(actual4).toEqual(expected4)
         // Note: I don't know, why bellow is called 0 times, the expected should be two times: cancelation and probe, but... :(
-        expect(setTimeout).toHaveBeenCalledTimes(0) // I'm just couting how many times Setimeout has been called.
+        //expect(setTimeout).toHaveBeenCalledTimes(0) // I'm just couting how many times Setimeout has been called.
 
     })
 

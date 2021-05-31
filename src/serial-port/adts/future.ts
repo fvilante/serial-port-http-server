@@ -46,16 +46,27 @@ export type Future<A> = {
 export const Future = <A>(emitter: (receiver: (received: A) => void) => void): Future<A> => {
 
     type T = Future<A>
-
     //fix: Assure that once settled future to not emit more values, even if a buggy emiter continues to send signals
-    const unsafeRun: T['unsafeRun'] = receiver => emitter(receiver)
+    const unsafeRun: T['unsafeRun'] = receiver => {
+        let emissionCounter = 0
+        emitter( a => {
+            //this algorithm is a protection agains buggy emmiter
+            if(emissionCounter===0) { // takes only first emission
+                emissionCounter = emissionCounter + 1;
+                receiver(a);
+            } else {
+                // ignore other emissions, if it exists
+            }
+        })
+        
+    }
 
-    const runToAsync: T['runToAsync'] = () => () => new Promise( (resolve, reject) => emitter(resolve) )
+    const runToAsync: T['runToAsync'] = () => () => new Promise( (resolve, reject) => unsafeRun(resolve) )
 
     const async: T['async'] = runToAsync()
 
     const map: T['map'] = f => Future( receiver => {
-        emitter( a => { //fix: change 'emitter' to unsafeRun
+        unsafeRun( a => { 
             const b = f(a)
             receiver(b)
         })
@@ -70,7 +81,7 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
         })
     })
 
-    const transform: T['transform'] = f => f(Future(emitter))
+    const transform: T['transform'] = f => f(Future(unsafeRun))
 
     const ignoreContent: T['ignoreContent'] = () => map( a => undefined)
 
@@ -160,8 +171,8 @@ const fromUnsafePromise: T['fromUnsafePromise'] = runPromise => Future( yield_ =
 })
 
 const delay: T['delay'] = msecs => Future( yield_ => {
-    Future_.__setTimeout( () => {
-        yield_(msecs);
+    Future_.__setTimeout( (n) => {
+        yield_(n);
     }, msecs)
 })
 
@@ -189,21 +200,21 @@ const delayCancelable: T['delayCancelable'] = (msecs, cancel) => {
     })
 }
 
-
+// NOTE: The loser future do not get cancelead by this function. We are trying to mimic Promise.race (FIX: But I'm not sure if this is a good design decision)
 const race: T['race'] = (f0, f1) => Future( yield_ => {
 
-    let hasFullfilled = false
+    let whoWins: '0_WINS' | '1_WINS' | undefined = undefined
 
     f0.unsafeRun( a => {
-        if (hasFullfilled === false) {
-            hasFullfilled = true;
+        if (whoWins === undefined) {
+            whoWins = '0_WINS';
             yield_(Either_.fromLeft(a));
         }
     })
 
     f1.unsafeRun( b => {
-        if (hasFullfilled === false) {
-            hasFullfilled = true;
+        if (whoWins === undefined) {
+            whoWins = '1_WINS';
             yield_(Either_.fromRight(b));
         }
     })
