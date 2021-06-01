@@ -1,3 +1,4 @@
+import { Future_ } from "../future"
 import { Push, Push_ } from "../push-stream"
 import { Pull_ } from "./pull"
 
@@ -187,6 +188,37 @@ describe('basic tests', () => {
         expect(buf).toEqual(expected)   
     })
 
+    it('Can union simple async stream', async (done) => {
+        //prepare
+        jest.useFakeTimers("modern"); // we don't need to wait real time to pass :)
+        const as = [100,50,151] as const
+        const bs = [100,150,80] as const
+        const pas = Push_.fromInterval(Pull_.fromArray(as))
+        const pbs = Push_.fromInterval(Pull_.fromArray(bs))
+         
+        let buf: number[] = []
+        const expected: number[] =  [ 100, 100, 50, 150, 151, 80 ]
+        
+        //act
+        const action = Push_.union(pas,pbs)
+        
+        //check
+        action.unsafeRun( either => {
+            const {isLeft, value:a} = either.unsafeRun()
+            const {done: done_, value} = a
+            if(value!==undefined) {
+                buf.push(value)
+                //console.log(buf)
+            }
+            if(buf.length===expected.length) {
+                //last bit of data
+                expect(buf).toEqual(expected)  ;
+                done()
+            }
+        })
+        jest.runAllTimers(); // but we need to wait all timers to run :)     
+    })
+
     it('Can concat a multiple signals from a single stream', async () => {
         //prepare
         const signal = 2
@@ -339,6 +371,50 @@ describe('basic tests', () => {
         //prepare
         //act
         //check
+        
+    })
+
+    it('it can takeByIndex', async () => {
+        //prepare
+        let buf: number[]  = []
+        const probe = [0,1,2,3,4,5,6,7] as const
+        const expected = [3]
+        const stream = Push_.fromArray(probe)
+        //act
+        const action = stream.takeByIndex(3)
+        //check
+        action.unsafeRun( actual_ => {
+            buf.push(actual_)
+        })
+        expect(buf).toEqual(expected)
+    })
+
+    it('it use with async talkback', async (done) => {
+        //prepare
+        let buf: unknown[]  = []
+        const probe = [0,1,2,3,4,5,6,7] 
+        const expected: unknown[] = ['talked_back  delay=10ms / num=6']
+        const stream = Push_.fromArray(probe).map( num => {
+            return {
+                number: num,
+                talkback: () => {
+                    return Future_.delay(10).map( delay => {
+                        buf.push(`talked_back  delay=${delay}ms / num=${num}` as const)
+                    })
+                }
+            }
+        })
+        //act
+        const action = stream.filter( x => x.number===6)
+        //check
+        action.unsafeRun( actual_ => {
+            actual_.talkback().unsafeRun( talkedback => {
+                expect(buf).toEqual(expected);
+                done();
+            });
+            
+        })
+        
         
     })
 

@@ -1,17 +1,39 @@
+import { now } from "../../utils"
 import { Future, Future_, UnsafePromiseError } from "../future"
 
 
 describe('basic tests', () => {
 
-    it('Can construct a single value', async () => {
+    it('Can construct a single value', async (done) => {
         //prepare
         const probe = 2
         //act
         const ma = Future<number>( yield_ => yield_(probe) )
         //check
         ma.unsafeRun( actual => {
-            expect(actual).toEqual(probe)
+            expect(actual).toEqual(2)
+            done();
         })
+    })
+
+    it('Can construct a single __setTimeout interval', async (done) => {
+        //prepare
+        const deltaTime = 100
+        const tolerance = 5/100 // arbitrary defined
+        const probe = 2
+        const t0 = now()
+        //act
+        const canceller = Future_.__setTimeout((ms) => {
+            const t1 = now()
+            const deltaTime_actual = t1 - t0
+            //check
+            expect(ms).toBe(deltaTime)
+            expect(deltaTime_actual).toBeGreaterThan(deltaTime*(1-tolerance))
+            expect(deltaTime_actual).toBeLessThan(deltaTime*(1+tolerance))
+            done();
+        }, deltaTime)
+        
+        
     })
 
     it('Can construct a lazy promise from a future', async () => {
@@ -102,14 +124,14 @@ describe('basic tests', () => {
 
     it('Can race two async Futures, test left and right side individually', async () => {
         //prepare
-        jest.useFakeTimers(); // we don't need to wait real time to pass :)
-        const t = 100 as const
+        //jest.useFakeTimers('modern'); // we don't need to wait real time to pass :)
+        const t = 300 as const
         const f0 = Future_.delay(t)
-        const f1 = Future_.delay(t+1).map( () => 'depois' as const)
-        const f2 = Future_.delay(t-1).map( () => 'antes' as const)
+        const f1 = Future_.delay(t+100).map( () => 'depois' as const)
+        const f2 = Future_.delay(t-100).map( () => 'antes' as const)
         //act
         const action1 = Future_.race(f0,f1)
-        const action2 = Future_.race(f0,f2)
+        const action2 = Future_.race(f0,f2) //f2 wins
         const action3 = Future_.race(f1,f0)
         const action4 = Future_.race(f2,f0)
         //check
@@ -125,13 +147,13 @@ describe('basic tests', () => {
         const expected2 = {isLeft: false, value: 'antes'}
         const expected3 = {isLeft: false, value: t}
         const expected4 = {isLeft: true, value: 'antes'}
-        jest.runAllTimers(); // but we need to wait all timers to run :)
+        //jest.runAllTimers(); // but we need to wait all timers to run :)
         expect(actual1).toEqual(expected1)
-        expect(actual2).toEqual(expected2)
+        expect(actual2).toEqual(expected2) //has error ***
         expect(actual3).toEqual(expected3)
         expect(actual4).toEqual(expected4)
         // Note: I don't know, why bellow is called 0 times, the expected should be two times: cancelation and probe, but... :(
-        expect(setTimeout).toHaveBeenCalledTimes(0) // I'm just couting how many times Setimeout has been called.
+        //expect(setTimeout).toHaveBeenCalledTimes(0) // I'm just couting how many times Setimeout has been called.
 
     })
 
@@ -248,3 +270,70 @@ describe('basic tests', () => {
         //fix: test 'transform' method
     })
 })
+
+
+/*
+
+describe('Other tests', () => {
+
+    it('Can branch one future into multiples effects', async (done) => {
+        //prepare
+        const n1 = 77
+        const n2 = 88
+        let c1 = 0 //effect counter
+        let c2 = 0
+        let cc1 = 0
+        let cc2 = 0
+        const t1_ = 10 // timepoint
+        const t2_ = 50
+        const t3_expected = 0 //t2_ - t1_
+        let t3_actual = 0 // t3 = t2 - t1
+
+        const f1_Original = Future_.fromValue(n1).map(() => c1++)
+        const f2_Original = Future_.fromValue(n2).map(() => c2++)
+        const measureInterval = <A, B>(f1: Future<A>, f2: Future<B>): Future<number> => {
+            let t1 = 0
+            let t2 = 0
+
+            const s0 = f1.tap(() => t1 = now())
+            const s1 = f2.tap(() => t2 = now())
+            const s2 = s1 //Future_.all([s0, s1] as const).ignoreContent()
+            const s3 = s2.map(() => {
+                t3_actual = t2 - t1
+                return t3_actual
+            })
+
+            return s3
+        }
+
+        const run = <A, B>(f1: Future<A>, f2: Future<B>) => {
+            // effect counter 
+            const a1 = Future_
+                .fromValue(n1)
+                .map(() => c1++)
+                .map(() => cc1++)
+            const a2 = f2.map(() => cc2++)
+            const interval = measureInterval(a1, f2)
+
+            const r = Future_.all([a1, f2, a1,a1,a1] as const)
+            return r
+
+        }
+
+        //act
+        const action = run(f1_Original, f2_Original)
+        //expect(t3_actual).toEqual(0) // not have runned yet
+        //check
+        action.unsafeRun(([n1_, n2_, interval]) => {
+            //expect(n1_).toEqual(n1)
+            //expect(n2_).toEqual(n2)
+            expect(c1).toEqual(undefined)
+            //expect(c2).toEqual(1)
+            //expect(cc1).toEqual(1)
+            //expect(cc2).toEqual(1)
+            done()
+        })
+
+    })
+})
+*/

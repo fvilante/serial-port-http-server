@@ -1,3 +1,4 @@
+import { Result } from "../result"
 
 export type EitherWorld<A,B> = ReturnType<Either<A,B>['unsafeRun']>
 
@@ -14,6 +15,7 @@ export type Either<A,B> = {
     bimap: <C,D>(f: (_:A) => C, g: (_:B) => D) => Either<C,D>
     mapLeft: <C>(f: (_:A) => C) => Either<C,B>
     mapRight: <D>(g: (_:B) => D) => Either<A,D>
+    toResult: () => Result<A,B>
 }
 
 export type InferEither<T extends Either<unknown, unknown>> = T extends Either<infer A, infer B> ? [left: A, right: B] : never
@@ -53,6 +55,15 @@ export const Either = <A,B>(world: () => EitherWorld<A,B>): Either<A,B> => {
     const mapLeft: T['mapLeft'] = f => bimap(f,id)
     const mapRight: T['mapRight'] = g => bimap(id,g)
 
+    const toResult: T['toResult'] = () => Result<A,B>( () => {
+        const x = unsafeRun()
+        if (x.isLeft===true) {
+            return { hasError: false, value: x.value }
+        } else {
+            return { hasError: true, value: x.value }
+        }
+    })
+
     return {
         kind: 'Either',
         unsafeRun,
@@ -61,6 +72,7 @@ export const Either = <A,B>(world: () => EitherWorld<A,B>): Either<A,B> => {
         bimap,
         mapLeft,
         mapRight,
+        toResult,
     } 
     
 }
