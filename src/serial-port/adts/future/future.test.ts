@@ -270,3 +270,70 @@ describe('basic tests', () => {
         //fix: test 'transform' method
     })
 })
+
+
+/*
+
+describe('Other tests', () => {
+
+    it('Can branch one future into multiples effects', async (done) => {
+        //prepare
+        const n1 = 77
+        const n2 = 88
+        let c1 = 0 //effect counter
+        let c2 = 0
+        let cc1 = 0
+        let cc2 = 0
+        const t1_ = 10 // timepoint
+        const t2_ = 50
+        const t3_expected = 0 //t2_ - t1_
+        let t3_actual = 0 // t3 = t2 - t1
+
+        const f1_Original = Future_.fromValue(n1).map(() => c1++)
+        const f2_Original = Future_.fromValue(n2).map(() => c2++)
+        const measureInterval = <A, B>(f1: Future<A>, f2: Future<B>): Future<number> => {
+            let t1 = 0
+            let t2 = 0
+
+            const s0 = f1.tap(() => t1 = now())
+            const s1 = f2.tap(() => t2 = now())
+            const s2 = s1 //Future_.all([s0, s1] as const).ignoreContent()
+            const s3 = s2.map(() => {
+                t3_actual = t2 - t1
+                return t3_actual
+            })
+
+            return s3
+        }
+
+        const run = <A, B>(f1: Future<A>, f2: Future<B>) => {
+            // effect counter 
+            const a1 = Future_
+                .fromValue(n1)
+                .map(() => c1++)
+                .map(() => cc1++)
+            const a2 = f2.map(() => cc2++)
+            const interval = measureInterval(a1, f2)
+
+            const r = Future_.all([a1, f2, a1,a1,a1] as const)
+            return r
+
+        }
+
+        //act
+        const action = run(f1_Original, f2_Original)
+        //expect(t3_actual).toEqual(0) // not have runned yet
+        //check
+        action.unsafeRun(([n1_, n2_, interval]) => {
+            //expect(n1_).toEqual(n1)
+            //expect(n2_).toEqual(n2)
+            expect(c1).toEqual(undefined)
+            //expect(c2).toEqual(1)
+            //expect(cc1).toEqual(1)
+            //expect(cc2).toEqual(1)
+            done()
+        })
+
+    })
+})
+*/

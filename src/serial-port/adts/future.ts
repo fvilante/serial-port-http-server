@@ -129,7 +129,7 @@ export type Future_ = {
     flatten: <A>(mma: Future<Future<A>>) => Future<A> 
     mapResultA: <A,E,B>(mma: Future<Result<A,E>>, f: (_:A) => B) => Future<Result<B,E>>
     mapResultError: <A,E,E1>(mma: Future<Result<A,E>>, f: (_:E) => E1) => Future<Result<A,E1>>
-    
+    //relativeInterval: <A,B>(a: Future<A>, b: Future<B>) => Future<number>
 }
 
 type T = Future_
