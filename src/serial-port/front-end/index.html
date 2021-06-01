@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang='en'>
+<lang='en'>
 
     <head>
         <meta charset="UTF-8">
@@ -8,7 +8,19 @@
     </head>
 
     <body>
-        <h1> He have some content here being rendered in the browser.</h1>
+        <h1 id="textBox"> He have some content here being rendered in the browser.</h1>
     </body>
+
+    <script>
+
+        setTimeout( () => {
+            const el = document.getElementById("textBox")
+            el.innerHTML = el.innerHTML.concat(" ")
+            .concat("<br><br>")
+            .concat("We added some text to the original rendered text")
+            }, 2000)
+    
+
+    </script>
 
 </html>
