@@ -9,6 +9,7 @@
   "author": "fvilante",
   "license": "ISC",
   "devDependencies": {
+    "@types/node-static": "^0.7.6",
     "@types/serialport": "^8.0.1",
     "@types/ws": "7.2.6",
     "jest": "^26.4.2",
@@ -19,6 +20,9 @@
     "@types/jest": "^26.0.14",
     "@types/node": "^14.14.31",
     "@types/terminal-kit": "^1.28.2",
+    "fs": "0.0.1-security",
+    "http": "0.0.1-security",
+    "node-static": "^0.7.11",
     "npx": "^10.2.2",
     "serialport": "^9.0.1",
     "terminal-kit": "^2.0.3",
