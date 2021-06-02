@@ -9,6 +9,7 @@
   "author": "fvilante",
   "license": "ISC",
   "devDependencies": {
+    "@types/gulp": "^4.0.8",
     "@types/node-static": "^0.7.6",
     "@types/serialport": "^8.0.1",
     "@types/ws": "7.2.6",
