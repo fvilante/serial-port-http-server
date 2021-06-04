@@ -4,18 +4,30 @@
   "description": "Http server for local serial ports.",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "clean": "npx ts-node src\\serial-port\\gulpfile.ts\\clean.ts",
+    "build": "tsc --project src\\serial-port\\front-end\\tsconfig.json",
+    "server": "npx ts-node src\\serial-port\\front-end\\server\\server.ts",
+    "watch": "tsc --project src\\serial-port\\front-end\\tsconfig.json --watch"
   },
   "author": "fvilante",
   "license": "ISC",
   "devDependencies": {
     "@types/gulp": "^4.0.8",
     "@types/node-static": "^0.7.6",
+    "@types/normalize-path": "^3.0.0",
     "@types/serialport": "^8.0.1",
     "@types/ws": "7.2.6",
     "child_process": "^1.0.2",
+    "del": "^6.0.0",
+    "fast-glob": "^3.2.5",
+    "filehound": "^1.17.4",
     "gulp": "^4.0.2",
+    "gulp-clean": "^0.4.0",
+    "gulp-typescript": "^6.0.0-alpha.1",
     "jest": "^26.4.2",
+    "normalize-path": "^3.0.0",
+    "path": "^0.12.7",
     "ts-jest": "^26.4.0",
     "typescript": "^4.2.3"
   },
