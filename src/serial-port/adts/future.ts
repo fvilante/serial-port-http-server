@@ -1,6 +1,6 @@
 import { Maybe, Maybe_ } from "./maybe"
 import { Either, Either_ } from "./maybe/either"
-import { InferResult, Result_, Result } from "./result"
+import { InferResult, Result_, Result, ResultMatcher } from "./result"
 
 // IMPORTANT: 
 //  the idea of future is that he never trows an error
@@ -30,6 +30,10 @@ export type InferFuture<T extends Future<unknown>> = T extends Future<infer A> ?
 type Flatten<T extends readonly unknown[]> = T extends unknown[] ? _Flatten<T>[] : readonly _Flatten<T>[];
 type _Flatten<T> = T extends readonly (infer U)[] ? _Flatten<U> : T;
 
+type InferFutureResult<A> =  A extends Result<infer B,infer E> ? {value:B, error: E} : never 
+
+type FutureResultMatcher<A,X> = ResultMatcher<InferFutureResult<A>['value'],InferFutureResult<A>['error'],X>
+
 export type Future<A> = {
     kind: 'Future'
     unsafeRun: (_: Receiver<A>) => void
@@ -40,7 +44,11 @@ export type Future<A> = {
     tap: (f: (_:A) => void) => Future<A> //tap 'before' yield the value to the downstream
     transform: <X>(f: (me: Future<A>) => X) => X 
     ignoreContent: () => Future<void> // maps A to void
-
+    __decomposeResult: () => Future<{
+        value: Maybe<InferFutureResult<A>["value"]>;
+        error: Maybe<InferFutureResult<A>["error"]>;
+    }>
+    matchResult: <X>(m: FutureResultMatcher<A,X>) => Future<X>
 }
 
 export const Future = <A>(emitter: (receiver: (received: A) => void) => void): Future<A> => {
@@ -85,6 +93,29 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
 
     const ignoreContent: T['ignoreContent'] = () => map( a => undefined)
 
+    const __decomposeResult: T['__decomposeResult'] = () => {
+        type I = InferFutureResult<A>
+        const x = map( a => {
+            const r = a as unknown as Result<I['value'],I['error']>
+            const r0 = r.__select()
+            return r0
+        })
+        return x 
+    }
+
+    const matchResult: T['matchResult'] = matcher => {
+        type I = InferFutureResult<A>
+        return Future( yield_ => {
+            unsafeRun( a => {
+                const r = a as unknown as Result<I['value'],I['error']>
+                const x = r.match(matcher)
+                yield_(x)
+    
+            })
+        })
+        
+    }
+
     return {
         kind: 'Future',
         unsafeRun,
@@ -95,7 +126,9 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
         tap,
         transform,
         ignoreContent,
-    }
+        __decomposeResult,
+        matchResult,
+    }   
 
 } 
 

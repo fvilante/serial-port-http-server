@@ -1,5 +1,6 @@
 import { now } from "../../utils"
 import { Future, Future_, UnsafePromiseError } from "../future"
+import { Result, Result_ } from "../result"
 
 
 describe('basic tests', () => {
@@ -268,6 +269,80 @@ describe('basic tests', () => {
 
     it('it can transform', async () => {
         //fix: test 'transform' method
+    })
+
+    it('Can decompose Result ADT inside future', async (done) => {
+        //prepare
+        const expected = 'future is not certain' as const
+        const probe = Future<Result<number,typeof expected>>( yield_ => {
+            yield_(Result_.Error(expected))
+        })
+        //act
+        const action = probe.__decomposeResult()
+        //check
+        action.unsafeRun( ({value, error}) => {
+            error.forEach( actual => {
+                expect(actual).toEqual(expected)
+                done();
+            })
+        })
+
+        //fix: pay attention at this strange behaviour: (resolve this issue when possible)
+        const probe2 = Future_.fromValue(2 as const)
+        const action2 = probe2.__decomposeResult()
+        action2.unsafeRun( ({value, error}) => {
+            error.forEach( actual => {
+                //fix: var 'actual' here is never, but we don't
+                //      get static compilation error
+                // below line go to run-time without compile error, but it is wrong
+                // --> expect(actual).toEqual(expected) 
+                // fix: neither below generate static error. Why ?
+                // Note: The inference is correct, but the static is not alerting the error, and it is reintroducing the error on assignment
+                const n = actual + actual
+                //const n1 = n.toString()
+                //expect(n1).toBe(2)
+                //done();
+            })
+        })
+
+    })
+
+    it('Can match Future<Result<A,E>>', async (done) => {
+        //prepare
+        const text = 'future is not certain' as const
+        const probe = Future<Result<number,typeof text>>( yield_ => {
+            yield_(Result_.Error(text))
+        })
+        const probe2 = Future_.fromValue(2 as const) // fix: Note that some times Typescript let you manipulate never functions
+        const expected = 'future is not certain, but...' as const
+        //act
+        const action = probe.matchResult<string>({
+            Error: err => err.concat(', but...'),
+            Ok: val => String(val).concat('as you know'),
+        })
+        //check
+        action.unsafeRun( actual => {
+            expect(actual).toBe(expected);
+            done();
+        })
+    })
+
+    it('Can decompose Result ADT inside future', async (done) => {
+        //prepare
+        const expected = 'future is not certain' as const
+        const probe = Future<Result<number,typeof expected>>( yield_ => {
+            yield_(Result_.Error(expected))
+        })
+        const probe2 = Future_.fromValue(2 as const)
+        //act
+        const action = probe.__decomposeResult()
+        //check
+        action.unsafeRun( ({value, error}) => {
+            error.forEach( actual => {
+                expect(actual).toEqual(expected)
+                done();
+            })
+        })
     })
 })
 
