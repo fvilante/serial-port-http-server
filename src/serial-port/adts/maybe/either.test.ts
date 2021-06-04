@@ -149,5 +149,25 @@ describe('Basic Tests', () => {
         expect(action2).toStrictEqual(expected2)
     })
 
+    it('Can select between values', async () => {
+        //prepare
+        const probe = Either_.fromLeft(2 as const)
+        //act
+        const {left, right} = probe.__select()
+        //check
+        const actual1 = left.unsafeRun()
+        const actual2 = right.unsafeRun()
+        const expected1 = {
+            hasValue: true,
+            value: 2,
+        }
+        const expected2 = {
+            hasValue: false,
+            value: undefined,
+        }
+        expect(actual1).toEqual(expected1)
+        expect(actual2).toEqual(expected2)
+    })
+
    
 })

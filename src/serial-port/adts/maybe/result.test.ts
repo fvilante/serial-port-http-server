@@ -191,4 +191,24 @@ describe('basic tests', () => {
         expect(actual4).toStrictEqual(expected4)
     })
 
+    it('Can select only value or only error', async () => {
+        //prepare
+        const probe = Result_.Ok<number,string>(2 as const)
+        //act
+        const {value, error} = probe.__select()
+        //check
+        const actual1 = value.unsafeRun()
+        const actual2 = error.unsafeRun()
+        const expected1 = {
+            hasValue: true,
+            value: 2,
+        }
+        const expected2 = {
+            hasValue: false,
+            value: undefined,
+        }
+        expect(actual1).toEqual(expected1)
+        expect(actual2).toEqual(expected2)
+    })
+
 })
