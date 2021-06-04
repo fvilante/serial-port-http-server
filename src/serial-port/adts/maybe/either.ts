@@ -1,3 +1,4 @@
+import { Maybe, Maybe_ } from "../maybe"
 import { Result } from "../result"
 
 export type EitherWorld<A,B> = ReturnType<Either<A,B>['unsafeRun']>
@@ -16,6 +17,7 @@ export type Either<A,B> = {
     mapLeft: <C>(f: (_:A) => C) => Either<C,B>
     mapRight: <D>(g: (_:B) => D) => Either<A,D>
     toResult: () => Result<A,B>
+    select: () => { left: Maybe<A>, right: Maybe<B> }
 }
 
 export type InferEither<T extends Either<unknown, unknown>> = T extends Either<infer A, infer B> ? [left: A, right: B] : never
@@ -64,6 +66,16 @@ export const Either = <A,B>(world: () => EitherWorld<A,B>): Either<A,B> => {
         }
     })
 
+    const select: T['select'] = () => {
+        const x = unsafeRun()
+        const maybeA = x.isLeft===false ? Maybe_.fromNothing<A>() : Maybe_.fromJust(x.value)
+        const maybeB = x.isLeft===true ? Maybe_.fromNothing<B>() : Maybe_.fromJust(x.value)
+        return {
+            left: maybeA,
+            right: maybeB,
+        }
+    }
+
     return {
         kind: 'Either',
         unsafeRun,
@@ -73,6 +85,7 @@ export const Either = <A,B>(world: () => EitherWorld<A,B>): Either<A,B> => {
         mapLeft,
         mapRight,
         toResult,
+        select,
     } 
     
 }
