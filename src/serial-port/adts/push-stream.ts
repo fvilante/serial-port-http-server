@@ -3,7 +3,7 @@ import { now, Range } from "../utils"
 import { Future } from "./future";
 import { Maybe } from "./maybe";
 import { Either, Either_ } from "./maybe/either"
-import { Result } from "./result";
+import { Result, ResultMatcher } from "./result";
 import { Iterated, Pull, Pull_ } from "./stream/pull"
 
 // helper types
@@ -22,6 +22,11 @@ export type FinishablePush<A> = Push<A & HasComplete>
 export type PushEmitter<A> = (receiver: (_:A) => void) => void 
 
 export type InferPush<T extends Push<unknown>> = T extends Push<infer A> ? A : never
+
+type InferPushResult<A> =  A extends Result<infer B,infer E> ? {value:B, error: E} : never 
+
+type FutureResultMatcher<A,X> = ResultMatcher<InferPushResult<A>['value'],InferPushResult<A>['error'],X>
+
 
 // Push stream
 export type Push<A> = {
@@ -57,7 +62,7 @@ export type Push<A> = {
     takeByIndex: (elementIndex: number) => Future<A> // first element is index 0
     takeFirst: () => Future<A>
     //_collectAll: () => Future<readonly A[]> // attention: if timeout is not specified, then program can halt if size is not reached. Fix: Should be either readonly A or FixedArray<N,A>
-
+    matchResult: <X>(matcher: FutureResultMatcher<A,X>) => Push<X>
 }
 
 
@@ -269,7 +274,18 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
 
     const takeFirst: T['takeFirst'] = () => takeByIndex(0);
 
-    
+    const matchResult: T['matchResult'] = matcher => {
+        type I = InferPushResult<A>
+        type R = Result<I['value'],I['error']>
+        return Push( yield_ => {
+            unsafeRun( a => {
+                const s0 = a as unknown as R
+                const x = s0.match(matcher)
+                yield_(x)
+            })
+        })
+        
+    }
 
     return {
         kind: 'Push',
@@ -296,6 +312,7 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
         take,
         takeByIndex,
         takeFirst,
+        matchResult,
     }
 }
 
