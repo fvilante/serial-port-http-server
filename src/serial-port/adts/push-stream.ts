@@ -3,6 +3,7 @@ import { now, Range } from "../utils"
 import { Future } from "./future";
 import { Maybe } from "./maybe";
 import { Either, Either_ } from "./maybe/either"
+import { Ref } from "./ref/ref";
 import { Result, ResultMatcher } from "./result";
 import { Iterated, Pull, Pull_ } from "./stream/pull"
 
@@ -63,6 +64,7 @@ export type Push<A> = {
     takeFirst: () => Future<A>
     //_collectAll: () => Future<readonly A[]> // attention: if timeout is not specified, then program can halt if size is not reached. Fix: Should be either readonly A or FixedArray<N,A>
     matchResult: <X>(matcher: FutureResultMatcher<A,X>) => Push<X>
+    distinct: <B>(_: { setOfDistincts: Ref<B>, isInSet: (element:A, buffer: B) => boolean, addInSet: (item:A, set:B) => B }) => Push<A> // note: buf is used to store and values, you can flush or inspect as you go
 }
 
 
@@ -284,8 +286,23 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
                 yield_(x)
             })
         })
-        
     }
+
+    const distinct: T['distinct'] = ({setOfDistincts: setRef, isInSet, addInSet}) => Push( yield_ => {
+        unsafeRun( a => {
+            // const isTheFirst = buffer.read().indexOf(a) < 0; // exclusive for arrays
+            const set = setRef.read()
+            const isDistinct  = isInSet(a, set)
+            if(isDistinct===true) {
+                setRef.write( addInSet(a,set) );
+                yield_(a)
+            } else {
+                //do nothing
+            }
+        })
+        
+        
+    })
 
     return {
         kind: 'Push',
@@ -313,6 +330,7 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
         takeByIndex,
         takeFirst,
         matchResult,
+        distinct: distinct,
     }
 }
 

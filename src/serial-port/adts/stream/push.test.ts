@@ -451,6 +451,8 @@ it('Can match a stream with Result<A,E> inside it', async (done) => {
     const n = 2 as const
     const expected = n + 1
     const probe = Push<Result<typeof n,string>>( yield_ => yield_(Result_.Ok(n)) )
+    const probe2 = Push<2>( yield_ => yield_(n) )
+    
     //act
     const action = probe.matchResult({
         Error: err => err.length-1000,
