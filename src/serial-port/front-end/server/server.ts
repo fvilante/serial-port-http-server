@@ -4,7 +4,7 @@ import fs from 'fs'
 import static_ from 'node-static'
 
 let c = 0
-const file = new static_.Server('../')
+const file = new static_.Server("C:\\Users\\Flavio\\Google Drive\\Flavio\\10 - Projetos\\Leoni\\P4-Retrofit\\20 - Software P4-Leoni\\NodeSerialServer\\src\\serial-port\\front-end")
 
 const host = 'localhost'
 const port = 8080

@@ -1,5 +1,6 @@
 import { Future_ } from "../future"
 import { Push, Push_ } from "../push-stream"
+import { Result, Result_ } from "../result"
 import { Pull_ } from "./pull"
 
 
@@ -414,6 +415,8 @@ describe('basic tests', () => {
             });
             
         })
+
+       
         
         
     })
@@ -442,6 +445,29 @@ describe('basic tests', () => {
     })
 
 */
+
+it('Can match a stream with Result<A,E> inside it', async (done) => {
+    //prepare
+    const n = 2 as const
+    const expected = n + 1
+    const probe = Push<Result<typeof n,string>>( yield_ => yield_(Result_.Ok(n)) )
+    const probe2 = Push<2>( yield_ => yield_(n) )
+    
+    //act
+    const action = probe.matchResult({
+        Error: err => err.length-1000,
+        Ok: val => val+1,
+    })
+    //check
+    console.log('vai rodar')
+    action.unsafeRun( actual => {
+        console.log('rodou')
+        expect(actual).toEqual(expected)
+        done();
+    })
+    console.log('agendou')
+    
+})
 
     
 })

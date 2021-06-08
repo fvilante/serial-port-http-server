@@ -1,3 +1,4 @@
+import { Maybe, Maybe_ } from "./maybe"
 import { Either, Either_ } from "./maybe/either"
 
 export type InferResult<R> = R extends Result<infer A, infer E> ? {value: A, error: E} : never
@@ -21,6 +22,7 @@ export type Result<A,E> = {
     transform: <X>(f: (me: Result<A,E>) => X) => X
     tap: (f: (_:A) => void) => Result<A,E>
     tapError: (f: (_:E) => void) => Result<A,E>
+    __select: () => { value: Maybe<A>, error: Maybe<E> } // CAUTION: I think the concept of error is to assure you are dealing with error condition in a safe way (so we should use match instead of this selector), but I think some times we are in hush and want a breakable solution // fix: define if this function is really necessary or if it can be unsignaled as (caution)
 }
 
 export const Result = <A,E>(world: () => ResultWorld<A,E>): Result<A,E> => {
@@ -79,6 +81,16 @@ export const Result = <A,E>(world: () => ResultWorld<A,E>): Result<A,E> => {
         return id
     })
 
+    const __select: T['__select'] = () => {
+        const x = unsafeRun()
+        const maybeA = x.hasError===true ? Maybe_.fromNothing<A>() : Maybe_.fromJust(x.value)
+        const maybeE = x.hasError===false ? Maybe_.fromNothing<E>() : Maybe_.fromJust(x.value)
+        return {
+            value: maybeA,
+            error: maybeE
+        }
+    }
+
     return {
         kind: 'Result',
         unsafeRun,
@@ -91,6 +103,7 @@ export const Result = <A,E>(world: () => ResultWorld<A,E>): Result<A,E> => {
         transform,
         tap,
         tapError,
+        __select,
     }
 }
 

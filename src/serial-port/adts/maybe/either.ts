@@ -1,3 +1,4 @@
+import { Maybe, Maybe_ } from "../maybe"
 import { Result } from "../result"
 
 export type EitherWorld<A,B> = ReturnType<Either<A,B>['unsafeRun']>
@@ -16,6 +17,7 @@ export type Either<A,B> = {
     mapLeft: <C>(f: (_:A) => C) => Either<C,B>
     mapRight: <D>(g: (_:B) => D) => Either<A,D>
     toResult: () => Result<A,B>
+    __select: () => { left: Maybe<A>, right: Maybe<B> } //CAUTION: Either represents two cases not simutaneously, selecting and side and not selecting what to do with other side may be bad pratice, take care. // FIX: verify if the label 'caution' is important in the long-run
 }
 
 export type InferEither<T extends Either<unknown, unknown>> = T extends Either<infer A, infer B> ? [left: A, right: B] : never
@@ -64,6 +66,16 @@ export const Either = <A,B>(world: () => EitherWorld<A,B>): Either<A,B> => {
         }
     })
 
+    const __select: T['__select'] = () => {
+        const x = unsafeRun()
+        const maybeA = x.isLeft===false ? Maybe_.fromNothing<A>() : Maybe_.fromJust(x.value)
+        const maybeB = x.isLeft===true ? Maybe_.fromNothing<B>() : Maybe_.fromJust(x.value)
+        return {
+            left: maybeA,
+            right: maybeB,
+        }
+    }
+
     return {
         kind: 'Either',
         unsafeRun,
@@ -73,6 +85,7 @@ export const Either = <A,B>(world: () => EitherWorld<A,B>): Either<A,B> => {
         mapLeft,
         mapRight,
         toResult,
+        __select,
     } 
     
 }
