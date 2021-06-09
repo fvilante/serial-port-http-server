@@ -50,20 +50,16 @@ export const closeEnviroment = () => {
 }
 
 export const runWritter = (w: Future<Result<void, PortWriteError>>):Future<void> => {
-    return Future( yield_ => {
-        w.unsafeRun( r => r.match({
-            Error: err => { throw new Error(String(err))},
-            Ok: val => {yield_()},
-        }))
+    return w.matchResult({
+        Error: err => {throw new Error(String(err)) },
+        Ok: finished => {},
     })
 }
 
-export const runReader = (rr: Push<Result<readonly number[], PortReadError>>): Push<readonly number[]> => {
-    return Push( yield_ => {
-        rr.unsafeRun( r => r.match({
-            Error: err => { throw new Error(String(err))},
-            Ok: data => {yield_(data)},
-        }))
+export const runReader = (r_: Push<Result<readonly number[], PortReadError>>): Push<readonly number[]> => {
+    return r_.matchResult({
+        Error: err => {throw new Error(String(err)) },
+        Ok: response => response,
     })
 }
 
