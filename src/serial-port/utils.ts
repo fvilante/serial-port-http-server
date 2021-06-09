@@ -68,3 +68,15 @@ export const mapObject =<T, K extends keyof T> (obj:T, forEach: (value: T[K], ke
         forEach(value as T[K],key as K)
     })
 }
+
+
+
+type Arr = readonly unknown[];
+
+// partial call
+export const partialCall = <T extends Arr, U extends Arr, R>(
+    f: (...args: [...T, ...U]) => R,
+    ...headArgs: T
+  ) => {
+    return (...tailArgs: U) => f(...headArgs, ...tailArgs);
+  }
