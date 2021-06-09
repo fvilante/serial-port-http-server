@@ -1,9 +1,9 @@
 import { Push_ } from "../../adts/push-stream"
-import { compileCoreFrame, flattenFrameSerialized, FrameCore } from "./cmpp-datalink-protocol"
+import { compileCoreFrame, ESC, flattenFrameSerialized, FrameCore } from "./cmpp-datalink-protocol"
 import { adaptCmppInterpreterToGenericInterpreter, closeEnviroment, FrameInterpreter, initializeEnviroment, port___, runReader, runTransaction, runTransaction2, runWritter, serializeFrame } from "./syn-conn2.infra"
 
 
-// FIX: This unit test projects naturally how the API of CMPP datalink should be
+// FIX: This unit test does naturally projects how the API of CMPP datalink should be
 //      I was developing this unit test side-by-side the syn-conn2.infra.ts where
 //      the infrastructure of CMPP datalink API is being developed.
 //      The tests should be refactored to become more robust, and should be 
@@ -15,29 +15,65 @@ import { adaptCmppInterpreterToGenericInterpreter, closeEnviroment, FrameInterpr
 //      to typescript-nodejs server some information (not today eventually)
 //      My intention is to comeback here to finish this datalink API development
 
-describe('basic tests (over real hardware [cmpp pci + comport]', () => {
+const stopTest = (err: unknown):never => {
+    throw new Error(String(err)) 
+}
+
+describe('basic tests (over real hardware [cmpp pci + comport + CMPP00LG or similar]', () => {
 
     beforeEach( initializeEnviroment )
     afterEach( closeEnviroment )
 
-    it('can send a normal frame and receive something', async (done) => {
-        //prepare
-        const conn = port___
-        const frame = [ 27, 2, 64, 96, 8, 0, 27, 3, 83 ]
-        const w_ = conn.write(frame)
-        const w = runWritter(w_);
-        const r_ = conn.onData()
-        const r = runReader(r_)
+    it('can use portOpenedADT to send and receive any data', async (done) => {
+        // ==== prepare
+        const portOpened = port___ 
+        const frame = [ 27, 2, 64, 96, 8, 0, 27, 3, 83 ] as const //valid cmpp frame
+        //write
+        const w_ = portOpened.write(frame)
+        const w = w_.matchResult({
+            Error: err => stopTest(err),
+            Ok: finished => {},
+        })
+        //read
+        const r_ = portOpened.onData()
+        const r = r_.matchResult({
+            Error: err => stopTest(err),
+            Ok: response => response,
+        })
+        // ==== act
         w.unsafeRun( () => {
-            //console.log('has finished to write', frame)
-            r.takeFirst().unsafeRun( data => {
-                //console.log('receiving data', data)
-                expect(true).toEqual(true)
+            //console.log('has finished to write: ', frame)
+            r.takeFirst().unsafeRun( someData => {
+                //==== check
+                //console.log('receiving data: ', someData)
+                const shouldBeEsc = someData[0] 
+                expect(shouldBeEsc).toEqual(ESC)
                 done();
             })
         })
-        //act
-        //check
+        
+        
+    })
+
+    it('can send a good normal frame and receive something', async (done) => {
+        // ==== prepare
+        const portOpened = port___
+        const frame = [ 27, 2, 64, 96, 8, 0, 27, 3, 83 ] //cmpp frame
+        const w_ = portOpened.write(frame)
+        const w = runWritter(w_);
+        const r_ = portOpened.onData()
+        const r = runReader(r_)
+        // ==== act
+        w.unsafeRun( () => {
+            //console.log('has finished to write', frame)
+            r.takeFirst().unsafeRun( someData => {
+                // ==== check
+                //console.log('receiving data', data)
+                const shouldBeEsc = someData[0] 
+                expect(shouldBeEsc).toEqual(ESC)
+                done();
+            })
+        })
     })
 
     it('can send a normal frame and receive the time between transmission and reception', async (done) => {
@@ -51,7 +87,7 @@ describe('basic tests (over real hardware [cmpp pci + comport]', () => {
         const effect = runTransaction(w,r)
         effect.unsafeRun( info => {
             console.log(info)
-            expect(true).toBe(true)
+            expect(info.timeToReceive).toBeGreaterThan(1) // normally at 9600 takes 28 msecs to get first chunk of cmpp repsonse
             done()
         })
         //act
