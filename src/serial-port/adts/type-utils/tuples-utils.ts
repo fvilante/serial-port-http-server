@@ -1,9 +1,14 @@
 import { NaturalNumber } from "./natural-number";
 
+export type AnyTuple = readonly unknown[]
 
 export type TupleOf<T, N extends number> = N extends N ? number extends N ? T[] : _TupleOf<T, N, []> : never;
 type _TupleOf<T, N extends number, R extends unknown[]> = R['length'] extends N ? R : _TupleOf<T, N, [T, ...R]>;
 
+
+export type MapTuple<T extends AnyTuple, Index extends keyof T, B> = {
+    [K in keyof T]: K extends Index ? B: T[K]
+}
 
 // informal test
 
