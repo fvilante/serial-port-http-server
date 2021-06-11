@@ -32,6 +32,33 @@ describe('Basic test', () => {
         expect(actual).toEqual(expected)
     })
 
+    it('Can extend an interface', async () => {
+        // prepare
+        type International = {
+            milimeter: number,
+            meters: number,
+            steps: {size: number, stepsPerMotorRevolution: number}
+        }
+
+        type England = {
+            inches: number,
+        }
+        type Displacement = International & England
+
+        const expected1 = ["milimeter", 10] as const
+        const expected2 = ["inches", 20] as const
+        // act
+        type AmongKindsIncludes = InferKinds<Displacement>
+        const Displacement = Kinded_.fromInterface<Displacement>()
+        const action1 = Displacement('milimeter',10)
+        const action2 = Displacement('inches',20)
+        // test
+        const actual1 = action1.unsafeRun()
+        expect(actual1).toEqual(expected1)
+        const actual2 = action2.unsafeRun()
+        expect(actual2).toEqual(expected2)
+    })
+
     it('Can map a value', async () => {
         // prepare
         const value = 20
