@@ -1,4 +1,4 @@
-import { Kinded, Kinded_ } from "./kind"
+import { InferKinds, Kinded, Kinded_ } from "./kind"
 
 describe('Basic test', () => {
     
@@ -11,6 +11,24 @@ describe('Basic test', () => {
         // test
         const actual = action.unsafeRun()
         const expected = ["Channel", value]
+        expect(actual).toEqual(expected)
+    })
+
+    it('Can construct from interface', async () => {
+        // prepare
+        type Displacement = {
+            milimeter: number,
+            meters: number,
+            inches: number,
+            steps: {size: number, stepsPerMotorRevolution: number}
+        }
+        const expected = ["milimeter", 10] as const
+        // act
+        type AmongKindsIncludes = InferKinds<Displacement>
+        const Displacement = Kinded_.fromInterface<Displacement>()
+        const action = Displacement(...expected)
+        // test
+        const actual = action.unsafeRun()
         expect(actual).toEqual(expected)
     })
 
