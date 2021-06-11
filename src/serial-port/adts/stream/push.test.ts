@@ -104,7 +104,7 @@ describe('basic tests', () => {
                 actual.push(value[0])
             });
             expect(actual).toEqual(expected) 
-   })
+        })
     })
 
     it('Can filter among some vanila values', async () => {
@@ -415,11 +415,36 @@ describe('basic tests', () => {
             });
             
         })
+    })
+
+    it('can produce a Push from a consumer', async (done) => {
+        //prepare
+        const probe = [1,2,3]
+        const size = probe['length']
+        const f = (n:number):number => n+1
+        const expected = probe.map(f)
+        const probe_ = Push_.fromArray(probe)
+        //act
+        const action = probe_.map( n => {
+            return Push<number>( yield_ => {
+                yield_(f(n))
+            })
+        })
+        const action_ = Push_.concat(action)
+        //check
+        action_.collect(size).unsafeRun( result => {
+            const [actual, actualSize] = result
+            expect(actualSize).toEqual(size);
+            expect(actual).toEqual(expected)
+            done();
+        } )
+        
+    })
 
        
         
         
-    })
+    
 
 /* FIX: This test is failing I don't have time now to solve it. Maybe later. This class method is useful for statistics
     
@@ -446,28 +471,28 @@ describe('basic tests', () => {
 
 */
 
-it('Can match a stream with Result<A,E> inside it', async (done) => {
-    //prepare
-    const n = 2 as const
-    const expected = n + 1
-    const probe = Push<Result<typeof n,string>>( yield_ => yield_(Result_.Ok(n)) )
-    const probe2 = Push<2>( yield_ => yield_(n) )
-    
-    //act
-    const action = probe.matchResult({
-        Error: err => err.length-1000,
-        Ok: val => val+1,
+    it('Can match a stream with Result<A,E> inside it', async (done) => {
+        //prepare
+        const n = 2 as const
+        const expected = n + 1
+        const probe = Push<Result<typeof n,string>>( yield_ => yield_(Result_.Ok(n)) )
+        const probe2 = Push<2>( yield_ => yield_(n) )
+        
+        //act
+        const action = probe.matchResult({
+            Error: err => err.length-1000,
+            Ok: val => val+1,
+        })
+        //check
+        console.log('vai rodar')
+        action.unsafeRun( actual => {
+            console.log('rodou')
+            expect(actual).toEqual(expected)
+            done();
+        })
+        console.log('agendou')
+        
     })
-    //check
-    console.log('vai rodar')
-    action.unsafeRun( actual => {
-        console.log('rodou')
-        expect(actual).toEqual(expected)
-        done();
-    })
-    console.log('agendou')
-    
-})
 
     
 })
