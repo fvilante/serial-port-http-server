@@ -91,5 +91,33 @@ describe('basic tests', () => {
 
     })
 
+    it('Can be constructed with Interface helper', () => {
+        //prepare
+        let c = 12 as const
+        const expected = `This is an string event with effect '${c}'` as const
+        type MyEvents = {
+            Event1: number
+            Event2: number[]
+            Event3: `This is an string event with effect '${typeof c}'`
+        }
+
+        const mkEvent1 = Among_.fromInterface<MyEvents>()
+        const event1 = mkEvent1('Event1',10)
+        const event2 = mkEvent1('Event2',[10,10])
+        const event3 = mkEvent1('Event3',"This is an string event with effect '12'")
+        //act
+        const action = mkEvent1('Event3',"This is an string event with effect '12'")
+        //check
+        const ev = action.unsafeRun()
+        if(ev[0]==='Event3') {
+            const r = ev[1]
+            const actual = r
+            expect(actual).toEqual(expected)
+        } else {
+            absurd()
+        }
+
+    })
+
 })
 
