@@ -84,6 +84,7 @@ type MaybeAllResult<T extends readonly Maybe<unknown>[]> = {
 export type Maybe_ = {
     fromJust: <A>(value: A) => Maybe<A>
     fromNothing: <A>() => Maybe<A>
+    fromPossibleUndefined: <A>(a: A | undefined) => Maybe<A>
     flatten: <A>(mma: Maybe<Maybe<A>>) => Maybe<A>
 }
 
@@ -92,6 +93,14 @@ type T = Maybe_
 const fromJust: T['fromJust'] = value => Maybe( () => ({ hasValue: true, value}))
 
 const fromNothing: T['fromNothing'] = <A>() => Maybe( () => ({ hasValue: false, value: NothingObject})) as unknown as Maybe<A>
+
+const fromPossibleUndefined: T['fromPossibleUndefined'] = <A>(aOrUndefined: A | undefined) => {
+    if(aOrUndefined===undefined) {
+        return fromNothing<A>()
+    } else {
+        return fromJust<A>(aOrUndefined)
+    }
+}
 
 const flatten: T['flatten'] = mma => Maybe( () => {
     type A = InferMaybe<InferMaybe<typeof mma>>
@@ -105,6 +114,7 @@ const flatten: T['flatten'] = mma => Maybe( () => {
 export const Maybe_: Maybe_ = {
     fromJust,
     fromNothing,
+    fromPossibleUndefined,
     flatten,
 }
 

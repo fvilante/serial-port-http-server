@@ -20,6 +20,28 @@ describe('Basic Tests', () => {
 
     })
 
+    it('Can create from a value possible undefined', async () => {
+        const probe = `foo` as const
+        type A = typeof probe
+        type A_U = A | undefined 
+        const expected = {
+            hasValue: true,
+            value: "foo",
+        }
+        const action = Maybe_.fromPossibleUndefined<A>(probe)
+        const actual = action.unsafeRun()
+        expect(actual).toEqual(expected)
+        //2
+        const expected2 = {
+            hasValue: false,
+            value: undefined,
+        }
+        const action2 = Maybe_.fromPossibleUndefined<A>(undefined)
+        const actual2 = action2.unsafeRun()
+        expect(actual2).toEqual(expected2)
+
+    })
+
     it('Can map', async () => {
         const probe:Probe = 2
         const f = (x:Probe):Probe => 2*x
