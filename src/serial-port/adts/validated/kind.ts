@@ -10,6 +10,9 @@ export type KindType = {
 }
 
 // ================== KINDED INTERFACE =======================================================================
+//Fix: A kinded interface should have a property named '__KI_CONTEXT__' that contains the name of the interface
+//     this helps to reduce the need to long description on each messages of the interface that MUST includes
+//     the name of interface. (This is a kind of namespace or scope for the KindedInterface concept)
 //Fix: Eventually the 'kinded interface' should be extracted to another file (I'm not sure now)
 namespace KindedInterface_ {
     //NOTE: A 'kinded interface' is an interface that represents a set of possible kinded constructions
@@ -44,7 +47,7 @@ export type InferKinded<T extends Kinded> = T extends Kinded<infer K, infer A> ?
 
 export type Kinded<K extends TypeOfKey = TypeOfKey, A extends Value = Value> = {
     kind: 'Kinded'
-    unsafeRun: () => [kind: K, value: A]
+    unsafeRun: () => [kind: K, value: A] // Fix: The kind should return an object instead of an tuple (appears to produce code more esiear for this case )
     unsafeRunV: () => A
     unsafeRunK: () => K
     map: <K1 extends TypeOfKey, B extends Value>(f: (kind: K, value: A) => [kind: K1, value: B]) => Kinded<K1,B>
