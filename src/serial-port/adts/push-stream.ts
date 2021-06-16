@@ -34,6 +34,7 @@ export type Push<A> = {
     kind: 'Push'
     //run: () => PushWorld<A>
     unsafeRun: (receiver: (_:A) => void) => void
+    forEachResult: <X>(m: FutureResultMatcher<A,X>) => void 
     map: <B>(f: (_: A) => B) => Push<B>
     step: <N extends number>(size: N, step: number) => Push<[collected: readonly A[],size: N]>
     filter: (f: (_:A) => boolean) => Push<A>
@@ -73,6 +74,8 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
     type T = Push<A>
 
     const unsafeRun: T['unsafeRun'] = receiver => emitter(receiver)
+
+    const forEachResult: T['forEachResult'] = matcher => matchResult(matcher).unsafeRun( x => {/*ignore*/ })
 
     const map: T['map'] = f => Push( receiver => {
         emitter( a => {
@@ -307,6 +310,7 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
     return {
         kind: 'Push',
         unsafeRun,
+        forEachResult,
         map,
         step,
         filter,
