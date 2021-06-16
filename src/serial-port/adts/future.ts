@@ -36,7 +36,10 @@ type FutureResultMatcher<A,X> = ResultMatcher<InferFutureResult<A>['value'],Infe
 
 export type Future<A> = {
     kind: 'Future'
+    // unsafe part
     unsafeRun: (_: Receiver<A>) => void
+    forResult: <X>(m: FutureResultMatcher<A,void>) => void
+    // safe part (?)
     runToAsync: () => () => Promise<A> // never should fails, all error treatment SHOULD be made inside A
     async: () => Promise<A> //async is designed to use 'await' keyword on futures
     map: <B>(f: (_:A) => B) => Future<B>
@@ -70,6 +73,8 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
     }
 
     const runToAsync: T['runToAsync'] = () => () => new Promise( (resolve, reject) => unsafeRun(resolve) )
+
+    const forResult: T['forResult'] = matcher => matchResult(matcher).unsafeRun( () => {})
 
     const async: T['async'] = runToAsync()
 
@@ -112,13 +117,13 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
                 yield_(x)
     
             })
-        })
-        
+        })  
     }
 
     return {
         kind: 'Future',
         unsafeRun,
+        forResult,
         runToAsync,
         async,
         map,
