@@ -7,8 +7,18 @@ export type AmongMatcher<T extends KindedInterface,X> = {
     [K in GetKeys<T>]: (value: GetValueByKey<T,K>, label: K) => X
 }
 
+type InferAmong<T extends Among<KindedInterface>> = T extends Among<infer I> ? I : never
+
 type AmongWorld<U extends KindedInterface> = ReturnType<InferKinds<U>['unsafeRun']>
 
+// Fix: This flattening type is Not implemented but works. 
+//      I'm studying the best form to flatenning the among interface, and to unsafeRunDeep
+type AmongDeepUnsafeRun<U extends KindedInterface> = {
+    [K in keyof U]: U[K] extends Among<infer I>
+        ? AmongDeepUnsafeRun<I>
+        : U[K]
+
+}
 export type Among<U extends KindedInterface> = {
     kind: 'Among'
     // unsafe part
