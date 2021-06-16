@@ -30,7 +30,6 @@ describe('basic tests', () => {
 
     it('Can pull multiple values from an Array', async () => {
         //prepare
-        let buf = []
         const p1 = 2
         const p2 = 7
         const p3 = 10
@@ -42,12 +41,19 @@ describe('basic tests', () => {
         const actual1 = itor.next()
         const actual2 = itor.next()
         const actual3 = itor.next()
+        const actual4 = itor.next()
+        const actual5 = itor.next()
         const expected1 = { done: false,  value: p1}
         const expected2 = { done: false, value: p2}
         const expected3 = { done: false, value: p3}
+        const expected4 = { done: true, value: undefined}
+        const expected5 = { done: true, value: undefined}
         const actual = [actual1, actual2, actual3]
         const expected = [expected1, expected2, expected3]
         expect(actual).toEqual(expected)
+        expect(actual4).toEqual(expected4)
+        expect(actual5).toEqual(expected5)
+        
     })
 
     it('Can correctly deal with the exhaustion of pulling an array', async () => {
