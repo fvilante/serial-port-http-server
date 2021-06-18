@@ -1,4 +1,5 @@
-import { Push_ } from "../push-stream"
+import { Future_ } from "../future"
+import { Push, Push_ } from "../push-stream"
 import { Pull, Pull_ } from "./pull"
 
 
@@ -13,7 +14,7 @@ describe('basic tests', () => {
         const itor = action.unsafeRun()
         const actual = itor.next()
         const expected = { done: false, value: 2}
-        expect(actual).toEqual(expected)
+        expect(actual).toStrictEqual(expected)
     })
 
     it('Can pull no value from an Array', async () => {
@@ -25,7 +26,7 @@ describe('basic tests', () => {
         const itor = action.unsafeRun()
         const actual = itor.next()
         const expected = { done: true, value: undefined}
-        expect(actual).toEqual(expected)
+        expect(actual).toStrictEqual(expected)
     })
 
     it('Can pull multiple values from an Array', async () => {
@@ -50,10 +51,47 @@ describe('basic tests', () => {
         const expected5 = { done: true, value: undefined}
         const actual = [actual1, actual2, actual3]
         const expected = [expected1, expected2, expected3]
-        expect(actual).toEqual(expected)
-        expect(actual4).toEqual(expected4)
-        expect(actual5).toEqual(expected5)
+        expect(actual).toStrictEqual(expected)
+        expect(actual4).toStrictEqual(expected4)
+        expect(actual5).toStrictEqual(expected5)
         
+    })
+
+
+    it('Can pull multiple values using an recurrent function', async (done) => {
+        //prepare
+        const p1 = 2
+        const p2 = 7
+        const p3 = 10
+        const probe_ = [p1,p2,p3]
+        //act
+        const probe = Pull_.fromArray(probe_)
+        //check
+        const itor = probe.unsafeRun()
+
+        const p = Push<number>( yield_ => {
+            
+            const loop = () => {
+                const i = itor.next()
+                if(i.done===false) {
+                    Future_.delay(10).unsafeRun( () => {
+                        yield_(i.value)
+                        loop()
+                    })
+                }
+            }
+
+            loop()
+
+        })
+
+        const action = p.collect(probe_.length)
+        action.unsafeRun( actual_ => {
+            const [actual,size] = actual_
+            console.log('output',actual)
+            expect(actual).toStrictEqual(probe_)
+            done()
+        }) 
     })
 
     it('Can correctly deal with the exhaustion of pulling an array', async () => {
@@ -75,7 +113,7 @@ describe('basic tests', () => {
         const expected3 = { done: true, value: undefined}
         const actual = [actual1, actual2, actual3]
         const expected = [expected1, expected2, expected3]
-        expect(actual).toEqual(expected)
+        expect(actual).toStrictEqual(expected)
     })
 
     it('Can map multiple values and exhaust correctly', async () => {
@@ -103,7 +141,7 @@ describe('basic tests', () => {
         const expected5 = { done: true, value: undefined}
         const actual = [actual1, actual2, actual3, actual4, actual5]
         const expected = [expected1, expected2, expected3, expected4, expected5]
-        expect(actual).toEqual(expected)
+        expect(actual).toStrictEqual(expected)
     })
 
     it('Can perform a forEach in all values as fast as possible', async () => {
@@ -114,7 +152,7 @@ describe('basic tests', () => {
         //act
         arr.forEach( value => buf.push(value) )
         //check
-        expect(buf).toEqual(probe)
+        expect(buf).toStrictEqual(probe)
     })
 
     it('Can pull with a push working as a "venture" tube', async () => {
@@ -133,7 +171,7 @@ describe('basic tests', () => {
             const value = i.value
             buf.push([data[0].value,data[1]])
         })
-        expect(buf).toEqual(expected)
+        expect(buf).toStrictEqual(expected)
     })
 
 })
