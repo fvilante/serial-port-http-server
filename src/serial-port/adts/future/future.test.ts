@@ -16,6 +16,17 @@ describe('basic tests', () => {
             done();
         })
     })
+    it('Can construct from a thunk', async (done) => {
+        //prepare
+        const probe = () => 2
+        //act
+        const ma = Future_.fromThunk(probe)
+        //check
+        ma.unsafeRun( actual => {
+            expect(actual).toEqual(2)
+            done();
+        })
+    })
 
     it('Can construct a single __setTimeout interval', async (done) => {
         //prepare

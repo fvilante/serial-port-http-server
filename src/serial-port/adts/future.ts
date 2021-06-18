@@ -159,6 +159,7 @@ export type Future_ = {
     // FIX: milisecs should be a unit of time not of natural number
     //_alarm: (milisecs: number ) => Future<[timePoint: Future<Maybe<number>>, cancelation: () => void]>  // if you cancel it'll return nothing, else it will return the number of msecs programmed after the time msecs has been passed
     fromValue: <A>(value:A) => Future<A>
+    fromThunk: <A>(thunk: () => A) => Future<A>
     fromUnsafePromise: <A>(f: () => Promise<A>) => Future<Result<A,UnsafePromiseError>>
     delay: <N extends number>(msecs: N) => Future<N> //Note: cannot be canceled, returns the number of msecs programed
     delayCancelable: <A, N extends number = number>(msecs: N, cancelation: Future<A>) => Future<Either<N,A>> // left if not has been canceled (returns the msecs programed), right if has been canceled (returns the type of the cancelation promise)
@@ -182,6 +183,8 @@ const __setTimeout: T['__setTimeout'] = (run, msecs) => {
 }
 
 const fromValue: T['fromValue'] = value => Future( yield_ => yield_(value))
+
+const fromThunk: T['fromThunk'] = thunk => Future( yield_ => yield_(thunk()))
 
 const fromUnsafePromise: T['fromUnsafePromise'] = runPromise => Future( yield_ => {
 
@@ -289,6 +292,7 @@ export const Future_: Future_ = {
     //_alarm: _alarm,
     __setTimeout,
     fromValue,
+    fromThunk,
     fromUnsafePromise,
     delay,
     delayCancelable,
