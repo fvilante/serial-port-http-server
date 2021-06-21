@@ -1,7 +1,14 @@
-import { BaudRate, PortOpened, SerialDriver, PortInfo } from "../../serial-local-driver";
+import { BaudRate, PortOpened, SerialDriver, PortInfo, SerialDriverConstructor } from "../../serial-local-driver";
 import { Future, Future_, UnsafePromiseError } from "../adts/future";
 import { Push } from "../adts/push-stream";
 import { Result, Result_, UnsafeSyncCallError } from "../adts/result";
+
+// helper
+export const getSerialPortDriverADT_Helper = ():SerialDriverADT => {
+    const concreteDriver = SerialDriverConstructor()
+    const driver = SerialLocalDriverADT(concreteDriver)
+    return driver
+}
 
 // Fix: This moment we are just adapting the original serial driver to have an API ADT-based
 //      but the ideal is to reinplement serial-driver in ADT terms
