@@ -1,4 +1,4 @@
-import { Reader_ } from "../reader/reader"
+
 import { Kinded_ } from "../validated/kind"
 import { Among, Among_, } from "./among"
 
@@ -145,4 +145,3 @@ describe('basic tests', () => {
 
 })
 
-Reader_
