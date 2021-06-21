@@ -1,3 +1,6 @@
+import { Maybe, Maybe_ } from '../maybe'
+import { Push } from '../push-stream'
+import { Result, Result_ } from '../result'
 import { GetKeys, GetValueByKey, InferKinds, Kinded, KindedInterface, Kinded_ } from '../validated/kind'
 
 
@@ -25,7 +28,8 @@ export type Among<U extends KindedInterface> = {
     unsafeRun: () => AmongWorld<U>
     matchAll: <X>(m: AmongMatcher<U,X>) => X
     // safe part
-    mapAllSync: <V extends KindedInterface>(f: AmongMatcher<U,Among<V>>) => Among<V> 
+    mapAllSync: <V extends KindedInterface>(f: AmongMatcher<U,Among<V>>) => Among<V>
+    _select: <K extends GetKeys<U>>(kind: K) => Result<Kinded<K, GetValueByKey<U,K>>, Error>
 }
 
 export const Among = <U extends KindedInterface>(world: () => AmongWorld<U>): Among<U> => {
@@ -47,11 +51,26 @@ export const Among = <U extends KindedInterface>(world: () => AmongWorld<U>): Am
         return worldV
     })
 
+    const _select: T['_select'] = kind  => {
+        return Result( () => {
+            const x = unsafeRun()
+            const [kind_, value] = x
+            if (x[0]===kind) {
+                return Result_.Ok<any,Error>(Kinded_.fromInterface<U>()(kind_, value) as any).unsafeRun()
+            }
+            else  {
+                const errorMessage = `Unsuccessful atempt to access key ${kind} in Among<U> ADT. This key dos not exists. Instead the concrete Among resolves to key=${kind_}, and value="${String(value)}"`
+                return Result_.Error<any,Error>(new Error(errorMessage)).unsafeRun()
+            }
+        })
+    }
+
     return {
         kind: 'Among',
         unsafeRun,
         matchAll: matchAll,
         mapAllSync: mapAllSync,
+        _select,
     }
 }
 
