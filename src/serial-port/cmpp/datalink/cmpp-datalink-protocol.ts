@@ -2,9 +2,7 @@
 
 // cmpp protocol
 
-import { Either } from "../../adts/maybe/either"
 import { Push } from "../../adts/push-stream"
-import { InferKinded, Kinded, Kinded_ } from "../../adts/validated/kind"
 
 // example valid frame: [0x1B,0x02,0x00,0x1C,0x00,0x00,0x1B,0x03,0xDF]
 
@@ -162,6 +160,15 @@ export const compileCoreFrame = (core: FrameCore): FrameSerialized => {
     ]
 
 }
+
+// helper
+export const serializeFrame = (frame: FrameCore): [serialized: FrameSerialized, flatten: readonly number[]] => {
+    const frame_ = compileCoreFrame(frame)
+    //fix: Flattening an array should be extract to an util
+    const frame__ = flattenFrameSerialized(frame_)
+    return [frame_, frame__]
+}
+
 
 
 // ======== INCOMMING DATA PROCESSING =============
