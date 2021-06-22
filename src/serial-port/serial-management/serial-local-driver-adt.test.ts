@@ -2,7 +2,7 @@ import { PortInfo, PortOpened, SerialDriver, SerialDriverConstructor } from "../
 import { Future, Future_ } from "../adts/future"
 import { Push } from "../adts/push-stream"
 import { Result, ResultMatcher, Result_ } from "../adts/result"
-import { PortError, PortToOpen, SerialLocalDriverADT } from "./serial-local-driver-adt"
+import { PortError, PortOpened_, PortToOpen, SerialLocalDriverADT } from "./serial-local-driver-adt"
 
 
 
@@ -38,6 +38,49 @@ describe('basic tests', () => {
                 done();
             })
         })
+
+        it('Can send and read a valid cmpp frame from channel 0x00', async (done) => {
+
+            //prepare
+            let buf: readonly number[] = []
+            const portToOpen: PortToOpen = {
+                portPath: 'com29',
+                baudRate: 9600,
+            }
+            const driver = SerialDriverConstructor()
+            const driver_ = SerialLocalDriverADT(driver)
+            const port = driver_.openPort(portToOpen)
+            const validFrame: readonly number[] =  [ 27, 2, 0, 80, 0, 0, 27, 3, 171 ]
+            const expectedResponse: readonly number[] = [ 27, 6, 0, 80, 98, 2, 27, 3, 67 ]
+            //act
+            // console.log('abrindo porta')
+            const action = await Future<PortOpened_>( resolve => port.unsafeRun( r => r.forOk( portOpened => resolve(portOpened)))).async()
+            //test
+            const portOpened = action
+            setTimeout( () => {
+                // console.log('fechando porta')
+                portOpened.close().unsafeRun( r => {
+                    r.unsafeRun();
+                    // console.log('fechada')
+                    expect(buf).toStrictEqual(expectedResponse)
+                    done()
+                })
+
+            },2000)
+            // console.log('writing to port')
+            await portOpened.write(validFrame).async() // NOTE: This await is easy to forget, take care.
+            // console.log('writed')
+            // console.log('start listening')
+            portOpened.onData().unsafeRun( r => {
+                //  console.log('handler foi executado')
+                r.forOk(data => {
+                    buf = [...buf, ...data]
+                    // console.log('data=',data)
+                })
+            })
+        })
+
+        
 
         // NOTE: I'm using the 'com0com' software instaled which is a system level windows serial driver emulator with loopback
         //       If you do not have this software instaled in your test enviroment (computer), probably this test will not pass
