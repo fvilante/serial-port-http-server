@@ -44,12 +44,12 @@ export const Resource = <R>(world: () => ResourceWorld<R>): Resource<R> => {
     const use: T['use'] = <A>(f: (resource: R) => Future<A>) => {
         const event = Among_.fromInterface<UseEvents<R,A>>()
         const error_ = Among_.fromInterface<ResourceError>()
-        const {aquire: create, release} = unsafeRun()
+        const {aquire, release} = unsafeRun()
         return Push<Among<UseEvents<R, A>>>( yield_ => {
             //recipe
             yield_(event('BEGIN', undefined))
             yield_(event('aquiring', undefined))
-            create().forResult({
+            aquire().forResult({
                 Error: err => {
                     yield_(event('error',error_('aquiringError',err)))
                     yield_(event('END',undefined))
