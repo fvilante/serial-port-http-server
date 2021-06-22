@@ -52,6 +52,7 @@ export type Future<A> = {
         error: Maybe<InferFutureResult<A>["error"]>;
     }>
     matchResult: <X>(m: FutureResultMatcher<A,X>) => Future<X>
+    addDelay: (msecs: number) => Future<A>
 }
 
 export const Future = <A>(emitter: (receiver: (received: A) => void) => void): Future<A> => {
@@ -120,6 +121,14 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
         })  
     }
 
+    const addDelay: T['addDelay'] = msecs => {
+        return Future( resolve => {
+            unsafeRun( a => {
+                Future_.delay(msecs).unsafeRun( hasFinished => resolve(a))
+            })
+        })
+    }
+
     return {
         kind: 'Future',
         unsafeRun,
@@ -133,6 +142,7 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
         ignoreContent,
         __decomposeResult,
         matchResult,
+        addDelay,
     }   
 
 } 
