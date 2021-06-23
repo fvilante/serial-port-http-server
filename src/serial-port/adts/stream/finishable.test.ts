@@ -1,5 +1,5 @@
 import { Finishable, Finishable_ } from "./finishable"
-import { Iterated } from "./pull"
+import { InferIterated, Iterated } from "./pull"
 
 describe('basic tests', () => {
 
@@ -15,6 +15,23 @@ describe('basic tests', () => {
         const action = fi.unsafeRun()
         //check
         expect(action).toEqual(expected)
+    })
+
+    it('Can construct from Iterated', async () => {
+        //prepare
+        const probe = 2 as const
+        const expected_: Iterated<number> = {
+            done: false,
+            value: probe,
+        } 
+        type X = InferIterated<typeof expected_>
+        const fi = Finishable_._fromIterated<number, void>( expected_)
+        // ATTENTION: 'fromIterated' need to specify type param 'A' and 'R' to get a good construction, because Typescript inference is not good here. (Aparently is the same case for Either_.left or Either_.right constructors)
+        const FI_TAKE_CARE = Finishable_._fromIterated( expected_)
+        //act
+        const action = fi.unsafeRun()
+        //check
+        expect(action).toEqual(expected_)
     })
 
     it('Can construct simple finishable with only one done result', async () => {

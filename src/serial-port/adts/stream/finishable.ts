@@ -1,5 +1,5 @@
 import { Either, Either_ } from "../maybe/either";
-import { Iterated } from "./pull";
+import { InferIterated, Iterated } from "./pull";
 
 
 // Purpose: ADT for an iterated value which is Finishible
@@ -36,6 +36,8 @@ export type Finishable<A,R = void> = {
     kind: 'Finishable'
     unsafeRun: () => Iterated<A,R>
     forEach: (m: FinishableMatcher<A,R,void>) => void
+    _forNext: (f: (next: A) => void) => void
+    _forDone: (f: (done: R) => void) => void
     match: <X>(m: FinishableMatcher<A,R,X>) => X
     mapNext: <B>(f: (_:A) => B) => Finishable<B,R>
     mapDone: <R1>(f: (_:R) => R1) => Finishable<A,R1>
@@ -49,6 +51,20 @@ export const Finishable = <A,R = void>(world: () => Iterated<A,R>): Finishable<A
 
     const forEach: T['forEach'] = m => {
         match(m)
+    }
+
+    const _forNext: T['_forNext'] = f => {
+        match({
+            Next: value => f(value),
+            Done: value => undefined,
+        })
+    }
+
+    const _forDone: T['_forDone'] = f => {
+        match({
+            Next: value => undefined,
+            Done: value => f(value),
+        })
     }
 
     const match: T['match'] = m => {
@@ -83,6 +99,8 @@ export const Finishable = <A,R = void>(world: () => Iterated<A,R>): Finishable<A
         kind: 'Finishable',
         unsafeRun,
         forEach,
+        _forNext,
+        _forDone,
         match,
         mapNext,
         mapDone,
@@ -90,11 +108,14 @@ export const Finishable = <A,R = void>(world: () => Iterated<A,R>): Finishable<A
 }
 
 export type Finishable_ = {
+    _fromIterated: <A,R>(_:Iterated<A,R>) => Finishable<A,R> // Attention: From this construction you need to specify type param 'A' and 'R' to get a good construction, because Typescript inference is not good here. (Aparently is the same case for Either_.left or Either_.right constructors)
     next: <A,R>(_:A) => Finishable<A,R>
     done: <A,R>(_:R) => Finishable<A,R>
 }
 
 export type T = Finishable_
+
+const _fromIterated: T['_fromIterated'] = iter => Finishable(() => iter)
 
 const next: T['next'] = <A, R>(value: A):Finishable<A, R> => {
     return Finishable<A,R>( () => ({
@@ -111,6 +132,7 @@ const done: T['done'] = <A, R>(value: R):Finishable<A, R> => {
 }
 
 export const Finishable_: Finishable_ = {
+    _fromIterated: _fromIterated,
     next,
     done,
 }
