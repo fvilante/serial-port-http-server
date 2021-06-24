@@ -1,8 +1,13 @@
 import { Push } from "../push-stream"
 
+// FIX: This inference does not seems to work as expected, try to infer an Iterated<number,void> and you will see the problem. Use with care. Maybe there exists a better solution, but I have not time do develop it now.
+export type InferIterated<T extends Iterated<unknown, unknown>> = 
+    T extends Iterated<infer A, infer B> ? [A,B] : never
+
 // represents same data stream that may finish
 // FIX: I'm using this concept not only with pull but in push, should exists a better name
 // FIX: Extracted Iterated to a ADT named Iterated<A>
+// FIX: I'm not sure that use some default type parameter in R is really a good idea, because it can obfuscate things
 export type Iterated<A,R = void> = 
     | { done: false, value: A } 
     | { done: true, value: R }
