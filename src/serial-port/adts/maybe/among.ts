@@ -1,6 +1,7 @@
 import { Maybe, Maybe_ } from '../maybe'
 import { Push } from '../push-stream'
 import { Result, Result_ } from '../result'
+import { MapValueByKey } from '../type-utils/interface-utils'
 import { GetKeys, GetValueByKey, InferKinds, Kinded, KindedInterface, Kinded_ } from '../validated/kind'
 
 
@@ -20,8 +21,9 @@ type AmongDeepUnsafeRun<U extends KindedInterface> = {
     [K in keyof U]: U[K] extends Among<infer I>
         ? AmongDeepUnsafeRun<I>
         : U[K]
-
 }
+
+
 export type Among<U extends KindedInterface> = {
     kind: 'Among'
     // unsafe part
@@ -29,6 +31,7 @@ export type Among<U extends KindedInterface> = {
     matchAll: <X>(m: AmongMatcher<U,X>) => X
     // safe part
     mapAllSync: <V extends KindedInterface>(f: AmongMatcher<U,Among<V>>) => Among<V>
+    mapByKey: <K extends GetKeys<U>,B>(kind: K, f: (value: GetValueByKey<U,K>) => B) => Among<MapValueByKey<U,K,B>>
     _select: <K extends GetKeys<U>>(kind: K) => Result<Kinded<K, GetValueByKey<U,K>>, Error>
 }
 
@@ -51,6 +54,17 @@ export const Among = <U extends KindedInterface>(world: () => AmongWorld<U>): Am
         return worldV
     })
 
+    const mapByKey: T['mapByKey'] = (kind, f) => Among( () => {
+        const x = unsafeRun()
+        const [kind_, value] = x
+        if(kind===kind_) {
+            const newValue = f(value as unknown as any) // fix: try to remove of check if it is safe to use this 'any' cast here
+            return [kind, newValue] as unknown as any // fix: see comment above
+        } else {
+            return x as unknown as any //fix see comment above
+        }
+    })
+
     const _select: T['_select'] = kind  => {
         return Result( () => {
             const x = unsafeRun()
@@ -70,6 +84,7 @@ export const Among = <U extends KindedInterface>(world: () => AmongWorld<U>): Am
         unsafeRun,
         matchAll: matchAll,
         mapAllSync: mapAllSync,
+        mapByKey,
         _select,
     }
 }
