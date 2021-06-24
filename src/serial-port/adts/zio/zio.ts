@@ -11,6 +11,7 @@ export type ZIO<R,A,E> = {
     kind: 'ZIO'
     //unsafe part
     unsafeRun: (enviroment: R) => Future<Result<A,E>>
+    unsafeRun_OrDie: (enviroment: R) => Future<A>
     unsafeRunA: (enviroment: R, onError: (_:E) => void) => Future<A>
     unsafeRunE: (enviroment: R, onValue: (_:A) => void) => Future<E>
     // safe
@@ -25,6 +26,13 @@ export const ZIO = <R,A,E>(world: ZIOWorld<R,A,E>): ZIO<R,A,E> => {
     type T = ZIO<R,A,E>
     
     const unsafeRun: T['unsafeRun'] = world
+
+    const unsafeRun_OrDie: T['unsafeRun_OrDie'] = enviroment => {
+        return unsafeRunA(enviroment, error => {
+            const ErrorMessage = `Error found when runing ZIO effect, details = " ` + String(error) + ' "'
+            throw new Error(ErrorMessage)
+        })
+    }
 
     const unsafeRunA: T['unsafeRunA'] = (enviroment, onError) => Future(resolve => {
         const main = unsafeRun(enviroment)
@@ -88,6 +96,7 @@ export const ZIO = <R,A,E>(world: ZIOWorld<R,A,E>): ZIO<R,A,E> => {
     return {
         kind: 'ZIO',
         unsafeRun,
+        unsafeRun_OrDie,
         unsafeRunA,
         unsafeRunE,
         provide,
