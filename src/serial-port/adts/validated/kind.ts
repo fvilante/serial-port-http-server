@@ -15,10 +15,12 @@ export type KindType = {
 //     the name of interface. (This is a kind of namespace or scope for the KindedInterface concept)
 //Fix: Eventually the 'kinded interface' should be extracted to another file (I'm not sure now)
 namespace KindedInterface_ {
+    export type Key = KindType['Key']
+    export type Value = KindType['Value']
     //NOTE: A 'kinded interface' is an interface that represents a set of possible kinded constructions
     //      It's useful for example for event creation and safe type convertion among other things.
     //      See: the constructor 'Kind_.fromInterface' for more
-    type KindedInterface = {[K in KindType['Key']]: KindType['Value']}
+    type KindedInterface = {[K in Key]: Value}
     export type Type = KindedInterface // short alias for exporting
     //helpers for 'Kinded interface' inference and kind construction 
     export type GetKeys<U extends KindedInterface> = InferInterface.GetKeys<U,KindType['Key']>
