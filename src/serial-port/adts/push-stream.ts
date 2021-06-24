@@ -2,6 +2,7 @@ import { Duration, TimePoint, TimePoint_ } from "../time"
 import { now, Range } from "../utils"
 import { Future } from "./future";
 import { Maybe } from "./maybe";
+import { Among, Among_ } from "./maybe/among";
 import { Either, Either_ } from "./maybe/either"
 import { Ref } from "./ref/ref";
 import { Result, ResultMatcher } from "./result";
@@ -49,10 +50,12 @@ export type Push<A> = {
     dropletWith: (f: (_:A) => boolean) => Push<readonly A[]> //fix: f should be a State<A> or other type (ie: Pull<A>... etc)
     ignoreAll: () => Push<A> // will never emit an A
     collect: <N extends number>(size: N) => Push<[collected: readonly A[],size: N]>
+    compareG: <X extends readonly A[]>(toCompare: X, isEqual: (me:A, other:A) => boolean) => Push<Among<{output: Either<X, A>, wip: readonly A[]}>> // note: "wip" means work in progress, basically it here represents a copy of the internals state of the comparator buffer.
     //drop: (size: number, step: number) => Push<readonly A[]>
 
     // combinators
     combineWith: <B>(f: (_:Push<A>) => Push<B>) => Push<readonly [A,B]>
+    indexed: () => Push<[index: number, value: A]>
 
     // utils
     timeStamp: () => Push<{value: A, timePoint: TimePoint}>
@@ -200,6 +203,40 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
         })
     })
 
+    const compareG: T['compareG'] = <X extends readonly A[]>(toCompare: X, comparator: (me: A, other: A) => boolean): Push<Among<{
+        output: Either<X, A>;
+        wip: readonly A[];
+    }>> => {
+        type I = {
+            output: Either<X, A>;
+            wip: readonly A[];
+        }
+        const event = Among_.fromInterface<I>()
+        return Push( yield_ => {
+            let buf: readonly A[] = []
+            unsafeRun( a => {
+                buf = [...buf, a]
+                if (buf.length===toCompare.length) {
+                    const isEqual = toCompare.every( (el,index) => comparator(buf[index],el) )
+                    if(isEqual===true) {
+                        yield_(event('output',Either_.fromLeft<X,A>(toCompare) ))
+                        buf = []
+                        yield_(event('wip',buf)) // note: wip = work in progress
+                    } else {
+                        const [head, ...tail] = buf
+                        buf = tail
+                        yield_(event('output',Either_.fromRight<X,A>(head)))
+                        yield_(event('wip',buf)) // note: wip = work in progress
+                    }
+                } else {
+                    yield_(event('wip',buf)) // note: wip = work in progress
+                }
+                
+                
+            }) 
+        })
+    }
+
     // FIX: if b came before a, they will not be catched
     const combineWith: T['combineWith'] = f => Push( receiver => {
         const pushA = Push(emitter)
@@ -210,6 +247,14 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
             })
         })  
 
+    })
+
+    const indexed: T['indexed'] = () => Push( receiver => {
+        let index = 0
+        unsafeRun( a => {
+            receiver([index,a])
+            index = index + 1
+        })
     })
 
     const _addTimeInformation = () => {
@@ -324,8 +369,10 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
         dropletWith: dropletWith,
         ignoreAll,
         collect,
+        compareG: compareG,
         // combinators
         combineWith: combineWith,
+        indexed,
 
         // utils
         timeStamp,
@@ -350,6 +397,7 @@ export type Push_ = {
     droplet: <A>(mma: Push<readonly A[]>) => Push<A>
     concat: <A>(mma: Push<Push<A>>) => Push<A>
     union: <A,B>(a: Push<A>, b: Push<B>) => Push<Either<A,B>>
+    zip: <A,B>(a: Push<A>, b: Push<B>) => Push<[A,B]>
     range: (initialIncluded: number, finalNotIncluded: number, step: number) => Push<number>
     mapResultA: <A,E,B>(mma: Push<Result<A,E>>, f: (_:A) => B) => Push<Result<B,E>>
     mapResultError: <A,E,E1>(mma: Push<Result<A,E>>, f: (_:E) => E1) => Push<Result<A,E1>>
@@ -404,6 +452,32 @@ const union: T['union'] = (pa,pb) => Push( yield_ => {
     pb.unsafeRun(b => yield_( Either_.fromRight(b)));
 })
 
+const zip: T['zip'] = (pa, pb) => {
+    type A = InferPush<typeof pa>
+    type B = InferPush<typeof pb>
+    return Push( yield_ => {    
+        let bufA: readonly A[] = [] 
+        let bufB: readonly B[] = [] 
+        const yieldPairIfPossible = ():void => {
+            while((bufA.length>0) && (bufB.length>0)) {
+                const [a, ...tailA] = bufA
+                const [b, ...tailB] = bufB
+                yield_([a,b])
+                bufA = tailA
+                bufB = tailB
+            }
+        }
+        pa.unsafeRun( a => {
+            bufA = [...bufA, a]
+            yieldPairIfPossible();
+        })
+        pb.unsafeRun( b => {
+            bufB = [...bufB, b]
+            yieldPairIfPossible();
+        })
+    })
+}
+
 const range: T['range'] = (ini, end, step) => Push( yield_ => {
     //fix: use a safer algorithm, should use ../utils/range.ts ? 
     for (let k=ini; k<end; k=k+step) {
@@ -428,6 +502,7 @@ export const Push_: Push_ = {
     droplet,
     concat,
     union,
+    zip,
     range,
     mapResultA,
     mapResultError,
