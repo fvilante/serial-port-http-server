@@ -13,6 +13,11 @@ export namespace InferInterface {
     export type MakePairs<T extends AnyInterfaceWithKey<TypeOfKey>, TypeOfKey extends keyof any> = StudyPairs<T, TypeOfKey>[GetKeys<T,TypeOfKey>]
     
     export type GetValueByKey<T extends AnyInterfaceWithKey<TypeOfKey>, TypeOfKey extends keyof any, K extends GetKeys<T,TypeOfKey>> = Extract<MakePairs<T,TypeOfKey>, {key: K}>['value']
+
+}
+
+export type MapValueByKey<U,K,B> = {
+    [X in keyof U]: X extends K ? B : U[X] 
 }
 
 
@@ -34,4 +39,4 @@ type T01 = InferInterface.StudyPairs<MyI,string>
 type T02 = InferInterface.MakePairs<MyI,string>
 type T03 = InferInterface.GetValueByKey<MyI,string,'ju'>
 //type T666 = InferInterface.GetValueByKey<MyI,string,0>
-
+type T04 = MapValueByKey<MyI,'bar',null>
