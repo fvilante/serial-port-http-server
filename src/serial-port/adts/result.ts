@@ -1,3 +1,4 @@
+import { Future } from "./future"
 import { Maybe, Maybe_ } from "./maybe"
 import { Either, Either_ } from "./maybe/either"
 
@@ -17,12 +18,13 @@ export type Result<A,E> = {
     forOk: (f: (_:A) => void) => void
     forError: (f: (_:E) => void) => void
     match: <X>(matcher: ResultMatcher<A,E,X>) => X 
+    orDie: () => Future<A> // fix: doubt if I should use (I) '() => A' or (II) '(f: (_:A) => void) => void'. Using '() => Future<A>' because it is lazy and can perform both actions on choose.
     map: <B>(f: (_:A) => B) => Result<B,E> //maps 'ok'
     mapError: <E1>(f: (_:E) => E1) => Result<A,E1>
     transform: <X>(f: (me: Result<A,E>) => X) => X
     tap: (f: (_:A) => void) => Result<A,E>
     tapError: (f: (_:E) => void) => Result<A,E>
-    __select: () => { value: Maybe<A>, error: Maybe<E> } // CAUTION: I think the concept of error is to assure you are dealing with error condition in a safe way (so we should use match instead of this selector), but I think some times we are in hush and want a breakable solution // fix: define if this function is really necessary or if it can be unsignaled as (caution)
+    __select: () => { value: Maybe<A>, error: Maybe<E> } // CAUTION: I think the concept of error is to assure you are dealing with error condition in a safe way (so we should use match instead of this selector), but I think some times we are in hush and want a breakable solution // fix: define if this function is really necessary or if it can be unsignaled as (caution)  
 }
 
 export const Result = <A,E>(world: () => ResultWorld<A,E>): Result<A,E> => {
@@ -50,6 +52,18 @@ export const Result = <A,E>(world: () => ResultWorld<A,E>): Result<A,E> => {
             ? matcher.Error(value as E)
             : matcher.Ok(value as A)
     }
+
+    const orDie: T['orDie'] = () => Future( yield_ => {
+        const world_ = unsafeRun()
+        if (world_.hasError) {
+            const err = world_.value
+            const errMessage = `Error catched from "Result.OrDie", further details: ` + '"'+ String(world_.value) + '"'
+            throw new Error(errMessage)
+        } else {
+            const valueA = world_.value
+            yield_(valueA)
+        }
+    })
 
     const map: T['map'] = f => Result( () => {
         const world_ = unsafeRun()
@@ -98,6 +112,7 @@ export const Result = <A,E>(world: () => ResultWorld<A,E>): Result<A,E> => {
         forEach,
         forError,
         forOk,
+        orDie,
         map,
         mapError,
         transform,

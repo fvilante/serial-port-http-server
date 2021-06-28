@@ -60,6 +60,26 @@ describe('basic tests', () => {
         expect(actual2).toEqual(expected2)
     })
 
+    it('It can dispose the E and stay just with the A (orDie method)', async () => {
+        //prepare
+        const probe = 3 as const
+        const ok = Result_.Ok<typeof probe,string>(probe)
+        const err = Result_.Error<typeof probe,string>('someError')
+        //act
+        const actionOk = ok.orDie()
+        const actionErr = err.orDie()
+        //check
+        const ok_ = await actionOk.async()
+        expect(ok_).toEqual(probe)
+        try {
+            await actionErr.async()
+            expect(true).toBe(false) // Fail test if above expression doesn't throw anything.
+        } catch (e) {
+            expect(true).toBe(true)
+        }
+       
+    })
+
     it('Can map the error', async () => {
         //prepare
         const probe = 3
