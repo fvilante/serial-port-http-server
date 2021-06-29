@@ -2,6 +2,7 @@ import { PortInfo, PortOpened, SerialDriver, SerialDriverConstructor } from "../
 import { Future, Future_ } from "../adts/future"
 import { Push } from "../adts/push-stream"
 import { Result, ResultMatcher, Result_ } from "../adts/result"
+import { Range } from "../utils"
 import { PortError, PortOpened_, PortToOpen, SerialLocalDriverADT } from "./serial-local-driver-adt"
 
 
@@ -69,6 +70,64 @@ describe('basic tests', () => {
             },2000)
             // console.log('writing to port')
             await portOpened.write(validFrame).async() // NOTE: This await is easy to forget, take care.
+            // console.log('writed')
+            // console.log('start listening')
+            portOpened.onData().unsafeRun( r => {
+                //  console.log('handler foi executado')
+                r.forOk(data => {
+                    buf = [...buf, ...data]
+                    // console.log('data=',data)
+                })
+            })
+        })
+
+        it('Can send more than one cmpp frames and receive it async (tx and rx independent)', async (done) => {
+
+            //prepare
+            const testTotalTime = 5000
+            jest.setTimeout(testTotalTime+5000)
+            let buf: readonly number[] = []
+            const portToOpen: PortToOpen = {
+                portPath: 'com29',
+                baudRate: 9600,
+            }
+            const driver = SerialDriverConstructor()
+            const driver_ = SerialLocalDriverADT(driver)
+            const port = driver_.openPort(portToOpen)
+            const FramesToTransact = 65
+            const validFrame: readonly number[] =  [ 27, 2, 0, 80, 0, 0, 27, 3, 171 ]
+            const expectedResponse: readonly number[] = [ 27, 6, 0, 80, 98, 2, 27, 3, 67 ]
+            let rxExpected: readonly number[] = []
+            //act
+            // console.log('abrindo porta')
+            const action = await Future<PortOpened_>( resolve => port.unsafeRun( r => r.forOk( portOpened => resolve(portOpened)))).async()
+            //test
+            const portOpened = action
+            setTimeout( () => {
+                // console.log('fechando porta')
+                portOpened.close().unsafeRun( r => {
+                    r.unsafeRun();
+                    // console.log('fechada')
+                    console.table(rxExpected)
+                    expect(buf).toStrictEqual(rxExpected)
+                    done()
+                })
+
+            },testTotalTime)
+            // console.log('writing to port')
+            let txCounter = FramesToTransact
+            const sendAllTX = async () => {
+                while(txCounter>0) {
+                    // NOTE: The await below is easy to forget, take care.
+                    await portOpened.write(validFrame).async()
+                    // add to expected response
+                    rxExpected = [...rxExpected, ...expectedResponse]
+                    txCounter = txCounter - 1
+                    await sendAllTX()
+                }
+            }
+            await sendAllTX()
+            
             // console.log('writed')
             // console.log('start listening')
             portOpened.onData().unsafeRun( r => {
@@ -175,11 +234,8 @@ describe('basic tests', () => {
                    done()
                })
             })
-           
-            
             
         })
-
 
     })
 })
