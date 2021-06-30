@@ -2,7 +2,9 @@
 
 // cmpp protocol
 
+import { Among, Among_ } from "../../adts/maybe/among"
 import { Push } from "../../adts/push-stream"
+import { Kinded_ } from "../../adts/validated/kind"
 
 // example valid frame: [0x1B,0x02,0x00,0x1C,0x00,0x00,0x1B,0x03,0xDF]
 
@@ -480,10 +482,7 @@ export const InterpretIncomming = (
     
         }
 
-        if (state==='Successful') {
-            success(frame as FrameInterpreted, acc)
-        }
-
+        
         if (onInternalStateChange!==undefined) {
             onInternalStateChange(state,frame,waitingEscDup,acc)
         } else {
@@ -493,6 +492,13 @@ export const InterpretIncomming = (
             console.log(`waitingEscDup = `, waitingEscDup)
             console.log(`acc = `, acc)
         }
+        
+        if (state==='Successful') {
+            //console.log('sucess************************')
+            //console.table(frame)
+            success(frame as FrameInterpreted, acc)
+        }
+
 
         return resetInterpreter
         
@@ -518,11 +524,30 @@ export type InterpreterState = {
     rawInputBuffer: readonly number[]
 }
 
+export type InterpreterResponse = {
+    FrameInterpreted: FrameInterpreted
+    InterpreterError: InterpreterError
+    InterpreterState: InterpreterState
+}
+
 //just an idea (this interface is not being used)
 export type Interpreter = (_: Push<number>) => {
+    response: Push<Among<InterpreterResponse>>
+    //DEPRECATED
+    /**
+     * @deprecated The method should not be used
+     */
+    // Fix: the below interface is buggy, avoit it. Deprecate it and remove it from v1.0
     FrameInterpreted: Push<FrameInterpreted>,
+     /**
+     * @deprecated The method should not be used
+     */
     onError: Push<InterpreterError> 
+     /**
+     * @deprecated The method should not be used
+     */
     onStateChange: Push<InterpreterState>
+    //
 }
 
 export const Interpreter: Interpreter = stream => {
@@ -543,6 +568,7 @@ export const Interpreter: Interpreter = stream => {
                 //onFinished
                 (frame, rawInput) => {
                     //Fix: I'm not using rawInput here for simplicity. Maybe necessary to have it or not. Decide in future.
+                    //console.log('oi1')
                     yield_(['FrameInterpreted', frame])
                 },
                 //onError
@@ -578,10 +604,34 @@ export const Interpreter: Interpreter = stream => {
 
     const interpreterStream = runInterpreter()
 
+    const make = Among_.fromInterface<InterpreterResponse>()
+
     return {
-        FrameInterpreted: interpreterStream.filter( ev => ev[0]==='FrameInterpreted').map( ev => ev[1] as FrameInterpreted),
+        response: interpreterStream.map( event => {
+            // fix: type Event should be Among instead. This change may make this mapping unecessary.
+            switch(event[0]) {
+                case 'FrameInterpreted': return make('FrameInterpreted', event[1])
+                case 'InterpreterError': return make('InterpreterError', event[1])
+                case 'InterpreterState': return make('InterpreterState', event[1])
+            }
+        }), 
+        // DEPRECATED
+        // FIX: Below interface is buggy. You MUST avoid it. Remove it from later versions
+        FrameInterpreted: interpreterStream
+            .filter( ev => { 
+                //console.log('oi-Filter')
+                return ev[0]==='FrameInterpreted' 
+            })
+            .map( ev => {
+                //console.log('oi2')
+                //console.table(ev[1])
+                return ev[1] as FrameInterpreted
+            }),
         onError: interpreterStream.filter( ev => ev[0]==='InterpreterError').map( ev => ev[1] as InterpreterError),
-        onStateChange: interpreterStream.filter( ev => ev[0]==='InterpreterState').map( ev => ev[1] as InterpreterState),
+        onStateChange: interpreterStream.filter( ev => ev[0]==='InterpreterState').map( ev => {
+            //console.table(ev[1])
+            return ev[1] as InterpreterState
+        }),
     }
     
     
