@@ -26,7 +26,7 @@ const detectCMPP = async ():Promise<CMPPDetectionResponse> => {
         const channel = 0
         const waddr = 0xA0
         const frame = FrameCore('STX','Solicitacao',channel, waddr,0)
-        return  () => {
+        return  async () => {
             console.log(`Procurando na porta/baudrate = ${portName}/${baudRate}`)
             return sendCmpp(portName, baudRate)(frame)
             .then( frameInterpreted => {
@@ -65,7 +65,7 @@ const detectCMPP = async ():Promise<CMPPDetectionResponse> => {
 const run = async ():Promise<void> => {
 
     const printers = await detectCMPP()
-
+    
 }
 
 run()
