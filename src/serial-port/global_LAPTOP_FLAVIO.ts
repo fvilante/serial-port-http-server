@@ -15,20 +15,25 @@ export const AddressFromLocal: Address = {
     },
     Axis: {
         XAxis: {
-            portName: 'com29',
+            portName: 'com31',
             baudRate: 9600,
             channel: 0,
         },
         YAxis: {
-            portName: 'com30',
+            portName: 'com29',
             baudRate: 9600,
             channel: 0,
         },
         ZAxis: {
-            portName: 'com31',
+            portName: 'com30',
             baudRate: 9600,
             channel: 0,
         },
     }
     
 }
+
+//31 -> X
+//29 -> Y
+//30 -> Z
+
