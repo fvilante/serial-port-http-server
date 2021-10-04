@@ -5,11 +5,11 @@
 
 import { delay } from "../../../utils/delay";
 import { getAxisControler } from "../../axis-controler";
-import { Z_AxisStarterKit, X_AxisStarterKit } from "../../axis-starter-kit";
+import { Z_AxisStarterKit, X_AxisStarterKit, Y_AxisStarterKit } from "../../axis-starter-kit";
 import { executeInSequence } from "../../promise-utils";
 import { Range } from "../../utils";
 
-const axis = getAxisControler(X_AxisStarterKit)
+const axis = getAxisControler(Z_AxisStarterKit)
 
 const run = async () => {
     const init = async () => {    
