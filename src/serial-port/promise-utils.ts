@@ -114,7 +114,7 @@ const Test2 = () => {
 // ========== [ WaitUntilTrue - monitor effects until it attends some pre-requisits or timeout ] =================
 
 export const WaitUntilTrueFastPooling = async <A>(effect: () => Promise<A>, condition: (_:A) => boolean, timeout: number ):Promise<A> => {
-    let tid: NodeJS.Timeout | undefined = undefined
+    let tid: number | undefined = undefined
     let r:A | undefined = undefined
     const runEffect = async () => {
         r = await effect()
@@ -125,7 +125,7 @@ export const WaitUntilTrueFastPooling = async <A>(effect: () => Promise<A>, cond
 
         tid = setTimeout( () => {
             reject('WaitUntil has timedout')
-        }, timeout)
+        }, timeout) as unknown as number
         // pool as fast as possible
         try {
             while(condition(await runEffect())!==true) { 
@@ -136,6 +136,7 @@ export const WaitUntilTrueFastPooling = async <A>(effect: () => Promise<A>, cond
         }
         
         // condition satisfied
+
         clearTimeout(tid)
         resolve(r as unknown as A)
     
@@ -147,12 +148,12 @@ export const WaitUntilTrue = async <A>(effect: () => Promise<A>, condition: (_:A
    
     return new Promise( (resolve, reject) => { 
 
-        let timerout: NodeJS.Timeout | undefined = undefined
-        let pooling: NodeJS.Timeout | undefined = undefined
+        let timerout: number | undefined = undefined
+        let pooling: number | undefined = undefined
         timerout = setTimeout( () => { 
             if (pooling!==undefined) clearTimeout(pooling)
             reject(`Timeout in function 'WaitUntilDone' after '${timeout} milisecs'. Condition was not satisfied before timeout.`)
-        }, timeout)
+        }, timeout) as unknown as number
 
         const pool = () => {
             effect()
@@ -161,7 +162,7 @@ export const WaitUntilTrue = async <A>(effect: () => Promise<A>, condition: (_:A
                         if (timerout!==undefined) clearTimeout(timerout)
                         resolve(a);
                     } else {
-                        pooling = setTimeout(pool, poolingInterval)
+                        pooling = setTimeout(pool, poolingInterval) as unknown as number
                     }
                 })
         }

@@ -80,3 +80,86 @@ export const partialCall = <T extends Arr, U extends Arr, R>(
   ) => {
     return (...tailArgs: U) => f(...headArgs, ...tailArgs);
   }
+
+
+  // is array deep equal
+  export const isArrayDeepEqual = <U extends readonly unknown[], V extends readonly unknown[]>(as: U, bs: V, isEqual: (a:U[number],b:V[number]) => boolean):boolean => {
+    // fast return
+    if (as.length!==bs.length) return false
+    return as.every( (a,index) => {
+        const b = bs[index]
+        const aIsArray =  Array.isArray(a)
+        const bIsArray =  Array.isArray(b)
+        const aAndbAreArrays = aIsArray && bIsArray
+        const justOneOfThenIsArray = (aIsArray && !bIsArray) || (!aIsArray && bIsArray)
+        if(aAndbAreArrays===true) {
+            return isArrayDeepEqual(a as U,b as V, isEqual)
+        } else if(justOneOfThenIsArray===true) {
+            return false
+        } else {
+            //none of them are arrays, than compare them
+            return isEqual(a,b)
+        }
+    })
+  }
+
+export const averageFromArray = (arr: readonly number[]):number => {
+    const [head, ...tail] = arr
+    const sum = tail.reduce( (acc,cur) => acc+cur, head)
+    const avarage = sum / arr.length
+    return avarage
+}
+
+  // a timer helper to take interval durations from one line of code to other
+  export type Timer__ = {
+      reset: () => void 
+      lap: () => number
+      total: () => number
+      //allLaps: () => number
+      meanTime: () => number
+  }
+  export const Timer__ = ():Timer__ => {
+
+    type T = Timer__
+    let ts: number[] = [] // timepoint
+    let ts_: number[] = []     // elapsed (duration) //FIX: I'm in doubt how should the array initial condition
+    const reset: T['reset'] = () => {
+        ts = [now()]
+        ts_ = []
+    }
+
+    const lap: T['lap'] = () => {
+        ts = [...ts, now()]
+        const elapsed = ts[ts.length-1] - ts[ts.length-2]
+        ts_ = [...ts_, elapsed]
+        return elapsed
+    }
+
+    const total: T['total'] =  () => {
+        return now() - ts[0]
+    }
+/*
+    const allLaps: T['allLaps'] = () => {
+        return ts.reduce((acc,cur, index)=> {
+            if (index === 0) {
+                return []
+            } else {
+                const lap = ts[index] - ts[index-1]
+                return [...acc, lap]
+            }
+        }, [])
+    }*/
+
+    const meanTime: T['meanTime'] = () => {
+        return averageFromArray(ts_)
+    }
+
+    return {
+        reset,
+        lap,
+        total,
+        //allLaps,
+        meanTime,
+    }
+  }
+
