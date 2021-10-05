@@ -53,7 +53,7 @@ const trimSpacesFromData = (barCode: BarCode): BarCode => {
 // Get barcode, validate low level barcode aginst the structure of data expected, but not do other checks
 export const GetBarCodeFromSignal = (input: () => Push<KeyEvent>): Push<Maybe<BarCode>> => {
     return input()
-        .dropletWith( keyEvent => keyEvent.name==='return')
+        .dropletWith( keyEvent => keyEvent.name==='return') // if 'enter' split stream
         .map(convertKeyEventsToString)
         .map(parseBarCode)
         .map( ma => ma.map(trimSpacesFromData))

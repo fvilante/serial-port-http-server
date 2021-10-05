@@ -81,8 +81,11 @@ export type MachineControler = {
 }
 
 export const MachineControler = async (
-    axisControlers: {x: AxisControler, y: AxisControler, z: AxisControler}
-    ): Promise<MachineControler> => {
+    axisControlers: {
+        x: AxisControler, 
+        y: AxisControler, 
+        z: AxisControler
+    }): Promise<MachineControler> => {
 
         type T = MachineControler
 

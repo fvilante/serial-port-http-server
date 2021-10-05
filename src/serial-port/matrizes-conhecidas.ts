@@ -30,10 +30,10 @@ const applyDeltaToCoordinates = (xs: Matriz['impressoesX'], ys: Matriz['linhasY'
     const { x: xHead, y: yHead} = delta
     const newYs: typeof ys = ys.map( y => Milimeter(y.value + yHead.value))
     const newXs: typeof xs = xs.map( x => Milimeter(x.value + xHead.value))
-    console.log('ys:', ys)
-    console.log('new_ys:', newYs)
-    console.log('xs', xs)
-    console.log('newXs', newXs)
+    //console.log('ys:', ys)
+    //console.log('new_ys:', newYs)
+    //console.log('xs', xs)
+    //console.log('newXs', newXs)
     return [newXs, newYs]
 }
 

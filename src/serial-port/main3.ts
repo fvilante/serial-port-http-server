@@ -11,8 +11,8 @@ const term = createTerminal()
 
 // helper
 const performMatrizByItsBarCode = async (barCodeRaw: BarCode['raw'], movimentKit: MovimentKit): Promise<void> => {
-    const matrizes = await fetchMatrizByBarcodeRaw(barCodeRaw)
-    const matriz = await desambiguateSingleBarCodeMultipleRegistries(matrizes)
+    const matrizMatches = await fetchMatrizByBarcodeRaw(barCodeRaw)
+    const matriz = await desambiguateSingleBarCodeMultipleRegistries(matrizMatches)
     return performMatriz(matriz, movimentKit)
 }
 

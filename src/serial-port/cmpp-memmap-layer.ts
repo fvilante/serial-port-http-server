@@ -30,7 +30,7 @@ export const setParam_ =
             const data = valueToUint16(value);
             const frame = FrameCore('STX', direction, channel, waddr, data)
             sendCmpp_(frame)
-                .then( () => resolve())
+                .then( frameInterpreted => resolve())
                 .catch( err => reject(err))
         } else if (bitLen===8) {
             if (startBit===0) {
@@ -47,7 +47,7 @@ export const setParam_ =
                         const direction = 'Envio';
                         const frame = FrameCore('STX', direction, channel, waddr, uint16)
                         sendCmpp_(frame)
-                            .then( () => {
+                            .then( frameInterpreted => {
                                 resolve()
                             })
                     })
@@ -68,7 +68,7 @@ export const setParam_ =
                         const direction = 'Envio';
                         const frame = FrameCore('STX', direction, channel, waddr, uint16)
                         sendCmpp_(frame)
-                            .then( () => {
+                            .then( frameInterpreted => {
                                 resolve()
                             })
                     })
@@ -81,17 +81,17 @@ export const setParam_ =
             //to be done
             
         } else if (bitLen===1) {
-            let masc: number = 0
+            let mask: number = 0 
             const bit = valueToBoolean(value)
             if(bit===true) {
                 direction = 'MascaraParaSetar'     
             } else /*bit===false*/ {
                 direction = 'MascaraParaResetar'
             }
-            masc = 1 << startBit
-            const frame = FrameCore('STX', direction, channel, waddr, masc)
+            mask = 1 << startBit
+            const frame = FrameCore('STX', direction, channel, waddr, mask)
             sendCmpp_(frame)
-                .then( () => resolve())
+                .then( frameInterpreted => resolve())
                 .catch( err => reject(err))
         } else {
             reject(`bitlen=${bitLen} decimal not found on CMPP memory map.`)

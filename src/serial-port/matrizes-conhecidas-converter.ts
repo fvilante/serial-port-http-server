@@ -1,4 +1,3 @@
-
 import { Reduce, Reduce_ } from "./adts/reduce"
 import { Milimeter } from "./axis-position"
 import { Printers } from "./global"
@@ -6,9 +5,14 @@ import { getMatrizesConhecidas, Matriz } from "./matrizes-conhecidas"
 import { mapObject, Range } from './utils'
 
 // Isomorphism between matrizes conhecidas
+// This file introduces the type used inside "CADASTRO_GERAL.JSON" (Matriz2), and the many forms
+// of converting this to legacy (Matriz(1)) equivalente data.
 
 
-// fix: extract to a better place (and also: 'Matriz' and 'Matriz3')
+// Matriz2 is just Matriz3 which is the type read from 'CADASTRO_GERAL.JSON', but
+// Matriz3 has the positions casted from 'Milimeter' to 'number' because this makes
+// 'CADASTRO_GERAL' more easy the edit directly. 
+// FIX: extract to a better place (and also: 'Matriz' and 'Matriz3')
 export type Matriz2 = {
     // Proxy
     partNumber: string
@@ -31,10 +35,12 @@ export type Matriz2 = {
     yQuantity: number
 }
 
+// convert type 'Milimeter' to type 'number' 
 type UnCastMilimeter<T> = {
     [K in keyof T]: T[K] extends Milimeter ? number : T[K]
 }
 
+// Matriz3 is the type read from 'CADASTRO_GERAL.JSON'
 export type Matriz3 = UnCastMilimeter<Matriz2>
 
 
@@ -219,6 +225,8 @@ export const matrizConverter_3_2 = (ref: Matriz3): Matriz2 => {
     }
 }
 
+
+// Test --------------------------------------------------------------------
 
 const convertAll = (): readonly Matriz3[] => {
     let res: readonly Matriz3[] = []

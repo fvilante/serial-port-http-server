@@ -643,7 +643,7 @@ export type GetCastFromName<D extends HyperDriver, N extends GetAllNames<D>> = G
 
 export type GetAccessModeFromName<D extends HyperDriver, N extends GetAllNames<D>> = GetParamFromName<D,N>['accessMode']
 
-
+//examples of use
 type T00 = GetAllParams<Driver>
 type T01 = GetAllNames<Driver>
 type T02 = GetParamFromName<Driver,'Posicao final' | 'Posicao inicial'>
