@@ -21,12 +21,15 @@ export const getPosicaoAtual = (portName: string, baudRate: BaudRate, channel: n
         const data = 0
         const frame = FrameCore('STX', direction, channel, waddr, data)
         sendCmpp(portName, baudRate)(frame)
-            .then( res => {
-                const dataH = res.dataHigh[0]
-                const dataL = res.dataLow[0]
+            .then( frameInterpreted => {
+                //fix: checar se resposta em frameInterpreted foi 'ACK' ou 'NACK'
+                const {dataHigh, dataLow } = frameInterpreted
+                const dataH = dataHigh[0]
+                const dataL = dataLow[0]
                 const posicaoAtual = word2int(dataH, dataL)
                 resolve(posicaoAtual)
             })
+            .catch( err => reject(err))
 
 })
 
