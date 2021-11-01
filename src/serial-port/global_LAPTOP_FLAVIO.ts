@@ -20,17 +20,17 @@ export const AddressFromLocal: Address = {
         // 38 = no;
         // 39 = eixo longo  (X);
         XAxis: {
-            portName: 'com39',
+            portName: 'com50', 
             baudRate: 9600,
             channel: 0,
         },
         YAxis: {
-            portName: 'com37',
+            portName: 'com48',
             baudRate: 9600,
             channel: 0,
         },
         ZAxis: {
-            portName: 'com36',
+            portName: 'com51',
             baudRate: 9600,
             channel: 0,
         },

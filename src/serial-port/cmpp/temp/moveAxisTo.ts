@@ -9,7 +9,7 @@ import { Z_AxisStarterKit, X_AxisStarterKit, Y_AxisStarterKit } from "../../axis
 import { executeInSequence } from "../../promise-utils";
 import { Range } from "../../utils";
 
-const axis = getAxisControler(Z_AxisStarterKit)
+const axis = getAxisControler(X_AxisStarterKit)
 
 const run = async () => {
     const init = async () => {    
