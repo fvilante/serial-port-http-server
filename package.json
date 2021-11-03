@@ -27,6 +27,7 @@
     "@types/terminal-kit": "^1.28.2",
     "serialport": "^9.0.1",
     "ts-node": "^9.0.0",
-    "terminal-kit": "^2.0.3"
+    "terminal-kit": "^2.0.3",
+    "control-terminal": "^1.0.0-alpha.0"
   }
 }
