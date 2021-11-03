@@ -11,8 +11,7 @@
     "server": "npx ts-node src\\serial-port\\front-end\\server\\server.ts",
     "watch": "tsc --project src\\serial-port\\front-end\\tsconfig.json --watch",
     "moveCmpp": "npx ts-node .\\src\\serial-port\\cmpp\\temp\\moveAxisTo.ts",
-    "updateDepenencyGraph": "npx dependency-cruiser --include-only '^src' --output-type dot src | dot -T svg > dependencygraph.svg"
-    
+    "updateDependencyGraph": "npx dependency-cruiser --include-only '^src' --output-type dot src | dot -T svg > dependencygraph.svg"
   },
   "author": "fvilante",
   "license": "ISC",
@@ -27,9 +26,9 @@
     "@types/jest": "^26.0.14",
     "@types/node": "^14.14.31",
     "@types/terminal-kit": "^1.28.2",
+    "control-terminal": "^1.0.0-alpha.0",
     "serialport": "^9.0.1",
-    "ts-node": "^9.0.0",
     "terminal-kit": "^2.0.3",
-    "control-terminal": "^1.0.0-alpha.0"
+    "ts-node": "^9.0.0"
   }
 }
