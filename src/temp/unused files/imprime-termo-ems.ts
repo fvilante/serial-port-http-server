@@ -2,10 +2,10 @@
 // rotina feita rapidamente para imprimir termo pequena EMS232 e similares
 // NOTA: É necessário enviar o texto manualmente a rotina nao envia o texto
 
-import { Milimeter } from "./axis-position"
-import { makeMovimentKit } from "./machine-controler"
-import { executeInSequence } from "./promise-utils"
-import { Range } from "./utils"
+import { Milimeter } from "../../software/axis-position"
+import { makeMovimentKit } from "../../software/machine-controler"
+import { executeInSequence } from "../../software/promise-utils"
+import { Range } from "../../software/utils"
 
 const ImprimeTermoRetratilEMS = async ():Promise<void> => {
 

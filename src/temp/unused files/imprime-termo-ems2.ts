@@ -1,7 +1,7 @@
-import { Milimeter } from "./axis-position"
-import { Printers } from "./global"
-import { makeMovimentKit } from "./machine-controler"
-import { Range } from "./utils"
+import { Milimeter } from "../../software/axis-position"
+import { Printers } from "../../software/global"
+import { makeMovimentKit } from "../../software/machine-controler"
+import { Range } from "../../software/utils"
 
 
 
