@@ -1,7 +1,7 @@
-import { BaudRate } from './serial/baudrate'
-import { bit_test } from "./core/bit-wise-utils"
-import { FrameCore, word2int } from "./cmpp/datalink/cmpp-datalink-protocol"
-import { sendCmpp } from "./cmpp/datalink/send-receive-cmpp-datalink"
+import { BaudRate } from '../../serial/baudrate'
+import { bit_test } from "../../core/bit-wise-utils"
+import { FrameCore, word2int } from "../datalink/cmpp-datalink-protocol"
+import { sendCmpp } from "../datalink/send-receive-cmpp-datalink"
 
 //let statusLRaw: number | undefined = undefined 
 
