@@ -1,5 +1,5 @@
 import { readKeyboardAsync } from "../keyboard/read-keyboard-async"
-import { BarCode, GetBarCodeFromSignal } from '../parse-barcode'
+import { BarCode, GetBarCodeFromSignal } from '../barcode-reader/parse-barcode'
 import { makeMovimentKit, MovimentKit } from "../machine-controler"
 import { performMatriz, performMatrizByItsMsg } from "../matriz-router"
 import { fetchMatrizByBarcodeRaw } from "../matrix-reader/matriz-cadastro-geral-reader"
