@@ -1,5 +1,5 @@
-import { makeMovimentKit, YZColinearPoints } from "./machine-controler"
-import { Batch, DrawerWork, doBatchWork } from "./matriz-router"
+import { makeMovimentKit, YZColinearPoints } from "../machine-controler"
+import { Batch, DrawerWork, doBatchWork } from "../matriz-router"
 
 
 const devicesAutoTest = async () => {}

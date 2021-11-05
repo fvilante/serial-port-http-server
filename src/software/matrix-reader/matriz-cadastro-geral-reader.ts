@@ -5,7 +5,7 @@ import { BarCode } from '../parse-barcode'
 
 const CurrentDirectory = process.cwd()
 const FILE = 'cadastro_geral.json'
-const PATH = `${CurrentDirectory}/Matrizes-Cadastradas`
+const PATH = `${CurrentDirectory}/../Matrizes-Cadastradas` // FIX: This path is dependent from were main3.ts is runned, remove this dependency.
 const FILE_PATH = `${PATH}/${FILE}`
 
 // Fix: extract to utils
