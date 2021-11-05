@@ -1,11 +1,11 @@
-import { BaudRate } from './serial/baudrate'
-import { FrameCore } from "./cmpp/datalink/cmpp-datalink-protocol";
-import { executeInSequence } from "./promise-utils";
-import { Address, Axis } from "./global-env/global";
-import { sendCmpp } from "./send-receive-cmpp-datalink";
-import { Range, groupBy, now } from './utils'
-import { delay } from "./utils/delay";
-import { bit_test } from "./bit-wise-utils";
+import { BaudRate } from '../serial/baudrate'
+import { FrameCore } from "../cmpp/datalink/cmpp-datalink-protocol";
+import { executeInSequence } from "../promise-utils";
+import { Address, Axis } from "../global-env/global";
+import { sendCmpp } from "../send-receive-cmpp-datalink";
+import { Range, groupBy, now } from '../utils'
+import { delay } from "../utils/delay";
+import { bit_test } from "../bit-wise-utils";
 
 
 
