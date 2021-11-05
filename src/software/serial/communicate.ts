@@ -1,5 +1,5 @@
-import { BaudRate } from './serial/baudrate'
-import { PortOpened, SerialDriverConstructor } from './serial/serial-local-driver'
+import { BaudRate } from './baudrate'
+import { PortOpened, SerialDriverConstructor } from './serial-local-driver'
 
 export const CommDriver = SerialDriverConstructor()
 

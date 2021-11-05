@@ -1,6 +1,6 @@
 import { BaudRate } from '../serial/baudrate'
 import { delay } from '../core/delay'
-import { CommDriver, communicate } from '../communicate'
+import { CommDriver, communicate } from '../serial/communicate'
 import { mkSetRemoteMessageFrame, mkSelectRemoteMessageFrame } from './printer-protocol'
 import { executeInSequence } from '../core/promise-utils'
 import { Range } from '../core/utils'
