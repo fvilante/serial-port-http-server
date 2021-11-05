@@ -4,8 +4,8 @@
 
 import { Milimeter } from "../../software/axis-position"
 import { makeMovimentKit } from "../../software/machine-controler"
-import { executeInSequence } from "../../software/promise-utils"
-import { Range } from "../../software/utils"
+import { executeInSequence } from "../../software/core/promise-utils"
+import { Range } from "../../software/core/utils"
 
 const ImprimeTermoRetratilEMS = async ():Promise<void> => {
 

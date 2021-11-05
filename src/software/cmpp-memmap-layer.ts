@@ -1,7 +1,7 @@
 import { BaudRate } from './serial/baudrate'
 import { DirectionKeys, FrameCore, word2int } from "./cmpp/datalink/cmpp-datalink-protocol";
 import { GetAllNames, HyperDriver, GetCastFromName, Driver, Param } from "./mapa_de_memoria";
-import { executeInSequence } from "./promise-utils";
+import { executeInSequence } from "./core/promise-utils";
 import { sendCmpp } from './send-receive-cmpp-datalink'
 
 

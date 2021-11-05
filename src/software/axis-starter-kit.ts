@@ -3,11 +3,11 @@
 // This is an append file for axis-controler.ts, and my dreem is to use another
 // strategy for initialization of the axis. Something more robust.
 
-import { delay } from "./utils/delay"
+import { delay } from "./core/delay"
 import { setParam_ } from "./cmpp-memmap-layer"
 import { Address, Axis } from "./global-env/global"
 import { Driver } from "./mapa_de_memoria"
-import { executeInSequence } from "./promise-utils"
+import { executeInSequence } from "./core/promise-utils"
 
 
 export type AxisStarterKit = {

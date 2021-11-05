@@ -3,7 +3,7 @@ import { setParam_ } from './cmpp-memmap-layer'
 import { fetchCMPPStatusL, StatusLCasted } from './get-cmpp-status'
 import { getPosicaoAtual } from './get-pos-atual'
 import { Driver, HyperDriver } from './mapa_de_memoria'
-import { isInsideRange, now } from "./utils"
+import { isInsideRange, now } from "./core/utils"
 
 // FIX:
 //  This module is not in use, except the type 'PrintingPosisions' which is exported alongside the code

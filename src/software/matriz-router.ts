@@ -1,11 +1,11 @@
-import { delay } from "./utils/delay"
+import { delay } from "./core/delay"
 import { AxisControler } from "./axis-controler"
 import { Milimeter } from "./axis-position"
 import { Printers } from "./global-env/global"
 import { AxisKit, MovimentKit } from "./machine-controler"
 import { getMatrizesConhecidas, Matriz, MatrizesConhecidasKeys } from "./matrix-reader/matrizes-conhecidas"
 import { programMessage } from "./printer/program-message"
-import { executeInSequence, repeatPromiseWithInterval } from "./promise-utils"
+import { executeInSequence, repeatPromiseWithInterval } from "./core/promise-utils"
 
 //  Responsible to create and execute the routing for perform the printing
 //  work over the Matriz

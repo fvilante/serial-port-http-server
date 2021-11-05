@@ -5,7 +5,7 @@ import { performMatriz, performMatrizByItsMsg } from "../matriz-router"
 import { fetchMatrizByBarcodeRaw } from "../matrix-reader/matriz-cadastro-geral-reader"
 import { createTerminal } from 'terminal-kit'
 import { Matriz } from "../matrix-reader/matrizes-conhecidas"
-import { delay } from "../utils/delay"
+import { delay } from "../core/delay"
 
 const term = createTerminal()
 

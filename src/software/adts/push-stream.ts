@@ -1,5 +1,5 @@
 import { Duration, TimePoint, TimePoint_ } from "../time"
-import { now, Range } from "../utils"
+import { now, Range } from "../core/utils"
 import { Future } from "./future";
 import { Maybe } from "./maybe";
 import { Among, Among_ } from "./maybe/among";

@@ -1,4 +1,4 @@
-import { delay } from "./utils/delay"
+import { delay } from "./core/delay"
 import { AxisControler, getAxisControler } from "./axis-controler"
 import { Milimeter } from "./axis-position"
 import { X_AxisStarterKit, Y_AxisStarterKit, Z_AxisStarterKit } from "./axis-starter-kit"
@@ -6,8 +6,8 @@ import { Printers } from "./global-env/global"
 import { performMatriz } from "./matriz-router"
 import { Matriz, MatrizesConhecidasKeys } from "./matrix-reader/matrizes-conhecidas"
 import { programMessage } from "./printer/program-message"
-import { ExecuteInParalel as executeInSerie, executeInSequence } from "./promise-utils"
-import { isInsideRange, Range } from "./utils"
+import { ExecuteInParalel as executeInSerie, executeInSequence } from "./core/promise-utils"
+import { isInsideRange, Range } from "./core/utils"
 
 
 // *******************************

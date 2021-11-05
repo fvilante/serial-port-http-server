@@ -1,4 +1,4 @@
-import { delay } from "./utils/delay";
+import { delay } from "./delay";
 import { Range } from "./utils";
 
 // helper

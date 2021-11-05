@@ -3,11 +3,11 @@
 // set up a cmpp communication with a specified port and channel, and do some actions as
 // moveTo, findLastPosition, reference, forceLooseReference, etc.
 
-import { delay } from "../../utils/delay";
+import { delay } from "../../core/delay";
 import { getAxisControler } from "../../axis-controler";
 import { Z_AxisStarterKit, X_AxisStarterKit, Y_AxisStarterKit } from "../../axis-starter-kit";
-import { executeInSequence } from "../../promise-utils";
-import { Range } from "../../utils";
+import { executeInSequence } from "../../core/promise-utils";
+import { Range } from "../../core/utils";
 
 const axis = getAxisControler(X_AxisStarterKit)
 
