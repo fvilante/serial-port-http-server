@@ -7,7 +7,7 @@ import {
     flattenFrameSerialized,
     CmppDataLinkInterpreter,
 } from './cmpp/datalink/cmpp-datalink-protocol'
-import { BaudRate } from './serial/serial-local-driver'
+import { BaudRate } from './serial/baudrate'
 
 const CmppTimeout = 5000
 

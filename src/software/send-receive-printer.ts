@@ -1,4 +1,4 @@
-import { BaudRate } from './serial/serial-local-driver'
+import { BaudRate } from './serial/baudrate'
 import { delay } from '../utils/delay'
 import { CommDriver, communicate } from './communicate'
 import { mkSetRemoteMessageFrame, mkSelectRemoteMessageFrame } from './printer-protocol'

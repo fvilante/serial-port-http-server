@@ -1,4 +1,4 @@
-import { BaudRate } from './serial/serial-local-driver'
+import { BaudRate } from './serial/baudrate'
 import { setParam_ } from './cmpp-memmap-layer'
 import { fetchCMPPStatusL, StatusLCasted } from './get-cmpp-status'
 import { getPosicaoAtual } from './get-pos-atual'
