@@ -1,5 +1,5 @@
 import { BaudRate } from '../serial/baudrate'
-import { listSerialPorts } from "../listSerialPorts"
+import { listSerialPorts } from "./listSerialPorts"
 import { ExecuteInParalel, executeInSequence } from "../promise-utils"
 import { sendPrinter2 } from "../printer/send-receive-printer"
 
