@@ -1,4 +1,4 @@
-import { BaudRate } from "../serial-local-driver"
+import { BaudRate } from "./serial/serial-local-driver"
 import { listSerialPorts } from "./listSerialPorts"
 import { ExecuteInParalel, executeInSequence } from "./promise-utils"
 import { sendPrinter2 } from "./send-receive-printer"

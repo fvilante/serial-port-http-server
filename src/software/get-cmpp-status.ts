@@ -1,4 +1,4 @@
-import { BaudRate } from "../serial-local-driver"
+import { BaudRate } from "./serial/serial-local-driver"
 import { bit_test } from "./bit-wise-utils"
 import { FrameCore, word2int } from "./cmpp/datalink/cmpp-datalink-protocol"
 import { sendCmpp } from "./send-receive-cmpp-datalink"

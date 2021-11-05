@@ -1,4 +1,4 @@
-import { BaudRate } from "../serial-local-driver"
+import { BaudRate } from "./serial/serial-local-driver"
 import { FrameCore, FrameInterpreted } from "./cmpp/datalink/cmpp-datalink-protocol"
 import { listSerialPorts } from "./listSerialPorts"
 import { ExecuteInParalel } from "./promise-utils"
