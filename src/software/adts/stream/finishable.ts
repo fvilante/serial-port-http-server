@@ -1,5 +1,5 @@
 import { Either, Either_ } from "../maybe/either";
-import { InferIterated, Iterated } from "./pull";
+import { Iterated } from "./pull";
 
 
 // Purpose: ADT for an iterated value which is Finishible

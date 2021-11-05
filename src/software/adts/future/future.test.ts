@@ -1,5 +1,5 @@
 import { now } from "../../core/utils"
-import { Future, Future_, UnsafePromiseError } from "../future"
+import { Future, Future_ } from "../future"
 import { Result, Result_ } from "../result"
 
 

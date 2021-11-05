@@ -1,4 +1,4 @@
-import { Maybe, MaybeWorld, Maybe_, NothingObject } from '../maybe'
+import { Maybe, Maybe_ } from '../maybe'
 import { Either, Either_ } from './either'
 
 describe('Basic Tests', () => {

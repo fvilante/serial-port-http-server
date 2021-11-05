@@ -1,5 +1,5 @@
 import { Reader_ } from '../reader/reader'
-import {ZIO, ZIO_} from './zio'
+import {ZIO_} from './zio'
 
 describe('basic tests', () => {
 

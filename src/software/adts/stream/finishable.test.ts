@@ -1,4 +1,4 @@
-import { Finishable, Finishable_ } from "./finishable"
+import { Finishable_ } from "./finishable"
 import { InferIterated, Iterated } from "./pull"
 
 describe('basic tests', () => {

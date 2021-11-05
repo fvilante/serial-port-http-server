@@ -1,6 +1,4 @@
 import { Future, Future_ } from "../future"
-import { Either } from "../maybe/either"
-import { Finishable } from "../stream/finishable"
 
 type ReaderWorld<R,A> = Reader<R,A>['unsafeRun']
 

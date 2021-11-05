@@ -1,12 +1,10 @@
 import { Duration, TimePoint, TimePoint_ } from "../core/time"
-import { now, Range } from "../core/utils"
 import { Future } from "./future";
-import { Maybe } from "./maybe";
 import { Among, Among_ } from "./maybe/among";
 import { Either, Either_ } from "./maybe/either"
 import { Ref } from "./ref/ref";
 import { Result, ResultMatcher } from "./result";
-import { Iterated, Pull, Pull_ } from "./stream/pull"
+import { Iterated, Pull } from "./stream/pull"
 
 // helper types
 // fix: extract to 'type utils'

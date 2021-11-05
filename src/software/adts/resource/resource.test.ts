@@ -1,7 +1,6 @@
 import { Future, Future_ } from "../future"
 import { Among } from "../maybe/among"
 import { Result_ } from "../result"
-import { KindedInterface } from "../validated/kind"
 import { Resource, ResourceError, Resource_ } from "./resource"
 
 describe('basic tests', () => {

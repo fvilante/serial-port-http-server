@@ -1,6 +1,6 @@
-import { Maybe, Maybe_ } from "./maybe"
+import { Maybe } from "./maybe"
 import { Either, Either_ } from "./maybe/either"
-import { InferResult, Result_, Result, ResultMatcher } from "./result"
+import { Result_, Result, ResultMatcher } from "./result"
 
 // IMPORTANT: 
 //  the idea of future is that he never trows an error

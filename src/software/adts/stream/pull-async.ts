@@ -1,4 +1,4 @@
-import { Future, InferFuture } from "../future"
+import { Future } from "../future"
 import { Maybe, Maybe_ } from "../maybe"
 import { Push } from "../push-stream"
 import { Iterated } from './pull'

@@ -1,5 +1,5 @@
 import { Future_ } from '../future'
-import {Reader, Reader_} from './reader'
+import { Reader_} from './reader'
 
 describe('basic tests', () => {
 

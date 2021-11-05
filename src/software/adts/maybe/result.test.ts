@@ -1,4 +1,4 @@
-import { Result, ResultMatcher, Result_, UnsafeSyncCallError } from "../result"
+import { Result, Result_, UnsafeSyncCallError } from "../result"
 import { Either } from "./either"
 
 describe('basic tests', () => {

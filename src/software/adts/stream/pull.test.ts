@@ -1,6 +1,6 @@
 import { Future_ } from "../future"
 import { Push, Push_ } from "../push-stream"
-import { Pull, Pull_ } from "./pull"
+import { Pull_ } from "./pull"
 
 
 describe('basic tests', () => {
