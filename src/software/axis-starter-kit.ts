@@ -3,7 +3,7 @@
 // This is an append file for axis-controler.ts, and my dreem is to use another
 // strategy for initialization of the axis. Something more robust.
 
-import { delay } from "../utils/delay"
+import { delay } from "./utils/delay"
 import { setParam_ } from "./cmpp-memmap-layer"
 import { Address, Axis } from "./global"
 import { Driver } from "./mapa_de_memoria"

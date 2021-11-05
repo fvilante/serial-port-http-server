@@ -4,7 +4,7 @@ import { executeInSequence } from "./promise-utils";
 import { Address, Axis } from "./global";
 import { sendCmpp } from "./send-receive-cmpp-datalink";
 import { Range, groupBy, now } from './utils'
-import { delay } from "../utils/delay";
+import { delay } from "./utils/delay";
 import { bit_test } from "./bit-wise-utils";
 
 

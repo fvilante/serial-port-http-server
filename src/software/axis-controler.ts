@@ -1,4 +1,4 @@
-import { delay } from "../utils/delay"
+import { delay } from "./utils/delay"
 import { AxisStarterKit } from "./axis-starter-kit"
 import { setParam_ } from "./cmpp-memmap-layer"
 import { Milimeter } from "./axis-position"

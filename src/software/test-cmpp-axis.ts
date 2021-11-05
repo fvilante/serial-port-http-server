@@ -1,5 +1,5 @@
 import { BaudRate } from './serial/baudrate'
-import { delay } from "../utils/delay"
+import { delay } from "./utils/delay"
 import { AxisStarterKit } from "./axis-controler"
 import { setParam_ } from "./cmpp-memmap-layer"
 import { Address, Axis } from "./global"

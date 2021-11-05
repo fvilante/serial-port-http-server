@@ -1,4 +1,4 @@
-import { delay } from "../utils/delay"
+import { delay } from "./utils/delay"
 import { AxisControler, getAxisControler } from "./axis-controler"
 import { Milimeter } from "./axis-position"
 import { X_AxisStarterKit, Y_AxisStarterKit, Z_AxisStarterKit } from "./axis-starter-kit"

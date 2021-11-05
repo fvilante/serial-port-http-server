@@ -1,4 +1,4 @@
-import { delay } from "../utils/delay"
+import { delay } from "./utils/delay"
 import { AxisControler } from "./axis-controler"
 import { Milimeter } from "./axis-position"
 import { Printers } from "./global"

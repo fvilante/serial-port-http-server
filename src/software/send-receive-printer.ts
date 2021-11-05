@@ -1,5 +1,5 @@
 import { BaudRate } from './serial/baudrate'
-import { delay } from '../utils/delay'
+import { delay } from './utils/delay'
 import { CommDriver, communicate } from './communicate'
 import { mkSetRemoteMessageFrame, mkSelectRemoteMessageFrame } from './printer-protocol'
 import { executeInSequence } from './promise-utils'
