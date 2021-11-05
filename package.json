@@ -13,7 +13,8 @@
     "moveCmpp": "npx ts-node .\\src\\serial-port\\cmpp\\temp\\moveAxisTo.ts",
     "updateDependencyGraph1": "npx dependency-cruiser --include-only '^src' --output-type dot src | dot -T svg > dependencygraph.svg",
     "updateDependencyGraph2":  "npx ts_dependency_graph --start ./src/software/main3.ts  | dot -T svg > dependencygraph.svg",
-    "dep": "npx ts_dependency_graph --start ./src/software/main3.ts  | dot -T svg > dependencygraph.svg"
+    "dep": "npx ts_dependency_graph --start ./src/software/main3.ts  | dot -T svg > dependencygraph.svg",
+    "depMain2": "npx ts_dependency_graph --start ./src/software/main2.ts  | dot -T svg > dependencygraph_main2.svg"
   },
   "author": "fvilante",
   "license": "ISC",

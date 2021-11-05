@@ -6,3 +6,4 @@ packages/*/lib
 .vscode/
 src/serial-port/front-end/build/
 dependencygraph.svg
+dependencygraph_main2.svg
