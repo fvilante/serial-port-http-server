@@ -1,4 +1,4 @@
-import { readKeyboardAsync } from "../read-keyboard-async"
+import { readKeyboardAsync } from "../keyboard/read-keyboard-async"
 import { BarCode, GetBarCodeFromSignal } from '../parse-barcode'
 import { makeMovimentKit, MovimentKit } from "../machine-controler"
 import { performMatriz, performMatrizByItsMsg } from "../matriz-router"

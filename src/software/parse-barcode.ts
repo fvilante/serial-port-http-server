@@ -1,5 +1,5 @@
 import { TimePoint_ } from "./time"
-import { readKeyboardAsync, KeyEvent } from './read-keyboard-async'
+import { readKeyboardAsync, KeyEvent } from './keyboard/read-keyboard-async'
 import { Maybe, Nothing, Just } from "./adts/maybe"
 import { Push } from "./adts/push-stream"
 import { performMatrizByItsMsg, } from "./matriz-router"

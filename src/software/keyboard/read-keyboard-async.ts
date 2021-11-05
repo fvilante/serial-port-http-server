@@ -1,5 +1,5 @@
 import readline from 'readline'
-import { Push } from './adts/push-stream'
+import { Push } from '../adts/push-stream'
 
 export type KeyEvent = {
     sequence: string,   // utf-8 etc
