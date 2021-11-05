@@ -1,4 +1,4 @@
-import { bit_test } from "./bit-wise-utils"
+import { bit_test } from "./core/bit-wise-utils"
 import { FrameCore } from "./cmpp/datalink/cmpp-datalink-protocol"
 import { Address } from "./global-env/global"
 import { sendCmpp } from "./send-receive-cmpp-datalink"
