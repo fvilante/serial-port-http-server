@@ -10,6 +10,9 @@ import { Range } from "./core/utils"
 import { executeInSequence } from "./core/promise-utils"
 import { readMachineSignals } from "./le-sinais-da-maquina"
 
+//FIX:
+//  this module is not being used by others
+
 // le sinais do eixto, fc+(giro), fc-, etc
 
 
