@@ -1,7 +1,7 @@
 // All known matrizs
 
-import { Milimeter } from "./axis-position"
-import { Printers } from "./global-env/global"
+import { Milimeter } from "../axis-position"
+import { Printers } from "../global-env/global"
 
 // ================== end temp draft =================
 

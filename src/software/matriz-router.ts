@@ -3,7 +3,7 @@ import { AxisControler } from "./axis-controler"
 import { Milimeter } from "./axis-position"
 import { Printers } from "./global-env/global"
 import { AxisKit, MovimentKit } from "./machine-controler"
-import { getMatrizesConhecidas, Matriz, MatrizesConhecidasKeys } from "./matrizes-conhecidas"
+import { getMatrizesConhecidas, Matriz, MatrizesConhecidasKeys } from "./matrix-reader/matrizes-conhecidas"
 import { programMessage } from "./printer/program-message"
 import { executeInSequence, repeatPromiseWithInterval } from "./promise-utils"
 

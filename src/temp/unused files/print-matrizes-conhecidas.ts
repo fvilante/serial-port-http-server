@@ -1,5 +1,5 @@
 
-import { getMatrizesConhecidas, ImpressoesX, Matriz, MatrizesConhecidas, MatrizesConhecidasKeys} from './matrizes-conhecidas'
+import { getMatrizesConhecidas, ImpressoesX, Matriz, MatrizesConhecidas, MatrizesConhecidasKeys} from '../../software/matrix-reader/matrizes-conhecidas'
 
 // print known jobs
 

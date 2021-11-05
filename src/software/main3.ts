@@ -2,9 +2,9 @@ import { readKeyboardAsync } from "./read-keyboard-async"
 import { BarCode, GetBarCodeFromSignal } from './parse-barcode'
 import { makeMovimentKit, MovimentKit } from "./machine-controler"
 import { performMatriz, performMatrizByItsMsg } from "./matriz-router"
-import { fetchMatrizByBarcodeRaw } from "./matriz-cadastro-geral-reader"
+import { fetchMatrizByBarcodeRaw } from "./matrix-reader/matriz-cadastro-geral-reader"
 import { createTerminal } from 'terminal-kit'
-import { Matriz } from "./matrizes-conhecidas"
+import { Matriz } from "./matrix-reader/matrizes-conhecidas"
 import { delay } from "./utils/delay"
 
 const term = createTerminal()
