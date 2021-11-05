@@ -5,5 +5,4 @@ packages/*/lib
 .idea
 .vscode/
 src/serial-port/front-end/build/
-dependencygraph.svg
-dependencygraph_main2.svg
+dependencygraph*.svg
