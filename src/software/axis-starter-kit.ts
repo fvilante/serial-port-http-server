@@ -4,9 +4,9 @@
 // strategy for initialization of the axis. Something more robust.
 
 import { delay } from "./core/delay"
-import { setParam_ } from "./cmpp-memmap-layer"
+import { setParam_ } from "./cmpp/transport/cmpp-memmap-layer"
 import { Address, Axis } from "./global-env/global"
-import { Driver } from "./mapa_de_memoria"
+import { Driver } from "./cmpp/transport/mapa_de_memoria"
 import { executeInSequence } from "./core/promise-utils"
 
 

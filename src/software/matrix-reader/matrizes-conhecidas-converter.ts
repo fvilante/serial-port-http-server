@@ -1,5 +1,5 @@
 import { Reduce, Reduce_ } from "../adts/reduce"
-import { Milimeter } from "../axis-position"
+import { Milimeter } from "../../temp/unused files/axis-position"
 import { Printers } from "../global-env/global"
 import { getMatrizesConhecidas, Matriz } from "./matrizes-conhecidas"
 import { mapObject, Range } from '../core/utils'

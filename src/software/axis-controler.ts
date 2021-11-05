@@ -1,14 +1,14 @@
 import { delay } from "./core/delay"
 import { AxisStarterKit } from "./axis-starter-kit"
-import { setParam_ } from "./cmpp-memmap-layer"
-import { Milimeter } from "./axis-position"
+import { setParam_ } from "./cmpp/transport/cmpp-memmap-layer"
+import { Milimeter } from "../temp/unused files/axis-position"
 import { fetchCMPPStatusL, StatusLCasted } from "./get-cmpp-status"
 import { getPosicaoAtual } from "./get-pos-atual"
 import { Address, Axis } from "./global-env/global"
-import { Driver } from "./mapa_de_memoria"
+import { Driver } from "./cmpp/transport/mapa_de_memoria"
 import { executeInSequence, WaitUntilTrueFastPooling } from "./core/promise-utils"
 import { isInsideRange, now } from "./core/utils"
-import { PrintingPositions } from "./cmpp-controler"
+//import { PrintingPositions } from "./cmpp-controler"
 
 // ***********************************************************
 // A generic Axis driver
@@ -16,7 +16,14 @@ import { PrintingPositions } from "./cmpp-controler"
 // Hides and wrap the CMPP-classic PCBoard API
 // ***********************************************************
 
-
+type PrintingPositions = {
+    readonly numeroDeMensagensNoAvanco: number;
+    readonly numeroDeMensagensNoRetorno: number;
+    readonly posicaoDaPrimeiraMensagemNoAvanco: number;
+    readonly posicaoDaUltimaMensagemNoAvanco: number;
+    readonly posicaoDaPrimeiraMensagemNoRetorno: number;
+    readonly posicaoDaUltimaMensagemNoRetorno: number;
+}
 
 export type AxisKinematics = {
     readonly AbsoluteDisplacement: Milimeter

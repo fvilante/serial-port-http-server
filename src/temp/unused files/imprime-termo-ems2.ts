@@ -1,4 +1,4 @@
-import { Milimeter } from "../../software/axis-position"
+import { Milimeter } from "./axis-position"
 import { Printers } from "../../software/global-env/global"
 import { makeMovimentKit } from "../../software/machine-controler"
 import { Range } from "../../software/core/utils"

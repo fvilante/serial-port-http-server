@@ -2,7 +2,7 @@
 // rotina feita rapidamente para imprimir termo pequena EMS232 e similares
 // NOTA: É necessário enviar o texto manualmente a rotina nao envia o texto
 
-import { Milimeter } from "../../software/axis-position"
+import { Milimeter } from "./axis-position"
 import { makeMovimentKit } from "../../software/machine-controler"
 import { executeInSequence } from "../../software/core/promise-utils"
 import { Range } from "../../software/core/utils"

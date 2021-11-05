@@ -1,4 +1,4 @@
-import { AxisControler } from "./axis-controler"
+import { AxisControler } from "../../software/axis-controler"
 
 type Field<A> = {
     zero: () => A

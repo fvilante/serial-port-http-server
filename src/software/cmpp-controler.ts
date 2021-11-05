@@ -1,13 +1,11 @@
 import { BaudRate } from './serial/baudrate'
-import { setParam_ } from './cmpp-memmap-layer'
+import { setParam_ } from './cmpp/transport/cmpp-memmap-layer'
 import { fetchCMPPStatusL, StatusLCasted } from './get-cmpp-status'
 import { getPosicaoAtual } from './get-pos-atual'
-import { Driver, HyperDriver } from './mapa_de_memoria'
+import { Driver, HyperDriver } from './cmpp/transport/mapa_de_memoria'
 import { isInsideRange, now } from "./core/utils"
 
-// FIX:
-//  This module is not in use, except the type 'PrintingPosisions' which is exported alongside the code
-//  put it in use when possible
+
 
 // Responsible to wrap the cmpp parameters in a logical way
 // We want also to diferentiate pure and impure commands
