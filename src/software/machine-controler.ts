@@ -5,7 +5,7 @@ import { X_AxisStarterKit, Y_AxisStarterKit, Z_AxisStarterKit } from "./axis-sta
 import { Printers } from "./global"
 import { performMatriz } from "./matriz-router"
 import { Matriz, MatrizesConhecidasKeys } from "./matrizes-conhecidas"
-import { programMessage } from "./program-message"
+import { programMessage } from "./printer/program-message"
 import { ExecuteInParalel as executeInSerie, executeInSequence } from "./promise-utils"
 import { isInsideRange, Range } from "./utils"
 

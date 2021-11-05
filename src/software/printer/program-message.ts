@@ -1,7 +1,7 @@
-import { delay } from "./utils/delay"
-import { Address, Printers } from "./global"
+import { delay } from "../utils/delay"
+import { Address, Printers } from "../global"
 import { sendPrinter2 } from "./send-receive-printer"
-import { Range } from "./utils"
+import { Range } from "../utils"
 
 // do the high level communication to two printers
 

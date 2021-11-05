@@ -4,7 +4,7 @@ import { Milimeter } from "./axis-position"
 import { Printers } from "./global"
 import { AxisKit, MovimentKit } from "./machine-controler"
 import { getMatrizesConhecidas, Matriz, MatrizesConhecidasKeys } from "./matrizes-conhecidas"
-import { programMessage } from "./program-message"
+import { programMessage } from "./printer/program-message"
 import { executeInSequence, repeatPromiseWithInterval } from "./promise-utils"
 
 //  Responsible to create and execute the routing for perform the printing

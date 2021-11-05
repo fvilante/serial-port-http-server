@@ -1,9 +1,9 @@
-import { BaudRate } from './serial/baudrate'
-import { delay } from './utils/delay'
-import { CommDriver, communicate } from './communicate'
+import { BaudRate } from '../serial/baudrate'
+import { delay } from '../utils/delay'
+import { CommDriver, communicate } from '../communicate'
 import { mkSetRemoteMessageFrame, mkSelectRemoteMessageFrame } from './printer-protocol'
-import { executeInSequence } from './promise-utils'
-import { Range } from './utils'
+import { executeInSequence } from '../promise-utils'
+import { Range } from '../utils'
 
 const ACK = 6
 const NACK = 21
