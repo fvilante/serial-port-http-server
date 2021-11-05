@@ -1,4 +1,4 @@
-import { Result_, Result } from "../serial-port/adts/result"
+import { Result_, Result } from "../software/adts/result"
 
 // IMPORTANT:
 // FIX: This file is the initial work to refactory cmpp-datalink-protocol.ts

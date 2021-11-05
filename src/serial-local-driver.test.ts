@@ -1,7 +1,7 @@
 import { BaudRate, PortOpened, SerialDriver, SerialDriverConstructor } from './serial-local-driver'
-import { ACK, ESC, ETX, FrameInterpreted, InterpretIncomming, NACK, STX } from './serial-port/cmpp/datalink/cmpp-datalink-protocol';
-import { executeInSequence } from './serial-port/promise-utils';
-import { Timer__ } from './serial-port/utils';
+import { ACK, ESC, ETX, FrameInterpreted, InterpretIncomming, NACK, STX } from './software/cmpp/datalink/cmpp-datalink-protocol';
+import { executeInSequence } from './software/promise-utils';
+import { Timer__ } from './software/utils';
 import Ora from 'ora'
 
 const log = { text: ''}

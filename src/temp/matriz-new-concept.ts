@@ -1,5 +1,5 @@
-import { Milimeter } from "../serial-port/axis-position"
-import { Printers } from "../serial-port/global"
+import { Milimeter } from "../software/axis-position"
+import { Printers } from "../software/global"
 
 // FIX: Implement
 
