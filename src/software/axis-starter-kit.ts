@@ -5,7 +5,7 @@
 
 import { delay } from "./utils/delay"
 import { setParam_ } from "./cmpp-memmap-layer"
-import { Address, Axis } from "./global"
+import { Address, Axis } from "./global-env/global"
 import { Driver } from "./mapa_de_memoria"
 import { executeInSequence } from "./promise-utils"
 

@@ -1,6 +1,6 @@
 import { bit_test } from "./bit-wise-utils"
 import { FrameCore } from "./cmpp/datalink/cmpp-datalink-protocol"
-import { Address } from "./global"
+import { Address } from "./global-env/global"
 import { sendCmpp } from "./send-receive-cmpp-datalink"
 
 // le sinais de gaveta e janela manutencao e botao de emergencia

@@ -1,4 +1,4 @@
-import { BaudRate } from './serial/baudrate'
+import { BaudRate } from '../serial/baudrate'
 import { AddressFromLocal as Address_LAPTOP_FLAVIO} from './global_LAPTOP_FLAVIO'
 import { AddressFromLocal as Address_MAQUINA_LEONI} from './global_MAQUINA_LEONI'
 

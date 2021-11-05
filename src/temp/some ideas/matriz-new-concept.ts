@@ -1,5 +1,5 @@
 import { Milimeter } from "../../software/axis-position"
-import { Printers } from "../../software/global"
+import { Printers } from "../../software/global-env/global"
 
 // FIX: Implement
 

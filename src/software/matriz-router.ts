@@ -1,7 +1,7 @@
 import { delay } from "./utils/delay"
 import { AxisControler } from "./axis-controler"
 import { Milimeter } from "./axis-position"
-import { Printers } from "./global"
+import { Printers } from "./global-env/global"
 import { AxisKit, MovimentKit } from "./machine-controler"
 import { getMatrizesConhecidas, Matriz, MatrizesConhecidasKeys } from "./matrizes-conhecidas"
 import { programMessage } from "./printer/program-message"

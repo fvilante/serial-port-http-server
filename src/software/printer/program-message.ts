@@ -1,5 +1,5 @@
 import { delay } from "../utils/delay"
-import { Address, Printers } from "../global"
+import { Address, Printers } from "../global-env/global"
 import { sendPrinter2 } from "./send-receive-printer"
 import { Range } from "../utils"
 

@@ -2,7 +2,7 @@
 
 import { bit_test } from "./bit-wise-utils"
 import { FrameCore } from "./cmpp/datalink/cmpp-datalink-protocol"
-import { Address, Axis } from "./global"
+import { Address, Axis } from "./global-env/global"
 import { sendCmpp } from "./send-receive-cmpp-datalink"
 import { setParam_ } from './cmpp-memmap-layer'
 import { Driver } from "./mapa_de_memoria"
