@@ -1,7 +1,7 @@
-import { BaudRate } from './serial/baudrate'
-import { listSerialPorts } from "./listSerialPorts"
-import { ExecuteInParalel, executeInSequence } from "./promise-utils"
-import { sendPrinter2 } from "./send-receive-printer"
+import { BaudRate } from '../serial/baudrate'
+import { listSerialPorts } from "../listSerialPorts"
+import { ExecuteInParalel, executeInSequence } from "../promise-utils"
+import { sendPrinter2 } from "../send-receive-printer"
 
 
 type Channel = {portName: string, baudRate: BaudRate}
