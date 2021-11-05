@@ -1,5 +1,8 @@
 import { BaudRate } from './baudrate'
-import SerialPort  from 'serialport'
+import SerialPort  from 'serialport' 
+
+// NOTE
+//  This module is just a wrapper over the real concrete nodejs serial port module.
 
 
 /**
