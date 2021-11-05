@@ -1,4 +1,4 @@
-import { CommDriver, communicate} from './serial/communicate'
+import { CommDriver, communicate} from '../../serial/communicate'
 import { 
     FrameCore, 
     FrameInterpreted,
@@ -6,8 +6,8 @@ import {
     compileCoreFrame,
     flattenFrameSerialized,
     CmppDataLinkInterpreter,
-} from './cmpp/datalink/cmpp-datalink-protocol'
-import { BaudRate } from './serial/baudrate'
+} from './cmpp-datalink-protocol'
+import { BaudRate } from '../../serial/baudrate'
 
 const CmppTimeout = 5000
 

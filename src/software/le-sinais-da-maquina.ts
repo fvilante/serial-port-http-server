@@ -1,7 +1,7 @@
 import { bit_test } from "./core/bit-wise-utils"
 import { FrameCore } from "./cmpp/datalink/cmpp-datalink-protocol"
 import { Address } from "./global-env/global"
-import { sendCmpp } from "./send-receive-cmpp-datalink"
+import { sendCmpp } from "./cmpp/datalink/send-receive-cmpp-datalink"
 
 // le sinais de gaveta e janela manutencao e botao de emergencia
 // Referente ao dadoH do endereco absoluto $0038 da placa do eixo Z.
