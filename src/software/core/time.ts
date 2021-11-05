@@ -1,4 +1,4 @@
-import { now } from "./core/utils"
+import { now } from "./utils"
 
 
 export type Second = {

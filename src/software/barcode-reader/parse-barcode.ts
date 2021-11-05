@@ -1,4 +1,4 @@
-import { TimePoint_ } from "../time"
+import { TimePoint_ } from "../core/time"
 import { readKeyboardAsync, KeyEvent } from '../keyboard/read-keyboard-async'
 import { Maybe, Nothing, Just } from "../adts/maybe"
 import { Push } from "../adts/push-stream"

@@ -1,4 +1,4 @@
-import { Duration } from "../../time"
+import { Duration } from "../../core/time"
 
 
 type AbsolutePosition = undefined

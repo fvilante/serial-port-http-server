@@ -1,4 +1,4 @@
-import { Duration, TimePoint, TimePoint_ } from "../time"
+import { Duration, TimePoint, TimePoint_ } from "../core/time"
 import { now, Range } from "../core/utils"
 import { Future } from "./future";
 import { Maybe } from "./maybe";
