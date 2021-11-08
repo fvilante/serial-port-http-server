@@ -22,8 +22,6 @@ export type SerialDriver = {
   readonly open: (path: PortInfo['path'], baudRate: BaudRate) => Promise<PortOpened>
 }
 
-export const listSerialPorts = (): Promise<readonly PortInfo[]> => SerialPort.list()
-
 export type SerialDriverConstructor = () => SerialDriver
 
 

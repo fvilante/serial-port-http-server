@@ -1,5 +1,3 @@
 export { PortInfo } from './types'
-export { 
-    SerialDriverConstructor,
-    listSerialPorts,
-} from './serial-local-driver'
+export { SerialDriverConstructor } from './serial-local-driver'
+export { listSerialPorts } from './list-serial-ports'
