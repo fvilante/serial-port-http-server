@@ -1,8 +1,9 @@
 import { BaudRate } from '../serial/baudrate'
-import { listSerialPorts } from "./listSerialPorts"
+import { listSerialPorts } from "../serial/index"
 import { ExecuteInParalel } from "../core/promise-utils"
 import { sendPrinter2 } from "../printer/send-receive-printer"
 
+const Helper_ListPorts_or_Throw = async () => await listSerialPorts().fmap( r => r.orDie()).async()
 
 type Channel = {portName: string, baudRate: BaudRate}
 type PrinterDetectionResponse = Map<Channel, {
@@ -14,7 +15,7 @@ const detectPrinters = async ():Promise<PrinterDetectionResponse> => {
 
     const res: PrinterDetectionResponse = new Map()
     console.log(`Detectando portas seriais...`)
-    const portsInfo = await listSerialPorts()
+    const portsInfo = await Helper_ListPorts_or_Throw()
     const ports = portsInfo.map( x => x.path) as readonly string[]
     console.log(`Portas detectadas:`, ports)
     const baudRates: readonly BaudRate[] = [9600]

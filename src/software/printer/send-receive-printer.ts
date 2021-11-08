@@ -1,6 +1,6 @@
 import { BaudRate } from '../serial/baudrate'
 import { delay } from '../core/delay'
-import { CommDriver, communicate } from '../serial/communicate'
+import { communicate } from '../serial/communicate'
 import { mkSetRemoteMessageFrame, mkSelectRemoteMessageFrame } from './printer-protocol'
 //test
 import { listSerialPorts } from '../serial/index'
@@ -138,8 +138,10 @@ export const sendPrinter = (
 })
 
 const Test1 = () => {
+
+    const Helper_ListPorts_or_Throw = async () => await listSerialPorts().fmap( r => r.orDie()).async()
     
-    const ports = listSerialPorts().then( portInfos => {
+    const ports = Helper_ListPorts_or_Throw().then( portInfos => {
         portInfos.map( portInfo => {
     
             const port = portInfo.path

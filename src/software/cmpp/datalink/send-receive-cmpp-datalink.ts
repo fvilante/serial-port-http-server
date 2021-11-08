@@ -74,10 +74,12 @@ export const sendCmpp = (
 
 
 const Test1 = () => {
+
+    const Helper_ListPorts_or_Throw = async () => await listSerialPorts().fmap( r => r.orDie()).async()
+    
     const data = [27, 2, 64, 210, 12, 0, 27, 3, 221] //[0x1B,0x02,0x00,0x1C,0x00,0x00,0x1B,0x03,0xDF]
     const port = 'com1'
-    
-    const ports = listSerialPorts().then( portInfos => {
+    const ports = Helper_ListPorts_or_Throw().then( portInfos => {
         portInfos.map( portInfo => {
     
             const port = portInfo.path

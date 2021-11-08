@@ -1,8 +1,30 @@
 import SerialPort  from 'serialport'
 import { PortInfo } from "./port-info";
+import { Future, Future_, UnsafePromiseError } from '../adts/future'
+import { Result } from '../adts/result'
+
+// NOTE: Today both PortInfo types are equals, but they may differ in future code changings
+//       this is why we preffer to not reuse SerialPort.PortInfo type
+const castPortInfo = (ports: SerialPort.PortInfo[]): readonly PortInfo[] => {
+    return ports.map( p => {
+        return { 
+            path: p.path,
+            serialNumber: p.serialNumber,
+            manufacturer: p.manufacturer,
+            pnpId: p.pnpId,
+            locationId: p.locationId,
+            productId: p.productId,
+            vendorId: p.vendorId,
+        }
+    })
+}
 
 
-export const listSerialPorts = (): Promise<readonly PortInfo[]> => SerialPort.list()
+export const listSerialPorts = (): Future<Result<readonly PortInfo[],UnsafePromiseError>> => {
+    return Future_
+        .fromUnsafePromise(() => SerialPort.list())
+        .map( r => r.map(castPortInfo))   
+}
 
 
 // NOTE: 
