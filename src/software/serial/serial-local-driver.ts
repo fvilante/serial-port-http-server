@@ -12,7 +12,7 @@ import SerialPort  from 'serialport'
 
 
 export type PortInfo = {
-    readonly uid: string; // port path (exemple in linux: '/dev/tty-usbserial1', or in windows: 'COM6')
+    readonly path: string; // port path (exemple in linux: '/dev/tty-usbserial1', or in windows: 'COM6')
     readonly manufacturer?: string;
     readonly serialNumber?: string;
     readonly pnpId?: string;
@@ -30,7 +30,7 @@ export type PortOpened = {
 
 export type SerialDriver = {
   readonly listPorts: () => Promise<readonly PortInfo[]>
-  readonly open: (uid: PortInfo['uid'], baudRate: BaudRate) => Promise<PortOpened>
+  readonly open: (path: PortInfo['path'], baudRate: BaudRate) => Promise<PortOpened>
 }
 
 export type SerialDriverConstructor = () => SerialDriver
@@ -44,11 +44,11 @@ export const SerialDriverConstructor: SerialDriverConstructor = () =>  {
   
   const listPorts: SerialDriver['listPorts'] =  () =>  {
     const list = SerialPort.list();
-    const portsInfo: Promise<readonly PortInfo[]> = list.then( y => y.map( x => ({ uid: x.path, ...x })));
+    const portsInfo: Promise<readonly PortInfo[]> = list.then( y => y.map( x => ({ ...x })));
     return portsInfo;
   }
 
-  const open: SerialDriver['open'] = (uid, baudRate) => {
+  const open: SerialDriver['open'] = (path, baudRate) => {
 
     const introduceLocalInterface = (portOpened: SerialPort): PortOpened => {
 
@@ -81,7 +81,7 @@ export const SerialDriverConstructor: SerialDriverConstructor = () =>  {
     }
 
     const portOpened = new Promise<SerialPort>( (resolve, reject) => { 
-        const port = new SerialPort(uid, { baudRate } )
+        const port = new SerialPort(path, { baudRate } )
         port.on('open', () => resolve(port))
         port.on('error', err => reject(err))
       })

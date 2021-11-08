@@ -78,7 +78,7 @@ const Test1 = () => {
     const ports = CommDriver.listPorts().then( portInfos => {
         portInfos.map( portInfo => {
     
-            const port = portInfo.uid
+            const port = portInfo.path
             const baudRate = 9600
             communicate(
                 port,
@@ -98,9 +98,9 @@ const Test1 = () => {
 }
 
 const Test2 = () => {
-    //const ports = CommDriver.listPorts().then( xs  => xs.map( ({uid}) => {
+    //const ports = CommDriver.listPorts().then( xs  => xs.map( ({path}) => {
         let res: readonly FrameInterpreted[] = []
-        const port = 'com1' //uid
+        const port = 'com1' //path
         const channel = 0
         const waddr1 = 0xD2
         const waddr2 = 27

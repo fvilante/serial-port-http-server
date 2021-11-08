@@ -140,7 +140,7 @@ const Test1 = () => {
     const ports = CommDriver.listPorts().then( portInfos => {
         portInfos.map( portInfo => {
     
-            const port = portInfo.uid
+            const port = portInfo.path
             sendPrinter(port, 9600)(2, 'oi')
                 .then( () => {
                     setTimeout( () => { 

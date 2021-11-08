@@ -110,7 +110,6 @@ describe('Using com0com serial port emulator', () => {
                 "pnpId": "COM0COM\\PORT\\CNCA1",
                 "productId": undefined,
                 "serialNumber": undefined,
-                "uid": "COM4",
                 "vendorId": undefined,
             },
             {
@@ -120,7 +119,6 @@ describe('Using com0com serial port emulator', () => {
                 "pnpId": "COM0COM\\PORT\\CNCB1",
                 "productId": undefined,
                 "serialNumber": undefined,
-                "uid": "COM5",
                 "vendorId": undefined,
             },
         ]
