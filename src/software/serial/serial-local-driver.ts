@@ -18,20 +18,14 @@ export type PortOpened = {
     readonly close: () => Promise<void>
 }
 
-export type SerialDriver = {
-  readonly open: (path: PortInfo['path'], baudRate: BaudRate) => Promise<PortOpened>
-}
-
-export type SerialDriverConstructor = () => SerialDriver
+export type PortOpener = (path: PortInfo['path'], baudRate: BaudRate) => Promise<PortOpened>
 
 
 /**
  * Serial Driver - Concrete
  */
 
-export const SerialDriverConstructor: SerialDriverConstructor = () =>  {
-  
-  const open: SerialDriver['open'] = (path, baudRate) => {
+export const PortOpener: PortOpener = (path, baudRate) => {
 
     const introduceLocalInterface = (portOpened: SerialPort): PortOpened => {
 
@@ -71,10 +65,7 @@ export const SerialDriverConstructor: SerialDriverConstructor = () =>  {
         .then( introduceLocalInterface );
 
     return portOpened;
-  }
-
-  return {
-    open,
-  }
-
 }
+
+
+

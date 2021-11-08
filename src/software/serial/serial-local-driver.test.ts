@@ -1,5 +1,5 @@
 import { BaudRate } from './baudrate'
-import { PortOpened, SerialDriverConstructor } from './serial-local-driver'
+import { PortOpened, PortOpener } from './serial-local-driver'
 import { ACK, ESC, ETX, FrameInterpreted, InterpretIncomming, NACK, STX } from '../cmpp/datalink/cmpp-datalink-protocol';
 import { executeInSequence } from '../core/promise-utils';
 import { Timer__ } from '../core/utils';
@@ -138,8 +138,7 @@ describe('Using com0com serial port emulator', () => {
 
     it('can open one serial port', async () => {
 
-        const driver = SerialDriverConstructor()
-        const portOpened = await driver.open(COM_A, 9600)
+        const portOpened = await PortOpener(COM_A, 9600)
 
         const expected = "PortOpened"
         const actual = portOpened.kind
@@ -151,10 +150,9 @@ describe('Using com0com serial port emulator', () => {
 
     it('can open all emulated serial ports (in paralel) neither send nor receive anything to them than close', async (done) => {
 
-        const driver = SerialDriverConstructor()
         const ports = [COM_A, COM_B]
         ports.forEach(port => {
-            driver.open(port, 9600)
+            PortOpener(port, 9600)
                 .then(portOpened => {
                     portOpened.close().then(() => {
                         expect(true).toEqual(true);
@@ -178,9 +176,8 @@ describe('Using com0com serial port emulator', () => {
         let rxBufP1: typeof expected = []
         let rxBufP2: typeof expected = []
         const expected = [1, 2, 3, 4, 5, 4, 3, 2, 1]
-        const driver = SerialDriverConstructor()
-        const port1 = await driver.open(COM_A, 9600)
-        const port2 = await driver.open(COM_B, 9600)
+        const port1 = await PortOpener(COM_A, 9600)
+        const port2 = await PortOpener(COM_B, 9600)
         const someChange = (x: number) => x + 1
 
         port1.onData(data => { rxBufP1 = [...rxBufP1, ...data] })
@@ -219,9 +216,8 @@ describe('Using the real hardware effects (requires at least one CMPP00LG (or co
     it('can detect cmpp at specific serial port', async (done) => {
         // prepare
         jest.setTimeout(150000*4)
-        const driver = SerialDriverConstructor()
         const baudRate = 9600
-        const portOpened = await driver.open(portPath, baudRate)
+        const portOpened = await PortOpener(portPath, baudRate)
         const validFrame__ = [27, 2, 0, 80, 0, 0, 27, 3, 171] // 9 bytes
         const sizeOfOneValidFrame = validFrame__.length
         const payload9_ = [...validFrame__,...validFrame__,...validFrame__,...validFrame__] //, ...validFrame__, ...validFrame__, ...validFrame__, ...validFrame__, ...validFrame__] // 9 frames
@@ -2423,8 +2419,7 @@ describe('Using the real hardware effects (requires at least one CMPP00LG (or co
         const validFrame: readonly number[] = [27, 2, 0, 80, 0, 0, 27, 3, 171]
         const expectedResponse: readonly number[] = [27, 6, 0, 80, 98, 2, 27, 3, 67]
         let buf: readonly number[] = []
-        const driver = SerialDriverConstructor()
-        const portOpened = await driver.open(portPath, baudRate)
+        const portOpened = await PortOpener(portPath, baudRate)
         setTimeout(() => {
             portOpened.close().finally(() => {
                 expect(buf).toStrictEqual(expectedResponse)
