@@ -1,5 +1,6 @@
 import { BaudRate } from './baudrate'
-import SerialPort  from 'serialport' 
+import SerialPort  from 'serialport'
+import { PortInfo } from './types'
 
 // NOTE
 //  This module is just a wrapper over the real concrete nodejs serial port module.
@@ -9,17 +10,6 @@ import SerialPort  from 'serialport'
  * Serial Driver - 
  *   Abstract
  */
-
-
-export type PortInfo = {
-    readonly path: string; // port path (exemple in linux: '/dev/tty-usbserial1', or in windows: 'COM6')
-    readonly manufacturer?: string;
-    readonly serialNumber?: string;
-    readonly pnpId?: string;
-    readonly locationId?: string;
-    readonly productId?: string;
-    readonly vendorId?: string;
-}
 
 export type PortOpened = {
     readonly kind: 'PortOpened'
