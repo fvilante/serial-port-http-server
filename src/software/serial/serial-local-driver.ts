@@ -1,6 +1,6 @@
 import { BaudRate } from './baudrate'
 import SerialPort  from 'serialport'
-import { PortInfo } from './types'
+import { PortInfo } from './port-info'
 
 // NOTE
 //  This module is just a wrapper over the real concrete nodejs serial port module.

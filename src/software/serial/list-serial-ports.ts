@@ -1,5 +1,5 @@
 import SerialPort  from 'serialport'
-import { PortInfo } from "./types";
+import { PortInfo } from "./port-info";
 
 
 export const listSerialPorts = (): Promise<readonly PortInfo[]> => SerialPort.list()
