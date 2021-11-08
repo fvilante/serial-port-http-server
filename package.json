@@ -17,7 +17,10 @@
     "dep1": "npm run updateDependencyGraph1",
     "dep2": "npm run updateDependencyGraph2",
     "dep3": "npm run updateDependencyGraph2Main2",
-    "dep": "npm run dep1 && npm run dep2 && npm run dep3"
+    "dep": "npm run dep1 && npm run dep2 && npm run dep3",
+    "referenciar": "npx ts-node ./src/software/main/main2.ts",
+    "produzir": "cd ./src/software/main/ && npx ts-node main3.ts",
+    "resetGit": "cd .git && rm index.lock"
   },
   "author": "fvilante",
   "license": "ISC",
