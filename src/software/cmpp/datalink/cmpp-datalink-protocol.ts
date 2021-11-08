@@ -4,7 +4,6 @@
 
 import { Among, Among_ } from "../../adts/maybe/among"
 import { Push } from "../../adts/push-stream"
-import { Kinded_ } from "../../adts/validated/kind"
 
 // example valid frame: [0x1B,0x02,0x00,0x1C,0x00,0x00,0x1B,0x03,0xDF]
 

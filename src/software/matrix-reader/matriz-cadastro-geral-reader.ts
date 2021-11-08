@@ -1,6 +1,6 @@
 import { readFile,  } from 'fs'
 import { Matriz } from './matrizes-conhecidas'
-import { Matriz3, matrizConverter_3_2,matrizConverter_3_1 } from './matrizes-conhecidas-converter'
+import { Matriz3, matrizConverter_3_1 } from './matrizes-conhecidas-converter'
 import { BarCode } from '../barcode-reader/parse-barcode'
 
 const CurrentDirectory = process.cwd()

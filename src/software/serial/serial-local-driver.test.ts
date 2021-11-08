@@ -1,5 +1,5 @@
 import { BaudRate } from './baudrate'
-import { PortOpened, SerialDriver, SerialDriverConstructor } from './serial-local-driver'
+import { PortOpened, SerialDriverConstructor } from './serial-local-driver'
 import { ACK, ESC, ETX, FrameInterpreted, InterpretIncomming, NACK, STX } from '../cmpp/datalink/cmpp-datalink-protocol';
 import { executeInSequence } from '../core/promise-utils';
 import { Timer__ } from '../core/utils';

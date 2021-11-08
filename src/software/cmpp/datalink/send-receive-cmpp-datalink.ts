@@ -2,7 +2,6 @@ import { CommDriver, communicate} from '../../serial/communicate'
 import { 
     FrameCore, 
     FrameInterpreted,
-    FrameSerialized,
     compileCoreFrame,
     flattenFrameSerialized,
     CmppDataLinkInterpreter,
