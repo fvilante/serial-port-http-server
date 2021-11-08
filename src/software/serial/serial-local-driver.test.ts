@@ -1,5 +1,5 @@
 import { BaudRate } from './baudrate'
-import { PortOpened, PortOpener } from './serial-local-driver'
+import { PortOpened, PortOpener } from './port-opener'
 import { ACK, ESC, ETX, FrameInterpreted, InterpretIncomming, NACK, STX } from '../cmpp/datalink/cmpp-datalink-protocol';
 import { executeInSequence } from '../core/promise-utils';
 import { Timer__ } from '../core/utils';
@@ -100,42 +100,6 @@ describe('Using com0com serial port emulator', () => {
     const com0com_Ports = ['COM4', 'COM5'] as const// see notes in test below (com0com is a windows serial port emulator)
     const [COM_A, COM_B] = com0com_Ports
 
-    it('can list emulated serial ports', async (done) => {
-
-
-        const expected__ = [
-            {
-                "locationId": "CNCA1",
-                "manufacturer": "Vyacheslav Frolov" as const,
-                "path": COM_A, //"COM4",                           
-                "pnpId": "COM0COM\\PORT\\CNCA1",
-                "productId": undefined,
-                "serialNumber": undefined,
-                "vendorId": undefined,
-            },
-            {
-                "locationId": "CNCB1",
-                "manufacturer": "Vyacheslav Frolov" as const,
-                "path": COM_B, //"COM5",                           
-                "pnpId": "COM0COM\\PORT\\CNCB1",
-                "productId": undefined,
-                "serialNumber": undefined,
-                "vendorId": undefined,
-            },
-        ]
-
-        // check only the manufacturer 
-        const expected = expected__.map(i => i.manufacturer)
-
-        return listSerialPorts().then(ports => {
-            const actual_ = ports.map(i => i.manufacturer).filter(i => i === expected[0])
-            expect(actual_).toEqual(expected);
-            done();
-        })
-
-    });
-
-
     it('can open one serial port', async () => {
 
         const portOpened = await PortOpener(COM_A, 9600)
@@ -210,7 +174,7 @@ describe('Using com0com serial port emulator', () => {
 describe('Using the real hardware effects (requires at least one CMPP00LG (or compatible) connected to serial port)', () => {
 
     // inform a serial port where a CMPP is already connected
-    const portPath = 'COM25'
+    const portPath = 'COM51'
     const baudRate: BaudRate = 9600
 
     it('can detect cmpp at specific serial port', async (done) => {

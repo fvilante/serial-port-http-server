@@ -1,5 +1,5 @@
 import { BaudRate } from './baudrate'
-import { PortOpened, PortOpener } from './serial-local-driver'
+import { PortOpened, PortOpener } from './port-opener'
 
 // CRITICAL
 // Fix: When timeout hapens, communicate should return the rejection of a promise

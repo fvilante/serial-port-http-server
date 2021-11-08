@@ -1,3 +1,3 @@
 export { PortInfo } from './port-info'
-export { PortOpener } from './serial-local-driver'
+export { PortOpener } from './port-opener'
 export { listSerialPorts } from './list-serial-ports'
