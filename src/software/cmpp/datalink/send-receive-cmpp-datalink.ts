@@ -1,13 +1,14 @@
-import { CommDriver, communicate} from '../../serial/communicate'
+import { communicate} from '../../serial/communicate'
 import { 
     FrameCore, 
     FrameInterpreted,
-    FrameSerialized,
     compileCoreFrame,
     flattenFrameSerialized,
     CmppDataLinkInterpreter,
 } from './cmpp-datalink-protocol'
 import { BaudRate } from '../../serial/baudrate'
+//test
+import { listSerialPorts } from '../../serial/index'
 
 const CmppTimeout = 5000
 
@@ -73,13 +74,15 @@ export const sendCmpp = (
 
 
 const Test1 = () => {
+
+    const Helper_ListPorts_or_Throw = async () => await listSerialPorts().fmap( r => r.orDie()).async()
+    
     const data = [27, 2, 64, 210, 12, 0, 27, 3, 221] //[0x1B,0x02,0x00,0x1C,0x00,0x00,0x1B,0x03,0xDF]
     const port = 'com1'
-    
-    const ports = CommDriver.listPorts().then( portInfos => {
+    const ports = Helper_ListPorts_or_Throw().then( portInfos => {
         portInfos.map( portInfo => {
     
-            const port = portInfo.uid
+            const port = portInfo.path
             const baudRate = 9600
             communicate(
                 port,
@@ -99,9 +102,9 @@ const Test1 = () => {
 }
 
 const Test2 = () => {
-    //const ports = CommDriver.listPorts().then( xs  => xs.map( ({uid}) => {
+    //const ports = listSerialPorts().then( xs  => xs.map( ({path}) => {
         let res: readonly FrameInterpreted[] = []
-        const port = 'com1' //uid
+        const port = 'com1' //path
         const channel = 0
         const waddr1 = 0xD2
         const waddr2 = 27

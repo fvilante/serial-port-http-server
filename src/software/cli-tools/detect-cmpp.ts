@@ -1,8 +1,10 @@
 import { BaudRate } from '../serial/baudrate'
 import { FrameCore, FrameInterpreted } from "../cmpp/datalink/cmpp-datalink-protocol"
-import { listSerialPorts } from "./listSerialPorts"
+import { listSerialPorts } from "../serial/index"
 import { ExecuteInParalel } from "../core/promise-utils"
 import { sendCmpp } from "../cmpp/datalink/send-receive-cmpp-datalink"
+
+
 
 type SerialChannel = {portName: string, baudRate: BaudRate}
 type CMPPDetectionResponse = Map<SerialChannel, {
@@ -12,9 +14,11 @@ type CMPPDetectionResponse = Map<SerialChannel, {
 
 const detectCMPP = async ():Promise<CMPPDetectionResponse> => {
 
+    const Helper_ListPorts_or_Throw = async () => await listSerialPorts().fmap( r => r.orDie()).async()
+
     const res: CMPPDetectionResponse = new Map()
     console.log(`Detectando portas seriais...`)
-    const portsInfo = await listSerialPorts()
+    const portsInfo = await Helper_ListPorts_or_Throw()
     const ports = portsInfo.map( x => x.path) as readonly string[]
     console.log(`Portas detectadas:`, ports)
     const baudRates: readonly BaudRate[] = [9600]

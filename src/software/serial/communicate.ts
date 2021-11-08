@@ -1,7 +1,5 @@
 import { BaudRate } from './baudrate'
-import { PortOpened, SerialDriverConstructor } from './serial-local-driver'
-
-export const CommDriver = SerialDriverConstructor()
+import { PortOpened, PortOpener } from './port-opener'
 
 // CRITICAL
 // Fix: When timeout hapens, communicate should return the rejection of a promise
@@ -44,7 +42,7 @@ export const communicate = (
     })
 
     console.log(`Abrindo porta ${portName}...`)
-    CommDriver.open(portName, baudRate)
+    PortOpener(portName, baudRate)
         .then( portOpened_ => {
             portOpened = portOpened_;
             console.log(`aberta ${portName}`);

@@ -1,9 +1,9 @@
 import { BaudRate } from '../serial/baudrate'
 import { delay } from '../core/delay'
-import { CommDriver, communicate } from '../serial/communicate'
+import { communicate } from '../serial/communicate'
 import { mkSetRemoteMessageFrame, mkSelectRemoteMessageFrame } from './printer-protocol'
-import { executeInSequence } from '../core/promise-utils'
-import { Range } from '../core/utils'
+//test
+import { listSerialPorts } from '../serial/index'
 
 const ACK = 6
 const NACK = 21
@@ -138,11 +138,13 @@ export const sendPrinter = (
 })
 
 const Test1 = () => {
+
+    const Helper_ListPorts_or_Throw = async () => await listSerialPorts().fmap( r => r.orDie()).async()
     
-    const ports = CommDriver.listPorts().then( portInfos => {
+    const ports = Helper_ListPorts_or_Throw().then( portInfos => {
         portInfos.map( portInfo => {
     
-            const port = portInfo.uid
+            const port = portInfo.path
             sendPrinter(port, 9600)(2, 'oi')
                 .then( () => {
                     setTimeout( () => { 

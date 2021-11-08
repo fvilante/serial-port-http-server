@@ -75,7 +75,7 @@ describe('Basic Tests', () => {
         let sideEffect : SideEffect= 'not_happens'
         const expected = sideEffect
         const probe:Probe = 2
-        const f = (x:Probe):void => { sideEffect = 'happens'; console.log('sideeffect = ', sideEffect) }
+        const f = (x:Probe):void => { sideEffect = 'happens'; /*console.log('sideeffect = ', sideEffect)*/ }
         const actual = sideEffect
         const ma = Maybe_.fromJust(probe).tap(f)
         expect(sideEffect).toEqual( 'not_happens')

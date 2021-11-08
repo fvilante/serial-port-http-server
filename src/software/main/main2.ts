@@ -1,4 +1,4 @@
-import { makeMovimentKit, YZColinearPoints } from "../machine-controler"
+import { makeMovimentKit } from "../machine-controler"
 import { Batch, DrawerWork, doBatchWork } from "../matriz-router"
 
 

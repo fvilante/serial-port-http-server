@@ -1,4 +1,4 @@
-import { Reduce, Reduce_ } from "../adts/reduce"
+import { Reduce_ } from "../adts/reduce"
 import { Milimeter } from "../../temp/unused files/axis-position"
 import { Printers } from "../global-env/global"
 import { getMatrizesConhecidas, Matriz } from "./matrizes-conhecidas"

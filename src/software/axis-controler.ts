@@ -1,4 +1,3 @@
-import { delay } from "./core/delay"
 import { AxisStarterKit } from "./axis-starter-kit"
 import { setParam_ } from "./cmpp/transport/cmpp-memmap-layer"
 import { Milimeter } from "../temp/unused files/axis-position"
@@ -6,7 +5,7 @@ import { fetchCMPPStatusL, StatusLCasted } from "./cmpp/utils/get-cmpp-status"
 import { getPosicaoAtual } from "./cmpp/utils/get-pos-atual"
 import { Address, Axis } from "./global-env/global"
 import { Driver } from "./cmpp/transport/mapa_de_memoria"
-import { executeInSequence, WaitUntilTrueFastPooling } from "./core/promise-utils"
+import { WaitUntilTrueFastPooling } from "./core/promise-utils"
 import { isInsideRange, now } from "./core/utils"
 //import { PrintingPositions } from "./cmpp-controler"
 

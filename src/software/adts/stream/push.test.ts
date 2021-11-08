@@ -90,10 +90,10 @@ describe('basic tests', () => {
         zipped_.unsafeRun( unionized => {
             unionized.match({
                 Left: probe => {
-                    console.log('probe',probe)
+                    //console.log('probe',probe)
                 },
                 Right: result => {
-                    console.table(result.unsafeRun())
+                    //console.table(result.unsafeRun())
                 },
             })
         })

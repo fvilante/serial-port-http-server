@@ -1,10 +1,8 @@
-import { TimePoint_ } from "../core/time"
 import { readKeyboardAsync, KeyEvent } from '../keyboard/read-keyboard-async'
-import { Maybe, Nothing, Just } from "../adts/maybe"
+import { Maybe, Just } from "../adts/maybe"
 import { Push } from "../adts/push-stream"
 import { performMatrizByItsMsg, } from "../matriz-router"
 import { makeMovimentKit } from "../machine-controler"
-import { MachineSignals, readMachineSignals } from '../le-sinais-da-maquina'
 
 
 // FIX: You can filter keystroks of barcode reader to differentiate to normal typing doing this:

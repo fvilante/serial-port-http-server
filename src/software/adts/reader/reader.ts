@@ -60,7 +60,7 @@ type T = Reader_
 const fromSync: T['fromSync'] = f => Reader( env => Future_.fromValue(f(env)))
 
 const fromAsync: T['fromAsync'] = f => {
-    return Reader( env => f(env).tap( () => console.log('constructing')))
+    return Reader( env => f(env))
 }
 
 const flatten: T['flatten'] = mma => {

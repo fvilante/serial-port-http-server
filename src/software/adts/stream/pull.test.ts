@@ -88,7 +88,7 @@ describe('basic tests', () => {
         const action = p.collect(probe_.length)
         action.unsafeRun( actual_ => {
             const [actual,size] = actual_
-            console.log('output',actual)
+            //console.log('output',actual)
             expect(actual).toStrictEqual(probe_)
             done()
         }) 

@@ -1,27 +1,13 @@
 // tslint:disable: no-expression-statement
 // tslint:disable: typedef
 
-import * as SerialPort  from 'serialport';
+import { listSerialPorts } from './../serial/index'
 
-const serialPort = SerialPort.default
-
-export type PortInfo = {
-    path: string;
-    manufacturer?: string;
-    serialNumber?: string;
-    pnpId?: string;
-    locationId?: string;
-    productId?: string;
-    vendorId?: string;
-}
-
-export const listSerialPorts = async ():Promise<readonly PortInfo[]> => serialPort.list()
-
-// informal test
+const Helper_ListPorts_or_Throw = async () => await listSerialPorts().fmap( r => r.orDie()).async()
 
 const main = async () => {
-    const a: SerialPort.PortInfo[] = await serialPort.list()
-    a.map( p => console.log(p) )
+    const portsInfo = await Helper_ListPorts_or_Throw()
+    portsInfo.map( eachPort => console.log(eachPort) )
 }
 
-main()
+main();
