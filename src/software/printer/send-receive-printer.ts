@@ -2,6 +2,8 @@ import { BaudRate } from '../serial/baudrate'
 import { delay } from '../core/delay'
 import { CommDriver, communicate } from '../serial/communicate'
 import { mkSetRemoteMessageFrame, mkSelectRemoteMessageFrame } from './printer-protocol'
+//test
+import { listSerialPorts } from '../serial/index'
 
 const ACK = 6
 const NACK = 21
@@ -137,7 +139,7 @@ export const sendPrinter = (
 
 const Test1 = () => {
     
-    const ports = CommDriver.listPorts().then( portInfos => {
+    const ports = listSerialPorts().then( portInfos => {
         portInfos.map( portInfo => {
     
             const port = portInfo.path

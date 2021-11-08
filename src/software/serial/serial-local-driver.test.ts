@@ -3,6 +3,7 @@ import { PortOpened, SerialDriverConstructor } from './serial-local-driver'
 import { ACK, ESC, ETX, FrameInterpreted, InterpretIncomming, NACK, STX } from '../cmpp/datalink/cmpp-datalink-protocol';
 import { executeInSequence } from '../core/promise-utils';
 import { Timer__ } from '../core/utils';
+import { listSerialPorts } from './index'
 
 const log = { text: ''}
 
@@ -126,8 +127,7 @@ describe('Using com0com serial port emulator', () => {
         // check only the manufacturer 
         const expected = expected__.map(i => i.manufacturer)
 
-        const driver = SerialDriverConstructor()
-        return driver.listPorts().then(ports => {
+        return listSerialPorts().then(ports => {
             const actual_ = ports.map(i => i.manufacturer).filter(i => i === expected[0])
             expect(actual_).toEqual(expected);
             done();

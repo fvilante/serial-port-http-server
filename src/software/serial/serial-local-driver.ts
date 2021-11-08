@@ -19,9 +19,10 @@ export type PortOpened = {
 }
 
 export type SerialDriver = {
-  readonly listPorts: () => Promise<readonly PortInfo[]>
   readonly open: (path: PortInfo['path'], baudRate: BaudRate) => Promise<PortOpened>
 }
+
+export const listSerialPorts = (): Promise<readonly PortInfo[]> => SerialPort.list()
 
 export type SerialDriverConstructor = () => SerialDriver
 
@@ -32,12 +33,6 @@ export type SerialDriverConstructor = () => SerialDriver
 
 export const SerialDriverConstructor: SerialDriverConstructor = () =>  {
   
-  const listPorts: SerialDriver['listPorts'] =  () =>  {
-    const list = SerialPort.list();
-    const portsInfo: Promise<readonly PortInfo[]> = list.then( y => y.map( x => ({ ...x })));
-    return portsInfo;
-  }
-
   const open: SerialDriver['open'] = (path, baudRate) => {
 
     const introduceLocalInterface = (portOpened: SerialPort): PortOpened => {
@@ -81,7 +76,6 @@ export const SerialDriverConstructor: SerialDriverConstructor = () =>  {
   }
 
   return {
-    listPorts,
     open,
   }
 

@@ -1,15 +1,13 @@
 // tslint:disable: no-expression-statement
 // tslint:disable: typedef
 
-import { SerialDriverConstructor } from './../serial/index'
+import { listSerialPorts } from './../serial/index'
 
 // informal test
 
 const main = async () => {
 
-    const driver = SerialDriverConstructor()
-
-    const portsInfo = await driver.listPorts()
+    const portsInfo = await listSerialPorts()
     portsInfo.map( eachPort => console.log(eachPort) )
 }
 

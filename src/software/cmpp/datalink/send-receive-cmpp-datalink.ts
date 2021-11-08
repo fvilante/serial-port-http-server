@@ -7,6 +7,8 @@ import {
     CmppDataLinkInterpreter,
 } from './cmpp-datalink-protocol'
 import { BaudRate } from '../../serial/baudrate'
+//test
+import { listSerialPorts } from '../../serial/index'
 
 const CmppTimeout = 5000
 
@@ -75,7 +77,7 @@ const Test1 = () => {
     const data = [27, 2, 64, 210, 12, 0, 27, 3, 221] //[0x1B,0x02,0x00,0x1C,0x00,0x00,0x1B,0x03,0xDF]
     const port = 'com1'
     
-    const ports = CommDriver.listPorts().then( portInfos => {
+    const ports = listSerialPorts().then( portInfos => {
         portInfos.map( portInfo => {
     
             const port = portInfo.path
@@ -98,7 +100,7 @@ const Test1 = () => {
 }
 
 const Test2 = () => {
-    //const ports = CommDriver.listPorts().then( xs  => xs.map( ({path}) => {
+    //const ports = listSerialPorts().then( xs  => xs.map( ({path}) => {
         let res: readonly FrameInterpreted[] = []
         const port = 'com1' //path
         const channel = 0
