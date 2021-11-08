@@ -1,51 +1,45 @@
+// NOTE: This module is just a wrapper over the real concrete nodejs serial port module.
+//       see also: https://serialport.io/docs/guide-usage
 import { BaudRate } from './baudrate'
 import SerialPort  from 'serialport'
 import { PortInfo } from './port-info'
 
-// NOTE
-//  This module is just a wrapper over the real concrete nodejs serial port module.
-
-
-/**
- * Serial Driver - 
- *   Abstract
- */
-
 export type PortOpened = {
     readonly kind: 'PortOpened'
-    readonly write: (data: readonly number[]) => Promise<void>
+    readonly write: (data: readonly number[]) => Promise<void> //fix: ??? change to Promise<number> where number is the amount of bytes written ???
     readonly onData: (f: (data: readonly number[]) => void) => void
     readonly close: () => Promise<void>
 }
 
 export type PortOpener = (path: PortInfo['path'], baudRate: BaudRate) => Promise<PortOpened>
 
+//
 
-/**
- * Serial Driver - Concrete
- */
+export const PortOpener: PortOpener = (portPath, baudRate) => {
 
-export const PortOpener: PortOpener = (path, baudRate) => {
-
-    const introduceLocalInterface = (portOpened: SerialPort): PortOpened => {
+    const castToLocalInterface = (portOpened: SerialPort): PortOpened => {
 
       const write: PortOpened['write'] = data => new Promise( (resolve, reject) => {
-        portOpened.write([...data], err => reject(err));
-        resolve();
+        const data_ = [...data]
+        portOpened.write(data_, (hasError, bytesWritten) => {
+          if (hasError) {
+            reject(new Error(`SerialPortWriteError: "${hasError}", ${bytesWritten} have been written.`))
+          }
+          resolve();
+        });
       })
   
       const onData: PortOpened['onData'] = f => {
-        // note: pass the original buffer may be more time eficient. Maybe be implemented on future
-        portOpened.on('data', (data: Buffer) => f(data.toJSON().data) );
+        // NOTE: pass the original buffer may be more time eficient. Maybe be implemented on future
+        portOpened.on('data', (buffer: Buffer) => f(buffer.toJSON().data) );
       }
   
       const close: PortOpened['close'] = () => new Promise( (resolve, reject) => {
         portOpened.close( err => {
-          if (err===undefined || err===null) {
-            resolve(undefined)
-          } else {
-            reject(err) 
+          if (err) {
+            reject(new Error(`SerialPortCloseError: Cannot close serial port ${portPath}/${baudRate}. Details: ${err}.`)) 
           }
+          resolve(undefined)
         });
       })
   
@@ -58,11 +52,15 @@ export const PortOpener: PortOpener = (path, baudRate) => {
     }
 
     const portOpened = new Promise<SerialPort>( (resolve, reject) => { 
-        const port = new SerialPort(path, { baudRate } )
-        port.on('open', () => resolve(port))
-        port.on('error', err => reject(err))
+      //see also: https://serialport.io/docs/guide-usage  
+      const port = new SerialPort(portPath, { baudRate }, hasError => {
+        if (hasError) {
+          reject(new Error(`SerialOpenPortError: Cannot open port ${portPath}/${baudRate}. Details: ${hasError}.`))
+        }
       })
-        .then( introduceLocalInterface );
+      port.on('open', () => resolve(port))   
+    })
+      .then( castToLocalInterface );
 
     return portOpened;
 }
