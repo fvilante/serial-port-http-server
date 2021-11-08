@@ -3,10 +3,15 @@ import { Maybe, Maybe_ } from "../maybe"
 import { Push } from "../push-stream"
 import { Iterated } from './pull'
 
+// represents same data stream that may finish
+
 //IMPORTANT: there are some TCO (tail-call-optimization) issues in some streams, 
 //           tests with huge data may verify robustness, also look for tags like 'TCO, tail-call-optimization, etc' along files of code
 
-// represents same data stream that may finish
+type PullAsyncWorld<A,R> =  {
+    next: () => Future<{ done: false, value: A } | { done: true, value: R }>
+}
+
 // FIX: I'm using this concept not only with pull but in push, should exists a better name
 export type IteratedAsync<A,R = void> = ReturnType<PullWorld<A,R>['next']>
 
