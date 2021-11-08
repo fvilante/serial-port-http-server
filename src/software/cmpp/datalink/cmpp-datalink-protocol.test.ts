@@ -1,4 +1,3 @@
-import { Push_ } from "../../adts/push-stream"
 import { 
     ESC,
     STX,
@@ -13,12 +12,8 @@ import {
     calcChecksum,
     FrameCore,
     compileCoreFrame,
-    FrameSerialized,
     InterpretIncomming,
     FrameInterpreted,
-    Interpreter,
-    InterpreterError,
-    InterpreterState,
 } from "./cmpp-datalink-protocol"
 
 
@@ -207,131 +202,4 @@ describe('Perform tests on cmpp datalink routines', () => {
     })
 
     
-})
-
-describe('test of interpreter API based on ADTs', () => {
-
-    it('Can proccess an successful frame', async () => {
-        //prepare
-        let buf: FrameInterpreted | unknown = undefined
-        const probe = [
-            [ESC],[STX],[0xC0+63],[0xA0],[1],[0],[27],[ETX],[91]
-        ] 
-        const expected: FrameInterpreted = {
-            firstEsc: [ESC],
-            startByte: [STX],
-            dirChan: [0xC0+63],
-            waddr: [0xA0],
-            dataLow: [1],
-            dataHigh: [0],
-            lastEsc: [27],
-            etx: [ETX],
-            checkSum: [91],
-            expectedChecksum: 91, 
-        }
-        const input = Push_.droplet(Push_.fromArray(probe))
-        //act
-        const action = Interpreter(input).FrameInterpreted
-
-        //check
-        action.unsafeRun( actual => {
-            expect(actual).toEqual(expected);
-        })
-    }) 
-
-    it('Can read at least two errors from interpreter when two errors occurs', async () => {
-        //prepare
-        let buf: unknown[] = []
-        const probe = [
-            [ESC],[STX],[0xC0+63],[0xA0],[1],[0],[27],[ETX],[92], // 91 is the correct checksum, 92 is wrong!
-            [ESC],[66]
-        ] 
-        const expected: InterpreterError[] = [
-            {
-                kind: "InterpreterError", 
-                errorMessage: "Expected checkSum should be '91' but got '92' (numbers are showed in this message in decimal)", 
-                partialFrame: {
-                    firstEsc: [27], 
-                    startByte: [2], 
-                    dirChan: [255],
-                    waddr: [160],
-                    dataLow: [1], 
-                    dataHigh: [0], 
-                    lastEsc: [27], 
-                    etx: [3],
-                    checkSum: [92], 
-                }, 
-                rawInput: [27, 2, 255, 160, 1, 0, 27, 3, 92]
-            },
-            {
-                kind: "InterpreterError", 
-                errorMessage: "Expected a valid StartByte (some of this values 2,6,21 in decimal) but got other thing (66 decimal).", 
-                partialFrame: {
-                    firstEsc: [27], 
-                    //startByte: [2], 
-                }, 
-                rawInput: [27, 66]
-            },
-            
-        ]
-        const input = Push_.droplet(Push_.fromArray(probe))
-        //act
-        const action = Interpreter(input).onError
-
-        //check
-        action.unsafeRun( actual => {
-            buf.push(actual)
-        })
-        expect(buf).toEqual(expected);
-    }) 
-
-    it('Can read some states from inside the interpreter machine', async () => {
-        //prepare
-        let buf: unknown[]  = []
-        const probe = [
-            [ESC],[STX],[0xC0+63]//,[0xA0],[1],[0],[27],[ETX],[91] 
-        ] 
-        const expected: InterpreterState[] = [
-            {
-                kind: 'InterpreterState',
-                currentState: 'Waiting start byte',
-                partialFrame: { 
-                    firstEsc: [ESC], 
-                },
-                rawInputBuffer: [ESC],
-                waitingEscDupFlag: false,
-            },
-            {
-                kind: 'InterpreterState',
-                currentState: 'Waiting direction and channel',
-                partialFrame: { 
-                    firstEsc: [ESC], 
-                    startByte: [STX],
-                },
-                rawInputBuffer: [ESC,STX],
-                waitingEscDupFlag: false,
-            },
-            {
-                kind: 'InterpreterState',
-                currentState: 'Waiting word address (waddr)',
-                partialFrame: { 
-                    firstEsc: [ESC], 
-                    startByte: [STX],
-                    dirChan: [0xC0+63],
-                },
-                rawInputBuffer: [ESC,STX,0xC0+63],
-                waitingEscDupFlag: false,
-            },
-        ]
-        const input = Push_.droplet(Push_.fromArray(probe))
-        //act
-        const action = Interpreter(input).onStateChange
-
-        //check
-        action.unsafeRun( actual => {
-            buf.push(actual)
-        })
-        expect(buf).toEqual(expected);
-    }) 
-
 })
