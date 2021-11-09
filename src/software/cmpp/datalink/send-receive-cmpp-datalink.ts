@@ -5,11 +5,8 @@ import {
     compileCoreFrame,
     flattenFrameSerialized,
 } from './frame'
-
 import { CmppDataLinkInterpreter } from './interpreter'
-
 import { BaudRate } from '../../serial/baudrate'
-//test
 import { listSerialPorts } from '../../serial/index'
 
 const CmppTimeout = 5000
