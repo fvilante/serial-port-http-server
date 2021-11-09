@@ -10,12 +10,8 @@ import {
 } from './core-types'
 import { calcChecksum } from './calc-checksum'
 import { int2word, word2int } from './core-operations'
-import { 
-    FrameCore,
-    compileCoreFrame,
-    InterpretIncomming,
-    FrameInterpreted,
-} from "./cmpp-datalink-protocol"
+import { compileCoreFrame, FrameCore, FrameInterpreted, InterpretIncomming } from './index'
+
 
 
 describe('Perform tests on cmpp datalink routines', () => {

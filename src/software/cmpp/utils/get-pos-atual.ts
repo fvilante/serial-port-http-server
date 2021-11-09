@@ -1,5 +1,5 @@
 import { BaudRate } from '../../serial/baudrate'
-import { FrameCore } from "../datalink/cmpp-datalink-protocol"
+import { FrameCore } from "../datalink/index"
 import { setParam_ } from "../transport/cmpp-memmap-layer"
 import { Driver } from "../transport/mapa_de_memoria"
 import { sendCmpp } from "../datalink/send-receive-cmpp-datalink"

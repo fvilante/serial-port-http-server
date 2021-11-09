@@ -1,6 +1,6 @@
 import { BaudRate } from '../../serial/baudrate'
 import { bit_test } from "../../core/bit-wise-utils"
-import { FrameCore } from "../datalink/cmpp-datalink-protocol"
+import { FrameCore } from "../datalink/index"
 import { sendCmpp } from "../datalink/send-receive-cmpp-datalink"
 import { word2int } from '../datalink/core-operations'
 

@@ -1,5 +1,5 @@
 import { BaudRate } from '../serial/baudrate'
-import { FrameCore, FrameInterpreted } from "../cmpp/datalink/cmpp-datalink-protocol"
+import { FrameCore, FrameInterpreted } from "../cmpp/datalink/index"
 import { listSerialPorts } from "../serial/index"
 import { ExecuteInParalel } from "../core/promise-utils"
 import { sendCmpp } from "../cmpp/datalink/send-receive-cmpp-datalink"
