@@ -7,9 +7,10 @@ import {
     Direction,
     StartByte,
     StartByteToText,
-    word2int,
-    int2word,
-    calcChecksum,
+} from './core-types'
+import { calcChecksum } from './calc-checksum'
+import { int2word, word2int } from './core-operations'
+import { 
     FrameCore,
     compileCoreFrame,
     InterpretIncomming,

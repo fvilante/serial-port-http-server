@@ -1,8 +1,9 @@
 import { BaudRate } from './baudrate'
 import { PortOpened, PortOpener } from './port-opener'
-import { ACK, ESC, ETX, FrameInterpreted, InterpretIncomming, NACK, STX } from '../cmpp/datalink/cmpp-datalink-protocol';
+import { FrameInterpreted, InterpretIncomming } from '../cmpp/datalink/cmpp-datalink-protocol';
 import { executeInSequence } from '../core/promise-utils';
 import { Timer__ } from '../core/utils';
+import { ACK, ESC, ETX, NACK, STX } from '../cmpp/datalink/core-types';
 
 const log = { text: ''}
 

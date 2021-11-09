@@ -1,95 +1,20 @@
+import { calcChecksum } from './calc-checksum'
+import { int2word } from './core-operations'
+import { 
+    ESC,
+    STX,
+    ETX,
+    ACK,
+    NACK,
+    Direction,
+    StartByte,
+    StartByteTxt,
+    StartByteNum,
+    StartByteToText,
+} from './core-types'
 
 
-// cmpp protocol
 
-import { Among, Among_ } from "../../adts/maybe/among"
-import { Push } from "../../adts/push-stream"
-
-// example valid frame: [0x1B,0x02,0x00,0x1C,0x00,0x00,0x1B,0x03,0xDF]
-
-// -------
-
-// ======== COMMON DEFINITIONS =============
-
-// Define protocol's control chars
-export type ESC = 0x1B
-export type STX = 0x02
-export type ETX = 0x03
-export type ACK = 0x06
-export type NACK = 0x15
-
-export const ESC: ESC = 0x1B 
-export const STX: STX = 0x02 
-export const ETX: ETX = 0x03 
-export const ACK: ACK = 0x06
-export const NACK: NACK = 0x15 
-
-
-// Define protocol direction chars
-export type DirectionKeys = keyof Direction
-export type Direction = typeof Direction
-export const Direction = {
-    Solicitacao: 0 as const,
-    MascaraParaResetar: 0x40 as const,
-    MascaraParaSetar: 0x80 as const,
-    Envio: 0xC0 as const,
-} 
-
-// Define what is considered start byte
-export type StartByte = typeof StartByte
-export const StartByte = {
-    STX: STX,
-    ACK: ACK,
-    NACK: NACK,
-}   
-
-type StartByteTxt = keyof StartByte
-type StartByteNum = typeof StartByte[keyof StartByte]
-
-export const StartByteToText = (_: StartByteNum):StartByteTxt => {
-    //fix: should be less concrete
-    //      what seems we want is an object-invertion-operation of 'StartByte' (maybe this is possible)
-    const StartByte = {
-        [STX]: 'STX',
-        [ACK]: 'ACK',
-        [NACK]: 'NACK',
-    } as const
-    return StartByte[_] 
-}
-
-
-// ======== 16 BITS WORD CONVERSIONS =============
-
-export function word2int(dadoH: number, dadoL: number): number {
-    // fix: check if dadoH and dadoL is beetween 0 and 0xff
-    return dadoH * 256 + dadoL 
-}
-
-export function int2word(uint16: number): [dadoH: number, dadoL: number] {
-    // fix: check if uint16 is beetween 0 and 0xffff
-    const n = uint16
-    const dadoH = Math.floor( n/256 )
-    const dadoL = n % 256
-    return [dadoH, dadoL]
-}
-
-// ======== COMMON FUNCTIONS =============
-
-export const calcChecksum = (
-    obj: readonly [dirChan: number, waddr: number, dataH: number, dataL: number], 
-    startByte: StartByteTxt
-    ): number  => {
-        const startByte_ = StartByte[startByte]
-        const etx = ETX
-        const objsum = obj.reduce( (acc, cur) => acc + cur)
-        const extra = startByte_ + etx
-        const totalsum = objsum + extra
-        const contained = totalsum % 256 
-        const complimented = 256 - contained
-        const adjusted = (complimented === 256) ? 0 : complimented
-        // fix: assure return is in uint8 range
-        return adjusted
-}
 
 
 // ======== OUTGOING DATA PROCESSING =============

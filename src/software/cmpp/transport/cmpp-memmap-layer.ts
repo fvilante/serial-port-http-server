@@ -1,8 +1,10 @@
 import { BaudRate } from '../../serial/baudrate'
-import { DirectionKeys, FrameCore, word2int } from "../datalink/cmpp-datalink-protocol";
+import { FrameCore } from "../datalink/cmpp-datalink-protocol";
 import { GetAllNames, HyperDriver, GetCastFromName, Driver, Param } from "./mapa_de_memoria";
 import { executeInSequence } from "../../core/promise-utils";
 import { sendCmpp } from '../datalink/send-receive-cmpp-datalink'
+import { DirectionKeys } from '../datalink/core-types';
+import { word2int } from '../datalink/core-operations';
 
 
 
