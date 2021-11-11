@@ -319,4 +319,56 @@ describe('Basic Tests on simple parsers', () => {
         expect(lastState).toEqual(expected)
     })
 
+    it('can accept TWO complete, well formed, slave ACK frames (with no dup esc inside it)', async () => {
+        //configure
+        const currentCoreState: CoreState = 'Waiting first Esc'
+        const nextCoreState: CoreState = 'Waiting first Esc'
+        const correctSlaveFrame = [ESC, ACK, 0xC1, 0x50, 0x00, 0x00, ESC, ETX, 0xE6,]
+        const probe = correctSlaveFrame
+        // prepare
+        const currentState: InternalState = {
+            coreState: currentCoreState,
+            inputBuffer: [],
+            failHistory: [],
+            waitingDuplicatedEsc: false,
+        }
+        const expected: InternalState = {
+            coreState: nextCoreState,
+            inputBuffer: [...probe],
+            failHistory: [],
+            waitingDuplicatedEsc: false,
+        }
+        //act
+        const allstates = acceptMany(acceptor, currentState, probe)
+        const lastState = allstates[allstates.length-1]
+        //check
+        expect(lastState).toEqual(expected)
+    })
+
+    it('can deal with duplicate esc', async () => {
+        //configure
+        const currentCoreState: CoreState = 'Waiting first Esc'
+        const nextCoreState: CoreState = 'Waiting first Esc'
+        const duplicatedEscFrame = [ESC, ACK, 0x01, 0x88, 0x03, ESC, ESC, ESC, ETX, 0x50,]
+        const probe = duplicatedEscFrame
+        // prepare
+        const currentState: InternalState = {
+            coreState: currentCoreState,
+            inputBuffer: [],
+            failHistory: [],
+            waitingDuplicatedEsc: false,
+        }
+        const expected: InternalState = {
+            coreState: nextCoreState,
+            inputBuffer: [...probe],
+            failHistory: [],
+            waitingDuplicatedEsc: false,
+        }
+        //act
+        const allstates = acceptMany(acceptor, currentState, probe)
+        const lastState = allstates[allstates.length-1]
+        //check
+        expect(lastState).toEqual(expected)
+    })
+
 })

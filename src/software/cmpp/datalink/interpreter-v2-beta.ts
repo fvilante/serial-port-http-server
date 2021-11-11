@@ -1,7 +1,7 @@
 import { FrameInterpreted } from "."
 import { ACK, ESC, ETX, NACK, STX } from "./core-types"
 
-type Byte = number
+export type Byte = number
 
 export type CoreState = 
     | 'Waiting first Esc'
