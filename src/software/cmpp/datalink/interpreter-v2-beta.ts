@@ -1,4 +1,4 @@
-import { FrameInterpreted } from "."
+import { FrameInterpreted } from "./frame"
 import { ACK, ESC, ETX, NACK, STX } from "./core-types"
 
 export type Byte = number
