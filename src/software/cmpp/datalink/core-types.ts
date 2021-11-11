@@ -25,7 +25,7 @@ export const Direction = {
     Envio: 0xC0 as const,
 } 
 
-// Define what is considered start byte
+// Define what is considered valid start byte
 export type StartByte = typeof StartByte
 export const StartByte = {
     STX: STX,
