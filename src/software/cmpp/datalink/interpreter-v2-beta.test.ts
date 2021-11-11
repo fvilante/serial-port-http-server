@@ -1,6 +1,6 @@
 import { ACK, ESC, ETX, NACK, STX } from "./core-types"
-import { CoreState } from "./interpreter"
-import { acceptor, InternalState, waitingDirectionAndChannelByte, waitingFirstEsc, waitingStartByte } from "./interpreter-v2-beta"
+import { CoreState } from "./interpreter-v2-beta"
+import { acceptor, InternalState, waitingDirectionAndChannel, waitingFirstEsc, waitingStartByte } from "./interpreter-v2-beta"
 
 
 describe('Basic Tests on simple parsers', () => {
@@ -197,7 +197,7 @@ describe('Basic Tests on simple parsers', () => {
             waitingDuplicatedEsc: false,
         }
         //act
-        const nextState = waitingDirectionAndChannelByte(currentState, nonEsc_byteToAccept)
+        const nextState = waitingDirectionAndChannel(currentState, nonEsc_byteToAccept)
         //check
         expect(nextState).toEqual(expected)
     })
@@ -221,7 +221,7 @@ describe('Basic Tests on simple parsers', () => {
             waitingDuplicatedEsc: true,
         }
         //act
-        const nextState = waitingDirectionAndChannelByte(currentState, byteToAccept)
+        const nextState = waitingDirectionAndChannel(currentState, byteToAccept)
         //check
         expect(nextState).toEqual(expected)
     })
@@ -244,7 +244,7 @@ describe('Basic Tests on simple parsers', () => {
             waitingDuplicatedEsc: false,
         }
         //act
-        const nextState = waitingDirectionAndChannelByte(currentState, ESC)
+        const nextState = waitingDirectionAndChannel(currentState, ESC)
         //check
         expect(nextState).toEqual(expected)
     })
@@ -262,7 +262,7 @@ describe('Basic Tests on simple parsers', () => {
         }
         const expectedFailHistoryLength = 1
         //act
-        const nextState = waitingDirectionAndChannelByte(currentState, gabarge)
+        const nextState = waitingDirectionAndChannel(currentState, gabarge)
         //check
         expect(nextState.failHistory.length).toEqual(expectedFailHistoryLength)
     })

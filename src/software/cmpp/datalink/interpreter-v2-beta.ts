@@ -3,7 +3,7 @@ import { ACK, ESC, ETX, NACK, STX } from "./core-types"
 
 type Byte = number
 
-type CoreState = 
+export type CoreState = 
     | 'Waiting first Esc'
     | 'Waiting start byte'
     | 'Waiting direction and channel'
@@ -201,7 +201,7 @@ export const waitingStartByte = (currentState: InternalState, byteToAccept:Byte)
     })
 }
 
-export const waitingDirectionAndChannelByte = (currentState: InternalState, byteToAccept:Byte): InternalState => {
+export const waitingDirectionAndChannel = (currentState: InternalState, byteToAccept:Byte): InternalState => {
     return byteAcceptor(currentState, byteToAccept,{
         expectedCoreState: 'Waiting direction and channel',
         nextCoreState: 'Waiting word address (waddr)',
@@ -264,12 +264,13 @@ export const waitingChecksum = (currentState: InternalState, byteToAccept:Byte):
     })
 }
 
+// CMPP datalink acceptor machine state (core)
 export const acceptor = (currentState: InternalState, byteToAccept:Byte): InternalState => {
     const { coreState: currentCoreState } = currentState
     switch (currentCoreState) {
         case 'Waiting first Esc': return waitingFirstEsc(currentState, byteToAccept)
         case 'Waiting start byte': return waitingStartByte(currentState, byteToAccept)
-        case 'Waiting direction and channel': return waitingDirectionAndChannelByte(currentState, byteToAccept)
+        case 'Waiting direction and channel': return waitingDirectionAndChannel(currentState, byteToAccept)
         case 'Waiting word address (waddr)': return waitingWordAddress(currentState, byteToAccept)
         case 'Waiting dataLow': return waitingDataLow(currentState, byteToAccept)
         case 'Waiting dataHigh': return waitingDataHigh(currentState, byteToAccept)
