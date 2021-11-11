@@ -1,5 +1,5 @@
 import { ACK, ESC, ETX, NACK, STX } from "./core-types"
-import { CoreState } from "./interpreter-v2-beta"
+import { acceptMany, CoreState } from "./interpreter-v2-beta"
 import { acceptor, InternalState, waitingDirectionAndChannel, waitingFirstEsc, waitingStartByte } from "./interpreter-v2-beta"
 
 
@@ -287,15 +287,8 @@ describe('Basic Tests on simple parsers', () => {
             waitingDuplicatedEsc: false,
         }
         //act
-        const s0 = acceptor(currentState, ESC)
-        const s1 = acceptor(s0, STX)
-        const s2 = acceptor(s1, 0xC1)
-        const s3 = acceptor(s2, 0x50)
-        const s4 = acceptor(s3, 0x61)
-        const s5 = acceptor(s4, 0x02)
-        const s6 = acceptor(s5, ESC)
-        const s7 = acceptor(s6, ETX)
-        const lastState = acceptor(s7, 0x87)
+        const allstates = acceptMany(acceptor, currentState, correctMasterFrame)
+        const lastState = allstates[allstates.length-1]
         //check
         expect(lastState).toEqual(expected)
     })
@@ -305,7 +298,7 @@ describe('Basic Tests on simple parsers', () => {
         const currentCoreState: CoreState = 'Waiting first Esc'
         const nextCoreState: CoreState = 'Waiting first Esc'
         const correctMasterFrame = [ESC, STX, 0xC1, 0x50, 0x61, 0x02, ESC, ETX, 0x87,]
-        const twoWellFormedFrames = correctMasterFrame
+        const twoWellFormedFrames = [...correctMasterFrame, ...correctMasterFrame]
         // prepare
         const currentState: InternalState = {
             coreState: currentCoreState,
@@ -315,29 +308,13 @@ describe('Basic Tests on simple parsers', () => {
         }
         const expected: InternalState = {
             coreState: nextCoreState,
-            inputBuffer: [...twoWellFormedFrames, ...twoWellFormedFrames],
+            inputBuffer: [...twoWellFormedFrames],
             failHistory: [],
             waitingDuplicatedEsc: false,
         }
         //act
-        const s0 = acceptor(currentState, ESC)
-        const s1 = acceptor(s0, STX)
-        const s2 = acceptor(s1, 0xC1)
-        const s3 = acceptor(s2, 0x50)
-        const s4 = acceptor(s3, 0x61)
-        const s5 = acceptor(s4, 0x02)
-        const s6 = acceptor(s5, ESC)
-        const s7 = acceptor(s6, ETX)
-        const s7_ = acceptor(s7, 0x87) // sorry forgot this and introduced later
-        const s8 = acceptor(s7_, ESC)
-        const s9 = acceptor(s8, STX)
-        const s10 = acceptor(s9, 0xC1)
-        const s11 = acceptor(s10, 0x50)
-        const s12 = acceptor(s11, 0x61)
-        const s13 = acceptor(s12, 0x02)
-        const s14 = acceptor(s13, ESC)
-        const s15 = acceptor(s14, ETX)
-        const lastState = acceptor(s15, 0x87)
+        const allstates = acceptMany(acceptor, currentState, twoWellFormedFrames)
+        const lastState = allstates[allstates.length-1]
         //check
         expect(lastState).toEqual(expected)
     })

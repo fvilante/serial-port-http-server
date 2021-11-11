@@ -265,9 +265,9 @@ export const waitingChecksum = (currentState: InternalState, byteToAccept:Byte):
 }
 
 // CMPP datalink acceptor machine state (core)
-export const acceptor = (currentState: InternalState, byteToAccept:Byte): InternalState => {
-    const { coreState: currentCoreState } = currentState
-    switch (currentCoreState) {
+type Acceptor =  (currentState: InternalState, byteToAccept:Byte) => InternalState
+export const acceptor: Acceptor = (currentState: InternalState, byteToAccept:Byte): InternalState => {
+    switch (currentState.coreState) {
         case 'Waiting first Esc': return waitingFirstEsc(currentState, byteToAccept)
         case 'Waiting start byte': return waitingStartByte(currentState, byteToAccept)
         case 'Waiting direction and channel': return waitingDirectionAndChannel(currentState, byteToAccept)
@@ -280,4 +280,23 @@ export const acceptor = (currentState: InternalState, byteToAccept:Byte): Intern
         default:
             throw new Error('Unexausted switch case. This should be impossible to occur in run-time')
     }
+}
+
+
+// TODO: this is a generic reducer, extract to utils when possible
+const reduce = <A,B>(reduceFn: (currentState:A) => B, initialState: A):B => {
+    const b = reduceFn(initialState)
+    return b
+}
+
+
+// TODO: the arrays have same length, this can be enforced by static typings
+export const acceptMany = (acceptor: Acceptor, currentState: InternalState, bytesToAccept: readonly Byte[]): readonly InternalState[] => {
+    let response: readonly InternalState[] = [currentState]
+    bytesToAccept.forEach( byte => {
+        const lastState = response[response.length-1]
+        const nextState = acceptor(lastState, byte)
+        response = [...response, nextState]
+    })
+    return response
 }
