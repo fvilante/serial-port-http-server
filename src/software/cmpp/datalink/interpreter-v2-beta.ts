@@ -14,6 +14,7 @@ export type CoreState =
     | 'Waiting ETX'
     | 'Waiting checksum'
 
+
 const validStartBytes = [STX, ACK, NACK] as const
 
 export type InternalState = {
@@ -65,7 +66,6 @@ const makeDuplicatedEscFailMesage = (detail: FailStructure):string => {
 } 
 
 
-
 const acceptByteIntoBuffer = (currentState: InternalState, byteToAccept:Byte): InternalState => {
     const {inputBuffer} = currentState
     const nextState = {
@@ -92,7 +92,7 @@ const acceptByteIntoBufferAndChangeCoreState = (currentState: InternalState, byt
     return nextState 
 }
 
-const introduceFail = (currentState: InternalState, fail: Fail): InternalState => {
+const addFailToFailHistory = (currentState: InternalState, fail: Fail): InternalState => {
     const { failHistory } = currentState
     const nextState: InternalState = {
         ...currentState,
@@ -101,12 +101,14 @@ const introduceFail = (currentState: InternalState, fail: Fail): InternalState =
     return nextState
 }
 
+type ByteAccepted = {accepted: true, expected: undefined}
+type ByteUnaccepted = {accepted: false, expected: Fail['expectedData']}  // true if it is accepted
 
 type AcceptanceCondition = {
     expectedCoreState: CoreState
     nextCoreState: CoreState // nextState if byte is accepted
-    maybeEscDuplicated: boolean
-    acceptanceFunction: (dataToAccept: Byte) => {accepted: true, expected: undefined} | {accepted: false, expected: Fail['expectedData']}  // true if it is accepted
+    maybeEscDuplicated: boolean // if true this condition accepts an ESC duplicated
+    acceptanceFunction: (dataToAccept: Byte) =>  ByteAccepted | ByteUnaccepted
 }
 
 type AcceptanceFunction = AcceptanceCondition['acceptanceFunction']
@@ -143,7 +145,7 @@ export const byteAcceptor = (currentState: InternalState, byteToAccept:Byte, con
                     expectedData: ESC,
                     nextStateIfFailHadNotHappened: expectedCoreState
                 })
-                const nextState = introduceFail(currentState, {
+                const nextState = addFailToFailHistory(currentState, {
                     internalState: currentState,
                     expectedData: ESC,
                     receivedData: [byteToAccept],
@@ -165,7 +167,7 @@ export const byteAcceptor = (currentState: InternalState, byteToAccept:Byte, con
                 expectedData: data.expected,
                 nextStateIfFailHadNotHappened: expectedCoreState
             })
-            const nextState = introduceFail(currentState, {
+            const nextState = addFailToFailHistory(currentState, {
                 internalState: currentState,
                 expectedData: data.expected,
                 receivedData: [byteToAccept],
@@ -282,14 +284,6 @@ export const acceptor: Acceptor = (currentState: InternalState, byteToAccept:Byt
     }
 }
 
-
-// TODO: this is a generic reducer, extract to utils when possible
-const reduce = <A,B>(reduceFn: (currentState:A) => B, initialState: A):B => {
-    const b = reduceFn(initialState)
-    return b
-}
-
-
 // TODO: the arrays have same length, this can be enforced by static typings
 export const acceptMany = (acceptor: Acceptor, currentState: InternalState, bytesToAccept: readonly Byte[]): readonly InternalState[] => {
     let response: readonly InternalState[] = [currentState]
@@ -300,3 +294,4 @@ export const acceptMany = (acceptor: Acceptor, currentState: InternalState, byte
     })
     return response
 }
+
