@@ -6,8 +6,61 @@ import { Timer__ } from '../core/utils';
 import { ACK, ESC, ETX, NACK, STX } from '../cmpp/datalink/core-types';
 import { LoopBackPortA_Path, LoopBackPortB_Path } from './loopback';
 
-const log = { text: ''}
 
+
+describe('Using internal loopback serial port emulator', () => {
+
+    const portA = LoopBackPortA_Path
+    const portB = LoopBackPortB_Path
+
+    it('can open port A', async () => {
+        const portOpened = await PortOpener(portA, 9600)
+        const expected = "PortOpened"
+        const actual = portOpened.kind
+        expect(expected).toEqual(actual);
+        await portOpened.close()
+    });
+
+    it('can open port B', async () => {
+        const portOpened = await PortOpener(portB, 9600)
+        const expected = "PortOpened"
+        const actual = portOpened.kind
+        expect(expected).toEqual(actual);
+        await portOpened.close()
+    });
+
+    it('can sent data to port B and receive it into port A', async () => {
+        // prepare
+        const expected = [1,2,3,4,5]
+        const portAOpened = await PortOpener(portA, 9600)
+        const portBOpened = await PortOpener(portB, 9600)
+        // act
+        portBOpened.onData( actual => {
+            // check
+            expect(expected).toEqual(actual);
+        })
+        await portAOpened.write(expected)
+    })
+
+    it('can sent data to port A and receive it into port B', async () => {
+        // prepare
+        const expected = [1,2,3,4,5]
+        const portAOpened_inv = await PortOpener(portB, 9600)
+        const portBOpened_inv = await PortOpener(portA, 9600)
+        // act
+        portBOpened_inv.onData( actual => {
+            // check
+            expect(expected).toEqual(actual);
+        })
+        await portAOpened_inv.write(expected)
+    })
+})
+
+
+
+/// ======= [ bellow code DEPENDS UPEN REAL HARDWARE EFFECTS AND GOT DISABLED ] ==================
+/*
+const log = { text: ''}
 
 //fix: extract below function when possible
 // NOTE: Try to silently detect cmpp in specified port, but will try all possible to not give a false negative.
@@ -89,63 +142,12 @@ export const transactWithCmpp = async (portOpened: PortOpened, frames: readonly 
 
 }
 
-
-
-describe('Using internal loopback serial port emulator', () => {
-
-    const portA = LoopBackPortA_Path
-    const portB = LoopBackPortB_Path
-
-    it('can open port A', async () => {
-        const portOpened = await PortOpener(portA, 9600)
-        const expected = "PortOpened"
-        const actual = portOpened.kind
-        expect(expected).toEqual(actual);
-        await portOpened.close()
-    });
-
-    it('can open port B', async () => {
-        const portOpened = await PortOpener(portB, 9600)
-        const expected = "PortOpened"
-        const actual = portOpened.kind
-        expect(expected).toEqual(actual);
-        await portOpened.close()
-    });
-
-    it('can sent data to port B and receive it into port A', async () => {
-        // prepare
-        const expected = [1,2,3,4,5]
-        const portAOpened = await PortOpener(portA, 9600)
-        const portBOpened = await PortOpener(portB, 9600)
-        // act
-        portBOpened.onData( actual => {
-            // check
-            expect(expected).toEqual(actual);
-        })
-        await portAOpened.write(expected)
-    })
-
-    it('can sent data to port A and receive it into port B', async () => {
-        // prepare
-        const expected = [1,2,3,4,5]
-        const portAOpened_inv = await PortOpener(portB, 9600)
-        const portBOpened_inv = await PortOpener(portA, 9600)
-        // act
-        portBOpened_inv.onData( actual => {
-            // check
-            expect(expected).toEqual(actual);
-        })
-        await portAOpened_inv.write(expected)
-    })
-})
-
-
 // NOTE: this will work only if you have the program com0com installed on your machine
 //       else your this test will fail. The com0com is just a loopback at windows layer
 //       see: http://com0com.sourceforge.net/
 // NOTE2: In future would be better to make the Driver have an internal loopback for 
 //        make it possible to list serials without have to install any auxiliary system. 
-/*
+
 describe('Using com0com serial port emulator', () => {
 
     const com0com_Ports = ['COM4', 'COM5'] as const// see notes in test below (com0com is a windows serial port emulator)
@@ -221,7 +223,7 @@ describe('Using com0com serial port emulator', () => {
 
 
 })
-*/
+
 
 describe('Using the real hardware effects (requires at least one CMPP00LG (or compatible) connected to serial port)', () => {
 
@@ -2450,3 +2452,5 @@ describe('Using the real hardware effects (requires at least one CMPP00LG (or co
 
     });
 })
+
+*/
