@@ -31,8 +31,7 @@ describe('basic tests', () => {
     it('Can construct a single __setTimeout interval', async (done) => {
         //prepare
         const deltaTime = 100
-        const tolerance = 5/100 // arbitrary defined
-        const probe = 2
+        const tolerance = 10/100 // arbitrary defined
         const t0 = now()
         //act
         const canceller = Future_.__setTimeout((ms) => {
