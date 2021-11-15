@@ -145,6 +145,7 @@ describe('Using internal loopback serial port emulator', () => {
 //       see: http://com0com.sourceforge.net/
 // NOTE2: In future would be better to make the Driver have an internal loopback for 
 //        make it possible to list serials without have to install any auxiliary system. 
+/*
 describe('Using com0com serial port emulator', () => {
 
     const com0com_Ports = ['COM4', 'COM5'] as const// see notes in test below (com0com is a windows serial port emulator)
@@ -220,6 +221,7 @@ describe('Using com0com serial port emulator', () => {
 
 
 })
+*/
 
 describe('Using the real hardware effects (requires at least one CMPP00LG (or compatible) connected to serial port)', () => {
 
