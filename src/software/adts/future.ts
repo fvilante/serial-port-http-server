@@ -47,10 +47,10 @@ export type Future<A> = {
     tap: (f: (_:A) => void) => Future<A> //tap 'before' yield the value to the downstream
     transform: <X>(f: (me: Future<A>) => X) => X 
     ignoreContent: () => Future<void> // maps A to void
-    __decomposeResult: () => Future<{
+    /*__decomposeResult: () => Future<{
         value: Maybe<InferFutureResult<A>["value"]>;
         error: Maybe<InferFutureResult<A>["error"]>;
-    }>
+    }>*/
     matchResult: <X>(m: FutureResultMatcher<A,X>) => Future<X>
     addDelay: (msecs: number) => Future<A>
 }
@@ -99,7 +99,7 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
 
     const ignoreContent: T['ignoreContent'] = () => map( a => undefined)
 
-    const __decomposeResult: T['__decomposeResult'] = () => {
+    /*const __decomposeResult: T['__decomposeResult'] = () => {
         type I = InferFutureResult<A>
         const x = map( a => {
             const r = a as unknown as Result<I['value'],I['error']>
@@ -107,7 +107,7 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
             return r0
         })
         return x 
-    }
+    }*/
 
     const matchResult: T['matchResult'] = matcher => {
         type I = InferFutureResult<A>
@@ -140,7 +140,7 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
         tap,
         transform,
         ignoreContent,
-        __decomposeResult,
+        /*__decomposeResult,*/
         matchResult,
         addDelay,
     }   
