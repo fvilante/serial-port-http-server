@@ -15,6 +15,8 @@ describe('list-serial-ports', () => {
     //      may rise false alarm when other developers without com0com instaled
     //      run the test in his machine.
     //NOTE: The com0com is just a loopback at windows layer, see: http://com0com.sourceforge.net/
+    /*
+    
     it('can list two serial ports emulated with com0com', async () => {
 
         // prepare
@@ -26,6 +28,8 @@ describe('list-serial-ports', () => {
         // check
         expect(actual).toEqual(expected);
     })
+
+    */
 
     it('can list two loop-back emulated serial ports', async () => {
 
