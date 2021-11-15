@@ -172,7 +172,7 @@ describe('basic tests', () => {
         //prepare
         jest.useFakeTimers(); // we don't need to wait real time to pass :)
         const t = 100
-        const cancelation = Future_.delay(t+1)
+        const cancelation = Future_.delay(t+100)
         const probe = Future_.delayCancelable(t,cancelation)
         //act
         const ma = await probe.async()
@@ -189,14 +189,14 @@ describe('basic tests', () => {
     it('Can construct a sucessful cancelable delay which reach its finish being canceled', async () => {
         //prepare
         jest.useFakeTimers(); // we don't need to wait real time to pass :)
-        const t = 100
-        const cancelation = Future_.delay(t-1)
+        const t = 200
+        const cancelation = Future_.delay(t-100)
         const probe = Future_.delayCancelable(t,cancelation)
         //act
         const ma = await probe.async()
         //check
         const actual = ma.unsafeRun()
-        const expected = { isLeft: false, value: t-1 }
+        const expected = { isLeft: false, value: t-100 }
         jest.runAllTimers(); // but we need to wait all timers to run :)
         expect(actual).toEqual(expected)
         // Note: I don't know, why bellow is called 0 times, the expected should be two times: cancelation and probe, but... :(
