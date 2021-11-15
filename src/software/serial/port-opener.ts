@@ -3,6 +3,7 @@
 import { BaudRate } from './baudrate'
 import SerialPort  from 'serialport'
 import { PortInfo } from './port-info'
+import { LoopBackPortA_Path, LoopBackPortB_Path, portAOpened, portBOpened } from './loopback'
 
 export type PortOpened = {
     readonly kind: 'PortOpened'
@@ -51,7 +52,7 @@ export const PortOpener: PortOpener = (portPath, baudRate) => {
       }
     }
 
-    const portOpened = new Promise<SerialPort>( (resolve, reject) => { 
+    const openPortUsingDriver = () => new Promise<SerialPort>( (resolve, reject) => { 
       //see also: https://serialport.io/docs/guide-usage  
       const port = new SerialPort(portPath, { baudRate }, hasError => {
         if (hasError) {
@@ -62,7 +63,17 @@ export const PortOpener: PortOpener = (portPath, baudRate) => {
     })
       .then( castToLocalInterface );
 
-    return portOpened;
+    const loopBack_PortA = new Promise<PortOpened>( resolve => resolve(portAOpened))
+    const loopBack_PortB = new Promise<PortOpened>( resolve => resolve(portBOpened))
+
+    switch (portPath) {
+      case LoopBackPortA_Path:
+        return loopBack_PortA
+      case LoopBackPortB_Path:
+        return loopBack_PortB
+      default: 
+        return openPortUsingDriver()
+    }
 }
 
 

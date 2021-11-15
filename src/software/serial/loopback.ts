@@ -1,6 +1,8 @@
+// Emulates a serialport loopback where PortA is connected (cross-over) to PortB and vice-versa 
 
+import { PortOpened } from "./port-opener"
 
-export const LoopBackPortA_Path = 'LoopBackTest_PortA'
+export const LoopBackPortA_Path = 'LoopBackTest_PortA' //TODO: rename by a more meneumonic name
 export const LoopBackPortB_Path = 'LoopBackTest_PortB'
 
 
@@ -25,3 +27,37 @@ export const LoopBackPortB_Info = {
 }
 
 export const LoopBackPortsInfo = [LoopBackPortA_Info, LoopBackPortB_Info ]
+
+//
+
+type Consumer = (data: readonly number[]) => void
+
+let portAConsumer:  Consumer | undefined = undefined 
+let portBConsumer:  Consumer | undefined = undefined 
+
+export const portAOpened:PortOpened = {
+    kind: 'PortOpened',
+    write: async data => {
+        if(portBConsumer) portBConsumer(data)
+    },
+    onData: consumerA => {
+        portAConsumer = consumerA
+    },
+    close: async () => {
+        portAConsumer = undefined
+    },
+}
+
+
+export const portBOpened:PortOpened = {
+    kind: 'PortOpened',
+    write: async data => {
+        if(portAConsumer) portAConsumer(data)
+    },
+    onData: consumerB => {
+        portBConsumer = consumerB
+    },
+    close: async () => {
+        portBConsumer = undefined
+    },
+}
