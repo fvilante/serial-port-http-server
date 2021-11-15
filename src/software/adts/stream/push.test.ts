@@ -60,45 +60,6 @@ describe('basic tests', () => {
         expect(actual).toEqual(expected) 
     })
 
-   it('Can compare a stream agains constant sequence of values', async (done) => {
-        //prepare
-        let iBuf: readonly unknown[] = []
-        let buf = {
-            output: [],
-            wip: []
-        }
-        const probe = [1,2,3,27,28,10,20,30,40,27,28,2,3] 
-        const expected = {  
-            output: [1,2,3,[27,28],10,20,30,40,[27,28],2,3],
-            wip: []
-        }
-        // async stream
-        const probeIntervals_ = Push<number>( yield_ => 
-            Push_.fromInterval(Pull_.fromArray(probe))
-            .unsafeRun( i => i.done === false ? yield_(i.value) : undefined))
-        
-        //act
-        
-        const action = probeIntervals_.compareG([27,28] , (a,b)=>a===b)
-        //check
-        const action_ = action.map( a => a.mapByKey('output', value => {
-            const x = value.unsafeRun()
-            return x
-        }))
-        let index = 0
-        const zipped_ = Push_.union(probeIntervals_,action_)
-        zipped_.unsafeRun( unionized => {
-            unionized.match({
-                Left: probe => {
-                    //console.log('probe',probe)
-                },
-                Right: result => {
-                    //console.table(result.unsafeRun())
-                },
-            })
-        })
-    })
-
     describe('Can step data', () => {
         it('Can step data when size===step', async () => {
              //prepare

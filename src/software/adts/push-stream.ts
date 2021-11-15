@@ -48,7 +48,7 @@ export type Push<A> = {
     dropletWith: (f: (_:A) => boolean) => Push<readonly A[]> //fix: f should be a State<A> or other type (ie: Pull<A>... etc)
     ignoreAll: () => Push<A> // will never emit an A
     collect: <N extends number>(size: N) => Push<[collected: readonly A[],size: N]>
-    compareG: <X extends readonly A[]>(toCompare: X, isEqual: (me:A, other:A) => boolean) => Push<Among<{output: Either<X, A>, wip: readonly A[]}>> // note: "wip" means work in progress, basically it here represents a copy of the internals state of the comparator buffer.
+    //compareG: <X extends readonly A[]>(toCompare: X, isEqual: (me:A, other:A) => boolean) => Push<Among<{output: Either<X, A>, wip: readonly A[]}>> // note: "wip" means work in progress, basically it here represents a copy of the internals state of the comparator buffer.
     //drop: (size: number, step: number) => Push<readonly A[]>
 
     // combinators
@@ -201,7 +201,7 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
         })
     })
 
-    const compareG: T['compareG'] = <X extends readonly A[]>(toCompare: X, comparator: (me: A, other: A) => boolean): Push<Among<{
+    /*const compareG: T['compareG'] = <X extends readonly A[]>(toCompare: X, comparator: (me: A, other: A) => boolean): Push<Among<{
         output: Either<X, A>;
         wip: readonly A[];
     }>> => {
@@ -233,7 +233,7 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
                 
             }) 
         })
-    }
+    }*/
 
     // FIX: if b came before a, they will not be catched
     const combineWith: T['combineWith'] = f => Push( receiver => {
@@ -367,7 +367,7 @@ export const Push = <A>(emitter: PushEmitter<A>): Push<A> => {
         dropletWith: dropletWith,
         ignoreAll,
         collect,
-        compareG: compareG,
+        //compareG: compareG,
         // combinators
         combineWith: combineWith,
         indexed,
