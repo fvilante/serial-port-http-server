@@ -1,6 +1,7 @@
 import { 
     listSerialPorts,
     isSerialPortEmulatedWithCom0Com,
+    isSerialPortLoopBackForTest as isSerialPortLoopBack,
 } from "./list-serial-ports"
 
 
@@ -18,10 +19,22 @@ describe('list-serial-ports', () => {
 
         // prepare
         const portsList = await Helper_ListPorts_or_Throw()
-        const onlyEmulatedPorts = portsList.filter( port => isSerialPortEmulatedWithCom0Com(port))
+        const onlyCom0ComEmulatedPorts = portsList.filter( port => isSerialPortEmulatedWithCom0Com(port))
+        const expected = 2 // expect two com0com emulated ports
+        // act
+        const actual = onlyCom0ComEmulatedPorts.length
+        // check
+        expect(actual).toEqual(expected);
+    })
+
+    it('can list two loop-back emulated serial ports', async () => {
+
+        // prepare
+        const portsList = await Helper_ListPorts_or_Throw()
+        const onlyLoopbackEmulatedPorts = portsList.filter( port => isSerialPortLoopBack(port))
         const expected = 2 // expect two loopback emulated ports
         // act
-        const actual = onlyEmulatedPorts.length
+        const actual = onlyLoopbackEmulatedPorts.length
         // check
         expect(actual).toEqual(expected);
     })

@@ -2,6 +2,7 @@ import SerialPort  from 'serialport'
 import { PortInfo } from "./port-info";
 import { Future, Future_, UnsafePromiseError } from '../adts/future'
 import { Result } from '../adts/result'
+import { LoopBackPortsInfo } from './loopback';
 
 // NOTE: Today both PortInfo types are equals, but they may differ in future code changings
 //       this is why we preffer to not reuse SerialPort.PortInfo type
@@ -22,9 +23,13 @@ const castPortInfo = (ports: SerialPort.PortInfo[]): readonly PortInfo[] => {
 
 export const listSerialPorts = (): Future<Result<readonly PortInfo[],UnsafePromiseError>> => {
     return Future_
-        .fromUnsafePromise(() => SerialPort.list())
-        .map( r => r.map(castPortInfo))   
-}
+        .fromUnsafePromise(async () => {
+            const official_ports = await SerialPort.list()
+            const offered_ports = [...official_ports, ...LoopBackPortsInfo]
+            return offered_ports
+        })
+        .map( oficialports => oficialports.map(castPortInfo))  
+    }
 
 
 // NOTE: 
@@ -52,4 +57,8 @@ export const listSerialPorts = (): Future<Result<readonly PortInfo[],UnsafePromi
 */
 export const isSerialPortEmulatedWithCom0Com = (port: PortInfo):boolean => {
     return port.manufacturer === "Vyacheslav Frolov"
+}
+
+export const isSerialPortLoopBackForTest = (port: PortInfo):boolean => {
+    return port.manufacturer === "Flavio Vilante"
 }
