@@ -38,23 +38,20 @@ describe('basic tests', () => {
         const probe = correctMasterFrame
         const probeInterpreted = correctMasterFrameInterpreted
         const parser = InterpretIncomming
-        const parse = parser(
-            //frameinterpreted
-            event => {
+        const parse = parser({
+            onSuccess: event => {
                 const { frameInterpreted, rawInput} = event
                 //check
                 expect(frameInterpreted).toStrictEqual(probeInterpreted)
                 expect(rawInput).toStrictEqual(probe)
             },
-            //onError
-            event => {
+            onError: event => {
 
             },
-            //onStateChange
-            event => {
+            onInternalStateChange: event => {
                 
             }
-        )
+        })
 
         //act
         probe.forEach( byte => parse(byte))
@@ -66,23 +63,20 @@ describe('basic tests', () => {
         const probe = [...correctMasterFrame,...correctMasterFrame, ...correctMasterFrame]
         const probeInterpreted = correctMasterFrameInterpreted
         const parser = InterpretIncomming
-        const parse = parser(
-            //frameinterpreted
-            event => {
+        const parse = parser({
+            onSuccess: event => {
                 const { frameInterpreted, rawInput} = event
                 //check
                 expect(frameInterpreted).toStrictEqual(correctMasterFrameInterpreted)
                 count++
             },
-            //onError
-            event => {
+            onError: event => {
 
             },
-            //onStateChange
-            event => {
+            onInternalStateChange: event => {
                 
             }
-        )
+        })
 
         //act
         probe.forEach( byte => parse(byte))
@@ -95,23 +89,20 @@ describe('basic tests', () => {
         const probe = correctSlaveFrame
         const probeInterpreted = correctSlaveFrameInterpreted
         const parser = InterpretIncomming
-        const parse = parser(
-            //frameinterpreted
-            event => {
+        const parse = parser({
+            onSuccess: event => {
                 const {frameInterpreted, rawInput} = event
                 //check
                 expect(frameInterpreted).toStrictEqual(probeInterpreted)
                 expect(rawInput).toStrictEqual(probe)
             },
-            //onError
-            event => {
+            onError: event => {
 
             },
-            //onStateChange
-            event => {
+            onInternalStateChange: event => {
                 
             }
-        )
+        })
 
         //act
         probe.forEach( byte => parse(byte))

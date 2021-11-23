@@ -54,27 +54,28 @@ export type StateChangeEvent = {
     readonly rawInput: readonly Byte[]
 }
 
+export type EventsHandler = {
+    onSuccess: (event: SuccessEvent) => void,
+    onError: (event: ErrorEvent) => void,
+    onInternalStateChange: (event: StateChangeEvent) => void
+}
+
 // pushed interpretation, with talkback feedback for finished or error signaling
 // executes until error or finish
 // note: Should be in parameter a config data with what means the 'ESC' 'STX' etc.
 // Fix: Refactor this function to be more functional decomposable and easier to read
-export const InterpretIncomming = (
-    onSuccess: (event: SuccessEvent) => void, 
-    onError: (event: ErrorEvent) => void,
-    onInternalStateChange?: (event: StateChangeEvent) => void
-    ) => (
+export const InterpretIncomming = (handle: EventsHandler) => (
     uint8: number
     ): typeof resetInterpreter => {
     //let tid: NodeJS.Timeout | undefined = undefined
 
-    const error_: typeof onError = event => {
-        onError(event);
+    const error_: EventsHandler['onError'] = event => {
+        handle.onError(event);
         resetInterpreter();
     }
 
-    const success: typeof onSuccess = event => {
-        const acc_ = acc
-        onSuccess(event)
+    const success: EventsHandler['onSuccess'] = event => {
+        handle.onSuccess(event)
         resetInterpreter();
     }
 
@@ -335,14 +336,14 @@ export const InterpretIncomming = (
     }
 
 
-    if (onInternalStateChange!==undefined) {
+    if (handle.onInternalStateChange!==undefined) {
         const event: StateChangeEvent = {
             currentCoreState: state,
             partialFrame: frame,
             rawInput: acc,
             waitingEscDup,
         }
-        onInternalStateChange(event)
+        handle.onInternalStateChange(event)
     } else {
         console.log(`-----------------------------`)
         console.log(`state =`,state )
