@@ -86,17 +86,27 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         return chksum
     }
 
+    const setFrame = <K extends keyof FrameInterpreted>(key: K, data: FrameInterpreted[K]) => {
+        frame = { ...frame, [key]: data } // update frame with specified key and data
+    }
+
+    const setCoreState = (nextState: CoreState) => {
+        state = nextState
+    }
+
+    const setFrameAndCoreState = <K extends keyof FrameInterpreted>(key: K, data: FrameInterpreted[K], nextState: CoreState) => {
+        setFrame(key,data)
+        setCoreState(nextState)
+    }
+
     acc = [...acc, currentByte]
 
     // todo: refactor to reduce redundancy
     switch (state as CoreState) {
 
         case 'Waiting first Esc': {
-            const nextState: CoreState = 'Waiting start byte'
-            const pos: keyof typeof frame  = 'firstEsc'
             if (currentByte===ESC) {
-                frame = { ...frame, [pos]: [currentByte] }
-                state = nextState
+                setFrameAndCoreState('firstEsc',[currentByte],'Waiting start byte')
             } else {
                 //console.log(`WARNING: Expected First Esc (${ESC} decimal) but got other thing (${cur_} decimal)`)
                 //resetInterpreter()
@@ -119,12 +129,9 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         }
 
         case 'Waiting start byte': {
-            const nextState: CoreState =  'Waiting direction and channel'
-            const pos: keyof typeof frame  = 'startByte'
             const isValidStartByte = validStartBytes.some( x => x === currentByte)
             if (isValidStartByte) {
-                frame = {...frame, [pos]: [currentByte as StartByteNum]}
-                state = nextState
+                setFrameAndCoreState('startByte',[currentByte as StartByteNum],'Waiting direction and channel')
             } else {
                 const event: ErrorEvent = {
                     errorMessage:  `Expected a valid StartByte (some of this values ${validStartBytes} in decimal) but got other thing (${currentByte} decimal).`,
@@ -138,19 +145,17 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         }
 
         case 'Waiting direction and channel': {
+            const pos: keyof FrameInterpreted = 'dirChan'
             const nextState: CoreState = 'Waiting word address (waddr)'
-            const pos: keyof typeof frame = 'dirChan'
             if (waitingEscDup === false) {
                 if (currentByte === ESC) {
                     waitingEscDup = true;
                 } else {
-                    frame = {...frame, [pos]: [currentByte]}
-                    state = nextState;
+                    setFrameAndCoreState(pos,[currentByte], nextState)
                 }
             } else /* waitingEscDup === true */ {
                 if (currentByte === ESC) {
-                    state = nextState;
-                    frame = {...frame, [pos]: [ESC, ESC]}
+                    setFrameAndCoreState(pos,[ESC, ESC],nextState)
                     waitingEscDup = false
                 } else {
                     const event: ErrorEvent = {
@@ -167,18 +172,16 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
 
         case 'Waiting word address (waddr)': {
             const nextState: CoreState = 'Waiting dataLow'
-            const pos: keyof typeof frame = 'waddr'
+            const pos: keyof FrameInterpreted = 'waddr'
             if (waitingEscDup === false) {
                 if (currentByte === ESC) {
                     waitingEscDup = true;
                 } else {
-                    frame = {...frame, [pos]: [currentByte]}
-                    state = nextState;
+                    setFrameAndCoreState(pos,[currentByte],nextState)
                 }
             } else /* waitingEscDup === true */ {
                 if (currentByte === ESC) {
-                    state = nextState;
-                    frame = {...frame, [pos]: [ESC, ESC]}
+                    setFrameAndCoreState(pos, [ESC, ESC],nextState)
                     waitingEscDup = false
                 } else {
                     const event: ErrorEvent = {
@@ -195,18 +198,16 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
 
         case 'Waiting dataLow': {
             const nextState: CoreState = 'Waiting dataHigh'
-            const pos: keyof typeof frame = 'dataLow'
+            const pos: keyof FrameInterpreted = 'dataLow'
             if (waitingEscDup === false) {
                 if (currentByte === ESC) {
                     waitingEscDup = true;
                 } else {
-                    frame = {...frame, [pos]: [currentByte]}
-                    state = nextState;
+                    setFrameAndCoreState(pos,  [currentByte],nextState)
                 }
             } else /* waitingEscDup === true */ {
                 if (currentByte === ESC) {
-                    state = nextState;
-                    frame = {...frame, [pos]: [ESC, ESC]}
+                    setFrameAndCoreState(pos, [ESC, ESC],nextState)
                     waitingEscDup = false
                 } else {
                     const event: ErrorEvent = {
@@ -223,18 +224,16 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
 
         case 'Waiting dataHigh': {
             const nextState: CoreState = 'Waiting lastEsc'
-            const pos: keyof typeof frame = 'dataHigh'
+            const pos: keyof FrameInterpreted = 'dataHigh'
             if (waitingEscDup === false) {
                 if (currentByte === ESC) {
                     waitingEscDup = true;
                 } else {
-                    frame = {...frame, [pos]: [currentByte]}
-                    state = nextState;
+                    setFrameAndCoreState(pos,  [currentByte],nextState)
                 }
             } else /* waitingEscDup === true */ {
                 if (currentByte === ESC) {
-                    state = nextState;
-                    frame = {...frame, [pos]: [ESC, ESC]}
+                    setFrameAndCoreState(pos, [ESC, ESC],nextState)
                     waitingEscDup = false
                 } else {
                     const event: ErrorEvent = {
@@ -251,10 +250,9 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
 
         case 'Waiting lastEsc': {
             const nextState: CoreState = 'Waiting ETX'
-            const pos: keyof typeof frame  = 'lastEsc'
+            const pos: keyof FrameInterpreted  = 'lastEsc'
             if (currentByte===ESC) {
-                frame = { ...frame, [pos]: [currentByte] }
-                state = nextState
+                setFrameAndCoreState(pos,  [currentByte],nextState)
             } else {
                 const event: ErrorEvent = {
                     errorMessage: `Expected ${pos} (${ESC} decimal) but got other thing (${currentByte} decimal)`,
@@ -269,10 +267,9 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
 
         case 'Waiting ETX': {
             const nextState: CoreState = 'Waiting checksum'
-            const pos: keyof typeof frame  = 'etx'
+            const pos: keyof FrameInterpreted  = 'etx'
             if (currentByte===ETX) {
-                frame = { ...frame, [pos]: [currentByte] }
-                state = nextState
+                setFrameAndCoreState(pos, [currentByte],nextState)
             } else {
                 const event: ErrorEvent = {
                     errorMessage:`Expected ${pos} (${ETX} decimal) but got other thing (${currentByte} decimal)`,
@@ -287,7 +284,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
 
         case 'Waiting checksum': {
             const nextState: CoreState = 'Successful'
-            const pos: keyof typeof frame = 'checkSum'
+            const pos: keyof FrameInterpreted = 'checkSum'
             if (waitingEscDup === false) {
                 if (currentByte === ESC) {
                     waitingEscDup = true;
