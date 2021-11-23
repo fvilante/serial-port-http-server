@@ -47,7 +47,7 @@ describe('basic tests', () => {
                 expect(rawInput).toStrictEqual(probe)
             },
             //onError
-            (msg, partialFrame, rawInput) => {
+            event => {
 
             },
             //onStateChange
@@ -75,7 +75,7 @@ describe('basic tests', () => {
                 count++
             },
             //onError
-            (msg, partialFrame, rawInput) => {
+            event => {
 
             },
             //onStateChange
@@ -104,7 +104,7 @@ describe('basic tests', () => {
                 expect(rawInput).toStrictEqual(probe)
             },
             //onError
-            (msg, partialFrame, rawInput) => {
+            event => {
 
             },
             //onStateChange
