@@ -51,7 +51,7 @@ describe('basic tests', () => {
 
             },
             //onStateChange
-            (currentState, partialFrame, waitingEscDup) => {
+            event => {
                 
             }
         )
@@ -79,7 +79,7 @@ describe('basic tests', () => {
 
             },
             //onStateChange
-            (currentState, partialFrame, waitingEscDup) => {
+            event => {
                 
             }
         )
@@ -108,7 +108,7 @@ describe('basic tests', () => {
 
             },
             //onStateChange
-            (currentState, partialFrame, waitingEscDup) => {
+            event => {
                 
             }
         )

@@ -47,6 +47,13 @@ export type ErrorEvent = {
     readonly coreState: CoreState
 }
 
+export type StateChangeEvent = {
+    readonly currentCoreState: CoreState, 
+    readonly partialFrame: typeof frame, 
+    readonly waitingEscDup: boolean, 
+    readonly rawInput: readonly Byte[]
+}
+
 // pushed interpretation, with talkback feedback for finished or error signaling
 // executes until error or finish
 // note: Should be in parameter a config data with what means the 'ESC' 'STX' etc.
@@ -54,7 +61,7 @@ export type ErrorEvent = {
 export const InterpretIncomming = (
     onSuccess: (event: SuccessEvent) => void, 
     onError: (event: ErrorEvent) => void,
-    onInternalStateChange?: (currentState: CoreState, partialFrame: typeof frame, waitingEscDup: boolean, rawInput: typeof acc) => void
+    onInternalStateChange?: (event: StateChangeEvent) => void
     ) => (
     uint8: number
     ): typeof resetInterpreter => {
@@ -329,7 +336,13 @@ export const InterpretIncomming = (
 
 
     if (onInternalStateChange!==undefined) {
-        onInternalStateChange(state,frame,waitingEscDup,acc)
+        const event: StateChangeEvent = {
+            currentCoreState: state,
+            partialFrame: frame,
+            rawInput: acc,
+            waitingEscDup,
+        }
+        onInternalStateChange(event)
     } else {
         console.log(`-----------------------------`)
         console.log(`state =`,state )
