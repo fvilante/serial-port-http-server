@@ -3,18 +3,18 @@ import { calcChecksum } from "../calc-checksum"
 import { ACK, ESC, ETX, NACK, StartByteNum, StartByteToText, STX } from "../core-types"
 
 export type State = 
-| 'Waiting first Esc'
-| 'Waiting start byte'
-| 'Waiting direction and channel'
-| 'Waiting word address (waddr)'
-| 'Waiting dataLow'
-| 'Waiting dataHigh'
-| 'Waiting lastEsc'
-| 'Waiting ETX'
-| 'Waiting checksum'
-| 'Successful'
-| 'HasError'
-//| 'Waiting Duplicated Esc'
+    | 'Waiting first Esc'
+    | 'Waiting start byte'
+    | 'Waiting direction and channel'
+    | 'Waiting word address (waddr)'
+    | 'Waiting dataLow'
+    | 'Waiting dataHigh'
+    | 'Waiting lastEsc'
+    | 'Waiting ETX'
+    | 'Waiting checksum'
+    | 'Successful'
+    | 'HasError'
+    //| 'Waiting Duplicated Esc'
 
 // internal state
 let acc: readonly number[] = []
@@ -34,12 +34,17 @@ resetInterpreter();
 
 const validStartBytes: readonly [STX, ACK, NACK] = [STX, ACK, NACK] 
 
+export type SuccessEvent = {
+    readonly frameInterpreted: FrameInterpreted, 
+    readonly rawInput: readonly number[]
+}
+
 // pushed interpretation, with talkback feedback for finished or error signaling
 // executes until error or finish
 // note: Should be in parameter a config data with what means the 'ESC' 'STX' etc.
 // Fix: Refactor this function to be more functional decomposable and easier to read
 export const InterpretIncomming = (
-    onFinished: (_: FrameInterpreted, rawInput: readonly number[]) => void, 
+    onSuccess: (event: SuccessEvent) => void, 
     onError: (msg: string, partialFrame: typeof frame, rawInput: typeof acc, state: State) => void,
     onInternalStateChange?: (currentState: State, partialFrame: typeof frame, waitingEscDup: boolean, rawInput: typeof acc) => void
     ) => (
@@ -52,9 +57,9 @@ export const InterpretIncomming = (
         resetInterpreter();
     }
 
-    const success: typeof onFinished = (frame__, rawInput) => {
+    const success: typeof onSuccess = event => {
         const acc_ = acc
-        onFinished(frame__, acc_)
+        onSuccess(event)
         resetInterpreter();
     }
 
@@ -306,9 +311,11 @@ export const InterpretIncomming = (
     }
 
     if (state==='Successful') {
-        //console.log('sucess************************')
-        //console.table(frame)
-        success(frame as FrameInterpreted, acc)
+        const event: SuccessEvent = {
+            frameInterpreted: frame as FrameInterpreted,
+            rawInput: acc,
+        }
+        success(event)
     }
 
 

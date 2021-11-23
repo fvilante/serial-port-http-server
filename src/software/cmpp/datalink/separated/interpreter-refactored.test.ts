@@ -40,7 +40,8 @@ describe('basic tests', () => {
         const parser = InterpretIncomming
         const parse = parser(
             //frameinterpreted
-            (frameInterpreted, rawInput) => {
+            event => {
+                const { frameInterpreted, rawInput} = event
                 //check
                 expect(frameInterpreted).toStrictEqual(probeInterpreted)
                 expect(rawInput).toStrictEqual(probe)
@@ -67,7 +68,8 @@ describe('basic tests', () => {
         const parser = InterpretIncomming
         const parse = parser(
             //frameinterpreted
-            (frameInterpreted, rawInput) => {
+            event => {
+                const { frameInterpreted, rawInput} = event
                 //check
                 expect(frameInterpreted).toStrictEqual(correctMasterFrameInterpreted)
                 count++
@@ -95,7 +97,8 @@ describe('basic tests', () => {
         const parser = InterpretIncomming
         const parse = parser(
             //frameinterpreted
-            (frameInterpreted, rawInput) => {
+            event => {
+                const {frameInterpreted, rawInput} = event
                 //check
                 expect(frameInterpreted).toStrictEqual(probeInterpreted)
                 expect(rawInput).toStrictEqual(probe)
