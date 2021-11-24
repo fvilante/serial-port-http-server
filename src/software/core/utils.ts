@@ -6,6 +6,11 @@
 //  strings nao vazias (job->barcode) NonEmpty<string>, ou arrays nao vazias
 //  NonEmpty<readonly number[]>, ou coisas do tipo
 
+// NOTE: min and max included 
+// NOTE: Consider to use pure generated random numbers instead of this inpure version
+export const random = (min:number, max:number) => { 
+    return Math.floor(Math.random() * (max - min + 1) + min)
+}
 
 // fix: make it a generator structure for performance
 // inclusive-exclusive]
