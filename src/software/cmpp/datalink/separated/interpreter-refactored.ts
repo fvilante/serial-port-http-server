@@ -1,6 +1,6 @@
 import { FrameInterpreted } from ".."
 import { Byte, Bytes } from "../../../core/byte"
-import { calcChecksum } from "../calc-checksum"
+import { calcChecksum, calcChecksum_ } from "../calc-checksum"
 import { ACK, ESC, ETX, NACK, StartByteNum, StartByteToText, STX } from "../core-types"
 
 export type CoreState = 
@@ -80,9 +80,9 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         const waddr = frame__.waddr === undefined ? 0 : frame__.waddr[0]
         const dataH = frame__.dataHigh === undefined ? 0 : frame__.dataHigh[0]
         const dataL = frame__.dataLow === undefined ? 0 : frame__.dataLow[0]
-        const defaultStByte = StartByteToText(validStartBytes[0]) // anything
-        const startByte = frame__.startByte === undefined ? defaultStByte : StartByteToText(frame__.startByte[0])
-        const chksum = calcChecksum([dirChan, waddr, dataH, dataL], startByte)
+        const defaultStByte = validStartBytes[0] // any arbitrary among them is being the default value!
+        const startByte = frame__.startByte === undefined ? defaultStByte : frame__.startByte[0]
+        const chksum = calcChecksum_([dirChan, waddr, dataH, dataL], startByte)
         return chksum
     }
 
