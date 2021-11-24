@@ -2,7 +2,7 @@ import { FrameInterpreted } from ".."
 import { runOnce } from "../../../core/utils"
 import { getLoopBackEmulatedSerialPort } from "../../../serial/loopback"
 import { ACK, Payload } from "../core-types"
-import { getRandomPayload, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "../frame.tools"
+import { getRandomPayload, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "../payload"
 import { cmppSimpleTransaction } from "./simple-transaction"
 
     it('can run a simple transactioner constructed from a opened serial port', async () => {

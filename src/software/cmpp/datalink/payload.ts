@@ -56,6 +56,7 @@ export type ExecutionResult = {
     onStateChange: readonly StateChangeEvent[]
 }
 
+// NOTE: This function is being used in test units; I'm not sure it is necessary for other conditions
 export const executeCmppStreamInterpretation = (input: readonly Byte[], lastState?: ExecutionResult):ExecutionResult => {
     let result: ExecutionResult = lastState ? lastState : {onError: [], onStateChange: [], onSucess: []}
     const parser = InterpretIncomming
