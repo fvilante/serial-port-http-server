@@ -1,4 +1,6 @@
 
+// LIST OF UTILS TO BE DONE
+//      - randomNumberBetween(min, max): number
 
 // TO BE DONE: as vezes queremos campos nao emptys, por exemplo.
 //  strings nao vazias (job->barcode) NonEmpty<string>, ou arrays nao vazias
