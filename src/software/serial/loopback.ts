@@ -61,3 +61,11 @@ export const portBOpened:PortOpened = {
         portBConsumer = undefined
     },
 }
+
+//TODO: export only this function and remove exportation of portAOpened and portBOpened variables
+export const getLoopBackEmulatedSerialPort = () => {
+    return {
+        source: portAOpened,
+        dest: portBOpened, //destination
+    }
+}
