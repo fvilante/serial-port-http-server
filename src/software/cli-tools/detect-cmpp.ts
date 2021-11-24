@@ -73,7 +73,7 @@ export const crossProduct = <A,B>(as: readonly A[], bs: readonly B[]): readonly 
 
 const main = async () => {
     const timeout = 400 //TODO: improve this number
-    const baudRates: readonly BaudRate[] = [9600]
+    const baudRates: readonly BaudRate[] = [9600,2400]
     const ports_ = await listSerialPorts()
     const ports = ports_.filter( portInfo => {
         const isPortEmulated = isSerialPortEmulatedWithCom0Com(portInfo) || isSerialPortLoopBackForTest(portInfo)

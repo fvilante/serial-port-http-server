@@ -59,18 +59,18 @@ export const PortOpener: PortOpener = (portPath, baudRate) => {
           reject(new Error(`SerialOpenPortError: Cannot open port ${portPath}/${baudRate}. Details: ${hasError}.`))
         }
       })
-      port.on('open', () => resolve(port))   
+      port.on('open', () => resolve(port))
     })
-      .then( castToLocalInterface );
+      .then( castToLocalInterface )
 
-    const loopBack_PortA = new Promise<PortOpened>( resolve => resolve(portAOpened))
-    const loopBack_PortB = new Promise<PortOpened>( resolve => resolve(portBOpened))
+    const loopBack_PortA = () => new Promise<PortOpened>( resolve => resolve(portAOpened))
+    const loopBack_PortB = () => new Promise<PortOpened>( resolve => resolve(portBOpened))
 
     switch (portPath) {
       case LoopBackPortA_Path:
-        return loopBack_PortA
+        return loopBack_PortA()
       case LoopBackPortB_Path:
-        return loopBack_PortB
+        return loopBack_PortB()
       default: 
         return openPortUsingDriver()
     }
