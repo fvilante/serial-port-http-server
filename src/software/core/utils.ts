@@ -1,5 +1,6 @@
 
 // LIST OF UTILS TO BE DONE
+//      - dropletGenerator = droplets an array inside an iterator/generator
 
 // TO BE DONE: as vezes queremos campos nao emptys, por exemplo.
 //  strings nao vazias (job->barcode) NonEmpty<string>, ou arrays nao vazias
@@ -15,8 +16,17 @@ export function* makeRange(start = 0, end = 100, step = 1): Generator<number, un
         yield i;
     }
     return undefined;
-}
+};
 
+//TODO: This utility function should be extracted and grouped with equivalent Generator functions
+export function* repeaterItor<K>(times: number, element: K): Generator<K, undefined, void> {
+    let iterationCount = 0;
+    for (let i = 0; i < times; i++) {
+        iterationCount++;
+        yield element;
+    }
+    return undefined;
+}
 
 // NOTE: min and max included 
 // NOTE: Consider to use pure generated random numbers instead of this inpure version
