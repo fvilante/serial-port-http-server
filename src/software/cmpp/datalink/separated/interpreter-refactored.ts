@@ -115,19 +115,23 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         return `${ErrorHeader}: ${specificMessage}` as const
     }
 
+    const produceErrorEvent = (errorMessage: ErrorEvent['errorMessage']):void => {
+        const event: ErrorEvent = {
+            errorMessage,
+            partialFrame: frame,
+            rawInput,
+            coreState,
+        }
+        onError_(event)
+    }
+ 
     // TODO: There are redundance in below function, and they should be refactored to reduce code length and improve readability
     //NOTE: Control byte cannot be esc duplicated
     const expectToReceiveControlByte = (pos: keyof FrameInterpreted, nextState: CoreState, controlBytes: readonly Byte[]) => {
         if (controlBytes.includes(currentByte)) {
             setFrameAndCoreState(pos,  [currentByte],nextState)
         } else {
-            const event: ErrorEvent = {
-                errorMessage: mkControlErrorMessage(coreState, pos, controlBytes, [currentByte]),
-                partialFrame: frame,
-                rawInput,
-                coreState,
-            }
-            onError_(event)
+            produceErrorEvent(mkControlErrorMessage(coreState, pos, controlBytes, [currentByte]))
         }
     }
 
@@ -145,13 +149,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                 setFrameAndCoreState(pos,[ESC, ESC],nextState)
                 waitingEscDup = false
             } else {
-                const event: ErrorEvent = {
-                    errorMessage:  mkDuplicatedEscErrorMessage(coreState,pos,currentByte),
-                    partialFrame: frame,
-                    rawInput,
-                    coreState,
-                }
-                onError_(event)
+                produceErrorEvent(mkDuplicatedEscErrorMessage(coreState,pos,currentByte))
             }
         }
     }
@@ -168,13 +166,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                     frame = {...frame, expectedChecksum };
                     coreState = nextState;;
                 } else {
-                    const event: ErrorEvent = {
-                        errorMessage: mkControlErrorMessage(coreState, pos, [expectedChecksum], [currentByte]),
-                        partialFrame: frame,
-                        rawInput,
-                        coreState,
-                    }
-                    onError_(event)
+                    produceErrorEvent(mkControlErrorMessage(coreState, pos, [expectedChecksum], [currentByte]))
                 }
                 
             }
@@ -186,13 +178,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                 frame = {...frame, expectedChecksum };
                 coreState = nextState;
             } else {
-                const event: ErrorEvent = {
-                    errorMessage:  mkDuplicatedEscErrorMessage(coreState,pos,currentByte),
-                    partialFrame: frame,
-                    rawInput,
-                    coreState,
-                }
-                onError_(event)
+                produceErrorEvent(mkDuplicatedEscErrorMessage(coreState,pos,currentByte))
             }
         }
     }
