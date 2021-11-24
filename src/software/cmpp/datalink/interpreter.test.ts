@@ -1,17 +1,12 @@
 import { FrameInterpreted } from "."
-import { Byte, Bytes } from "../../core/byte"
 import { flattenArrayDeep, makeRange, random, repeaterItor } from "../../core/utils"
-import { calcChecksum_ } from "./calc-checksum"
-import { ACK, ESC, ETX, NACK, StartByteNum, STX } from "./core-types"
-import { ErrorEvent, InterpretIncomming, StateChangeEvent, SuccessEvent } from "./interpreter"
+import { ACK, NACK, Payload, StartByteNum, STX } from "./core-types"
+import { executeCmppStreamInterpretation, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "./frame.tools"
 
 // TODO:    Only well-formed stream are being tested. We MUST create unit test for error and edge cases 
 //          (ie: esc-dup in checksum?, intermediary noise?, etc).
-// TODO:    Extract below helper functions to a particular file, so test unit remain slim.
 
 const quantityOfRandomRepetition = 100 // greather this number, greather is the amount of time to execute unit test
-
-type Payload = readonly [dirChan: number, waddr: number, dataLow: number, dataHigh: number]
 
 const somePayload: Payload = [0x00, 0x00, 0x00, 0x00] 
 
@@ -25,70 +20,12 @@ const getRandomStartByte = ():StartByteNum => {
     return randomStartByte
 }
 
-const duplicateEsc = (payload: readonly number[]): readonly number[] => {
-    let acc: readonly Byte[] = [] //payload_with_esc_duplicated
-    payload.forEach( byte => {
-        if (byte===ESC) {
-            acc = [...acc, ESC, ESC]
-        } else {
-            acc = [...acc, byte]
-        }
-    }) 
-    return acc 
-}
-
-const makeWellFormedFrame = (startByte: StartByteNum, payload: Payload) => {
-    const checksum = calcChecksum_(payload,startByte)
-    return [ESC, startByte, ...duplicateEsc(payload), ESC, ETX, ...duplicateEsc([checksum])]
-}
-
-const makeWellFormedFrameInterpreted = (startByte: StartByteNum, payload: Payload): FrameInterpreted => {
-    const checksum = calcChecksum_(payload,startByte)
-    return {
-        firstEsc: [ESC],
-        startByte: [startByte],
-        dirChan: duplicateEsc([payload[0]]),
-        waddr: duplicateEsc([payload[1]]),
-        dataLow: duplicateEsc([payload[2]]),
-        dataHigh: duplicateEsc([payload[3]]),
-        lastEsc: [ESC],
-        etx: [ETX],
-        checkSum: duplicateEsc([checksum]),
-        expectedChecksum: checksum,
-    } as unknown as any //TODO: remove this type cast 
-}
-
-type ExecutionResult = {
-    onSucess: readonly SuccessEvent[]
-    onError: readonly ErrorEvent[]
-    onStateChange: readonly StateChangeEvent[]
-}
-
-const execute = (input: readonly Byte[], lastState?: ExecutionResult):ExecutionResult => {
-    let result: ExecutionResult = lastState ? lastState : {onError: [], onStateChange: [], onSucess: []}
-    const parser = InterpretIncomming
-    const parse = parser({
-        onSuccess: event => {
-            result.onSucess = [...result.onSucess, event]
-        },
-        onError: event => {
-            result.onError = [...result.onError, event]
-        },
-        onStateChange: event => {
-            result.onStateChange = [...result.onStateChange, event]
-        }
-    })
-    //run
-    input.forEach( byte => parse(byte))
-    return result
-}
-
 const testParseSingleWellFormedFrame = (startByte: StartByteNum, payload: Payload):void => {
     //prepare
     const probe = makeWellFormedFrame(startByte,payload)
     const probeInterpreted = makeWellFormedFrameInterpreted(startByte,payload)
     //act
-    const result = execute(probe)
+    const result = executeCmppStreamInterpretation(probe)
     //check
     expect(result.onError).toEqual([])
     expect(result.onSucess.length).toEqual(1)
@@ -133,7 +70,7 @@ describe('basic test: Parssing well-formed, random, frames', () => {
         //prepare
         const input = flattenArrayDeep<number[][], number[]>([...repeaterItor(repeat,wellFormedFrame )])
         //act
-        const result = execute(input)
+        const result = executeCmppStreamInterpretation(input)
         //check
         expect(result.onError).toEqual([])
         expect(result.onSucess.length).toEqual(repeat)
@@ -161,7 +98,7 @@ describe('basic test: Parssing well-formed, random, frames', () => {
         //  -- make input 
         const input = flattenArrayDeep<number[][],number[]>(frames.map( frame => makeWellFormedFrame(frame.startByte, frame.payload)))
         // act
-        const result = execute(input)
+        const result = executeCmppStreamInterpretation(input)
         //check
         expect(result.onError).toEqual([])
         expect(result.onSucess.length).toEqual(N)

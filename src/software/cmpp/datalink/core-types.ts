@@ -46,3 +46,5 @@ export const StartByteToText = (_: StartByteNum):StartByteTxt => {
     } as const
     return StartByte[_] 
 }
+
+export type Payload = readonly [dirChan: number, waddr: number, dataLow: number, dataHigh: number]
