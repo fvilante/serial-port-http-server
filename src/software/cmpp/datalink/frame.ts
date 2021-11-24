@@ -11,7 +11,7 @@ export type FrameCore = {
     uint16: number // data
 }
 
-export const frameCoreToPayload = (frame:FrameCore): readonly [payload: Payload, startByteNum: StartByteNum] => {
+export const frameCoreToPayload = (frame:FrameCore): [payload: Payload, startByteNum: StartByteNum] => {
     // TODO: validate range of channel, waddr, etc.
     const { startByte, direction, channel, waddr, uint16} = frame
     const dirNum = Direction[direction]
