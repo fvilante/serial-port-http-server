@@ -132,6 +132,24 @@ export const partialCall = <T extends Arr, U extends Arr, R>(
     })
   }
 
+// TODO: Improve the typing and testing of this function
+// CAUTION: With current implementation, the output is totally casted by the user in the U type parameter
+export function flattenArrayDeep<T,U>(array: T): U {
+    const isArray = (value: unknown): value is ReadonlyArray<unknown> =>
+        Object.prototype.toString.call(value) === '[object Array]'
+
+    const ret: unknown[] = [] 
+    const traverse = <A,B>(arr: any , output: any): ReadonlyArray<B> =>
+        [...arr].map( elem => 
+            isArray(elem)
+                ? traverse(elem, output)
+                : output.push(elem)
+            )
+    // tslint:disable-next-line: no-expression-statement
+    traverse(array, ret)
+    return ret as unknown as U; //TODO: remove this periculous type casting
+}  
+
 export const averageFromArray = (arr: readonly number[]):number => {
     const [head, ...tail] = arr
     const sum = tail.reduce( (acc,cur) => acc+cur, head)

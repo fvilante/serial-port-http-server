@@ -1,4 +1,4 @@
-import  { isArrayDeepEqual } from './utils'
+import  { flattenArrayDeep, isArrayDeepEqual } from './utils'
 
 describe('Basic tests', () => {
 
@@ -23,6 +23,18 @@ describe('Basic tests', () => {
             expect(actual4).toBe(true)
             expect(actual5).toBe(false)
             expect(actual6).toBe(false)
+            
+    
+        })
+    })
+
+    describe('flattenDeep', () => {
+
+        it('can flatten a simple array', () => {
+            const input = [1,[2],[3,[4,[5]]],6,7,8]
+            const expected: number[] = [1,2,3,4,5,6,7,8]
+            const res = flattenArrayDeep<typeof input, typeof expected>(input)
+            expect(res).toEqual(expected)
             
     
         })
