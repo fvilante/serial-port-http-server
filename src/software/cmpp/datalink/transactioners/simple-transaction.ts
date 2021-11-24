@@ -7,6 +7,7 @@ import { CmppDataLinkInterpreter } from "../interpreter";
 //NOTE: if error on interpretation the promisse throws ErrorEvent
 //NOTE: This is the most simple form for a transaction with cmpp, there are other more efficient way to transact frames
 //NOTE: This function WILL NOT automatically close the port
+//TODO: create a function like that but that will attempt to retransmit failed transmission N times before effectivelly fail
 export const cmppSimpleTransaction = (portOpened: PortOpened) => (payload: Payload, startByte: StartByteNum = STX): Promise<FrameInterpreted> => {
     return new Promise( (resolve, reject) => {
         //TODO: Should this code be in a try..catch clause ?
@@ -19,6 +20,7 @@ export const cmppSimpleTransaction = (portOpened: PortOpened) => (payload: Paylo
                 reject(event)
             }
         })
+
         //prepare port reception-handler
         portOpened.onData( data => {
             data.forEach( byte => {
@@ -27,7 +29,9 @@ export const cmppSimpleTransaction = (portOpened: PortOpened) => (payload: Paylo
         })
         // write data
         const dataSerialized = makeWellFormedFrame(startByte,payload)
-        portOpened.write(dataSerialized)
+        portOpened.write(dataSerialized) //TODO: Make code to wait this write signal return the promise !!
+
+        
     })
     
 }
