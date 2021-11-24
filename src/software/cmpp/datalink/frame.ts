@@ -32,6 +32,7 @@ export type FrameSerialized = [
 
 // NOTE: javascript object guarantees the keys to be iterated in order of insertion for string-keys
 // TODO: Add information about when this data arrived (for time / speed (ping) information)
+// TODO: make this internal arrays readonly also
 export type FrameInterpreted = {
     readonly firstEsc: [firstEsc: ESC],
     readonly startByte: [startByte: StartByteNum],
