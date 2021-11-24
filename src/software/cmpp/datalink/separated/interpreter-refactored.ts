@@ -1,7 +1,7 @@
 import { FrameInterpreted } from ".."
-import { Byte, Bytes } from "../../../core/byte"
-import { calcChecksum, calcChecksum_ } from "../calc-checksum"
-import { ACK, ESC, ETX, NACK, StartByteNum, StartByteToText, STX } from "../core-types"
+import { Byte } from "../../../core/byte"
+import { calcChecksum_ } from "../calc-checksum"
+import { ACK, ESC, ETX, NACK, StartByteNum, STX } from "../core-types"
 
 export type CoreState = 
     | 'Waiting first Esc'
