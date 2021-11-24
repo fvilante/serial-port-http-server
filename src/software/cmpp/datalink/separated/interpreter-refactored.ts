@@ -18,14 +18,14 @@ export type CoreState =
     //| 'Waiting Duplicated Esc'
 
 // internal state
-let acc: readonly number[] = []
-let state: CoreState = 'Waiting first Esc'
+let rawInput: readonly number[] = []
+let coreState: CoreState = 'Waiting first Esc'
 let waitingEscDup: boolean = false
 let frame: Partial<FrameInterpreted> = { }
 // initial state reseter
 const resetInterpreter = ():void => {
-    acc = []
-    state = 'Waiting first Esc'
+    rawInput = []
+    coreState = 'Waiting first Esc'
     waitingEscDup = false
     frame = { }
 };
@@ -90,8 +90,8 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         frame = { ...frame, [key]: data } // update frame with specified key and data
     }
 
-    const setCoreState = (nextState: CoreState) => {
-        state = nextState
+    const setCoreState = (nextCoreState: CoreState) => {
+        coreState = nextCoreState
     }
 
     const setFrameAndCoreState = <K extends keyof FrameInterpreted>(key: K, data: FrameInterpreted[K], nextState: CoreState) => {
@@ -99,10 +99,10 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         setCoreState(nextState)
     }
 
-    acc = [...acc, currentByte]
+    rawInput = [...rawInput, currentByte]
 
     // todo: refactor to reduce redundancy
-    switch (state as CoreState) {
+    switch (coreState) {
 
         case 'Waiting first Esc': {
             if (currentByte===ESC) {
@@ -120,8 +120,8 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                 const event: ErrorEvent = {
                     errorMessage: `Expected First Esc (${ESC} decimal) but got other thing (${currentByte} decimal)`,
                     partialFrame: frame,
-                    rawInput: acc,
-                    coreState: state,
+                    rawInput,
+                    coreState,
                 }
                 onError_(event)
             }
@@ -136,8 +136,8 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                 const event: ErrorEvent = {
                     errorMessage:  `Expected a valid StartByte (some of this values ${validStartBytes} in decimal) but got other thing (${currentByte} decimal).`,
                     partialFrame: frame,
-                    rawInput: acc,
-                    coreState: state,
+                    rawInput,
+                    coreState,
                 }
                 onError_(event)
             }
@@ -161,8 +161,8 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                     const event: ErrorEvent = {
                         errorMessage:  `Expected a duplicated Esc after ${pos} ([${ESC},${ESC}]  decimal) but got other thing ([${ESC},${currentByte}] decimal).`,
                         partialFrame: frame,
-                        rawInput: acc,
-                        coreState: state,
+                        rawInput,
+                        coreState,
                     }
                     onError_(event)
                 }
@@ -187,8 +187,8 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                     const event: ErrorEvent = {
                         errorMessage:  `Expected a duplicated Esc after ${pos} ([${ESC},${ESC}]  decimal) but got other thing ([${ESC},${currentByte}] decimal).`,
                         partialFrame: frame,
-                        rawInput: acc,
-                        coreState: state,
+                        rawInput,
+                        coreState,
                     }
                     onError_(event)
                 }
@@ -213,8 +213,8 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                     const event: ErrorEvent = {
                         errorMessage:  `Expected a duplicated Esc after ${pos} ([${ESC},${ESC}]  decimal) but got other thing ([${ESC},${currentByte}] decimal).`,
                         partialFrame: frame,
-                        rawInput: acc,
-                        coreState: state,
+                        rawInput,
+                        coreState,
                     }
                     onError_(event)
                 }
@@ -239,8 +239,8 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                     const event: ErrorEvent = {
                         errorMessage: `Expected a duplicated Esc after ${pos} ([${ESC},${ESC}]  decimal) but got other thing ([${ESC},${currentByte}] decimal).`,
                         partialFrame: frame,
-                        rawInput: acc,
-                        coreState: state,
+                        rawInput,
+                        coreState,
                     }
                     onError_(event)
                 }
@@ -257,8 +257,8 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                 const event: ErrorEvent = {
                     errorMessage: `Expected ${pos} (${ESC} decimal) but got other thing (${currentByte} decimal)`,
                     partialFrame: frame,
-                    rawInput: acc,
-                    coreState: state,
+                    rawInput,
+                    coreState,
                 }
                 onError_(event)
             }
@@ -274,8 +274,8 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                 const event: ErrorEvent = {
                     errorMessage:`Expected ${pos} (${ETX} decimal) but got other thing (${currentByte} decimal)`,
                     partialFrame: frame,
-                    rawInput: acc,
-                    coreState: state,
+                    rawInput,
+                    coreState,
                 }
                 onError_(event)
             }
@@ -293,13 +293,13 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                     const expectedChecksum = calcChecksum__(frame);
                     if(expectedChecksum===currentByte) {
                         frame = {...frame, expectedChecksum };
-                        state = nextState;;
+                        coreState = nextState;;
                     } else {
                         const event: ErrorEvent = {
                             errorMessage: `Expected ${pos} should be '${expectedChecksum}' but got '${currentByte}' (numbers are showed in this message in decimal)`,
                             partialFrame: frame,
-                            rawInput: acc,
-                            coreState: state,
+                            rawInput,
+                            coreState,
                         }
                         onError_(event)
                     }
@@ -311,13 +311,13 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                     waitingEscDup = false;
                     const expectedChecksum = calcChecksum__(frame);
                     frame = {...frame, expectedChecksum };
-                    state = nextState;
+                    coreState = nextState;
                 } else {
                     const event: ErrorEvent = {
                         errorMessage:  `Expected a duplicated Esc after ${pos} ([${ESC},${ESC}]  decimal) but got other thing ([${ESC},${currentByte}] decimal).`,
                         partialFrame: frame,
-                        rawInput: acc,
-                        coreState: state,
+                        rawInput,
+                        coreState,
                     }
                     onError_(event)
                 }
@@ -330,9 +330,9 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
 
     if (handle.onInternalStateChange!==undefined) {
         const event: StateChangeEvent = {
-            currentCoreState: state,
+            currentCoreState: coreState,
             partialFrame: frame,
-            rawInput: acc,
+            rawInput,
             waitingEscDup,
         }
         handle.onInternalStateChange(event)
@@ -340,10 +340,10 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         // do nothing
     }
 
-    if (state==='Successful') {
+    if (coreState==='Successful') {
         const event: SuccessEvent = {
             frameInterpreted: frame as FrameInterpreted,
-            rawInput: acc,
+            rawInput,
         }
         onSuccess_(event)
     }
