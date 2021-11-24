@@ -1,10 +1,22 @@
 
 // LIST OF UTILS TO BE DONE
-//      - randomNumberBetween(min, max): number
 
 // TO BE DONE: as vezes queremos campos nao emptys, por exemplo.
 //  strings nao vazias (job->barcode) NonEmpty<string>, ou arrays nao vazias
 //  NonEmpty<readonly number[]>, ou coisas do tipo
+
+
+//TODO: Check if below function may substitute the function named "Range" below
+//NOTE: start included, end not included
+export function* makeRange(start = 0, end = 100, step = 1): Generator<number, undefined, void> {
+    let iterationCount = 0;
+    for (let i = start; i < end; i += step) {
+        iterationCount++;
+        yield i;
+    }
+    return undefined;
+}
+
 
 // NOTE: min and max included 
 // NOTE: Consider to use pure generated random numbers instead of this inpure version
