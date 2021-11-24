@@ -6,6 +6,7 @@ import { getRandomPayload, makeWellFormedFrame, makeWellFormedFrameInterpreted }
 import { cmppSimpleTransaction } from "./simple-transaction"
 
     it('can run a simple transactioner constructed from a opened serial port', async () => {
+        //TODO: Should test if the port closing was adequated handled
         //prepare
         const { source, dest} = getLoopBackEmulatedSerialPort()
         const payload: Payload = [0, 0, 0, 0]
