@@ -1,5 +1,5 @@
 import { FrameInterpreted } from ".."
-import { Byte } from "../../../core/byte"
+import { Byte, Bytes } from "../../../core/byte"
 import { calcChecksum_ } from "../calc-checksum"
 import { ACK, ESC, ETX, NACK, StartByteNum, STX } from "../core-types"
 
@@ -46,6 +46,8 @@ export type ErrorEvent = {
     readonly rawInput: readonly Byte[], 
     readonly coreState: CoreState
 }
+
+
 
 export type StateChangeEvent = {
     readonly currentCoreState: CoreState, 
@@ -101,24 +103,29 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
 
     rawInput = [...rawInput, currentByte]
 
+    const ErrorHeader = `CMPP deserialization parsing error`
+
+    const mkControlErrorMessage = <K extends keyof FrameInterpreted>(whenIn: CoreState, waitingFor: K, expected: FrameInterpreted[K] | typeof validStartBytes, butGot: Bytes) => {
+        const specificMessage = `When in state '${whenIn}', parsing the '${waitingFor}', received ${butGot} but was expecting to receive some of ${expected} (all numbers are in decimal)` as const
+        return `${ErrorHeader}: ${specificMessage}` as const
+    }
+
+    const mkDuplicatedEscErrorMessage = (whenIn: CoreState, waitingFor: keyof FrameInterpreted, butGot: Byte) => {
+        const specificMessage = `When in state '${whenIn}', parsing the '${waitingFor}', expected a duplicated Esc [${ESC},${ESC}] but got [${ESC},${butGot}] (all numbers are in decimal).` as const
+        return `${ErrorHeader}: ${specificMessage}` as const
+    }
+
     // todo: refactor to reduce redundancy
     switch (coreState) {
 
         case 'Waiting first Esc': {
+            const pos: keyof FrameInterpreted = 'firstEsc'
+            const nextState: CoreState = 'Waiting start byte'
             if (currentByte===ESC) {
-                setFrameAndCoreState('firstEsc',[currentByte],'Waiting start byte')
+                setFrameAndCoreState(pos,[currentByte],nextState)
             } else {
-                //console.log(`WARNING: Expected First Esc (${ESC} decimal) but got other thing (${cur_} decimal)`)
-                //resetInterpreter()
-                
-                // NOTE: I found a bug which is, CMPP00LG on operation for some reason I don't know,
-                // send some trash data between frame packet it sends.
-                // I'm not sure it is a 'noise' problem, because it consistently happens between frames
-                // and not inside the frame. It occurs after tenths or hundreds of packet sent.
-                // For this reason I'll remove below lines which is causing a fatal error when this
-                // phenomenon happnes, and exchange the error for a warning instead.
                 const event: ErrorEvent = {
-                    errorMessage: `Expected First Esc (${ESC} decimal) but got other thing (${currentByte} decimal)`,
+                    errorMessage: mkControlErrorMessage(coreState, pos, [ESC], [currentByte]),
                     partialFrame: frame,
                     rawInput,
                     coreState,
@@ -129,12 +136,14 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         }
 
         case 'Waiting start byte': {
+            const pos: keyof FrameInterpreted = 'startByte'
+            const nextState: CoreState = 'Waiting direction and channel'
             const isValidStartByte = validStartBytes.some( x => x === currentByte)
             if (isValidStartByte) {
-                setFrameAndCoreState('startByte',[currentByte as StartByteNum],'Waiting direction and channel')
+                setFrameAndCoreState(pos,[currentByte as StartByteNum],nextState)
             } else {
                 const event: ErrorEvent = {
-                    errorMessage:  `Expected a valid StartByte (some of this values ${validStartBytes} in decimal) but got other thing (${currentByte} decimal).`,
+                    errorMessage:  mkControlErrorMessage(coreState, pos, validStartBytes, [currentByte]),
                     partialFrame: frame,
                     rawInput,
                     coreState,
@@ -159,7 +168,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                     waitingEscDup = false
                 } else {
                     const event: ErrorEvent = {
-                        errorMessage:  `Expected a duplicated Esc after ${pos} ([${ESC},${ESC}]  decimal) but got other thing ([${ESC},${currentByte}] decimal).`,
+                        errorMessage:  mkDuplicatedEscErrorMessage(coreState,pos,currentByte),
                         partialFrame: frame,
                         rawInput,
                         coreState,
@@ -185,7 +194,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                     waitingEscDup = false
                 } else {
                     const event: ErrorEvent = {
-                        errorMessage:  `Expected a duplicated Esc after ${pos} ([${ESC},${ESC}]  decimal) but got other thing ([${ESC},${currentByte}] decimal).`,
+                        errorMessage:  mkDuplicatedEscErrorMessage(coreState,pos,currentByte),
                         partialFrame: frame,
                         rawInput,
                         coreState,
@@ -211,7 +220,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                     waitingEscDup = false
                 } else {
                     const event: ErrorEvent = {
-                        errorMessage:  `Expected a duplicated Esc after ${pos} ([${ESC},${ESC}]  decimal) but got other thing ([${ESC},${currentByte}] decimal).`,
+                        errorMessage:  mkDuplicatedEscErrorMessage(coreState,pos,currentByte),
                         partialFrame: frame,
                         rawInput,
                         coreState,
@@ -237,7 +246,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                     waitingEscDup = false
                 } else {
                     const event: ErrorEvent = {
-                        errorMessage: `Expected a duplicated Esc after ${pos} ([${ESC},${ESC}]  decimal) but got other thing ([${ESC},${currentByte}] decimal).`,
+                        errorMessage: mkDuplicatedEscErrorMessage(coreState,pos,currentByte),
                         partialFrame: frame,
                         rawInput,
                         coreState,
@@ -255,7 +264,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                 setFrameAndCoreState(pos,  [currentByte],nextState)
             } else {
                 const event: ErrorEvent = {
-                    errorMessage: `Expected ${pos} (${ESC} decimal) but got other thing (${currentByte} decimal)`,
+                    errorMessage: mkControlErrorMessage(coreState, pos, [ESC], [currentByte]),
                     partialFrame: frame,
                     rawInput,
                     coreState,
@@ -272,7 +281,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                 setFrameAndCoreState(pos, [currentByte],nextState)
             } else {
                 const event: ErrorEvent = {
-                    errorMessage:`Expected ${pos} (${ETX} decimal) but got other thing (${currentByte} decimal)`,
+                    errorMessage: mkControlErrorMessage(coreState, pos, [ETX], [currentByte]),
                     partialFrame: frame,
                     rawInput,
                     coreState,
@@ -296,7 +305,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                         coreState = nextState;;
                     } else {
                         const event: ErrorEvent = {
-                            errorMessage: `Expected ${pos} should be '${expectedChecksum}' but got '${currentByte}' (numbers are showed in this message in decimal)`,
+                            errorMessage: mkControlErrorMessage(coreState, pos, [expectedChecksum], [currentByte]),
                             partialFrame: frame,
                             rawInput,
                             coreState,
@@ -314,7 +323,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                     coreState = nextState;
                 } else {
                     const event: ErrorEvent = {
-                        errorMessage:  `Expected a duplicated Esc after ${pos} ([${ESC},${ESC}]  decimal) but got other thing ([${ESC},${currentByte}] decimal).`,
+                        errorMessage:  mkDuplicatedEscErrorMessage(coreState,pos,currentByte),
                         partialFrame: frame,
                         rawInput,
                         coreState,
