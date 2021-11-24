@@ -67,6 +67,8 @@ export type EventsHandler = {
 // Fix: Refactor this function to be more functional decomposable and easier to read
 export const InterpretIncomming = (handle: EventsHandler) => (currentByte: number): typeof resetInterpreter => {
 
+    rawInput = [...rawInput, currentByte]
+
     const onError_: EventsHandler['onError'] = event => {
         handle.onError(event);
         resetInterpreter();
@@ -101,11 +103,9 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         setCoreState(nextState)
     }
 
-    rawInput = [...rawInput, currentByte]
-
     const ErrorHeader = `CMPP deserialization parsing error`
 
-    const mkControlErrorMessage = <K extends keyof FrameInterpreted>(whenIn: CoreState, waitingFor: K, expected: FrameInterpreted[K] | typeof validStartBytes, butGot: Bytes) => {
+    const mkControlErrorMessage = <K extends keyof FrameInterpreted>(whenIn: CoreState, waitingFor: K, expected: readonly Byte[], butGot: Bytes) => {
         const specificMessage = `When in state '${whenIn}', parsing the '${waitingFor}', received ${butGot} but was expecting to receive some of ${expected} (all numbers are in decimal)` as const
         return `${ErrorHeader}: ${specificMessage}` as const
     }
@@ -115,228 +115,159 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         return `${ErrorHeader}: ${specificMessage}` as const
     }
 
-    // todo: refactor to reduce redundancy
-    switch (coreState) {
+    //NOTE: Control byte cannot be esc duplicated
+    const expectToReceiveControlByte = (pos: keyof FrameInterpreted, nextState: CoreState, controlBytes: readonly Byte[]) => {
+        if (controlBytes.includes(currentByte)) {
+            setFrameAndCoreState(pos,  [currentByte],nextState)
+        } else {
+            const event: ErrorEvent = {
+                errorMessage: mkControlErrorMessage(coreState, pos, controlBytes, [currentByte]),
+                partialFrame: frame,
+                rawInput,
+                coreState,
+            }
+            onError_(event)
+        }
+    }
 
-        case 'Waiting first Esc': {
-            const pos: keyof FrameInterpreted = 'firstEsc'
-            const nextState: CoreState = 'Waiting start byte'
-            if (currentByte===ESC) {
-                setFrameAndCoreState(pos,[currentByte],nextState)
+    // TODO: There are redundance in thre bellow functions, and they should be refactored to reduce code length and improve readability
+
+    //NOTE: data byte may be esc duplicated
+    const expectToReceiveData = (pos: keyof FrameInterpreted, nextState: CoreState) => {
+        if (waitingEscDup === false) {
+            if (currentByte === ESC) {
+                waitingEscDup = true;
+            } else {
+                setFrameAndCoreState(pos,[currentByte], nextState)
+            }
+        } else /* waitingEscDup === true */ {
+            if (currentByte === ESC) {
+                setFrameAndCoreState(pos,[ESC, ESC],nextState)
+                waitingEscDup = false
             } else {
                 const event: ErrorEvent = {
-                    errorMessage: mkControlErrorMessage(coreState, pos, [ESC], [currentByte]),
+                    errorMessage:  mkDuplicatedEscErrorMessage(coreState,pos,currentByte),
                     partialFrame: frame,
                     rawInput,
                     coreState,
                 }
                 onError_(event)
             }
+        }
+    }
+
+    const expectToReceiveChecksum = (pos: keyof FrameInterpreted, nextState: CoreState) => {
+        if (waitingEscDup === false) {
+            if (currentByte === ESC) {
+                waitingEscDup = true;
+            } else {
+                frame = {...frame, [pos]: [currentByte]};
+                const expectedChecksum = calcChecksum__(frame);
+                if(expectedChecksum===currentByte) {
+                    frame = {...frame, expectedChecksum };
+                    coreState = nextState;;
+                } else {
+                    const event: ErrorEvent = {
+                        errorMessage: mkControlErrorMessage(coreState, pos, [expectedChecksum], [currentByte]),
+                        partialFrame: frame,
+                        rawInput,
+                        coreState,
+                    }
+                    onError_(event)
+                }
+                
+            }
+        } else /* waitingEscDup === true */ {
+            if (currentByte === ESC) {
+                frame = {...frame, [pos]: [ESC, ESC]};
+                waitingEscDup = false;
+                const expectedChecksum = calcChecksum__(frame);
+                frame = {...frame, expectedChecksum };
+                coreState = nextState;
+            } else {
+                const event: ErrorEvent = {
+                    errorMessage:  mkDuplicatedEscErrorMessage(coreState,pos,currentByte),
+                    partialFrame: frame,
+                    rawInput,
+                    coreState,
+                }
+                onError_(event)
+            }
+        }
+    }
+
+    // main execution code
+    switch (coreState) {
+
+        case 'Waiting first Esc': {
+            const pos: keyof FrameInterpreted = 'firstEsc'
+            const nextState: CoreState = 'Waiting start byte'
+            const controlByte: Byte = ESC
+            expectToReceiveControlByte(pos, nextState, [controlByte])
             break;
         }
 
         case 'Waiting start byte': {
             const pos: keyof FrameInterpreted = 'startByte'
             const nextState: CoreState = 'Waiting direction and channel'
-            const isValidStartByte = validStartBytes.some( x => x === currentByte)
-            if (isValidStartByte) {
-                setFrameAndCoreState(pos,[currentByte as StartByteNum],nextState)
-            } else {
-                const event: ErrorEvent = {
-                    errorMessage:  mkControlErrorMessage(coreState, pos, validStartBytes, [currentByte]),
-                    partialFrame: frame,
-                    rawInput,
-                    coreState,
-                }
-                onError_(event)
-            }
+            expectToReceiveControlByte(pos, nextState, validStartBytes)
             break;
         }
 
         case 'Waiting direction and channel': {
             const pos: keyof FrameInterpreted = 'dirChan'
             const nextState: CoreState = 'Waiting word address (waddr)'
-            if (waitingEscDup === false) {
-                if (currentByte === ESC) {
-                    waitingEscDup = true;
-                } else {
-                    setFrameAndCoreState(pos,[currentByte], nextState)
-                }
-            } else /* waitingEscDup === true */ {
-                if (currentByte === ESC) {
-                    setFrameAndCoreState(pos,[ESC, ESC],nextState)
-                    waitingEscDup = false
-                } else {
-                    const event: ErrorEvent = {
-                        errorMessage:  mkDuplicatedEscErrorMessage(coreState,pos,currentByte),
-                        partialFrame: frame,
-                        rawInput,
-                        coreState,
-                    }
-                    onError_(event)
-                }
-            }
+            expectToReceiveData(pos, nextState)
             break;
         }
 
         case 'Waiting word address (waddr)': {
             const nextState: CoreState = 'Waiting dataLow'
             const pos: keyof FrameInterpreted = 'waddr'
-            if (waitingEscDup === false) {
-                if (currentByte === ESC) {
-                    waitingEscDup = true;
-                } else {
-                    setFrameAndCoreState(pos,[currentByte],nextState)
-                }
-            } else /* waitingEscDup === true */ {
-                if (currentByte === ESC) {
-                    setFrameAndCoreState(pos, [ESC, ESC],nextState)
-                    waitingEscDup = false
-                } else {
-                    const event: ErrorEvent = {
-                        errorMessage:  mkDuplicatedEscErrorMessage(coreState,pos,currentByte),
-                        partialFrame: frame,
-                        rawInput,
-                        coreState,
-                    }
-                    onError_(event)
-                }
-            }
+            expectToReceiveData(pos, nextState)
             break;
         }
 
         case 'Waiting dataLow': {
             const nextState: CoreState = 'Waiting dataHigh'
             const pos: keyof FrameInterpreted = 'dataLow'
-            if (waitingEscDup === false) {
-                if (currentByte === ESC) {
-                    waitingEscDup = true;
-                } else {
-                    setFrameAndCoreState(pos,  [currentByte],nextState)
-                }
-            } else /* waitingEscDup === true */ {
-                if (currentByte === ESC) {
-                    setFrameAndCoreState(pos, [ESC, ESC],nextState)
-                    waitingEscDup = false
-                } else {
-                    const event: ErrorEvent = {
-                        errorMessage:  mkDuplicatedEscErrorMessage(coreState,pos,currentByte),
-                        partialFrame: frame,
-                        rawInput,
-                        coreState,
-                    }
-                    onError_(event)
-                }
-            }
+            expectToReceiveData(pos, nextState)
             break;
         }
 
         case 'Waiting dataHigh': {
             const nextState: CoreState = 'Waiting lastEsc'
             const pos: keyof FrameInterpreted = 'dataHigh'
-            if (waitingEscDup === false) {
-                if (currentByte === ESC) {
-                    waitingEscDup = true;
-                } else {
-                    setFrameAndCoreState(pos,  [currentByte],nextState)
-                }
-            } else /* waitingEscDup === true */ {
-                if (currentByte === ESC) {
-                    setFrameAndCoreState(pos, [ESC, ESC],nextState)
-                    waitingEscDup = false
-                } else {
-                    const event: ErrorEvent = {
-                        errorMessage: mkDuplicatedEscErrorMessage(coreState,pos,currentByte),
-                        partialFrame: frame,
-                        rawInput,
-                        coreState,
-                    }
-                    onError_(event)
-                }
-            }
+            expectToReceiveData(pos, nextState)
             break;
         }
 
         case 'Waiting lastEsc': {
             const nextState: CoreState = 'Waiting ETX'
             const pos: keyof FrameInterpreted  = 'lastEsc'
-            if (currentByte===ESC) {
-                setFrameAndCoreState(pos,  [currentByte],nextState)
-            } else {
-                const event: ErrorEvent = {
-                    errorMessage: mkControlErrorMessage(coreState, pos, [ESC], [currentByte]),
-                    partialFrame: frame,
-                    rawInput,
-                    coreState,
-                }
-                onError_(event)
-            }
+            const controlByte: Byte = ESC
+            expectToReceiveControlByte(pos, nextState, [controlByte])
             break;
         }
 
         case 'Waiting ETX': {
             const nextState: CoreState = 'Waiting checksum'
             const pos: keyof FrameInterpreted  = 'etx'
-            if (currentByte===ETX) {
-                setFrameAndCoreState(pos, [currentByte],nextState)
-            } else {
-                const event: ErrorEvent = {
-                    errorMessage: mkControlErrorMessage(coreState, pos, [ETX], [currentByte]),
-                    partialFrame: frame,
-                    rawInput,
-                    coreState,
-                }
-                onError_(event)
-            }
+            const controlByte: ETX = ETX
+            expectToReceiveControlByte(pos, nextState, [controlByte])
             break;
         }
 
         case 'Waiting checksum': {
             const nextState: CoreState = 'Successful'
             const pos: keyof FrameInterpreted = 'checkSum'
-            if (waitingEscDup === false) {
-                if (currentByte === ESC) {
-                    waitingEscDup = true;
-                } else {
-                    frame = {...frame, [pos]: [currentByte]};
-                    const expectedChecksum = calcChecksum__(frame);
-                    if(expectedChecksum===currentByte) {
-                        frame = {...frame, expectedChecksum };
-                        coreState = nextState;;
-                    } else {
-                        const event: ErrorEvent = {
-                            errorMessage: mkControlErrorMessage(coreState, pos, [expectedChecksum], [currentByte]),
-                            partialFrame: frame,
-                            rawInput,
-                            coreState,
-                        }
-                        onError_(event)
-                    }
-                    
-                }
-            } else /* waitingEscDup === true */ {
-                if (currentByte === ESC) {
-                    frame = {...frame, [pos]: [ESC, ESC]};
-                    waitingEscDup = false;
-                    const expectedChecksum = calcChecksum__(frame);
-                    frame = {...frame, expectedChecksum };
-                    coreState = nextState;
-                } else {
-                    const event: ErrorEvent = {
-                        errorMessage:  mkDuplicatedEscErrorMessage(coreState,pos,currentByte),
-                        partialFrame: frame,
-                        rawInput,
-                        coreState,
-                    }
-                    onError_(event)
-                }
-            }
+            expectToReceiveChecksum(pos, nextState)
             break;
         }
 
     }
 
-
+    // produces state change event
     if (handle.onInternalStateChange!==undefined) {
         const event: StateChangeEvent = {
             currentCoreState: coreState,
@@ -349,6 +280,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         // do nothing
     }
 
+    // produces successful event
     if (coreState==='Successful') {
         const event: SuccessEvent = {
             frameInterpreted: frame as FrameInterpreted,
