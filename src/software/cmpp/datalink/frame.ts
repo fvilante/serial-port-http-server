@@ -1,6 +1,7 @@
 import { calcChecksum } from "./calc-checksum";
 import { int2word } from "./core-operations";
 import { Direction, ESC, ETX, StartByte, StartByteNum, StartByteTxt } from "./core-types";
+import { Payload } from "./payload";
 
 export type FrameCore = {
     startByte: StartByteTxt
@@ -8,6 +9,22 @@ export type FrameCore = {
     channel: number
     waddr: number // abbreviation of 'word address', this is how I call 'cmd'
     uint16: number // data
+}
+
+export const frameCoreToPayload = (frame:FrameCore): readonly [payload: Payload, startByteNum: StartByteNum] => {
+    // TODO: validate range of channel, waddr, etc.
+    const { startByte, direction, channel, waddr, uint16} = frame
+    const dirNum = Direction[direction]
+    const directionAndChannel = dirNum + channel
+    const [dataHigh, dataLow] = int2word(uint16)
+    const payload: Payload = [
+        directionAndChannel,
+        waddr,
+        dataLow,
+        dataHigh,
+    ]
+    const startByteNum = StartByte[startByte]
+    return [payload, startByteNum]
 }
 
 // TODO: Create CoreFrame class, with method: Serialize and SerializeFlatten, getWord, getByteLow, and other picks
