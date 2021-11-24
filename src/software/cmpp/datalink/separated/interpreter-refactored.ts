@@ -115,6 +115,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         return `${ErrorHeader}: ${specificMessage}` as const
     }
 
+    // TODO: There are redundance in below function, and they should be refactored to reduce code length and improve readability
     //NOTE: Control byte cannot be esc duplicated
     const expectToReceiveControlByte = (pos: keyof FrameInterpreted, nextState: CoreState, controlBytes: readonly Byte[]) => {
         if (controlBytes.includes(currentByte)) {
@@ -130,8 +131,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         }
     }
 
-    // TODO: There are redundance in thre bellow functions, and they should be refactored to reduce code length and improve readability
-
+    // TODO: There are redundance in below function, and they should be refactored to reduce code length and improve readability
     //NOTE: data byte may be esc duplicated
     const expectToReceiveData = (pos: keyof FrameInterpreted, nextState: CoreState) => {
         if (waitingEscDup === false) {
@@ -156,6 +156,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         }
     }
 
+    // TODO: There are redundance in below function, and they should be refactored to reduce code length and improve readability
     const expectToReceiveChecksum = (pos: keyof FrameInterpreted, nextState: CoreState) => {
         if (waitingEscDup === false) {
             if (currentByte === ESC) {
