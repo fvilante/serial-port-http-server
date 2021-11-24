@@ -157,15 +157,15 @@ export const averageFromArray = (arr: readonly number[]):number => {
     return avarage
 }
 
-  // a timer helper to take interval durations from one line of code to other
-  export type Timer__ = {
-      reset: () => void 
-      lap: () => number
-      total: () => number
-      //allLaps: () => number
-      meanTime: () => number
-  }
-  export const Timer__ = ():Timer__ => {
+// a timer helper to take interval durations from one line of code to other
+export type Timer__ = {
+    reset: () => void 
+    lap: () => number
+    total: () => number
+    //allLaps: () => number
+    meanTime: () => number
+}
+export const Timer__ = ():Timer__ => {
 
     type T = Timer__
     let ts: number[] = [] // timepoint
@@ -185,7 +185,7 @@ export const averageFromArray = (arr: readonly number[]):number => {
     const total: T['total'] =  () => {
         return now() - ts[0]
     }
-/*
+    /*
     const allLaps: T['allLaps'] = () => {
         return ts.reduce((acc,cur, index)=> {
             if (index === 0) {
@@ -208,5 +208,21 @@ export const averageFromArray = (arr: readonly number[]):number => {
         //allLaps,
         meanTime,
     }
-  }
+}
+
+
+
+// Executes a function just one time returning A, and other the times returns undefined
+export const runOnce = <A,B>(f: () => void ): () => void =>  {
+    let hasRunned:boolean = false
+    return () => {
+        if (hasRunned) 
+            return undefined
+        else {
+            hasRunned = true
+            const result = f();
+            return result
+        }
+    }
+}
 
