@@ -1,7 +1,7 @@
 import { FrameInterpreted } from "..";
 import { PortOpened } from "../../../serial/port-opener";
-import { Payload, StartByteNum, STX } from "../core-types";
-import { makeWellFormedFrame } from "../payload";
+import { StartByteNum, STX } from "../core-types";
+import { Payload, makeWellFormedFrame } from "../payload";
 import { CmppDataLinkInterpreter } from "../interpreter";
 
 //NOTE: if error on interpretation the promisse throws ErrorEvent

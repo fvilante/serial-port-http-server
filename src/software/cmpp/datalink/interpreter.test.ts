@@ -1,7 +1,7 @@
 import { FrameInterpreted } from "."
 import { flattenArrayDeep, makeRange, random, repeaterItor } from "../../core/utils"
-import { ACK, NACK, Payload, StartByteNum, STX } from "./core-types"
-import { executeCmppStreamInterpretation, getRandomPayload, getRandomStartByte, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "./payload"
+import { ACK, NACK, StartByteNum, STX } from "./core-types"
+import { Payload, executeCmppStreamInterpretation, getRandomPayload, getRandomStartByte, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "./payload"
 
 // TODO:    Only well-formed stream are being tested. We MUST create unit test for error and edge cases 
 //          (ie: esc-dup in checksum?, intermediary noise?, etc).

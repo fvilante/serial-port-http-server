@@ -2,9 +2,10 @@ import { FrameInterpreted, InterpretIncomming } from "."
 import { Byte } from "../../core/byte"
 import { random } from "../../core/utils"
 import { calcChecksum_ } from "./calc-checksum"
-import { ACK, ESC, ETX, NACK, Payload, StartByteNum, STX } from "./core-types"
+import { ACK, ESC, ETX, NACK, StartByteNum, STX } from "./core-types"
 import { ErrorEvent, StateChangeEvent, SuccessEvent } from "./interpreter"
 
+export type Payload = readonly [dirChan: number, waddr: number, dataLow: number, dataHigh: number]
 
 const duplicateEsc = (payload: readonly number[]): readonly number[] => {
     let acc: readonly Byte[] = [] //payload_with_esc_duplicated
