@@ -1,7 +1,8 @@
 import { FrameInterpreted, InterpretIncomming } from "."
 import { Byte } from "../../core/byte"
+import { random } from "../../core/utils"
 import { calcChecksum_ } from "./calc-checksum"
-import { ESC, ETX, Payload, StartByteNum } from "./core-types"
+import { ACK, ESC, ETX, NACK, Payload, StartByteNum, STX } from "./core-types"
 import { ErrorEvent, StateChangeEvent, SuccessEvent } from "./interpreter"
 
 
@@ -37,6 +38,16 @@ export const makeWellFormedFrameInterpreted = (startByte: StartByteNum, payload:
         checkSum: duplicateEsc([checksum]),
         expectedChecksum: checksum,
     } as unknown as any //TODO: remove this type cast 
+}
+
+export const getRandomPayload = ():Payload => {
+    return [random(0,0xFF),random(0,0xFF),random(0,0xFF),random(0,0xFF),]
+}
+
+export const getRandomStartByte = ():StartByteNum => {
+    const startByte = [STX,ACK,NACK] //TODO: extract details of 'all start bytes' to other appropriated file
+    const randomStartByte = startByte[random(0,startByte.length-1)]
+    return randomStartByte
 }
 
 export type ExecutionResult = {

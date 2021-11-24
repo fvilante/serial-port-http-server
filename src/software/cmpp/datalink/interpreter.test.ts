@@ -1,7 +1,7 @@
 import { FrameInterpreted } from "."
 import { flattenArrayDeep, makeRange, random, repeaterItor } from "../../core/utils"
 import { ACK, NACK, Payload, StartByteNum, STX } from "./core-types"
-import { executeCmppStreamInterpretation, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "./frame.tools"
+import { executeCmppStreamInterpretation, getRandomPayload, getRandomStartByte, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "./frame.tools"
 
 // TODO:    Only well-formed stream are being tested. We MUST create unit test for error and edge cases 
 //          (ie: esc-dup in checksum?, intermediary noise?, etc).
@@ -9,16 +9,6 @@ import { executeCmppStreamInterpretation, makeWellFormedFrame, makeWellFormedFra
 const quantityOfRandomRepetition = 100 // greather this number, greather is the amount of time to execute unit test
 
 const somePayload: Payload = [0x00, 0x00, 0x00, 0x00] 
-
-const getRandomPayload = ():Payload => {
-    return [random(0,0xFF),random(0,0xFF),random(0,0xFF),random(0,0xFF),]
-}
-
-const getRandomStartByte = ():StartByteNum => {
-    const startByte = [STX,ACK,NACK]
-    const randomStartByte = startByte[random(0,startByte.length-1)]
-    return randomStartByte
-}
 
 const testParseSingleWellFormedFrame = (startByte: StartByteNum, payload: Payload):void => {
     //prepare
