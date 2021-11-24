@@ -4,11 +4,11 @@
 // moveTo, findLastPosition, reference, forceLooseReference, etc.
 
 import { getAxisControler } from "../../axis-controler";
-import { X_AxisStarterKit } from "../../axis-starter-kit";
+import { X_AxisStarterKit, Y_AxisStarterKit, Z_AxisStarterKit } from "../../axis-starter-kit";
 import { executeInSequence } from "../../core/promise-utils";
 import { Range } from "../../core/utils";
 
-const axis = getAxisControler(X_AxisStarterKit)
+const axis = getAxisControler(Z_AxisStarterKit)
 
 const run = async () => {
     const init = async () => {    
