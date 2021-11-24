@@ -59,7 +59,7 @@ export type StateChangeEvent = {
 export type EventsHandler = {
     onSuccess: (event: SuccessEvent) => void,
     onError: (event: ErrorEvent) => void,
-    onInternalStateChange: (event: StateChangeEvent) => void
+    onStateChange: (event: StateChangeEvent) => void
 }
 
 // pushed interpretation, with talkback feedback for finished or error signaling
@@ -255,14 +255,14 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
     }
 
     // produces state change event
-    if (handle.onInternalStateChange!==undefined) {
+    if (handle.onStateChange!==undefined) {
         const event: StateChangeEvent = {
             currentCoreState: coreState,
             partialFrame: frame,
             rawInput,
             waitingEscDup,
         }
-        handle.onInternalStateChange(event)
+        handle.onStateChange(event)
     } else {
         // do nothing
     }
