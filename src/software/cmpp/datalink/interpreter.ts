@@ -1,31 +1,31 @@
-import { calcChecksum } from "./calc-checksum"
-import { ACK, ESC, ETX, NACK, StartByteNum, StartByteToText, STX } from "./core-types"
-import { FrameInterpreted } from "./frame"
+import { FrameInterpreted } from "."
+import { Byte, Bytes } from "./../../core/byte"
+import { calcChecksum_ } from "./calc-checksum"
+import { ACK, ESC, ETX, NACK, StartByteNum, STX } from "./core-types"
 
-
-export type State = 
-| 'Waiting first Esc'
-| 'Waiting start byte'
-| 'Waiting direction and channel'
-| 'Waiting word address (waddr)'
-| 'Waiting dataLow'
-| 'Waiting dataHigh'
-| 'Waiting lastEsc'
-| 'Waiting ETX'
-| 'Waiting checksum'
-| 'Successful'
-| 'HasError'
-//| 'Waiting Duplicated Esc'
+export type CoreState = 
+    | 'Waiting first Esc'
+    | 'Waiting start byte'
+    | 'Waiting direction and channel'
+    | 'Waiting word address (waddr)'
+    | 'Waiting dataLow'
+    | 'Waiting dataHigh'
+    | 'Waiting lastEsc'
+    | 'Waiting ETX'
+    | 'Waiting checksum'
+    | 'Successful'
+    | 'HasError'
+    //| 'Waiting Duplicated Esc'
 
 // internal state
-let acc: readonly number[] = []
-let state: State = 'Waiting first Esc'
+let rawInput: readonly number[] = []
+let coreState: CoreState = 'Waiting first Esc'
 let waitingEscDup: boolean = false
 let frame: Partial<FrameInterpreted> = { }
 // initial state reseter
 const resetInterpreter = ():void => {
-    acc = []
-    state = 'Waiting first Esc'
+    rawInput = []
+    coreState = 'Waiting first Esc'
     waitingEscDup = false
     frame = { }
 };
@@ -33,286 +33,247 @@ const resetInterpreter = ():void => {
 // do reset 
 resetInterpreter();
 
+const validStartBytes: readonly [STX, ACK, NACK] = [STX, ACK, NACK] 
+
+export type SuccessEvent = {
+    readonly frameInterpreted: FrameInterpreted, 
+    readonly rawInput: readonly Byte[]
+}
+
+export type ErrorEvent = {
+    readonly errorMessage: string, 
+    readonly partialFrame: Partial<FrameInterpreted>, 
+    readonly rawInput: readonly Byte[], 
+    readonly coreState: CoreState
+}
+
+
+
+export type StateChangeEvent = {
+    readonly currentCoreState: CoreState, 
+    readonly partialFrame: typeof frame, 
+    readonly waitingEscDup: boolean, 
+    readonly rawInput: readonly Byte[]
+}
+
+export type EventsHandler = {
+    onSuccess: (event: SuccessEvent) => void,
+    onError: (event: ErrorEvent) => void,
+    onStateChange?: (event: StateChangeEvent) => void
+}
+
 // pushed interpretation, with talkback feedback for finished or error signaling
 // executes until error or finish
-// note: Should be in parameter a config data with what means the 'ESC' 'STX' etc.
 // Fix: Refactor this function to be more functional decomposable and easier to read
-export const InterpretIncomming = (
-    ESC: ESC,
-    validStartBytes: readonly [STX, ACK, NACK],
-    ETX: ETX,
-    //timeOutMilisec: number,
-    ) => (
-    onFinished: (_: FrameInterpreted, rawInput: readonly number[]) => void, 
-    onError: (msg: string, partialFrame: typeof frame, rawInput: typeof acc, state: State) => void,
-    onInternalStateChange?: (currentState: State, partialFrame: typeof frame, waitingEscDup: boolean, rawInput: typeof acc) => void
-    ) => (
-    uint8: number
-    ): typeof resetInterpreter => {
-    //let tid: NodeJS.Timeout | undefined = undefined
+export const InterpretIncomming = (handle: EventsHandler) => (currentByte: number): typeof resetInterpreter => {
 
-    const error_: typeof onError = (msg, partialFrame, rawInput, state) => {
-        onError(msg, partialFrame, rawInput, state);
+    rawInput = [...rawInput, currentByte]
+
+    const onError_: EventsHandler['onError'] = event => {
+        handle.onError(event);
         resetInterpreter();
     }
 
-    const success: typeof onFinished = (frame__, rawInput) => {
-        const acc_ = acc
-        onFinished(frame__, acc_)
+    const onSuccess_: EventsHandler['onSuccess'] = event => {
+        handle.onSuccess(event)
         resetInterpreter();
     }
 
     const calcChecksum__ = (frame__: Partial<FrameInterpreted>): number => {
-    const dirChan = frame__.dirChan === undefined ? 0 : frame__.dirChan[0]
-    const waddr = frame__.waddr === undefined ? 0 : frame__.waddr[0]
-    const dataH = frame__.dataHigh === undefined ? 0 : frame__.dataHigh[0]
-    const dataL = frame__.dataLow === undefined ? 0 : frame__.dataLow[0]
-    const defaultStByte = StartByteToText(validStartBytes[0]) // anything
-    const startByte = frame__.startByte === undefined ? defaultStByte : StartByteToText(frame__.startByte[0])
-    const chksum = calcChecksum([dirChan, waddr, dataH, dataL], startByte)
+        const dirChan = frame__.dirChan === undefined ? 0 : frame__.dirChan[0]
+        const waddr = frame__.waddr === undefined ? 0 : frame__.waddr[0]
+        const dataH = frame__.dataHigh === undefined ? 0 : frame__.dataHigh[0]
+        const dataL = frame__.dataLow === undefined ? 0 : frame__.dataLow[0]
+        const defaultStByte = validStartBytes[0] // any arbitrary among them is being the default value!
+        const startByte = frame__.startByte === undefined ? defaultStByte : frame__.startByte[0]
+        const chksum = calcChecksum_([dirChan, waddr, dataH, dataL], startByte)
         return chksum
     }
 
-    const cur_ = uint8 // current byte
-    acc = [...acc, uint8]
-
-    // todo: refactor to reduce redundancy
-    switch (state as State) {
-
-    case 'Waiting first Esc': {
-        const nextState: State = 'Waiting start byte'
-        const pos: keyof typeof frame  = 'firstEsc'
-        if (cur_===ESC) {
-            frame = { ...frame, [pos]: [cur_] }
-            state = nextState
-        } else {
-            //console.log(`WARNING: Expected First Esc (${ESC} decimal) but got other thing (${cur_} decimal)`)
-            //resetInterpreter()
-            
-            // NOTE: I found a bug which is, CMPP00LG on operation for some reason I don't know,
-            // send some trash data between frame packet it sends.
-            // I'm not sure it is a 'noise' problem, because it consistently happens between frames
-            // and not inside the frame. It occurs after tenths or hundreds of packet sent.
-            // For this reason I'll remove below lines which is causing a fatal error when this
-            // phenomenon happnes, and exchange the error for a warning instead.
-            error_(
-                `Expected First Esc (${ESC} decimal) but got other thing (${cur_} decimal)`,
-                frame,
-                acc,
-                state)
-        }
-        break;
+    const setFrame = <K extends keyof FrameInterpreted>(key: K, data: FrameInterpreted[K]) => {
+        frame = { ...frame, [key]: data } // update frame with specified key and data
     }
 
-    case 'Waiting start byte': {
-        const nextState: State =  'Waiting direction and channel'
-        const pos: keyof typeof frame  = 'startByte'
-        const isValidStartByte = validStartBytes.some( x => x === cur_)
-        if (isValidStartByte) {
-            frame = {...frame, [pos]: [cur_ as StartByteNum]}
-            state = nextState
-        } else {
-            error_(
-                `Expected a valid StartByte (some of this values ${validStartBytes} in decimal) but got other thing (${cur_} decimal).`,
-                frame,
-                acc,
-                state)
-        }
-        break;
+    const setCoreState = (nextCoreState: CoreState) => {
+        coreState = nextCoreState
     }
 
-    case 'Waiting direction and channel': {
-        const nextState: State = 'Waiting word address (waddr)'
-        const pos: keyof typeof frame = 'dirChan'
+    const setFrameAndCoreState = <K extends keyof FrameInterpreted>(key: K, data: FrameInterpreted[K], nextState: CoreState) => {
+        setFrame(key,data)
+        setCoreState(nextState)
+    }
+
+    const ErrorHeader = `CMPP deserialization parsing error`
+
+    const mkControlErrorMessage = <K extends keyof FrameInterpreted>(whenIn: CoreState, waitingFor: K, expected: readonly Byte[], butGot: Bytes) => {
+        const specificMessage = `When in state '${whenIn}', parsing the '${waitingFor}', received ${butGot} but was expecting to receive some of ${expected} (all numbers are in decimal)` as const
+        return `${ErrorHeader}: ${specificMessage}` as const
+    }
+
+    const mkDuplicatedEscErrorMessage = (whenIn: CoreState, waitingFor: keyof FrameInterpreted, butGot: Byte) => {
+        const specificMessage = `When in state '${whenIn}', parsing the '${waitingFor}', expected a duplicated Esc [${ESC},${ESC}] but got [${ESC},${butGot}] (all numbers are in decimal).` as const
+        return `${ErrorHeader}: ${specificMessage}` as const
+    }
+
+    const produceErrorEvent = (errorMessage: ErrorEvent['errorMessage']):void => {
+        const event: ErrorEvent = {
+            errorMessage,
+            partialFrame: frame,
+            rawInput,
+            coreState,
+        }
+        onError_(event)
+    }
+ 
+    // TODO: There are redundance in below function, and they should be refactored to reduce code length and improve readability
+    //NOTE: Control byte cannot be esc duplicated
+    const expectToReceiveControlByte = (pos: keyof FrameInterpreted, nextState: CoreState, controlBytes: readonly Byte[]) => {
+        if (controlBytes.includes(currentByte)) {
+            setFrameAndCoreState(pos,  [currentByte],nextState)
+        } else {
+            produceErrorEvent(mkControlErrorMessage(coreState, pos, controlBytes, [currentByte]))
+        }
+    }
+
+    // TODO: There are redundance in below function, and they should be refactored to reduce code length and improve readability
+    //NOTE: data byte may be esc duplicated
+    const expectToReceiveData = (pos: keyof FrameInterpreted, nextState: CoreState) => {
         if (waitingEscDup === false) {
-            if (cur_ === ESC) {
+            if (currentByte === ESC) {
                 waitingEscDup = true;
             } else {
-                frame = {...frame, [pos]: [cur_]}
-                state = nextState;
+                setFrameAndCoreState(pos,[currentByte], nextState)
             }
         } else /* waitingEscDup === true */ {
-            if (cur_ === ESC) {
-                state = nextState;
-                frame = {...frame, [pos]: [ESC, ESC]}
+            if (currentByte === ESC) {
+                setFrameAndCoreState(pos,[ESC, ESC],nextState)
                 waitingEscDup = false
             } else {
-                error_(
-                    `Expected a duplicated Esc after ${pos} ([${ESC},${ESC}]  decimal) but got other thing ([${ESC},${cur_}] decimal).`,
-                    frame,
-                    acc,
-                    state)
+                produceErrorEvent(mkDuplicatedEscErrorMessage(coreState,pos,currentByte))
             }
         }
-        break;
     }
 
-    case 'Waiting word address (waddr)': {
-        const nextState: State = 'Waiting dataLow'
-        const pos: keyof typeof frame = 'waddr'
+    // TODO: There are redundance in below function, and they should be refactored to reduce code length and improve readability
+    const expectToReceiveChecksum = (pos: keyof FrameInterpreted, nextState: CoreState) => {
         if (waitingEscDup === false) {
-            if (cur_ === ESC) {
+            if (currentByte === ESC) {
                 waitingEscDup = true;
             } else {
-                frame = {...frame, [pos]: [cur_]}
-                state = nextState;
-            }
-        } else /* waitingEscDup === true */ {
-            if (cur_ === ESC) {
-                state = nextState;
-                frame = {...frame, [pos]: [ESC, ESC]}
-                waitingEscDup = false
-            } else {
-                error_(
-                    `Expected a duplicated Esc after ${pos} ([${ESC},${ESC}]  decimal) but got other thing ([${ESC},${cur_}] decimal).`,
-                    frame,
-                    acc,
-                    state)
-            }
-        }
-        break;
-    }
-
-    case 'Waiting dataLow': {
-        const nextState: State = 'Waiting dataHigh'
-        const pos: keyof typeof frame = 'dataLow'
-        if (waitingEscDup === false) {
-            if (cur_ === ESC) {
-                waitingEscDup = true;
-            } else {
-                frame = {...frame, [pos]: [cur_]}
-                state = nextState;
-            }
-        } else /* waitingEscDup === true */ {
-            if (cur_ === ESC) {
-                state = nextState;
-                frame = {...frame, [pos]: [ESC, ESC]}
-                waitingEscDup = false
-            } else {
-                error_(
-                    `Expected a duplicated Esc after ${pos} ([${ESC},${ESC}]  decimal) but got other thing ([${ESC},${cur_}] decimal).`,
-                    frame,
-                    acc,
-                    state)
-            }
-        }
-        break;
-    }
-
-    case 'Waiting dataHigh': {
-        const nextState: State = 'Waiting lastEsc'
-        const pos: keyof typeof frame = 'dataHigh'
-        if (waitingEscDup === false) {
-            if (cur_ === ESC) {
-                waitingEscDup = true;
-            } else {
-                frame = {...frame, [pos]: [cur_]}
-                state = nextState;
-            }
-        } else /* waitingEscDup === true */ {
-            if (cur_ === ESC) {
-                state = nextState;
-                frame = {...frame, [pos]: [ESC, ESC]}
-                waitingEscDup = false
-            } else {
-                error_(
-                    `Expected a duplicated Esc after ${pos} ([${ESC},${ESC}]  decimal) but got other thing ([${ESC},${cur_}] decimal).`,
-                    frame,
-                    acc,
-                    state)
-            }
-        }
-        break;
-    }
-
-    case 'Waiting lastEsc': {
-        const nextState: State = 'Waiting ETX'
-        const pos: keyof typeof frame  = 'lastEsc'
-        if (cur_===ESC) {
-            frame = { ...frame, [pos]: [cur_] }
-            state = nextState
-        } else {
-            error_(
-                `Expected ${pos} (${ESC} decimal) but got other thing (${cur_} decimal)`,
-                frame,
-                acc,
-                state)
-        }
-        break;
-    }
-
-    case 'Waiting ETX': {
-        const nextState: State = 'Waiting checksum'
-        const pos: keyof typeof frame  = 'etx'
-        if (cur_===ETX) {
-            frame = { ...frame, [pos]: [cur_] }
-            state = nextState
-        } else {
-            error_(
-                `Expected ${pos} (${ETX} decimal) but got other thing (${cur_} decimal)`,
-                frame,
-                acc,
-                state)
-        }
-        break;
-    }
-
-    case 'Waiting checksum': {
-        const nextState: State = 'Successful'
-        const pos: keyof typeof frame = 'checkSum'
-        if (waitingEscDup === false) {
-            if (cur_ === ESC) {
-                waitingEscDup = true;
-            } else {
-                frame = {...frame, [pos]: [cur_]};
+                frame = {...frame, [pos]: [currentByte]};
                 const expectedChecksum = calcChecksum__(frame);
-                if(expectedChecksum===cur_) {
+                if(expectedChecksum===currentByte) {
                     frame = {...frame, expectedChecksum };
-                    state = nextState;;
+                    coreState = nextState;;
                 } else {
-                    error_(
-                        `Expected ${pos} should be '${expectedChecksum}' but got '${cur_}' (numbers are showed in this message in decimal)`,
-                        frame,
-                        acc,
-                        state)
+                    produceErrorEvent(mkControlErrorMessage(coreState, pos, [expectedChecksum], [currentByte]))
                 }
                 
             }
         } else /* waitingEscDup === true */ {
-            if (cur_ === ESC) {
+            if (currentByte === ESC) {
                 frame = {...frame, [pos]: [ESC, ESC]};
                 waitingEscDup = false;
                 const expectedChecksum = calcChecksum__(frame);
                 frame = {...frame, expectedChecksum };
-                state = nextState;
+                coreState = nextState;
             } else {
-                error_(
-                    `Expected a duplicated Esc after ${pos} ([${ESC},${ESC}]  decimal) but got other thing ([${ESC},${cur_}] decimal).`,
-                    frame,
-                    acc,
-                    state)
+                produceErrorEvent(mkDuplicatedEscErrorMessage(coreState,pos,currentByte))
             }
         }
-        break;
     }
 
+    // main execution code
+    switch (coreState) {
+
+        case 'Waiting first Esc': {
+            const pos: keyof FrameInterpreted = 'firstEsc'
+            const nextState: CoreState = 'Waiting start byte'
+            const controlByte: Byte = ESC
+            expectToReceiveControlByte(pos, nextState, [controlByte])
+            break;
+        }
+
+        case 'Waiting start byte': {
+            const pos: keyof FrameInterpreted = 'startByte'
+            const nextState: CoreState = 'Waiting direction and channel'
+            expectToReceiveControlByte(pos, nextState, validStartBytes)
+            break;
+        }
+
+        case 'Waiting direction and channel': {
+            const pos: keyof FrameInterpreted = 'dirChan'
+            const nextState: CoreState = 'Waiting word address (waddr)'
+            expectToReceiveData(pos, nextState)
+            break;
+        }
+
+        case 'Waiting word address (waddr)': {
+            const nextState: CoreState = 'Waiting dataLow'
+            const pos: keyof FrameInterpreted = 'waddr'
+            expectToReceiveData(pos, nextState)
+            break;
+        }
+
+        case 'Waiting dataLow': {
+            const nextState: CoreState = 'Waiting dataHigh'
+            const pos: keyof FrameInterpreted = 'dataLow'
+            expectToReceiveData(pos, nextState)
+            break;
+        }
+
+        case 'Waiting dataHigh': {
+            const nextState: CoreState = 'Waiting lastEsc'
+            const pos: keyof FrameInterpreted = 'dataHigh'
+            expectToReceiveData(pos, nextState)
+            break;
+        }
+
+        case 'Waiting lastEsc': {
+            const nextState: CoreState = 'Waiting ETX'
+            const pos: keyof FrameInterpreted  = 'lastEsc'
+            const controlByte: Byte = ESC
+            expectToReceiveControlByte(pos, nextState, [controlByte])
+            break;
+        }
+
+        case 'Waiting ETX': {
+            const nextState: CoreState = 'Waiting checksum'
+            const pos: keyof FrameInterpreted  = 'etx'
+            const controlByte: ETX = ETX
+            expectToReceiveControlByte(pos, nextState, [controlByte])
+            break;
+        }
+
+        case 'Waiting checksum': {
+            const nextState: CoreState = 'Successful'
+            const pos: keyof FrameInterpreted = 'checkSum'
+            expectToReceiveChecksum(pos, nextState)
+            break;
+        }
+
     }
 
-
-    if (onInternalStateChange!==undefined) {
-        onInternalStateChange(state,frame,waitingEscDup,acc)
+    // produces state change event
+    if (handle.onStateChange!==undefined) {
+        const event: StateChangeEvent = {
+            currentCoreState: coreState,
+            partialFrame: frame,
+            rawInput,
+            waitingEscDup,
+        }
+        handle.onStateChange(event)
     } else {
-        console.log(`-----------------------------`)
-        console.log(`state =`,state )
-        console.log(`frame =`,frame)
-        console.log(`waitingEscDup = `, waitingEscDup)
-        console.log(`acc = `, acc)
+        // do nothing
     }
 
-    if (state==='Successful') {
-        //console.log('sucess************************')
-        //console.table(frame)
-        success(frame as FrameInterpreted, acc)
+    // produces successful event
+    if (coreState==='Successful') {
+        const event: SuccessEvent = {
+            frameInterpreted: frame as FrameInterpreted,
+            rawInput,
+        }
+        onSuccess_(event)
     }
 
 
@@ -320,5 +281,5 @@ export const InterpretIncomming = (
 
 }
 
-export const CmppDataLinkInterpreter = InterpretIncomming(ESC, [STX,ACK,NACK], ETX)   
+export const CmppDataLinkInterpreter = InterpretIncomming // alias
 

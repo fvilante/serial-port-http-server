@@ -34,9 +34,9 @@ export const sendCmpp = (
                 //console.log(`==============================> recebeu!`)
                 //console.log(dataReceived)
                 
-                const handleByte = CmppDataLinkInterpreter(
-                    //onFinished
-                    (frameInterpreted, rawInput) => {
+                const handleByte = CmppDataLinkInterpreter({
+                    onSuccess: event => {
+                        const {frameInterpreted, rawInput} = event
                         console.log(`Received a frame from CMPP on port ${portName}/${String(baudRate)}`)
                         console.log(`original input raw:`, rawInput)
                         console.log("Frame interpreted:")
@@ -46,16 +46,15 @@ export const sendCmpp = (
                         })
                         
                     },
-                    //onError
-                    (errMsg, partialFrame, rawInput, state) => {
-                        console.log(`Error on interpreting cmpp returned frame: ${errMsg}`) 
+                    onError: event => {
+                        const {errorMessage, partialFrame, rawInput, coreState} = event
+                        console.log(`Error on interpreting cmpp returned frame: ${errorMessage}`) 
                         hasError = true
                         hasFinished().then( () => {
-                            const err = {errMsg, partialFrame, rawInput, state}
-                            reject(err.errMsg)
+                            reject(event)
                         })
                     }
-                )
+                })
 
                 for (const eachByte of dataReceived) {
                     if (hasError===false) {
