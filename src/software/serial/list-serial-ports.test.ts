@@ -4,14 +4,12 @@ import {
 } from "./list-serial-ports"
 
 
-const Helper_ListPorts_or_Throw = async () => await listSerialPorts().fmap( r => r.orDie()).async()
-
 describe('list-serial-ports', () => {
     
     it('can list two loop-back emulated serial ports', async () => {
 
         // prepare
-        const portsList = await Helper_ListPorts_or_Throw()
+        const portsList = await listSerialPorts()
         const onlyLoopbackEmulatedPorts = portsList.filter( port => isSerialPortLoopBack(port))
         const expected = 2 // expect two loopback emulated ports
         // act
@@ -26,7 +24,7 @@ describe('list-serial-ports', () => {
     it('the call to listSerialPorts do not raise any expeption', async () => {
 
         try {
-            await Helper_ListPorts_or_Throw()
+            await listSerialPorts()
             expect(true).toBe(true)
         } catch (err) {
             expect(true).toBe(false)

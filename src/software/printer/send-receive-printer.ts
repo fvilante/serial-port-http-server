@@ -139,9 +139,7 @@ export const sendPrinter = (
 
 const Test1 = () => {
 
-    const Helper_ListPorts_or_Throw = async () => await listSerialPorts().fmap( r => r.orDie()).async()
-    
-    const ports = Helper_ListPorts_or_Throw().then( portInfos => {
+    const ports = listSerialPorts().then( portInfos => {
         portInfos.map( portInfo => {
     
             const port = portInfo.path

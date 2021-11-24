@@ -14,11 +14,9 @@ type CMPPDetectionResponse = Map<SerialChannel, {
 
 const detectCMPP = async ():Promise<CMPPDetectionResponse> => {
 
-    const Helper_ListPorts_or_Throw = async () => await listSerialPorts().fmap( r => r.orDie()).async()
-
     const res: CMPPDetectionResponse = new Map()
     console.log(`Detectando portas seriais...`)
-    const portsInfo = await Helper_ListPorts_or_Throw()
+    const portsInfo = await listSerialPorts()
     const ports = portsInfo.map( x => x.path) as readonly string[]
     console.log(`Portas detectadas:`, ports)
     const baudRates: readonly BaudRate[] = [9600]

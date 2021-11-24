@@ -1,7 +1,5 @@
 import SerialPort  from 'serialport'
 import { PortInfo } from "./port-info";
-import { Future, Future_, UnsafePromiseError } from '../adts/future'
-import { Result } from '../adts/result'
 import { LoopBackPortsInfo } from './loopback';
 
 // NOTE: Today both PortInfo types are equals, but they may differ in future code changings
@@ -21,15 +19,17 @@ const castPortInfo = (ports: SerialPort.PortInfo[]): readonly PortInfo[] => {
 }
 
 
-export const listSerialPorts = (): Future<Result<readonly PortInfo[],UnsafePromiseError>> => {
-    return Future_
-        .fromUnsafePromise(async () => {
-            const official_ports = await SerialPort.list()
-            const offered_ports = [...official_ports, ...LoopBackPortsInfo]
-            return offered_ports
-        })
-        .map( oficialports => oficialports.map(castPortInfo))  
-    }
+export const listSerialPorts = (): Promise<readonly PortInfo[]> => {
+    return new Promise( (resolve, reject) => {
+        //TODO: Should this code be inside a try..catch clause ?
+        SerialPort.list().then( official_ports => {
+            const official_ports_ = castPortInfo(official_ports)
+            const offered_ports = [...official_ports_, ...LoopBackPortsInfo]
+            resolve(offered_ports)
+        }).catch( reason => reject(reason))
+        
+    })
+}
 
 
 // NOTE: 

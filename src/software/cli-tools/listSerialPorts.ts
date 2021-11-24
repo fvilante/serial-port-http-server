@@ -3,10 +3,8 @@
 
 import { listSerialPorts } from './../serial/index'
 
-const Helper_ListPorts_or_Throw = async () => await listSerialPorts().fmap( r => r.orDie()).async()
-
 const main = async () => {
-    const portsInfo = await Helper_ListPorts_or_Throw()
+    const portsInfo = await listSerialPorts()
     portsInfo.map( eachPort => console.log(eachPort) )
 }
 
