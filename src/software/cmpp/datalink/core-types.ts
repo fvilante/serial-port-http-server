@@ -47,3 +47,6 @@ export const StartByteToText = (_: StartByteNum):StartByteTxt => {
     return StartByte[_] 
 }
 
+//TODO: Apply this type instead of number in other places of this code which refers to cmpp_channel type.
+export type Channel = number  // cmpp channel byte
+
