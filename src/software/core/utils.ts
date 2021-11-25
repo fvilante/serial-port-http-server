@@ -226,3 +226,10 @@ export const runOnce = <A,B>(f: () => void ): () => void =>  {
     }
 }
 
+export const runButIgnoreIfItThrow = (f: () => void):void => {
+    try {
+        f()
+    } catch (err) {
+        // do nothing
+    }
+}
