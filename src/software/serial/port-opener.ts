@@ -10,6 +10,7 @@ export type PortOpened = {
     readonly write: (data: readonly number[]) => Promise<void> //fix: ??? change to Promise<number> where number is the amount of bytes written ???
     readonly onData: (f: (data: readonly number[]) => void) => void
     readonly close: () => Promise<void>
+    readonly removeOnDataListener: (f: (data: readonly number[]) => void) => void 
 }
 
 export type PortOpener = (path: PortInfo['path'], baudRate: BaudRate) => Promise<PortOpened>
@@ -31,7 +32,7 @@ export const PortOpener: PortOpener = (portPath, baudRate) => {
       })
   
       const onData: PortOpened['onData'] = f => {
-        // NOTE: pass the original buffer may be more time eficient. Maybe be implemented on future
+        // NOTE: passing the original 'buffer' type may be more time eficient and maybe be implemented in future
         portOpened.on('data', (buffer: Buffer) => f(buffer.toJSON().data) );
       }
   
@@ -43,12 +44,17 @@ export const PortOpener: PortOpener = (portPath, baudRate) => {
           resolve(undefined)
         });
       })
+
+      const removeOnDataListener: PortOpened['removeOnDataListener'] = f => {
+        portOpened.removeListener('data', f);
+      }
   
       return {
         kind: 'PortOpened',
         write,
         onData,
         close,
+        removeOnDataListener
       }
     }
 
@@ -60,6 +66,7 @@ export const PortOpener: PortOpener = (portPath, baudRate) => {
         }
       })
       port.on('open', () => resolve(port))
+      port.removeListener
     })
       .then( castToLocalInterface )
 

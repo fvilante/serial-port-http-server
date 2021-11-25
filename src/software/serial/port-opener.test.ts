@@ -47,4 +47,27 @@ describe('Using internal loopback serial port emulator', () => {
         })
         await portAOpened_inv.write(expected)
     })
+
+    it('can sent data to port B and receive it into port A, then stop to listen on port A', async () => {
+        // prepare
+        const expected = [1,2,3,4,5]
+        const portAOpened = await PortOpener(portA, 9600)
+        const portBOpened = await PortOpener(portB, 9600)
+        // act
+        let buffer: readonly number[] = []
+        const f = (data: readonly number[]) => {
+            buffer = [...buffer, ...data]
+        }
+        portBOpened.onData(f)
+        await portAOpened.write(expected)
+        expect(buffer).toEqual(expected)
+        await portAOpened.write(expected)
+        expect(buffer).toEqual([...expected,...expected])
+        await portAOpened.write(expected)
+        expect(buffer).toEqual([...expected,...expected,...expected])
+        portBOpened.removeOnDataListener(f)
+        await portAOpened.write(expected)
+        expect(buffer).toEqual([...expected,...expected,...expected])
+
+    })
 })

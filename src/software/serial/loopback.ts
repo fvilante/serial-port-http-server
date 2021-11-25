@@ -46,6 +46,9 @@ export const portAOpened:PortOpened = {
     close: async () => {
         portAConsumer = undefined
     },
+    removeOnDataListener: f => {
+        portAConsumer = undefined
+    }
 }
 
 
@@ -60,6 +63,9 @@ export const portBOpened:PortOpened = {
     close: async () => {
         portBConsumer = undefined
     },
+    removeOnDataListener: f => {
+        portBConsumer = undefined
+    }
 }
 
 //TODO: export only this function and remove exportation of portAOpened and portBOpened variables
