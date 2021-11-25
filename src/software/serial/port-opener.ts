@@ -66,7 +66,6 @@ export const PortOpener: PortOpener = (portPath, baudRate) => {
         }
       })
       port.on('open', () => resolve(port))
-      port.removeListener
     })
       .then( castToLocalInterface )
 
