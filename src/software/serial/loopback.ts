@@ -48,6 +48,12 @@ export const portAOpened:PortOpened = {
     },
     removeOnDataListener: f => {
         portAConsumer = undefined
+    },
+    onError: f => {
+        // TODO: to be implemented
+    },
+    removeOnErrorListener: f => {
+        // TODO: to be implemented
     }
 }
 
@@ -65,6 +71,12 @@ export const portBOpened:PortOpened = {
     },
     removeOnDataListener: f => {
         portBConsumer = undefined
+    },
+    onError: f => {
+        // TODO: to be implemented
+    },
+    removeOnErrorListener: f => {
+        // TODO: to be implemented
     }
 }
 

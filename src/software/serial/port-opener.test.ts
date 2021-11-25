@@ -1,6 +1,8 @@
 import { PortOpener } from './port-opener'
 import { LoopBackPortA_Path, LoopBackPortB_Path } from './loopback';
 
+//TODO: This file should be rename 'loopback.test.ts' because it is in fact testing the loopback facility
+
 describe('Using internal loopback serial port emulator', () => {
 
     const portA = LoopBackPortA_Path

@@ -5,14 +5,21 @@ import SerialPort  from 'serialport'
 import { PortInfo } from './port-info'
 import { LoopBackPortA_Path, LoopBackPortB_Path, portAOpened, portBOpened } from './loopback'
 
+export type ErrorEvent = any //TODO: improve this error event type
+
 export type PortOpened = {
     readonly kind: 'PortOpened'
     readonly write: (data: readonly number[]) => Promise<void> //fix: ??? change to Promise<number> where number is the amount of bytes written ???
     readonly onData: (f: (data: readonly number[]) => void) => void
     readonly close: () => Promise<void>
-    readonly removeOnDataListener: (f: (data: readonly number[]) => void) => void 
+    readonly removeOnDataListener: (f: (data: readonly number[]) => void) => void
+    // for more about error handling see: https://github.com/serialport/node-serialport/issues/177
+    readonly onError: (f: (error: ErrorEvent) => void) => void
+    readonly removeOnErrorListener: (f: (error: ErrorEvent) => void) => void
+    //TODO: This add/remove listener API should be improved with something like this: getListener().add(f).remove(f), but I'm not sure it worth it. 
 }
 
+//TODO: Ensures that if the port is not open the all errors goes through the promise .catch method
 export type PortOpener = (path: PortInfo['path'], baudRate: BaudRate) => Promise<PortOpened>
 
 //
@@ -48,13 +55,23 @@ export const PortOpener: PortOpener = (portPath, baudRate) => {
       const removeOnDataListener: PortOpened['removeOnDataListener'] = f => {
         portOpened.removeListener('data', f);
       }
+
+      const onError: PortOpened['onError'] = f => {
+        portOpened.on('error', f)
+      }
+
+      const removeOnErrorListener: PortOpened['removeOnErrorListener'] = f => {
+        portOpened.removeListener('error', f)
+      }
   
       return {
         kind: 'PortOpened',
         write,
         onData,
         close,
-        removeOnDataListener
+        removeOnDataListener,
+        onError,
+        removeOnErrorListener,
       }
     }
 
