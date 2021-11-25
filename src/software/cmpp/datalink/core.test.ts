@@ -153,49 +153,6 @@ describe('Perform tests on cmpp datalink routines', () => {
             expect(actual).toEqual(expected);
         })
 
-        it('Can interpret an stream of numbers', async () => {
-            //prepare
-            let buf: FrameInterpreted | unknown = undefined
-            const config = [ESC, [STX,ACK,NACK], ETX] as const
-            const probe = [
-                [ESC],[STX],[0xC0+63],[0xA0],[1],[0],[27],[ETX],[91]
-            ] 
-            const expected: FrameInterpreted = {
-                firstEsc: [ESC],
-                startByte: [STX],
-                dirChan: [0xC0+63],
-                waddr: [0xA0],
-                dataLow: [1],
-                dataHigh: [0],
-                lastEsc: [27],
-                etx: [ETX],
-                checkSum: [91],
-                expectedChecksum: 91, 
-            }
-            
-            const interpreter = InterpretIncomming(...config)(
-                //onFinished
-                (frame, rawInput) => {
-                    buf = frame
-                },
-                //onError
-                (msg, partialFrame, rawInput) => {
-
-                },
-                //onInternalStateChange?
-                (currentState, partialFrame, waitingEscDup, rawInput) => {
-
-                }
-
-            )
-            //act
-            const resets = probe.map(ns => ns.map(interpreter))
-
-            //check
-            expect(buf).toEqual(expected);
-        })
-
-
     })
 
     
