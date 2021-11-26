@@ -25,6 +25,24 @@ import { delay } from "../../core/delay"
 
 */ 
 
+/*
+    
+    GRAVAR DEPOIS DE FECHAR A PORTA (.write after .close)
+
+    Depois de fechada a porta, se voce tentar gravar, a gracao nao produz efeito e nem joga erro, e nem
+    chama o callback de erro do serial concreto (ie: concretePort.write(data, err => {....})), ou seja
+    fica um "erro" silencioso.
+
+    Porem acontece algo estranho, pois a sequencia natural do programa nao continua, se este "erro" acontecer
+    dentro de uma promise, a sequencia da promisse nao é continuada.
+
+
+    DICA
+
+    Nao esqueca de dar await apos o write ou close ou open
+*/
+
+
 
 const main = async () => {
     const readerHandler = (data: readonly number[]) => {
@@ -46,16 +64,16 @@ const main = async () => {
         await source.write([7,7,7])
         
         await delay(1000)
-        target.__unsafeGetConcreteDriver().removeAllListeners('error')
+        //target.__unsafeGetConcreteDriver().removeAllListeners()
         
-       
+        await source.write([6,6,6,6,6,6])
         await source.close()
         await target.close()
-
+        
         await delay(1000)
     
 
-        await source.write([6,6,6])
+        
 
 
 
