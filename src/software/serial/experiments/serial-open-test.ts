@@ -1,4 +1,5 @@
 import { PortOpener } from ".."
+import { delay } from "../../core/delay"
 
 // tipos de erro da serial (teste pratico dos efeitos):
 //  "Access denied" -- "Error: Opening com50: Access denied." (quando a porta ja esta em uso por outro aplicativo)
@@ -8,22 +9,56 @@ import { PortOpener } from ".."
 //      quando voce configura um port.on('data', handler), dai o recurso fica pendurado, e o programa nao encerra enquanto nao houver o port.close()
 //      na pesquisa nao consegui uma forma de "fechar a porta" quando nao tiver mais ninguém ouvindo.
 
+// A FORMA CORRETA DE OPERAR A PORTA
+/*
+    Eu nao consegui desalocar o listener do 'onData' event a não ser chamando o metodo close() da porta concreta
+    Porem eu acredito que abrir e fechar a porta, com segurança deva envolver adicionar algumas dezenas ou centenas 
+    de milisegundos de clearance.
+
+    Para evitar estes delays o ideal é minimizar a frequencia de abertura e fechamento da porta, o que significa
+    que deve se fazer uma funcao wrapper que gerenciar a abertura de fechamento da porta.
+
+    por outro lado se a porta nao estiver fechada, o processo shell nao termina, o que significa que
+    este wrapper deve garantir o fechamento de uma porta que esteja aberta em um tempo adequado.
+
+    seguindo estes principios, é possivel fazer uma manipulacao profissional da porta.
+
+*/ 
+
+
 const main = async () => {
     const readerHandler = (data: readonly number[]) => {
-        console.log('recebido algo')
+        console.log('recebido algo', data)
     }
     try {
-        const port = await PortOpener('com50',9600)
-        port.write([0,0,0,0,0,0,0])
-        port.onData(readerHandler )
-        setTimeout( () => {
-            console.log('rodou o timer')
-            //port.removeOnDataListener(readerHandler)
-            //.resume()
-            const serial = port.__unsafeGetConcreteDriver()
-            serial.removeAllListeners()
-            //port.close()
-        }, 3000)
+        const source = await PortOpener('com4',9600)
+        const target = await PortOpener('com5',9600)
+        
+        target.onData(readerHandler )
+        //source.onError( e => {
+        //    console.log(`error on source, details: ${e}`)
+        //})
+        await source.write([1,2,3,4,5,6,7])
+
+
+        await delay(1000)
+
+        await source.write([7,7,7])
+        
+        await delay(1000)
+        target.__unsafeGetConcreteDriver().removeAllListeners('error')
+        
+       
+        await source.close()
+        await target.close()
+
+        await delay(1000)
+    
+
+        await source.write([6,6,6])
+
+
+
     } catch (err) {
         console.log('Nao deu pra abrir a porta')
         console.log('detalhes: ', err)
