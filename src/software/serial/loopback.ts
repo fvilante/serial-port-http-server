@@ -51,9 +51,14 @@ export const portAOpened:PortOpened = {
     },
     onError: f => {
         // TODO: to be implemented
+        throw new Error('Not implemented')
     },
     removeOnErrorListener: f => {
         // TODO: to be implemented
+        throw new Error('Not implemented')
+    },
+    __unsafeGetConcreteDriver: () => {
+        throw new Error('Not implementable')
     }
 }
 
@@ -74,9 +79,14 @@ export const portBOpened:PortOpened = {
     },
     onError: f => {
         // TODO: to be implemented
+        throw new Error('Not implemented')
     },
     removeOnErrorListener: f => {
         // TODO: to be implemented
+        throw new Error('Not implemented')
+    },
+    __unsafeGetConcreteDriver: () => {
+        throw new Error('Not implementable')
     }
 }
 
