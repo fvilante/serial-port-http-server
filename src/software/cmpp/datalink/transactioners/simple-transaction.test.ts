@@ -5,14 +5,18 @@ import { ACK } from "../core-types"
 import { Payload, getRandomPayload, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "../payload"
 import { cmppSimpleTransaction } from "./simple-transaction"
 
+
+describe('basic tests', () => {
+
     it('can run a simple transactioner constructed from a opened serial port', async () => {
         //TODO: Should test if the port closing was adequated handled
         //prepare
         const { source, dest} = getLoopBackEmulatedSerialPort()
-        const payload: Payload = [0, 0, 0, 0]
+        const payload: Payload = [1, 2, 3, 4]
         const emulatedResponse: number[] = makeWellFormedFrame(ACK,payload)
         const expected: FrameInterpreted = makeWellFormedFrameInterpreted(ACK,payload)
         dest.onData( data => {
+            //this call back can be called multple times in theory: one for each byte receive
             runOnce(() => {
                 dest.write(emulatedResponse)
             })()
@@ -23,3 +27,4 @@ import { cmppSimpleTransaction } from "./simple-transaction"
         expect(actual).toEqual(expected)
         
     })
+})
