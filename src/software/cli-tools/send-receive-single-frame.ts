@@ -13,8 +13,23 @@ const main = async () => {
         channel: 0,
         uint16: 0x00,
     })
-    const response = await cmppSimpleTransaction(portOpened)(payload)
-    console.table(response)
+    const responses = [
+        await cmppSimpleTransaction(portOpened)(payload),
+        await cmppSimpleTransaction(portOpened)(payload),
+        await cmppSimpleTransaction(portOpened)(payload),
+        await cmppSimpleTransaction(portOpened)(payload),
+        await cmppSimpleTransaction(portOpened)(payload),
+        await cmppSimpleTransaction(portOpened)(payload),
+        await cmppSimpleTransaction(portOpened)(payload),
+        await cmppSimpleTransaction(portOpened)(payload),
+        await cmppSimpleTransaction(portOpened)(payload),
+        await cmppSimpleTransaction(portOpened)(payload),
+        await cmppSimpleTransaction(portOpened)(payload),
+        await cmppSimpleTransaction(portOpened)(payload),
+        await cmppSimpleTransaction(portOpened)(payload),
+    ]
+
+    console.table(responses)
     await portOpened.close()
     
     
