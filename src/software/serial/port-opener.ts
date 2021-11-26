@@ -46,13 +46,28 @@ export type UnknownError = {
 
 export type PortOpenError = AccessDenied | FileNotFound | UnknownError
 
+const removeAllListenersFromPort = (port: SerialPort): void => {
+    //port.removeListener('error', onError)
+    //port.removeListener('open', onSuccess)
+    //TODO: Up-above-two lines is not working in pratice, so below lines are required
+    //      In future test/check this better!
+    port.removeAllListeners('open') 
+    port.removeAllListeners('error') 
+    port.removeAllListeners() // NOTE: This is the line that certainly works in pratice tests
+}
 
 const openPortUsingDriver = (portPath: PortInfo['path'], baudRate: BaudRate) => new Promise<SerialPort>( (resolve, reject) => { 
   //see also: https://serialport.io/docs/guide-usage  
   
+  const port = new SerialPort(portPath, { baudRate }, hasError => {
+    if (hasError) {
+      const error = new Error(`SerialOpenPortError: Cannot open port ${portPath}/${baudRate}. Details: ${hasError}.`)
+      onError(error)
+    }
+  })
+
   const cleanUpResources = () => {
-    port.removeListener('error', onError)
-    port.removeListener('open', onSuccess)
+    removeAllListenersFromPort(port)
   }
 
   const onError = (error: Error) => {
@@ -65,13 +80,7 @@ const openPortUsingDriver = (portPath: PortInfo['path'], baudRate: BaudRate) => 
     resolve(port)
   }
 
-  const port = new SerialPort(portPath, { baudRate }, hasError => {
-    if (hasError) {
-      const error = new Error(`SerialOpenPortError: Cannot open port ${portPath}/${baudRate}. Details: ${hasError}.`)
-      onError(error)
-    }
-  })
-
+  
   port.on('open', onSuccess)
   port.on('error', onError)
 
@@ -95,6 +104,7 @@ const castToLocalInterface = (portPath: PortInfo['path'], baudRate: BaudRate, po
   }
 
   const close: PortOpened['close'] = () => new Promise( (resolve, reject) => {
+    removeAllListenersFromPort(portOpened)
     portOpened.close( err => {
       if (err) {
         reject(new Error(`SerialPortCloseError: Cannot close serial port ${portPath}/${baudRate}. Details: ${err}.`)) 
