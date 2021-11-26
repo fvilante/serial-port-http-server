@@ -8,16 +8,18 @@ import { LoopBackPortA_Path, LoopBackPortB_Path, portAOpened, portBOpened } from
 export type ErrorEvent = any //TODO: improve this error event type
 
 export type PortOpened = {
-    readonly kind: 'PortOpened'
-    readonly write: (data: readonly number[]) => Promise<void> //fix: ??? change to Promise<number> where number is the amount of bytes written ???
-    readonly onData: (f: (data: readonly number[]) => void) => void
-    readonly close: () => Promise<void>
-    readonly removeOnDataListener: (f: (data: readonly number[]) => void) => void
-    // for more about error handling see: https://github.com/serialport/node-serialport/issues/177
-    readonly onError: (f: (error: ErrorEvent) => void) => void
-    readonly removeOnErrorListener: (f: (error: ErrorEvent) => void) => void
-    //TODO: This add/remove listener API should be improved with something like this: getListener().add(f).remove(f), but I'm not sure it worth it. 
-}
+  readonly kind: 'PortOpened'
+  readonly write: (data: readonly number[]) => Promise<void> //fix: ??? change to Promise<number> where number is the amount of bytes written ???
+  readonly onData: (f: (data: readonly number[]) => void) => void
+  readonly close: () => Promise<void>
+  readonly removeOnDataListener: (f: (data: readonly number[]) => void) => void
+  // for more about error handling see: https://github.com/serialport/node-serialport/issues/177
+  readonly onError: (f: (error: ErrorEvent) => void) => void
+  readonly removeOnErrorListener: (f: (error: ErrorEvent) => void) => void
+  //TODO: This add/remove listener API should be improved with something like this: getListener().add(f).remove(f), but I'm not sure it worth it. 
+  //CAUTION: below unsafe call is intended to use in tests, please avoid use it for production purposes
+  readonly __unsafeGetConcreteDriver: () => SerialPort
+  }
 
 //TODO: Ensures that if the port is not open the all errors goes through the promise .catch method
 export type PortOpener = (path: PortInfo['path'], baudRate: BaudRate) => Promise<PortOpened>
@@ -63,6 +65,10 @@ export const PortOpener: PortOpener = (portPath, baudRate) => {
       const removeOnErrorListener: PortOpened['removeOnErrorListener'] = f => {
         portOpened.removeListener('error', f)
       }
+
+      const __unsafeGetConcreteDriver: PortOpened['__unsafeGetConcreteDriver'] = () => {
+        return portOpened;
+      }
   
       return {
         kind: 'PortOpened',
@@ -72,6 +78,7 @@ export const PortOpener: PortOpener = (portPath, baudRate) => {
         removeOnDataListener,
         onError,
         removeOnErrorListener,
+        __unsafeGetConcreteDriver,
       }
     }
 
