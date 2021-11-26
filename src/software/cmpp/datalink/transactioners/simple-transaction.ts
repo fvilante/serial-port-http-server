@@ -9,8 +9,12 @@ import { runOnce } from "../../../core/utils";
 //NOTE: This is the most simple form for a transaction with cmpp, there are other more efficient way to transact frames
 //NOTE: This function WILL NOT automatically close the port
 //TODO: create a function like that but that will attempt to retransmit failed transmission N times before effectivelly fail
+//CAUTION: //TODO This function perform side-effect by deleting all on'data' events that eventually are programmed in the concrete port
+//TODO: timeout should be a consequence of baudrate
 export const cmppSimpleTransaction = (portOpened: PortOpened) => (payload: Payload, startByte: StartByteNum = STX): Promise<FrameInterpreted> => {
     
+    let hasFinished: boolean = false
+
     const cleanupPortResources = runOnce( () => {
         //TODO: Encapsulates this cleanup in a more safe form. Refactor extract to a new object
         try {
