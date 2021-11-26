@@ -13,7 +13,7 @@ export type PortOpened = {
   readonly write: (data: readonly number[]) => Promise<void> //fix: ??? change to Promise<number> where number is the amount of bytes written ???
   readonly onData: (f: (data: readonly number[]) => void) => void
   readonly close: () => Promise<void>
-  readonly removeOnDataListener: (f: (data: readonly number[]) => void) => void
+  readonly removeOnDataListener: (f: (data: readonly number[]) => void) => void //TODO: I tried concretePort.removeListener('data', listener) but it does not works to remove listener. But concretePort.removeAllListners('data') works to remove all listeners of 'data' event.
   // for more about error handling see: https://github.com/serialport/node-serialport/issues/177
   readonly onError: (f: (error: PortOpenError) => void) => void
   readonly removeOnErrorListener: (f: (error: PortOpenError) => void) => void
