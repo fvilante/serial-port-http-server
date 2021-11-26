@@ -216,9 +216,9 @@ export const Timer__ = ():Timer__ => {
 export const runOnce = <A,B>(f: () => void ): () => void =>  {
     let hasRunned:boolean = false
     return () => {
-        if (hasRunned) 
+        if (hasRunned===true) 
             return undefined
-        else {
+        else /*hasRunned===false*/{
             hasRunned = true
             const result = f();
             return result
