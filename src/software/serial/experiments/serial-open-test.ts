@@ -40,19 +40,27 @@ import { delay } from "../../core/delay"
     DICA
 
     Nao esqueca de dar await apos o write ou close ou open
+
+    MUDAR O ONDATA HANDLER SEM FECHAR A PORTA
+
+    Esta mudanca funciona bem, para cancelelar o primeiro ONDATA handler execute estes comandos:
+    concretePort.removeAllListeners('data')
 */
 
 
 
 const main = async () => {
-    const readerHandler = (data: readonly number[]) => {
-        console.log('recebido algo', data)
+    const readerHandler1 = (data: readonly number[]) => {
+        console.log('handler 1 rodou', data)
+    }
+    const readerHandler2 = (data: readonly number[]) => {
+        console.log('handler 2 rodou', data)
     }
     try {
         const source = await PortOpener('com4',9600)
         const target = await PortOpener('com5',9600)
         
-        target.onData(readerHandler )
+        target.onData(readerHandler1 )
         //source.onError( e => {
         //    console.log(`error on source, details: ${e}`)
         //})
@@ -64,9 +72,11 @@ const main = async () => {
         await source.write([7,7,7])
         
         await delay(1000)
-        //target.__unsafeGetConcreteDriver().removeAllListeners()
+        target.__unsafeGetConcreteDriver().removeAllListeners('error')
         
-        await source.write([6,6,6,6,6,6])
+        await source.write([8,8,8,8])
+        target.onData(readerHandler2 )
+
         await source.close()
         await target.close()
         

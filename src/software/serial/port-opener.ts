@@ -51,9 +51,10 @@ const removeAllListenersFromPort = (port: SerialPort): void => {
     //port.removeListener('open', onSuccess)
     //TODO: Up-above-two lines is not working in pratice, so below lines are required
     //      In future test/check this better!
-    port.removeAllListeners('open') 
-    port.removeAllListeners('error') 
-    port.removeAllListeners() // NOTE: This is the line that certainly works in pratice tests
+    port.removeAllListeners('open') // not fully tested but probably works
+    port.removeAllListeners('error') // not fully tested but probably works
+    port.removeAllListeners('data') // NOTE: This is the line that certainly works in pratice tests
+    port.removeAllListeners() // NOTE: This is the line that certainly works in pratice tests (but it may be a unnecessary huge removal)
 }
 
 const openPortUsingDriver = (portPath: PortInfo['path'], baudRate: BaudRate) => new Promise<SerialPort>( (resolve, reject) => { 
