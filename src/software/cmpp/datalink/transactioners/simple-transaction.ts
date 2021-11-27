@@ -51,6 +51,7 @@ export const cmppSimpleTransaction = (portOpened: PortOpened) => (payload: Paylo
         //write data
         portOpened.write(dataSerialized)
             .then( () => {
+                //TODO: Should be useful to remove old onData listeners before introduce this one below
                 //set reception handler
                 portOpened.onData(receptionHandler)
                  
