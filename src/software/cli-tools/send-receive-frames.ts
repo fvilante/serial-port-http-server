@@ -1,6 +1,6 @@
 import { PortOpener } from "../serial";
 import { frameCoreToPayload } from "../cmpp/datalink/frame";
-import { cmppSimpleTransaction } from "../cmpp/datalink/transactioners/simple-transaction";
+import { cmppSimpleTransaction } from "../cmpp/datalink/transactioners/cmpp-transaction";
 
 
 const main = async () => {

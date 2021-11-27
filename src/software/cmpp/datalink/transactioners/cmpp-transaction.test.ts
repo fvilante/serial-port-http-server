@@ -3,7 +3,7 @@ import { runOnce } from "../../../core/utils"
 import { getLoopBackEmulatedSerialPort } from "../../../serial/loopback"
 import { ACK } from "../core-types"
 import { Payload, getRandomPayload, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "../payload"
-import { cmppSimpleTransaction } from "./simple-transaction"
+import { cmppSimpleTransaction } from "./cmpp-transaction"
 
 
 describe('basic tests', () => {
