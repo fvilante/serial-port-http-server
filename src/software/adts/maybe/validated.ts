@@ -4,10 +4,11 @@ import { NothingObject } from "../maybe"
 //
 // Like a Maybe, but with a invalid message in case of nothing
 
+export type InvalidationMesssages = readonly string[]
 
 export type ValidatedWorld<A> = 
     | { isValid: true, value: A } 
-    | { isValid: false, invalidationMessages: readonly string[] }
+    | { isValid: false, invalidationMessages: InvalidationMesssages }
 
 export type ValidatedMatcher<A,T> = {
     valid: (value:A) => T
@@ -17,7 +18,8 @@ export type ValidatedMatcher<A,T> = {
 export type Validated<A> = {
     kind: 'Validated'
     unsafeRun: () => ValidatedWorld<A>
-    forEach: (f: (_:A) => void) => void
+    valueOrThrow: () => A   //NOTE: it throws with the invalidation messages
+    forEach: (f: (_:A) => void) => void //TODO: This method seems to not make sense
     match: <T>(f: ValidatedMatcher<A,T>) => T
     transform: <X>(f: (this_: Validated<A>) => X) => X
     map: <B>(f: (_:A) => B) => Validated<B>
@@ -32,6 +34,16 @@ export const Validated = <A>(world: () => ValidatedWorld<A>): Validated<A> => {
     type T = Validated<A>
 
     const unsafeRun: T['unsafeRun'] = () => world()
+
+    const valueOrThrow: T['valueOrThrow']  = () => {
+        const m = world()
+        if(m.isValid) {
+            return m.value
+        } else {
+            const msg = String(m.invalidationMessages)
+            throw new Error(msg)
+        }
+    }
 
     const forEach: T['forEach'] = f => {
         const maybeValue = world()
@@ -73,6 +85,7 @@ export const Validated = <A>(world: () => ValidatedWorld<A>): Validated<A> => {
     return {
         kind: 'Validated',
         unsafeRun,
+        valueOrThrow,
         forEach,
         match,
         transform,
