@@ -1,10 +1,12 @@
 // Emulates a serialport loopback where PortA is connected (cross-over) to PortB and vice-versa 
 
+import { delay } from "../core/delay"
 import { PortOpened } from "./port-opener"
 
 export const LoopBackPortA_Path = 'LoopBackTest_PortA' //TODO: rename by a more meneumonic name
 export const LoopBackPortB_Path = 'LoopBackTest_PortB'
 
+const WRITE_DELAY = 2 // miliseconds
 
 export const LoopBackPortA_Info = {
     "locationId": "LOOP_BACK_PORT_A",
@@ -38,7 +40,9 @@ let portBConsumer:  Consumer | undefined = undefined
 export const portAOpened:PortOpened = {
     kind: 'PortOpened',
     write: async data => {
-        if(portBConsumer) portBConsumer(data)
+         await delay(WRITE_DELAY).then( () => {
+            if(portBConsumer) portBConsumer(data)
+        })
     },
     onData: consumerA => {
         portAConsumer = consumerA
@@ -66,7 +70,9 @@ export const portAOpened:PortOpened = {
 export const portBOpened:PortOpened = {
     kind: 'PortOpened',
     write: async data => {
-        if(portAConsumer) portAConsumer(data)
+        await delay(WRITE_DELAY).then( () => {
+            if(portAConsumer) portAConsumer(data)
+        })
     },
     onData: consumerB => {
         portBConsumer = consumerB
@@ -92,6 +98,7 @@ export const portBOpened:PortOpened = {
 
 //TODO: export only this function and remove exportation of portAOpened and portBOpened variables
 export const getLoopBackEmulatedSerialPort = () => {
+    //TODO: the return type should be array instead object, because client can decide the naming more freely and the two objects are symetrical
     return {
         source: portAOpened,
         dest: portBOpened, //destination

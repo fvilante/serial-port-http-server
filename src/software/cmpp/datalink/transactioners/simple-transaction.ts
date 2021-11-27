@@ -12,8 +12,6 @@ import { runOnce } from "../../../core/utils";
 //CAUTION: //TODO This function perform side-effect by deleting all on'data' events that eventually are programmed in the concrete port
 //TODO: timeout should be a consequence of baudrate
 export const cmppSimpleTransaction = (portOpened: PortOpened) => (payload: Payload, startByte: StartByteNum = STX): Promise<FrameInterpreted> => {
-    
-    let hasFinished: boolean = false
 
     const cleanupPortResources = runOnce( () => {
         //TODO: Encapsulates this cleanup in a more safe form. Refactor extract to a new object
@@ -22,12 +20,12 @@ export const cmppSimpleTransaction = (portOpened: PortOpened) => (payload: Paylo
             const p = portOpened.__unsafeGetConcreteDriver() //TODO: avoid to use this __unsafe method
             p.removeAllListeners('data')
         } catch (err) {
-            //do nothing
+            //do nothing, fail silently
         }   
     })
     
     return new Promise( (resolve, reject) => {
-        //TODO: Should this code be in a try..catch clause ?
+        
         const parse = CmppDataLinkInterpreter({
             onSuccess: event => {
                 cleanupPortResources()
@@ -46,15 +44,17 @@ export const cmppSimpleTransaction = (portOpened: PortOpened) => (payload: Paylo
             })
         }
 
-        // make frame
+        //make frame
         const dataSerialized = makeWellFormedFrame(startByte,payload)
-        
-        // run: ---
 
-        // write data
-        //set reception handler
-        portOpened.onData(receptionHandler) //TODO: Loopback serial port emulated (used in unit tests) requires this handler to be set before transmission, but in real hardware this is not a assumption. Refactor so tests works as real hardware.
+        //TODO: Should this code be in a try..catch clause? How to handle errors here?
+        //write data
         portOpened.write(dataSerialized)
+            .then( () => {
+                //set reception handler
+                portOpened.onData(receptionHandler)
+                 
+            })
         
     })
     

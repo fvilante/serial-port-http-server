@@ -11,13 +11,13 @@ describe('basic tests', () => {
     it('can run a simple transactioner constructed from a opened serial port', async () => {
         //TODO: Should test if the port closing was adequated handled
         //prepare
-        const { source, dest} = getLoopBackEmulatedSerialPort()
+        const { source, dest } = getLoopBackEmulatedSerialPort()
         const payload: Payload = [1, 2, 3, 4]
-        const emulatedResponse: number[] = makeWellFormedFrame(ACK,payload)
         const expected: FrameInterpreted = makeWellFormedFrameInterpreted(ACK,payload)
         dest.onData( data => {
-            //this call back can be called multple times in theory: one for each byte receive
+            //this call back can be called multple times in theory: one for each byte received, thus we use runOnce here.
             runOnce(() => {
+                const emulatedResponse: number[] = makeWellFormedFrame(ACK,payload)
                 dest.write(emulatedResponse)
             })()
         })
