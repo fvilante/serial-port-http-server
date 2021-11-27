@@ -14,19 +14,19 @@ const main = async () => {
         uint16: 0x00,
     })
     const responses = [
-        await cmppSimpleTransaction(portOpened)(payload),
-        await cmppSimpleTransaction(portOpened)(payload),
-        await cmppSimpleTransaction(portOpened)(payload),
-        await cmppSimpleTransaction(portOpened)(payload),
-        await cmppSimpleTransaction(portOpened)(payload),
-        await cmppSimpleTransaction(portOpened)(payload),
-        await cmppSimpleTransaction(portOpened)(payload),
-        await cmppSimpleTransaction(portOpened)(payload),
-        await cmppSimpleTransaction(portOpened)(payload),
-        await cmppSimpleTransaction(portOpened)(payload),
-        await cmppSimpleTransaction(portOpened)(payload),
-        await cmppSimpleTransaction(portOpened)(payload),
-        await cmppSimpleTransaction(portOpened)(payload),
+        await cmppSimpleTransaction(portOpened,payload),
+        await cmppSimpleTransaction(portOpened,payload),
+        await cmppSimpleTransaction(portOpened,payload),
+        await cmppSimpleTransaction(portOpened,payload),
+        await cmppSimpleTransaction(portOpened,payload),
+        await cmppSimpleTransaction(portOpened,payload),
+        await cmppSimpleTransaction(portOpened,payload),
+        await cmppSimpleTransaction(portOpened,payload),
+        await cmppSimpleTransaction(portOpened,payload),
+        await cmppSimpleTransaction(portOpened,payload),
+        await cmppSimpleTransaction(portOpened,payload),
+        await cmppSimpleTransaction(portOpened,payload),
+        await cmppSimpleTransaction(portOpened,payload),
     ]
 
     console.table(responses)

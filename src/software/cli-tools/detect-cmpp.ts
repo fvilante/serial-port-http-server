@@ -30,7 +30,7 @@ const detectCmppInPort = async (portPath: string, baudRate: BaudRate, timeout: n
         }
         PortOpener(portPath,baudRate)
             .then( portOpened => {
-                cmppSimpleTransaction(portOpened)(payload)
+                cmppSimpleTransaction(portOpened, payload)
                     .then( frameInterpreted => {
                         portOpened.close()
                             .then( () => {

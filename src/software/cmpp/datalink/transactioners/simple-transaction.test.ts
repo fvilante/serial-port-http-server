@@ -22,7 +22,7 @@ describe('basic tests', () => {
             })()
         })
         //act
-        const actual = await cmppSimpleTransaction(source)(payload)
+        const actual = await cmppSimpleTransaction(source,payload)
         //check
         expect(actual).toEqual(expected)
         

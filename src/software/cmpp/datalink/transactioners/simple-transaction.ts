@@ -11,13 +11,15 @@ import { runOnce } from "../../../core/utils";
 //TODO: create a function like that but that will attempt to retransmit failed transmission N times before effectivelly fail
 //CAUTION: //TODO This function perform side-effect by deleting all on'data' events that eventually are programmed in the concrete port
 //TODO: timeout should be a consequence of baudrate
-export const cmppSimpleTransaction = (portOpened: PortOpened) => (payload: Payload, startByte: StartByteNum = STX): Promise<FrameInterpreted> => {
+export const cmppSimpleTransaction = (portOpened: PortOpened, payload: Payload, startByte: StartByteNum = STX): Promise<FrameInterpreted> => {
 
     const cleanupPortResources = runOnce( () => {
         //TODO: Encapsulates this cleanup in a more safe form. Refactor extract to a new object
         try {
-            //NOTE: This try block is because looback emulated serial port do not have this __unsafe method implemented
-            const p = portOpened.__unsafeGetConcreteDriver() //TODO: avoid to use this __unsafe method
+            //NOTE: This try block is because looback emulated serial port do not have this __unsafe 
+            //      method implemented
+            //TODO: avoid to use this __unsafe method
+            const p = portOpened.__unsafeGetConcreteDriver() 
             p.removeAllListeners('data')
         } catch (err) {
             //do nothing, fail silently
@@ -53,9 +55,8 @@ export const cmppSimpleTransaction = (portOpened: PortOpened) => (payload: Paylo
             .then( () => {
                 //TODO: Should be useful to remove old onData listeners before introduce this one below
                 //set reception handler
-                portOpened.onData(receptionHandler)
-                 
-            })
+                portOpened.onData(receptionHandler)      
+        })
         
     })
     
