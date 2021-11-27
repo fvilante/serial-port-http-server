@@ -98,9 +98,5 @@ export const portBOpened:PortOpened = {
 
 //TODO: export only this function and remove exportation of portAOpened and portBOpened variables
 export const getLoopBackEmulatedSerialPort = () => {
-    //TODO: the return type should be array instead object, because client can decide the naming more freely and the two objects are symetrical
-    return {
-        source: portAOpened,
-        dest: portBOpened, //destination
-    }
+    return [ portAOpened, portBOpened] as const
 }
