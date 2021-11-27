@@ -4,7 +4,7 @@ import {
     FrameInterpreted,
     compileCoreFrame,
     flattenFrameSerialized,
-} from './frame'
+} from './frame-core'
 import { CmppDataLinkInterpreter } from './interpreter'
 import { BaudRate } from '../../serial/baudrate'
 import { listSerialPorts } from '../../serial/index'

@@ -1,5 +1,5 @@
 import { PortOpener } from "../serial";
-import { frameCoreToPayload } from "../cmpp/datalink/frame";
+import { frameCoreToPayload } from "../cmpp/datalink/frame-core";
 import { cmppSimpleTransaction } from "../cmpp/datalink/transactioners/cmpp-transaction";
 
 
