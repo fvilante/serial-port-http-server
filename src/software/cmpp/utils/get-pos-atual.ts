@@ -3,7 +3,7 @@ import { FrameCore } from "../datalink/index"
 import { setParam_ } from "../transport/cmpp-memmap-layer"
 import { Driver } from "../transport/mapa_de_memoria"
 import { sendCmpp } from "../datalink/send-receive-cmpp-datalink"
-import { word2int } from '../datalink/core-operations'
+import { word2int } from '../datalink/int-to-word-conversion'
 
 
 

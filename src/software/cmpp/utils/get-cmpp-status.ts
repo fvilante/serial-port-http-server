@@ -2,7 +2,7 @@ import { BaudRate } from '../../serial/baudrate'
 import { bit_test } from "../../core/bit-wise-utils"
 import { FrameCore } from "../datalink/index"
 import { sendCmpp } from "../datalink/send-receive-cmpp-datalink"
-import { word2int } from '../datalink/core-operations'
+import { word2int } from '../datalink/int-to-word-conversion'
 
 //let statusLRaw: number | undefined = undefined 
 

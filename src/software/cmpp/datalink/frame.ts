@@ -1,5 +1,5 @@
 import { calcChecksum } from "./calc-checksum";
-import { int2word } from "./core-operations";
+import { int2word } from "./int-to-word-conversion";
 import { Direction, ESC, ETX, StartByte, StartByteNum, StartByteTxt } from "./core-types";
 import { Payload } from "./payload";
 

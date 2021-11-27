@@ -9,7 +9,7 @@ import {
     StartByteToText,
 } from './core-types'
 import { calcChecksum } from './calc-checksum'
-import { int2word, word2int } from './core-operations'
+import { int2word, word2int } from './int-to-word-conversion'
 import { compileCoreFrame, FrameCore, FrameInterpreted, InterpretIncomming } from './index'
 
 
