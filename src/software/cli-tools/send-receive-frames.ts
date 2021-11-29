@@ -1,6 +1,6 @@
 import { PortOpener } from "../serial";
 import { frameCoreToPayload } from "../cmpp/datalink/frame-core";
-import { cmppSimpleTransaction } from "../cmpp/datalink/transactioners/payload-transact";
+import { payloadTransaction } from "../cmpp/datalink/transactioners/payload-transact";
 
 
 const main = async () => {
@@ -14,8 +14,8 @@ const main = async () => {
         uint16: 0x00,
     })
     const responses = [
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
+        await payloadTransaction(portOpened,payload),
+        await payloadTransaction(portOpened,payload),
     ]
 
     console.table(responses)
