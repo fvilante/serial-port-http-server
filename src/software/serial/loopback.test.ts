@@ -67,7 +67,7 @@ describe('Using internal loopback serial port emulator', () => {
         expect(buffer).toEqual([...expected,...expected])
         await portAOpened.write(expected)
         expect(buffer).toEqual([...expected,...expected,...expected])
-        portBOpened.removeOnDataListener(f)
+        portBOpened.removeAllDataListeners()
         await portAOpened.write(expected)
         expect(buffer).toEqual([...expected,...expected,...expected])
 

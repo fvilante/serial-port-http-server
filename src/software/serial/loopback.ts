@@ -50,14 +50,14 @@ export const portAOpened:PortOpened = {
     close: async () => {
         portAConsumer = undefined
     },
-    removeOnDataListener: f => {
+    removeAllDataListeners: () => {
         portAConsumer = undefined
     },
     onError: f => {
         // TODO: to be implemented
         throw new Error('Not implemented')
     },
-    removeOnErrorListener: f => {
+    removeAllErrorListeners: () => {
         // TODO: to be implemented
         throw new Error('Not implemented')
     },
@@ -80,14 +80,14 @@ export const portBOpened:PortOpened = {
     close: async () => {
         portBConsumer = undefined
     },
-    removeOnDataListener: f => {
+    removeAllDataListeners: () => {
         portBConsumer = undefined
     },
     onError: f => {
         // TODO: to be implemented
         throw new Error('Not implemented')
     },
-    removeOnErrorListener: f => {
+    removeAllErrorListeners: () => {
         // TODO: to be implemented
         throw new Error('Not implemented')
     },

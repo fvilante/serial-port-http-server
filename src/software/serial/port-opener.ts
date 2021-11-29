@@ -13,13 +13,13 @@ export type PortOpened = {
   readonly write: (data: readonly number[]) => Promise<void> //fix: ??? change to Promise<number> where number is the amount of bytes written ???
   readonly onData: (f: (data: readonly number[]) => void) => void
   readonly close: () => Promise<void>
-  readonly removeOnDataListener: (f: (data: readonly number[]) => void) => void //TODO: I tried concretePort.removeListener('data', listener) but it does not works to remove listener. But concretePort.removeAllListners('data') works to remove all listeners of 'data' event.
+  readonly removeAllDataListeners: () => void
   // for more about error handling see: https://github.com/serialport/node-serialport/issues/177
   readonly onError: (f: (error: PortOpenError) => void) => void
-  readonly removeOnErrorListener: (f: (error: PortOpenError) => void) => void
-  //TODO: This add/remove listener API should be improved with something like this: getListener().add(f).remove(f), but I'm not sure it worth it. 
+  readonly removeAllErrorListeners: () => void
+  //TODO: This add/remove listener API should be improved with something like this: getListener().add(f).remove(f), but I'm not sure it worth to do it now. 
   //CAUTION: below unsafe call is intended to use in tests, please avoid use it for production purposes
-  readonly __unsafeGetConcreteDriver: () => SerialPort
+  readonly __unsafeGetConcreteDriver: () => SerialPort //TODO: remove this from interface to avoid cause dependency
 }
 
 
@@ -114,16 +114,24 @@ const castToLocalInterface = (portPath: PortInfo['path'], baudRate: BaudRate, po
     });
   })
 
-  const removeOnDataListener: PortOpened['removeOnDataListener'] = f => {
-    portOpened.removeListener('data', f);
+  const removeAllDataListeners: PortOpened['removeAllDataListeners'] = () => {
+    try {
+      portOpened.removeAllListeners('data');
+    } catch {
+      // TODO: check if delete nothing should rise an error, this try catch is an attepmt to prevent this kind of error
+    }
   }
 
   const onError: PortOpened['onError'] = f => {
     portOpened.on('error', f)
   }
 
-  const removeOnErrorListener: PortOpened['removeOnErrorListener'] = f => {
-    portOpened.removeListener('error', f)
+  const removeAllErrorListeners: PortOpened['removeAllErrorListeners'] = () => {
+    try {
+      portOpened.removeAllListeners('error');
+    } catch {
+      // TODO: check if delete nothing should rise an error, this try catch is an attepmt to prevent this kind of error
+    }
   }
 
   const __unsafeGetConcreteDriver: PortOpened['__unsafeGetConcreteDriver'] = () => {
@@ -135,9 +143,9 @@ const castToLocalInterface = (portPath: PortInfo['path'], baudRate: BaudRate, po
     write,
     onData,
     close,
-    removeOnDataListener,
+    removeAllDataListeners,
     onError,
-    removeOnErrorListener,
+    removeAllErrorListeners,
     __unsafeGetConcreteDriver,
   }
 }
