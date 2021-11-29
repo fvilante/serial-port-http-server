@@ -11,6 +11,9 @@ import { runOnce } from "../../../core/utils";
 //TODO: create a function like that but that will attempt to retransmit failed transmission N times before effectivelly fail
 //CAUTION: //TODO This function perform side-effect by deleting all on'data' events that eventually are programmed in the concrete port
 //TODO: timeout should be a consequence of baudrate
+//TODO: add number of retriais to this function or indtruduce a wrapper to do that
+//TODO: rename this function to transactPayload
+//TODO: and implement a callback reponse system (which is more accurate than promise system for the purpose of many data being responded)
 export const cmppSimpleTransaction = (portOpened: PortOpened, payload: Payload, startByte: StartByteNum = STX): Promise<FrameInterpreted> => {
 
     const cleanupPortResources = runOnce( () => {
@@ -31,6 +34,7 @@ export const cmppSimpleTransaction = (portOpened: PortOpened, payload: Payload, 
         const parse = CmppDataLinkInterpreter({
             onSuccess: event => {
                 cleanupPortResources()
+                //TODO: verify how CHECKSUM expected vs calculated is being checked
                 const { frameInterpreted } = event
                 resolve(frameInterpreted)
             },
