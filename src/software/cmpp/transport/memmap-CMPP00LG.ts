@@ -1,62 +1,4 @@
-import { Invalid, Valid, Validated } from "../../adts/maybe/validated"
-import { Byte } from "../../core/byte"
-
-//Represents the position of a bit inside the a 16 bits word
-//TODO: Extract this type to a more convenient file (ie: core-types.ts ?!)
-type StartBit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 
-
-//TODO: extract this type to a more general file
-type BitValue = number // range from 0 to 1 // TODO: Improve this type in further if necessary
-
-//TODO: extract this type to a more general file
-type Word16Bits = number// range from 0 to 255 // TODO: Improve this type in further if necessary
-
-
-type Serialization<A,B> = {
-    serialize: (_:A) => B
-    deserialize: (_:B) => A
-}
-
-type ParamCore<T extends string> = {
-    name: T
-    waddr: Byte   // word address 
-}
-
-type Param_16bits<T extends string> = {
-    type: '16 Bits'
-} & ParamCore<T>
-
-
-type Param_8bits<T extends string> = {
-    type: '8 Bits'
-    startBit: StartBit //takes 8 bits stating in 'startsBit' (included)
-} & ParamCore<T>
-
-
-type Param_1bit<T extends string> = { 
-    type: '1 Bit'
-    startBit: StartBit //takes 1 bits stating in 'startsBit' (included)
-} & ParamCore<T>
-
-type Param<T extends string> = 
-    | Param_16bits<T>
-    | Param_8bits<T>
-    | Param_1bit<T>
-
-
-// ctors
-
-const param_16bits = <T extends string>(etc: Omit<Param_16bits<T>,'type'>):Param_16bits<T> => {
-    return {  type: '16 Bits', ...etc }
-}
-
-const param_8bits = <T extends string>(etc: Omit<Param_8bits<T>,'type'>):Param_8bits<T> => {
-    return {  type: '8 Bits', ...etc }
-}
-
-const param_1bit = <T extends string>(etc: Omit<Param_1bit<T>,'type'>):Param_1bit<T> => {
-    return {  type: '1 Bit', ...etc }
-}
+import { param_16bits, param_1bit, param_8bits } from './memmap-core'
 
 // typing casting
 
@@ -505,7 +447,7 @@ const NivelSinalEmotor = param_1bit({
 
 // api 
 
-const api = {
+export const api = {
     'Posicao inicial': PosicaoInicial,
     'Posicao final': PosicaoFinal,
     'Aceleracao de avanco': AceleracaoDeAvanco,
@@ -573,5 +515,4 @@ const api = {
     'Nivel: FC-': NivelSinalFimDeCursoMenos,
     'Nivel: REF': NivelSinalReferencia,
     'Nivel: Emotor': NivelSinalEmotor,
-
 }
