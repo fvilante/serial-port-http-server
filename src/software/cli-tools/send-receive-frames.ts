@@ -16,17 +16,6 @@ const main = async () => {
     const responses = [
         await cmppSimpleTransaction(portOpened,payload),
         await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
     ]
 
     console.table(responses)
