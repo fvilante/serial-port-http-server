@@ -2,7 +2,7 @@ import { FrameInterpreted } from ".."
 import { runOnce } from "../../../core/utils"
 import { getLoopBackEmulatedSerialPort } from "../../../serial/loopback"
 import { ACK, STX } from "../core-types"
-import { Payload, getRandomPayload, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "../payload"
+import { Payload, getRandomPayload, makeWellFormedFrame, makeWellFormedFrameInterpreted, PayloadCore } from "../payload"
 import { EventHandler, payloadTransaction_WithCB } from "./payload-transact"
 
 
@@ -13,10 +13,10 @@ describe('basic tests', () => {
         //prepare
         const [ source, target ] = getLoopBackEmulatedSerialPort()
         const payload: Payload = [1, 2, 3, 4]
-        const probe = [ACK, payload] as const
+        const dataToSend: PayloadCore = {startByte:ACK, payload }
         const probe_ = [payload, ACK] as const
-        const expectedResponse: FrameInterpreted = makeWellFormedFrameInterpreted(...probe)
-        const emulatedResponse: number[] = makeWellFormedFrame(...probe)
+        const expectedResponse: FrameInterpreted = makeWellFormedFrameInterpreted(dataToSend)
+        const emulatedResponse: number[] = makeWellFormedFrame(dataToSend)
         target.onData( data => {
             const runResponse = runOnce(() => { 
                 target.write(emulatedResponse)
@@ -29,7 +29,7 @@ describe('basic tests', () => {
         //act
         let status_: Status = { }
         //TODO: When the API become more stable, test also the messages sent's through the events 
-        payloadTransaction_WithCB(source, payload, STX, {
+        payloadTransaction_WithCB(source, dataToSend, {
             //check
             BEGIN: () => {
                 status_ = { ...status_, BEGIN: true }

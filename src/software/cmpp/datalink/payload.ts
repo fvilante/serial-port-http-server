@@ -32,7 +32,8 @@ export const makeWellFormedFrame = (_: PayloadCore) => {
     return [ESC, startByte, ...duplicateEsc(payload), ESC, ETX, ...duplicateEsc([checksum])]
 }
 
-export const makeWellFormedFrameInterpreted = (startByte: StartByteNum, payload: Payload): FrameInterpreted => {
+export const makeWellFormedFrameInterpreted = (_: PayloadCore): FrameInterpreted => {
+    const { payload, startByte } = _
     const checksum = calcChecksum_(payload,startByte)
     return {
         firstEsc: [ESC],

@@ -1,7 +1,7 @@
 import { FrameInterpreted } from "."
 import { flattenArrayDeep, makeRange, random, repeaterItor } from "../../core/utils"
 import { ACK, NACK, StartByteNum, STX } from "./core-types"
-import { Payload, executeCmppStreamInterpretation, getRandomPayload, getRandomStartByte, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "./payload"
+import { Payload, executeCmppStreamInterpretation, getRandomPayload, getRandomStartByte, makeWellFormedFrame, makeWellFormedFrameInterpreted, PayloadCore } from "./payload"
 
 // TODO:    Only well-formed stream are being tested. We MUST create unit test for error and edge cases 
 //          (ie: esc-dup in checksum?, intermediary noise?, etc).
@@ -10,10 +10,11 @@ const quantityOfRandomRepetition = 100 // greather this number, greather is the 
 
 const somePayload: Payload = [0x00, 0x00, 0x00, 0x00] 
 
-const testParseSingleWellFormedFrame = (startByte: StartByteNum, payload: Payload):void => {
+const testParseSingleWellFormedFrame = (dataToSend: PayloadCore):void => {
+    const {payload, startByte } = dataToSend
     //prepare
-    const probe = makeWellFormedFrame(startByte,payload)
-    const probeInterpreted = makeWellFormedFrameInterpreted(startByte,payload)
+    const probe = makeWellFormedFrame(dataToSend)
+    const probeInterpreted = makeWellFormedFrameInterpreted(dataToSend)
     //act
     const result = executeCmppStreamInterpretation(probe)
     //check
@@ -25,10 +26,12 @@ const testParseSingleWellFormedFrame = (startByte: StartByteNum, payload: Payloa
 
 const testRandomGeneratedFrame = ():void => {
     // prepare
-    const randomStartByte = getRandomStartByte()
-    const randomPayload: Payload = getRandomPayload()
+    const dataToSend: PayloadCore = {
+        payload: getRandomPayload(),
+        startByte: getRandomStartByte()
+    }
     // act, test
-    testParseSingleWellFormedFrame(randomStartByte,randomPayload)
+    testParseSingleWellFormedFrame(dataToSend)
 }
 
 
@@ -42,9 +45,9 @@ describe('basic test: Parssing well-formed, random, frames', () => {
         const slaveErrorFrame = NACK
         const somePayload = [0,0,0,0] as const
         // act, check
-        testParseSingleWellFormedFrame(masterFrame, somePayload)
-        testParseSingleWellFormedFrame(slaveFrame, somePayload)
-        testParseSingleWellFormedFrame(slaveErrorFrame, somePayload)
+        testParseSingleWellFormedFrame({startByte: masterFrame, payload: somePayload })
+        testParseSingleWellFormedFrame({startByte: slaveFrame, payload: somePayload })
+        testParseSingleWellFormedFrame({startByte: slaveErrorFrame, payload: somePayload })
     })
 
     it('can parse N, random generate, well-formed, frames', async () => {
@@ -55,8 +58,9 @@ describe('basic test: Parssing well-formed, random, frames', () => {
     it('can parse N well-formed, equal, master frames', async () => {
         //configure
         const repeat = quantityOfRandomRepetition 
-        const wellFormedFrame = makeWellFormedFrame(STX,somePayload) 
-        const correctMasterFrameInterpreted: FrameInterpreted = makeWellFormedFrameInterpreted(STX,somePayload)
+        const dataToSend = {startByte: STX, payload: somePayload}
+        const wellFormedFrame = makeWellFormedFrame(dataToSend ) 
+        const correctMasterFrameInterpreted: FrameInterpreted = makeWellFormedFrameInterpreted(dataToSend)
         //prepare
         const input = flattenArrayDeep<number[][], number[]>([...repeaterItor(repeat,wellFormedFrame )])
         //act
@@ -86,7 +90,10 @@ describe('basic test: Parssing well-formed, random, frames', () => {
             }]
         })
         //  -- make input 
-        const input = flattenArrayDeep<number[][],number[]>(frames.map( frame => makeWellFormedFrame(frame.startByte, frame.payload)))
+        const input = flattenArrayDeep<number[][],number[]>(frames.map( frame => {
+            const dataToSend: PayloadCore = { startByte: frame.startByte, payload: frame.payload }
+            return makeWellFormedFrame(dataToSend)
+        }))
         // act
         const result = executeCmppStreamInterpretation(input)
         //check
@@ -94,8 +101,9 @@ describe('basic test: Parssing well-formed, random, frames', () => {
         expect(result.onSucess.length).toEqual(N)
         result.onSucess.map( (event, index) => {
             const frame = frames[index]
-            expect(event.frameInterpreted).toEqual(makeWellFormedFrameInterpreted(frame.startByte, frame.payload))
-            expect(event.rawInput).toEqual(makeWellFormedFrame(frame.startByte, frame.payload))
+            const dataToSend = { startByte: frame.startByte, payload: frame.payload}
+            expect(event.frameInterpreted).toEqual(makeWellFormedFrameInterpreted(dataToSend))
+            expect(event.rawInput).toEqual(makeWellFormedFrame(dataToSend))
         }) 
                
     })
