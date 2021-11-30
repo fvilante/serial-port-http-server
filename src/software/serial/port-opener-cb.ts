@@ -25,22 +25,19 @@ export type PortOpened = {
 export type AccessDenied = {
   errorKind: 'Access denied'    // ie: when port is already open by other proccess
   //TODO: substitute below to 'PortSpec' instead
-  portPath: string
-  baudRate: BaudRate
+  portSpec: PortSpec  
   detail: Error
 }
 
 export type FileNotFound = {
   errorKind: 'File not found'   // ie: when the portPath cannot be located
-  portPath: string
-  baudRate: BaudRate
+  portSpec: PortSpec  
   detail: Error
 }
 
 export type UnknownError = {
   errorKind: 'Unknown error'   // if none of cases above apply. Note: Should never occur, but I cannot garantee
-  portPath: string
-  baudRate: BaudRate
+  portSpec: PortSpec  
   detail: Error | unknown  // TODO: Remove this unknown type if possible, it is here because I'm 95% certain it's a Error type and 5% it may be other thing else. But type unknown absorbs all other types
 }
 
@@ -87,7 +84,9 @@ const openPortUsingDriver = (portPath: PortInfo['path'], baudRate: BaudRate) => 
 
 })
 
-const castToLocalInterface = (portPath: PortInfo['path'], baudRate: BaudRate, portOpened: SerialPort): PortOpened => {
+const castToLocalInterface = (portSpec: PortSpec, portOpened: SerialPort): PortOpened => {
+
+  const { path, baudRate} = portSpec
 
   const write: PortOpened['write'] = data => new Promise( (resolve, reject) => {
     const data_ = [...data]
@@ -108,7 +107,7 @@ const castToLocalInterface = (portPath: PortInfo['path'], baudRate: BaudRate, po
     removeAllListenersFromPort(portOpened)
     portOpened.close( err => {
       if (err) {
-        reject(new Error(`SerialPortCloseError: Cannot close serial port ${portPath}/${baudRate}. Details: ${err}.`)) 
+        reject(new Error(`SerialPortCloseError: Cannot close serial port ${path}/${baudRate}. Details: ${err}.`)) 
       }
       resolve(undefined)
     });
@@ -152,10 +151,10 @@ const castToLocalInterface = (portPath: PortInfo['path'], baudRate: BaudRate, po
 
 
 //TODO: Implement unit test for this feature, 
-const castPortOpenError = (portPath: PortInfo['path'], baudRate: BaudRate, error: unknown): PortOpenError => {
+const castPortOpenError = (portSpec: PortSpec, error: unknown): PortOpenError => {
   //TODO: I'm using the rethrow technique but should be better to implement the error on the return type (ie: using ADT, etc)
   const str = String(error)
-  const etc = { portPath, baudRate, detail: error as any} // TODO: remove this any type cast if possible
+  const etc = { portSpec, detail: error as any} // TODO: remove this any type cast if possible
   if (str) {
     const str_ = str.toLowerCase()
     if (str_.includes('access denied')) {
@@ -211,13 +210,13 @@ export const portOpener_CB = (portSpec: PortSpec, handler: EventHandler): void =
     }
 
     const emitErrorEvent = (err_: unknown) => {
-      const err = castPortOpenError(path,baudRate, err_)
+      const err = castPortOpenError(portSpec, err_)
       handler.onError(err, portSpec)
     }
 
     //NOTE: This cast is intended to encapsulate from the client perspective internal details
     const castSerialPort = (p: SerialPort) => {
-      return castToLocalInterface(path,baudRate, p)
+      return castToLocalInterface(portSpec, p)
     }
 
 
@@ -243,8 +242,7 @@ export const portOpener_CB = (portSpec: PortSpec, handler: EventHandler): void =
   } catch (err) {
     const err_: UnknownError = {
       errorKind: 'Unknown error',
-      portPath: path,
-      baudRate,
+      portSpec,
       detail: err,
     }
     handler.onError(err_, portSpec)
