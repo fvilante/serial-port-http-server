@@ -7,6 +7,9 @@ import { ErrorEvent, StateChangeEvent, SuccessEvent } from "./interpreter"
 
 export type Payload = readonly [dirChan: number, waddr: number, dataLow: number, dataHigh: number]
 
+//TODO: Implement this type if it worth
+export type PayloadCore = readonly [payload: Payload, startByte: StartByteNum]
+
 const duplicateEsc = (payload: readonly number[]): readonly number[] => {
     let acc: readonly Byte[] = [] //payload_with_esc_duplicated
     payload.forEach( byte => {
