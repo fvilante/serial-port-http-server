@@ -1,5 +1,5 @@
 import { StartByteNum, StartByteToText, StartByteTxt, STX } from "../core-types";
-import { Payload, makeWellFormedFrame } from "../payload";
+import { Payload, makeWellFormedFrame, PayloadCore } from "../payload";
 import { CmppDataLinkInterpreter, StateChangeEvent, SuccessEvent, ErrorEvent } from "../interpreter";
 import { runOnce } from "../../../core/utils";
 import { Byte } from "../../../core/byte";
@@ -40,8 +40,10 @@ export type EventHandler = {
 //TODO: create a function like that but that will attempt to retransmit failed transmission N times before effectivelly fail
 //CAUTION: This function perform side-effect by deleting all on'data' events that eventually are programmed in the concrete port before its call.
 //TODO: If possible reimplement to avoid caution message above
-export const payloadTransaction_WithCB = (portOpened: PortOpened, payload: Payload, startByte: StartByteNum, handler: EventHandler): void => {
+export const payloadTransaction_WithCB = (portOpened: PortOpened, dataToSend: PayloadCore, handler: EventHandler): void => {
     
+    const { payload, startByte } = dataToSend
+
     const header = makeHeaderEvent(startByte, payload)
 
     const parse = CmppDataLinkInterpreter({
@@ -73,7 +75,7 @@ export const payloadTransaction_WithCB = (portOpened: PortOpened, payload: Paylo
     }
 
     //make frame
-    const dataSerialized = makeWellFormedFrame(startByte,payload)
+    const dataSerialized = makeWellFormedFrame(dataToSend)
 
     //TODO: Should this code be in a try..catch clause? How to handle errors here?
     //write data

@@ -1,7 +1,7 @@
 import { calcChecksum } from "./calc-checksum";
 import { int2word, word2int } from "./int-to-word-conversion";
 import { Direction, DirectionNum, DirectionNumToText, ESC, ETX, StartByte, StartByteNum, StartByteToText, StartByteTxt } from "./core-types";
-import { Payload } from "./payload";
+import { Payload, PayloadCore } from "./payload";
 import { bit_clear, bit_test } from "../../core/bit-wise-utils";
 
 export type FrameCore = {
@@ -12,7 +12,7 @@ export type FrameCore = {
     uint16: number // data
 }
 
-export const frameCoreToPayload = (frame:FrameCore): [payload: Payload, startByteNum: StartByteNum] => {
+export const frameCoreToPayload = (frame:FrameCore): PayloadCore => {
     // TODO: validate range of channel, waddr, etc.
     const { startByte, direction, channel, waddr, uint16} = frame
     const dirNum = Direction[direction]
@@ -25,7 +25,7 @@ export const frameCoreToPayload = (frame:FrameCore): [payload: Payload, startByt
         dataHigh,
     ]
     const startByteNum = StartByte[startByte]
-    return [payload, startByteNum]
+    return {payload, startByte: startByteNum}
 }
 
 //TODO: implement test unit

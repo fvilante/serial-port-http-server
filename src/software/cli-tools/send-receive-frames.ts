@@ -29,7 +29,7 @@ const main = async () => {
         uint16: 0x00,
     })
     
-    payloadTransaction_WithCB(portOpened, ...dataToSend, {
+    payloadTransaction_WithCB(portOpened, dataToSend, {
         BEGIN: header => {
             console.log('Iniciando...Preparando para enviar:')
             console.table(header)
