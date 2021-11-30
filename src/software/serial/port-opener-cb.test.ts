@@ -1,5 +1,5 @@
 import { getLoopBackEmulatedSerialPort } from "./loopback";
-import { PortOpener_CB, PortSpec } from "./port-opener-cb";
+import { portOpener_CB, PortSpec } from "./port-opener-cb";
 
 describe('Basic tests', () => {
 
@@ -12,7 +12,7 @@ describe('Basic tests', () => {
         }
         const expectedError = "File not found"
         //act
-        const portOpened = PortOpener_CB(spec, {
+        portOpener_CB(spec, {
             onSuccess: () => {
                 expect(true).toEqual(false);
             },

@@ -196,9 +196,7 @@ export type EventHandler = {
   onError: (error: PortOpenError, portSpec: PortSpec) => void
 }
 
-export type PortOpener_CB = (portSpec: PortSpec, handler: EventHandler) => void
-
-export const PortOpener_CB:PortOpener_CB = (portSpec: PortSpec, handler: EventHandler): void => {
+export const portOpener_CB = (portSpec: PortSpec, handler: EventHandler): void => {
 
   const { path, baudRate} = portSpec
 
