@@ -1,29 +1,67 @@
 import { PortOpener } from "../serial";
 import { frameCoreToPayload } from "../cmpp/datalink/frame-core";
-import { payloadTransaction } from "../cmpp/datalink/transactioners/payload-transact";
+import { payloadTransaction_WithCB } from "../cmpp/datalink/transactioners/payload-transact";
+import { PortOpened } from "../serial/port-opener";
 
 
 const main = async () => {
 
-    const portOpened = await PortOpener('com50',9600)
-    const [payload] = frameCoreToPayload({
+    let portOpened_: PortOpened | undefined = undefined
+
+    try {
+        portOpened_ = await PortOpener('com50',9600)
+    } catch (err) {
+        console.table(err)
+        throw new Error(`Se liga porque a coisa ta punk`)
+    }
+
+    const portOpened = portOpened_ as PortOpened
+    
+    const dataToSend = frameCoreToPayload({
         startByte: 'STX',
         direction: 'Solicitacao',
         waddr: 0x00,
         channel: 0,
         uint16: 0x00,
     })
-    const responses = [
-        await payloadTransaction(portOpened,payload),
-        await payloadTransaction(portOpened,payload),
-    ]
-
-    console.table(responses)
-    await portOpened.close()
+    
+    payloadTransaction_WithCB(portOpened, ...dataToSend, {
+        BEGIN: header => {
+            console.log('Iniciando...Preparando para enviar:')
+            console.table(header)
+        },
+        END: () => {
+            console.log('END')
+            console.log('Fechando a porta...')
+            portOpened.close()
+            console.log('Fechada')
+        },
+        willSend: () => {
+            console.log(`Preparando para enviar...`)
+        },
+        hasSent: () => {
+            console.log('Ok enviado!')
+        },
+        onDataChunk: data => {
+            console.log(`Recebi um chunk, veja: ${data}`)
+        },
+        onError: error => {
+            console.log(`Ixi! Erro, veja:`)
+            console.table(error)
+        },
+        onStateChange: event => {
+            //console.table(event)
+        },
+        onSuccess: event => {
+            console.log('sucesso!')
+            console.table(event)
+        }
+    })
     
     
 }
 
 main().then( () => {
     console.log('fim')
+
 });
