@@ -40,7 +40,7 @@ export type EventHandler = {
 //TODO: create a function like that but that will attempt to retransmit failed transmission N times before effectivelly fail
 //CAUTION: This function perform side-effect by deleting all on'data' events that eventually are programmed in the concrete port before its call.
 //TODO: If possible reimplement to avoid caution message above
-export const payloadTransaction_WithCB = (portOpened: PortOpened, dataToSend: PayloadCore, handler: EventHandler): void => {
+export const payloadTransaction_CB = (portOpened: PortOpened, dataToSend: PayloadCore, handler: EventHandler): void => {
     
     const { payload, startByte } = dataToSend
 

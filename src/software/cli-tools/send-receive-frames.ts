@@ -1,5 +1,5 @@
 import { frameCoreToPayload } from "../cmpp/datalink/frame-core";
-import { payloadTransaction_WithCB } from "../cmpp/datalink/transactioners/payload-transact";
+import { payloadTransaction_CB } from "../cmpp/datalink/transactioners/payload-transact-cb";
 import { PortOpened, portOpener, PortSpec } from "../serial";
 
 
@@ -29,7 +29,7 @@ const main = async () => {
         uint16: 0x00,
     })
     
-    payloadTransaction_WithCB(portOpened, dataToSend, {
+    payloadTransaction_CB(portOpened, dataToSend, {
         BEGIN: header => {
             console.log('Iniciando...Preparando para enviar:')
             console.table(header)
