@@ -36,11 +36,13 @@ resetInterpreter();
 const validStartBytes: readonly [STX, ACK, NACK] = [STX, ACK, NACK] 
 
 export type SuccessEvent = {
+    readonly kind: 'SuccessEvent'
     readonly frameInterpreted: FrameInterpreted, 
     readonly rawInput: readonly Byte[]
 }
 
 export type ErrorEvent = {
+    readonly kind: 'ErrorEvent'
     readonly errorMessage: string, 
     readonly partialFrame: Partial<FrameInterpreted>, 
     readonly rawInput: readonly Byte[], 
@@ -117,6 +119,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
 
     const produceErrorEvent = (errorMessage: ErrorEvent['errorMessage']):void => {
         const event: ErrorEvent = {
+            kind: 'ErrorEvent',
             errorMessage,
             partialFrame: frame,
             rawInput,
@@ -270,6 +273,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
     // produces successful event
     if (coreState==='Successful') {
         const event: SuccessEvent = {
+            kind: 'SuccessEvent',
             frameInterpreted: frame as FrameInterpreted,
             rawInput,
         }

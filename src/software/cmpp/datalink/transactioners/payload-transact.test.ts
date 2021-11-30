@@ -1,31 +1,81 @@
 import { FrameInterpreted } from ".."
 import { runOnce } from "../../../core/utils"
 import { getLoopBackEmulatedSerialPort } from "../../../serial/loopback"
-import { ACK } from "../core-types"
+import { ACK, STX } from "../core-types"
 import { Payload, getRandomPayload, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "../payload"
-import { payloadTransaction_WithCB } from "./payload-transact"
+import { EventHandler, payloadTransaction_WithCB } from "./payload-transact"
 
 
 describe('basic tests', () => {
 
-    it('can run a simple transactioner constructed from a opened serial port', async () => {
+    it('can transact a simple well formed payload', async done => {
         //TODO: Should test if the port closing was adequated handled
         //prepare
-        const [ source, dest ] = getLoopBackEmulatedSerialPort()
+        const [ source, target ] = getLoopBackEmulatedSerialPort()
         const payload: Payload = [1, 2, 3, 4]
-        const expected: FrameInterpreted = makeWellFormedFrameInterpreted(ACK,payload)
-        dest.onData( data => {
-            //this call back can be called multple times in theory: one for each byte received, thus we use runOnce here.
-            runOnce(() => {
-                const emulatedResponse: number[] = makeWellFormedFrame(ACK,payload)
-                dest.write(emulatedResponse)
-            })()
+        const probe = [ACK, payload] as const
+        const probe_ = [payload, ACK] as const
+        const expectedResponse: FrameInterpreted = makeWellFormedFrameInterpreted(...probe)
+        const emulatedResponse: number[] = makeWellFormedFrame(...probe)
+        target.onData( data => {
+            const runResponse = runOnce(() => { 
+                target.write(emulatedResponse)
+            })
+            runResponse()
         })
+        type Status = {
+            [K in keyof EventHandler]?: boolean
+        }
         //act
-        //TODO: TO BE DONE!
-        //check
-        expect(true).toEqual(true)
-        
+        let status_: Status = { }
+        //TODO: When the API become more stable, test also the messages sent's through the events 
+        payloadTransaction_WithCB(source, payload, STX, {
+            //check
+            BEGIN: () => {
+                status_ = { ...status_, BEGIN: true }
+            },
+            willSend: () => {
+                status_ = { ...status_, willSend: true }
+            },
+            hasSent: () => {
+                status_ = { ...status_, hasSent: true }
+            },
+            onDataChunk: () => {
+                status_ = { ...status_, onDataChunk: true }
+            },
+            onStateChange: () => {  
+                status_ = { ...status_, onStateChange: true }
+            },
+            onError: () => {
+                status_ = { ...status_, onError: false } // note: this line is not executed
+            },
+            onSuccess: () => {
+                status_ = { ...status_, onSuccess: true }
+            },
+            END: (result, header) => {
+                status_ = { ...status_, END: true }
+                const expected: Status = {
+                    BEGIN: true,
+                    willSend: true,
+                    hasSent: true,
+                    onDataChunk: true,
+                    onStateChange: true,
+                    //onError: undefined, // note: onError event is not executed
+                    onSuccess: true,
+                    END: true,
+                }
+                expect(status_).toEqual(expected)
+                //
+                expect(result.kind).toEqual('SuccessEvent')
+                if(result.kind==='SuccessEvent') {
+                    const { frameInterpreted } = result
+                    expect(frameInterpreted).toEqual(expectedResponse)
+                }
+                
+                done()
+            }
+        })
+
     })
 
    

@@ -1,9 +1,9 @@
-import { PortOpened } from "../../../serial/port-opener";
 import { StartByteNum, StartByteToText, StartByteTxt, STX } from "../core-types";
 import { Payload, makeWellFormedFrame } from "../payload";
 import { CmppDataLinkInterpreter, StateChangeEvent, SuccessEvent, ErrorEvent } from "../interpreter";
 import { runOnce } from "../../../core/utils";
 import { Byte } from "../../../core/byte";
+import { PortOpened } from "../../../serial";
 
 
 const cleanupPortResources = (p: PortOpened):void => {
@@ -13,8 +13,7 @@ const cleanupPortResources = (p: PortOpened):void => {
     })
 }
 
-
-type HeaderEvent = {
+export type HeaderEvent = {
     startByte: {number: StartByteNum, text: StartByteTxt}
     payload: Payload
 }
@@ -26,7 +25,7 @@ const makeHeaderEvent = (n: StartByteNum, payload: Payload): HeaderEvent => {
     }
 }
 
-type EventHandler = {
+export type EventHandler = {
     BEGIN: (header: HeaderEvent) => void       // before all (garanteed that any event will be generated before this one)
     willSend: (header: HeaderEvent) => void    // before send
     hasSent: (header: HeaderEvent) => void     // after send
@@ -39,8 +38,9 @@ type EventHandler = {
 
 //NOTE: This function WILL NOT automatically close the port
 //TODO: create a function like that but that will attempt to retransmit failed transmission N times before effectivelly fail
-//CAUTION: //TODO This function perform side-effect by deleting all on'data' events that eventually are programmed in the concrete port
-export const payloadTransaction_WithCB = (portOpened: PortOpened, payload: Payload, startByte: StartByteNum = STX, handler: EventHandler): void => {
+//CAUTION: This function perform side-effect by deleting all on'data' events that eventually are programmed in the concrete port before its call.
+//TODO: If possible reimplement to avoid caution message above
+export const payloadTransaction_WithCB = (portOpened: PortOpened, payload: Payload, startByte: StartByteNum, handler: EventHandler): void => {
     
     const header = makeHeaderEvent(startByte, payload)
 
