@@ -1,5 +1,5 @@
 import { BaudRate } from './baudrate'
-import { PortOpener } from './port-opener'
+import { portOpener } from './port-opener'
 import { PortOpened, PortSpec } from './port-opener-cb'
 
 // CRITICAL
@@ -48,7 +48,7 @@ export const communicate = (
     })
 
     console.log(`Abrindo porta ${portName}...`)
-    PortOpener(spec)
+    portOpener(spec)
         .then( portOpened_ => {
             portOpened = portOpened_;
             console.log(`aberta ${portName}`);

@@ -1,4 +1,4 @@
-import { PortOpener } from ".."
+import { portOpener } from ".."
 import { delay } from "../../core/delay"
 
 // tipos de erro da serial (teste pratico dos efeitos):
@@ -57,8 +57,8 @@ const main = async () => {
         console.log('handler 2 rodou', data)
     }
     try {
-        const source = await PortOpener({path:'com4', baudRate: 9600} )
-        const target = await PortOpener({path: 'com5',baudRate: 9600} )
+        const source = await portOpener({path:'com4', baudRate: 9600} )
+        const target = await portOpener({path: 'com5',baudRate: 9600} )
         
         target.onData(readerHandler1 )
         //source.onError( e => {
