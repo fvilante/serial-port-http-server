@@ -24,6 +24,7 @@ export type PortOpened = {
 
 export type AccessDenied = {
   errorKind: 'Access denied'    // ie: when port is already open by other proccess
+  //TODO: substitute below to 'PortSpec' instead
   portPath: string
   baudRate: BaudRate
   detail: Error
@@ -200,38 +201,56 @@ export const portOpener_CB = (portSpec: PortSpec, handler: EventHandler): void =
 
   const { path, baudRate} = portSpec
 
-  const loopBack_PortA = () => new Promise<PortOpened>( resolve => resolve(portAOpened))
-  const loopBack_PortB = () => new Promise<PortOpened>( resolve => resolve(portBOpened))
+  const run = () => {
 
-  const emitPortOpenedEvent = (p: PortOpened) => { 
-    handler.onSuccess(p, portSpec)
+    const loopBack_PortA = () => new Promise<PortOpened>( resolve => resolve(portAOpened))
+    const loopBack_PortB = () => new Promise<PortOpened>( resolve => resolve(portBOpened))
+
+    const emitPortOpenedEvent = (p: PortOpened) => { 
+      handler.onSuccess(p, portSpec)
+    }
+
+    const emitErrorEvent = (err_: unknown) => {
+      const err = castPortOpenError(path,baudRate, err_)
+      handler.onError(err, portSpec)
+    }
+
+    //NOTE: This cast is intended to encapsulate from the client perspective internal details
+    const castSerialPort = (p: SerialPort) => {
+      return castToLocalInterface(path,baudRate, p)
+    }
+
+
+    //main code
+    switch (path) {
+      case LoopBackPortA_Path:
+        loopBack_PortA().then(emitPortOpenedEvent)
+        break;
+      case LoopBackPortB_Path:
+        loopBack_PortB().then(emitPortOpenedEvent)
+        break
+      default: 
+        openPortUsingDriver(path,baudRate)
+          .then(castSerialPort)
+          .then(emitPortOpenedEvent)
+          .catch(emitErrorEvent)
+    }
   }
 
-  const emitErrorEvent = (err_: unknown) => {
-    const err = castPortOpenError(path,baudRate, err_)
-    handler.onError(err, portSpec)
+  //execute
+  try {
+    run()
+  } catch (err) {
+    const err_: UnknownError = {
+      errorKind: 'Unknown error',
+      portPath: path,
+      baudRate,
+      detail: err,
+    }
+    handler.onError(err_, portSpec)
   }
-
-  //NOTE: This cast is intended to encapsulate from the client perspective internal details
-  const castSerialPort = (p: SerialPort) => {
-    return castToLocalInterface(path,baudRate, p)
-  }
-
-
-  //run
-  switch (path) {
-    case LoopBackPortA_Path:
-      loopBack_PortA().then(emitPortOpenedEvent)
-      break;
-    case LoopBackPortB_Path:
-      loopBack_PortB().then(emitPortOpenedEvent)
-      break
-    default: 
-      openPortUsingDriver(path,baudRate)
-        .then(castSerialPort)
-        .then(emitPortOpenedEvent)
-        .catch(emitErrorEvent)
-  }
+  
+  
 }
 
 
