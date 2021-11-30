@@ -196,6 +196,7 @@ export type EventHandler = {
   onError: (error: PortOpenError, portSpec: PortSpec) => void
 }
 
+//TODO:  deprecate the current 'portOpener' and rename this function to 'portOpener' and
 export const portOpener_CB = (portSpec: PortSpec, handler: EventHandler): void => {
 
   const { path, baudRate} = portSpec
