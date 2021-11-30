@@ -57,8 +57,8 @@ const main = async () => {
         console.log('handler 2 rodou', data)
     }
     try {
-        const source = await PortOpener('com4',9600)
-        const target = await PortOpener('com5',9600)
+        const source = await PortOpener({path:'com4', baudRate: 9600} )
+        const target = await PortOpener({path: 'com5',baudRate: 9600} )
         
         target.onData(readerHandler1 )
         //source.onError( e => {

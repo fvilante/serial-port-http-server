@@ -1,15 +1,19 @@
-import { PortOpener } from "../serial";
 import { frameCoreToPayload } from "../cmpp/datalink/frame-core";
 import { payloadTransaction_WithCB } from "../cmpp/datalink/transactioners/payload-transact";
-import { PortOpened } from "../serial/port-opener";
+import { PortOpened, PortOpener, PortSpec } from "../serial";
 
 
 const main = async () => {
 
     let portOpened_: PortOpened | undefined = undefined
 
+    const spec: PortSpec = {
+        path: 'com50',
+        baudRate: 9600
+    }
+
     try {
-        portOpened_ = await PortOpener('com50',9600)
+        portOpened_ = await PortOpener(spec)
     } catch (err) {
         console.table(err)
         throw new Error(`Se liga porque a coisa ta punk`)
