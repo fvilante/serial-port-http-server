@@ -3,6 +3,7 @@
 import { delay } from "../core/delay"
 import { PortOpened } from "./port-opener"
 
+//TODO: Change below names to more mneumonic names
 export const LoopBackPortA_Path = 'LoopBackTest_PortA' //TODO: rename by a more meneumonic name
 export const LoopBackPortB_Path = 'LoopBackTest_PortB'
 
