@@ -7,6 +7,12 @@ import { ErrorEvent, StateChangeEvent, SuccessEvent } from "./interpreter"
 
 export type Payload = readonly [dirChan: number, waddr: number, dataLow: number, dataHigh: number]
 
+//TODO: Implement this type if it worth
+export type PayloadCore = { 
+    readonly payload: Payload, 
+    readonly startByte: StartByteNum
+}
+
 const duplicateEsc = (payload: readonly number[]): readonly number[] => {
     let acc: readonly Byte[] = [] //payload_with_esc_duplicated
     payload.forEach( byte => {
@@ -20,12 +26,14 @@ const duplicateEsc = (payload: readonly number[]): readonly number[] => {
 }
 
 // from given payload make well-formed frame
-export const makeWellFormedFrame = (startByte: StartByteNum, payload: Payload) => {
+export const makeWellFormedFrame = (_: PayloadCore) => {
+    const { payload, startByte } = _
     const checksum = calcChecksum_(payload,startByte)
     return [ESC, startByte, ...duplicateEsc(payload), ESC, ETX, ...duplicateEsc([checksum])]
 }
 
-export const makeWellFormedFrameInterpreted = (startByte: StartByteNum, payload: Payload): FrameInterpreted => {
+export const makeWellFormedFrameInterpreted = (_: PayloadCore): FrameInterpreted => {
+    const { payload, startByte } = _
     const checksum = calcChecksum_(payload,startByte)
     return {
         firstEsc: [ESC],
