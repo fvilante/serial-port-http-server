@@ -45,21 +45,50 @@ export const detectCmpp = (tunnel: Tunnel, timeoutMilisecs: number, handler: Eve
         },
         onSuccess: portOpened => {
 
+            const cleanupAndFinalize = (isDetected: boolean, tunnel: Tunnel): Promise<void> => {
+                return new Promise( (resolve,reject) => {
+                    if (isDetected) {
+                        handler?.onDetected(tunnel)
+                    } else {
+                        handler?.onNotDetected(tunnel)
+                    }
+                    //close port
+                    try {
+                        portOpened.close()
+                            .then( () => {
+                                // ok sucessful closed
+                                resolve()
+                            })
+                            .catch( err => {
+                                handler?.onError(err)
+                            })
+                            .finally( () => {
+                                handler?.END()
+                                resolve()
+                            })
+                    } catch (err) {
+                        handler?.onError(err)
+                        handler?.END()
+                        resolve()
+                    }
+                }) 
+            }
+
             const dataToSend = makeDetectionPayloadCore(channel)
 
+            //run
             try {
                 payloadTransact(portOpened, dataToSend, timeoutMilisecs)
                 .then( response => {
-                    handler?.onDetected(tunnel)
-                    handler?.END()
+                    cleanupAndFinalize(true, tunnel)
                 })
                 .catch( err => {
                     handler?.onError(err)
-                    handler?.END()
+                    cleanupAndFinalize(false, tunnel)
                 })
             } catch (err) {
                 handler?.onError(err)
-                handler?.END()
+                cleanupAndFinalize(false, tunnel)
             }
             
         },
