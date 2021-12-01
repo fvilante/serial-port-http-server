@@ -1,4 +1,5 @@
-import { PortOpened } from "../../serial"
+import { PortOpened, PortSpec } from "../../serial"
+import { PortOpenError, portOpener_CB } from "../../serial/port-opener-cb"
 import { Channel } from "../datalink/core-types"
 import { frameCoreToPayload } from "../datalink/frame-core"
 import { payloadTransact } from "../datalink/transactioners/payload-transact"
@@ -17,28 +18,51 @@ const makeDetectionPayloadCore = (channel: Channel) => {
 
 }
 
+//TODO: eventually extract this type to a better place
+export type Tunnel = { 
+    readonly portSpec: PortSpec, 
+    readonly channel: Channel
+} 
 
+export type EventHandler = {
+    readonly BEGIN: () => void
+    readonly onDetected: (tunnel: Tunnel) => void
+    readonly onNotDetected: (tunnel: Tunnel) => void
+    readonly onError: (_: unknown | PortOpenError) => void
+    readonly END: () => void
+}
 
-//NOTE: you must call this function when there is no more then one cmpp per each channel connected
-export const detectCmpp = (portOpened: PortOpened, channel: Channel, timeoutMilisecs: number): Promise<boolean> => {
-    return new Promise( (resolve, reject) => {
+//NOTE: you must call this function when there is no more then one cmpp per each Tunnel connected
+//NOTE: Important! this function never throws
+export const detectCmpp = (tunnel: Tunnel, timeoutMilisecs: number, handler: EventHandler): void => {
 
-        const onSuccess = (isPresent: boolean):void => {
-            resolve(isPresent)
-        }
+    const { channel, portSpec} = tunnel
 
-        const onError = ():void => {
-            //never called
-        }
+    portOpener_CB(portSpec, {
+        onError: err => {
+            handler?.onError(err)
+            handler?.END()
+        },
+        onSuccess: portOpened => {
 
-        const dataToSend = makeDetectionPayloadCore(channel)
+            const dataToSend = makeDetectionPayloadCore(channel)
 
-        payloadTransact(portOpened, dataToSend, timeoutMilisecs)
-            .then( response => {
-                onSuccess(true)
-            })
-            .catch( err => {
-                onSuccess(false)
-            })
+            try {
+                payloadTransact(portOpened, dataToSend, timeoutMilisecs)
+                .then( response => {
+                    handler?.onDetected(tunnel)
+                    handler?.END()
+                })
+                .catch( err => {
+                    handler?.onError(err)
+                    handler?.END()
+                })
+            } catch (err) {
+                handler?.onError(err)
+                handler?.END()
+            }
+            
+        },
     })
+        
 }
