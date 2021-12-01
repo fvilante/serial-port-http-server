@@ -1,8 +1,8 @@
 import { FrameInterpreted } from ".."
 import { runOnce } from "../../../core/utils"
 import { getLoopBackEmulatedSerialPort } from "../../../serial/loopback"
-import { ACK, STX } from "../core-types"
-import { Payload, getRandomPayload, makeWellFormedFrame, makeWellFormedFrameInterpreted, PayloadCore } from "../payload"
+import { ACK } from "../core-types"
+import { Payload, makeWellFormedFrame, makeWellFormedFrameInterpreted, PayloadCore } from "../payload"
 import { EventHandler, payloadTransaction_CB } from "./payload-transact-cb"
 
 
