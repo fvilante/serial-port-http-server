@@ -41,6 +41,7 @@ export type SuccessEvent = {
     readonly rawInput: readonly Byte[]
 }
 
+//TODO: rename to InterpretationErrorEvent
 export type ErrorEvent = {
     readonly kind: 'ErrorEvent'
     readonly errorMessage: string, 
