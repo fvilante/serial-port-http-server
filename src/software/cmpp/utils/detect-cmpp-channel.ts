@@ -42,8 +42,6 @@ const main = async () => {
         baudRate: 9600
     }
 
-    console.log('Varrendo canais...')
-
     portOpener(spec)
         .then( async portOpened => {
             
