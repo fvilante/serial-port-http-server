@@ -15,7 +15,7 @@ export type EventHandler = {
 export const detectCmppChannel = (portOpened: PortOpened, handler: EventHandler): void => {
 
     const timeout = 100 // milisecs TODO: Should this time be calculated in terms of baudrate and be lesser ?
-    const channels: readonly Channel[] = [...makeRange(1,63,1)] //NOTE: I'm ignoring channel 0 because channel 0 is dangerous to scan: all cmpp will respond to channel 0. \\TODO: Maybe in future I can use to scan channel 0 as a last alternative to find some cmpp 
+    const channels: readonly Channel[] = [...makeRange(1,64,1)] //NOTE: I'm ignoring channel 0 because channel 0 is dangerous to scan: all cmpp will respond to channel 0. \\TODO: Maybe in future I can use to scan channel 0 as a last alternative to find some cmpp 
 
     handler?.BEGIN()
 

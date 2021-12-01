@@ -7,10 +7,7 @@ import { PortOpened } from "../../../serial";
 
 
 const cleanupPortResources = (p: PortOpened):void => {
-    runOnce( () => {
-        //TODO: Should we also use/remove Error listeners ?
-        p.removeAllDataListeners()
-    })
+    p.removeAllDataListeners()
 }
 
 const cleanupTimeout = (id: unknown):void => {
@@ -67,7 +64,7 @@ export const payloadTransaction_CB = (portOpened: PortOpened, dataToSend: Payloa
 
     const parse = CmppDataLinkInterpreter({
         onSuccess: event => {
-            resetInterpreter()
+            //resetInterpreter() //TODO: checkif this particular cleanup is really necessary. because interpreter is already automatic reseted in case of error (confirm it)
             cleanupPortResources(portOpened)
             cleanupTimeout(id)
             const data = [event, header] as const
@@ -76,7 +73,7 @@ export const payloadTransaction_CB = (portOpened: PortOpened, dataToSend: Payloa
             if(handler.END) handler.END(...data)
         },
         onError: event => {
-            resetInterpreter()
+            //resetInterpreter() //TODO: checkif this particular cleanup is really necessary. because interpreter is already automatic reseted in case of error (confirm it)
             const data = [event, header] as const
             cleanupPortResources(portOpened)
             cleanupTimeout(id)
@@ -97,7 +94,7 @@ export const payloadTransaction_CB = (portOpened: PortOpened, dataToSend: Payloa
             startByte
         }
         const event = [timeout, header] as const
-        resetInterpreter() // TODO: extract all this cleanup calls to one single cleanup function
+        cleanupPortResources(portOpened) // TODO: extract all this cleanup calls to one single cleanup function
         handler.onError(...event)
         handler.END(...event)
         
