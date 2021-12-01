@@ -16,23 +16,32 @@ const main = async () => {
     portOpener(spec)
         .then( async portOpened => {
 
+            const timeout = 1000 // miliseconds
+
             const dataToSend = frameCoreToPayload({
                 startByte: 'STX',
                 direction: 'Solicitacao',
                 waddr: 0x00,
-                channel: 0,
+                channel: 2,
                 uint16: 0x00,
             })
 
-            const response = await payloadTransact(portOpened, dataToSend)
+            try {
+                const response = await payloadTransact(portOpened, dataToSend, timeout)
+                console.table(response)
+            } catch (err) {
+                console.log('saiu por erro')
+                console.log(err)
+            } finally {
+                portOpened.close()
+            }
+            
 
-            console.table(response)
-
-            portOpened.close()
+            
 
         })
         .catch( err => {
-            console.log(err)
+            console.log('outro tipo de erro ->', err)
         })
 
     

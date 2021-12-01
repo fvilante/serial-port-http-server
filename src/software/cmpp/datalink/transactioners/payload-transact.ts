@@ -5,18 +5,18 @@ import { payloadTransaction_CB } from "./payload-transact-cb";
 
 
 
-export const payloadTransact = (portOpened: PortOpened, dataToSend: PayloadCore): Promise<FrameInterpreted> => {
+export const payloadTransact = (portOpened: PortOpened, dataToSend: PayloadCore, timeoutMilisec: number ): Promise<FrameInterpreted> => {
 
     return new Promise ((resolve, reject ) => {
 
-        payloadTransaction_CB(portOpened, dataToSend, {
+        payloadTransaction_CB(portOpened, dataToSend, timeoutMilisec, {
             BEGIN: () => {},
             willSend: () => {},
             hasSent: () => {},
             onDataChunk: () => {},
             onStateChange: () => {},
             onError: (err, header) => {
-                reject([err, header]) // TODO: decide better the type of the error to sent
+                reject([err, header]) // TODO: look for a better (normalized) type of error
             },
             onSuccess: (event, header) => {
                 const { frameInterpreted } = event
