@@ -7,10 +7,7 @@ import { PortOpened } from "../../../serial";
 
 
 const cleanupPortResources = (p: PortOpened):void => {
-    runOnce( () => {
-        //TODO: Should we also use/remove Error listeners ?
-        p.removeAllDataListeners()
-    })
+    p.removeAllDataListeners()
 }
 
 const cleanupTimeout = (id: unknown):void => {
