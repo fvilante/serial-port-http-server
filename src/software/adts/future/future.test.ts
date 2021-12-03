@@ -363,6 +363,34 @@ describe('basic tests', () => {
             done();
         })
     })
+
+    it('Can match for Result', async (done) => {
+        //prepare
+        jest.useFakeTimers(); // we don't need to wait real time to pass :)
+        const text = 'future is not certain' as const
+        const probe = Future<Result<number,typeof text>>( yield_ => {
+            yield_(Result_.Error(text))
+        })
+        const probe2 = Future_.fromValue(2 as const) // fix: Note that some times Typescript let you manipulate never functions
+        const expected = 'future is not certain, but...' as const
+        //act
+        let buffer:string = `unloadedBuffer`
+        probe.forResult({
+            Error: err => { 
+                buffer = err.concat(', but...')
+            },
+            Ok: val => {
+                buffer = String(val).concat('as you know')
+            },
+        })
+        //check
+        setTimeout( () => {
+            expect(buffer).toBe(expected);
+            done();
+        },10)
+        jest.runAllTimers(); // but we need to wait all timers to run :)
+        
+    })
 /*
     it('Can decompose Result ADT inside future', async (done) => {
         //prepare
