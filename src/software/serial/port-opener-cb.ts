@@ -35,9 +35,10 @@ export type FileNotFound = {
   detail: Error
 }
 
+//TODO: This type should be generalized to be used in any case scenario, or we should rename this type to "UnknownPortOpenError"
 export type UnknownError = {
   errorKind: 'Unknown error'   // if none of cases above apply. Note: Should never occur, but I cannot garantee
-  portSpec: PortSpec  
+  portSpec?: PortSpec  
   detail: Error | unknown  // TODO: Remove this unknown type if possible, it is here because I'm 95% certain it's a Error type and 5% it may be other thing else. But type unknown absorbs all other types
 }
 
