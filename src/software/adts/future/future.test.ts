@@ -16,6 +16,35 @@ describe('basic tests', () => {
             done();
         })
     })
+
+    it('Can consider just the first yielded value, even when multiple values are yielded.', async (done) => {
+        jest.useFakeTimers(); // we don't need to wait real time to pass :)
+        //prepare
+        const head = 2
+        const tail = 666
+        const delayBetweenAsyncEmittion = 100
+        //act
+        const ma = Future<number>( yield_ => {
+            yield_(head);
+            yield_(tail); //second emission emitted synchronously
+            setTimeout( () => {
+                yield_(tail) //third emission emitted asynchronously
+            },delayBetweenAsyncEmittion)
+        })
+        //check
+        let c = 0
+        ma.unsafeRun( actual => {
+            c++
+            expect(actual).toEqual(head) //yield just the head 
+        })
+        //wait all possible emittions
+        setTimeout( () => {
+            expect(c).toEqual(1)         //and yield the head once
+            done();
+        }, 3*delayBetweenAsyncEmittion)
+        jest.runAllTimers(); // but we need to wait all timers to run :)
+    })
+
     it('Can construct from a thunk', async (done) => {
         //prepare
         const probe = () => 2
@@ -274,13 +303,10 @@ describe('basic tests', () => {
         expect(setTimeout).toHaveBeenCalledTimes(0) // I'm just couting how many times Setimeout has been called.  
     })
 
-    it('it can ignore value', async () => {
-        //fix: test 'ignore' method
-    })
+    it.todo('it can ignore value') //fix: test 'ignore' method
 
-    it('it can transform', async () => {
-        //fix: test 'transform' method
-    })
+    it.todo('it can transform') //fix: test 'transform' method
+    
 /*
     it('Can decompose Result ADT inside future', async (done) => {
         //prepare
