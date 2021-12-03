@@ -68,18 +68,23 @@ export const safePayloadTransact = (portSpec: PortSpec, dataToSend: PayloadCore,
                 
                     response.forResult({
                         Ok: frameInterpreted => {
+                            //console.log('received a frameInterpreted')
+                            //console.log(`closing port ${portSpec.path}`)
                             portCloser(portOpened, portSpec)
                                 .forResult({
-                                    Error: err => {
-                                        _yield(fail(err))
+                                    Error: PortCloseError => {
+                                        //console.log('PortCloseError')
+                                        _yield(fail(PortCloseError))
                                     },
                                     Ok: () => {
+                                        //console.log(`Port ${portSpec.path} closed`)
+                                        //console.log('emiting success frameInterpreted')
                                         _yield(ok(frameInterpreted))
                                     }
                                 })
                         },
                         Error: transactErrorEvent => {
-                            //console.log('closing port.')
+                            //console.log(`closing port ${portSpec.path}`)
                             portCloser(portOpened, portSpec)
                                 .forResult({
                                     Error: PortCloseError => {
