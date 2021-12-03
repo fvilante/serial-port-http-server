@@ -34,7 +34,7 @@ const main = async () => {
     //param
     const scanFromChannel = 1
     const scanToChannel = 64
-    const baudRatesToScan: readonly BaudRate[] = [9600,4800,2400] //PossibleBaudRates //[9600,2400]  // TODO: When I use a larger range PossibleBaudRates the detection starts to fail to localize some cmpps. If you want to use a larger range you should first solve this problem.
+    const baudRatesToScan: readonly BaudRate[] = [9600,2400] //PossibleBaudRates //[9600,2400]  // TODO: When I use a larger range PossibleBaudRates the detection starts to fail to localize some cmpps. If you want to use a larger range you should first solve this problem.
     const portsToScan = (await listSerialPorts()).filter( port => {
         //TODO: There is an error if we try to scan Software emulated serial port. The program halts. Solve this problem when possible
         const isSoftwareEmulatedPort = isSerialPortEmulatedWithCom0Com(port) || isSerialPortLoopBackForTest(port)
@@ -95,7 +95,7 @@ const main = async () => {
         return () => executeInSequence(y)
     })
 
-    await executeInSequence(x) //TODO: make this execution in paralel if possible
+    await ExecuteInParalel(x) //TODO: make this execution in paralel if possible
 
 }
 
