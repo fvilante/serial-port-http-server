@@ -7,7 +7,10 @@ import { TransactErrorEvent } from "./payload-transact-cb";
 import { TransactPayloadArgument_ADT, transactPayload_ADT } from "./transact-payload_ADT";
 
 
-export const retryPolicy = (retries: number) => (arg: TransactPayloadArgument_ADT): Future<Result<FrameInterpreted,TransactErrorEvent>>  => {
+// TODO: Improve this API when possible,
+//       It shold be in such way that client of function can receive intermediarry attemps statys
+// Applies a retry policy over the transactionPayload API
+export const transactPayloadWithRetryPolicy = (retries: number) => (arg: TransactPayloadArgument_ADT): Future<Result<FrameInterpreted,TransactErrorEvent>>  => {
     const { ok, fail } = Result_.makeConstructors<FrameInterpreted, TransactErrorEvent>()
     return Future( _yield => {
 
@@ -76,7 +79,7 @@ const main = async () => {
         onSuccess: portOpened => {
 
             const run = async () => {
-                const transactPayload = retryPolicy(3)
+                const transactPayload = transactPayloadWithRetryPolicy(3)
                 const a = await transactPayload({
                     dataToSend,
                     portOpened,
@@ -102,4 +105,4 @@ const main = async () => {
 }
 
 
-main()
+//main()
