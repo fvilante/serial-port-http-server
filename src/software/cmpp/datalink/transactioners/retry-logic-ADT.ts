@@ -24,14 +24,15 @@ export const transactPayloadWithRetryPolicy = (retries: number) => (arg: Transac
                     Error: err => {
                         switch (err.kind) {
                             case 'TimeoutErrorEvent': {
-                                fail(err)
+                                //console.log('timeout error event')
+                                _yield(fail(err))
                                 break;
                             }
     
                             case 'InterpretationErrorEvent': {
                                 // retry if the problem is an interpretation error
                                 if (retryCount<=0) {
-                                    fail(err)
+                                    _yield(fail(err))
                                 } else {
                                     console.log(`new attempy: ${retryCount}/${retries}`, )
                                     //retry
