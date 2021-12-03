@@ -1,9 +1,11 @@
 import { FrameInterpreted } from "..";
 import { PortOpened } from "../../../serial";
 import { PayloadCore } from "../payload";
-import { payloadTransaction_CB } from "./payload-transact-cb";
+import { HeaderEvent, payloadTransaction_CB, TransactErrorEvent } from "./payload-transact-cb";
 
-
+// this type is what the function throws when error happens
+export type PayloadTransactError = readonly [TransactErrorEvent, HeaderEvent] // TODO: look for a better (normalized) type of error
+                
 
 export const payloadTransact = (portOpened: PortOpened, dataToSend: PayloadCore, timeoutMilisec: number ): Promise<FrameInterpreted> => {
 
@@ -16,7 +18,8 @@ export const payloadTransact = (portOpened: PortOpened, dataToSend: PayloadCore,
             onDataChunk: () => {},
             onStateChange: () => {},
             onError: (err, header) => {
-                reject([err, header]) // TODO: look for a better (normalized) type of error
+                const error: PayloadTransactError = [err, header] as const
+                reject(error) 
             },
             onSuccess: (event, header) => {
                 const { frameInterpreted } = event
