@@ -1,17 +1,28 @@
 import { detectCmpp, Tunnel } from "../cmpp/utils/detect-cmpp"
-import { executeInSequence } from "../core/promise-utils"
+import { ExecuteInParalel, executeInSequence } from "../core/promise-utils"
 import { makeRange } from "../core/utils"
 import { listSerialPorts, isSerialPortEmulatedWithCom0Com, isSerialPortLoopBackForTest} from "../serial/list-serial-ports"
-import { BaudRate } from "../serial/baudrate"
+import { BaudRate, PossibleBaudRates } from "../serial/baudrate"
+
 
 
 export type DetectionResult = 'Detected' | 'NotDetected'
+
+
+//TODO: Implement 'Milisecond' as the return type instead of 'number'
+const calculateTimeout = (baudRate: BaudRate): number => {
+    //Here we stabilish the timeout as a function of baudRate
+    //NOTE: the 100 miliseconds below is totaly arbitrary based in my feelings and experience, maybe this number can be optimized in future
+    const timeout =  (9600/baudRate) * 100 // Note: for 9600 is acceptable a 100 miliseconds timeout for wait the reception frame from cmpp then...
+    return Math.round(timeout)
+}
 
 export const scanCmppInTunnel = (tunnel: Tunnel): Promise<DetectionResult> => {
 
     return new Promise( (resolve, reject) => {
 
-        const timeout = tunnel.portSpec.baudRate >= 9600 ? 100 : 250 //TODO: Arbitrary defined, should be a better form to define time between transmitted and received payload
+        const timeout = calculateTimeout(tunnel.portSpec.baudRate)
+        //console.log(timeout)
 
         detectCmpp(tunnel,timeout, {
             BEGIN: () => {
