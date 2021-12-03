@@ -23,21 +23,21 @@ export type PortOpened = {
 }
 
 export type AccessDenied = {
-  errorKind: 'Access denied'    // ie: when port is already open by other proccess
+  kind: 'Access denied'    // ie: when port is already open by other proccess
   //TODO: substitute below to 'PortSpec' instead
   portSpec: PortSpec  
   detail: Error
 }
 
 export type FileNotFound = {
-  errorKind: 'File not found'   // ie: when the portPath cannot be located
+  kind: 'File not found'   // ie: when the portPath cannot be located
   portSpec: PortSpec  
   detail: Error
 }
 
 //TODO: This type should be generalized to be used in any case scenario, or we should rename this type to "UnknownPortOpenError"
 export type UnknownError = {
-  errorKind: 'Unknown error'   // if none of cases above apply. Note: Should never occur, but I cannot garantee
+  kind: 'Unknown error'   // if none of cases above apply. Note: Should never occur, but I cannot garantee
   portSpec?: PortSpec  
   detail: Error | unknown  // TODO: Remove this unknown type if possible, it is here because I'm 95% certain it's a Error type and 5% it may be other thing else. But type unknown absorbs all other types
 }
@@ -160,17 +160,17 @@ const castPortOpenError = (portSpec: PortSpec, error: unknown): PortOpenError =>
     const str_ = str.toLowerCase()
     if (str_.includes('access denied')) {
       return {
-        errorKind: 'Access denied',
+        kind: 'Access denied',
         ...etc,
       }
     } else if (str_.includes('file not found')) {
       return {
-        errorKind: 'File not found',
+        kind: 'File not found',
         ...etc,
       }
     } else {
       return {
-        errorKind: 'Unknown error',
+        kind: 'Unknown error',
         ...etc,
       }
     }
@@ -243,7 +243,7 @@ export const portOpener_CB = (portSpec: PortSpec, handler: EventHandler): void =
     run()
   } catch (err) {
     const err_: UnknownError = {
-      errorKind: 'Unknown error',
+      kind: 'Unknown error',
       portSpec,
       detail: err,
     }

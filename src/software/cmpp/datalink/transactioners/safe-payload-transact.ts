@@ -11,7 +11,7 @@ import { transactPayloadWithRetryPolicy } from "./retry-logic-ADT"
 
 //TODO: Should we extract this type to serial lib as 'portCloser_ADT' ?
 export type PortCloseError = {
-    errorKind: 'Port close error'   // ie: when closing the port produces an error
+    kind: 'Port close error'   // ie: when closing the port produces an error
     portSpec: PortSpec  
     detail: UnsafePromiseError
 }
@@ -24,7 +24,7 @@ const portCloser = (portOpened: PortOpened, portSpec: PortSpec): Future<Result<v
         closeIt.forResult({
             Error: UnsafePromiseError => {
                 _yield(fail({
-                    errorKind: 'Port close error',
+                    kind: 'Port close error',
                     portSpec,
                     detail: UnsafePromiseError
                 }))

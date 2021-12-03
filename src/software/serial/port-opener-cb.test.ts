@@ -18,7 +18,7 @@ describe('Basic tests', () => {
             },
             onError: (error, spec_) => {
                 expect(spec_).toEqual(spec);
-                expect(error.errorKind).toEqual(expectedError)
+                expect(error.kind).toEqual(expectedError)
             }
         })
         //check
