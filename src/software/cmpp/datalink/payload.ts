@@ -3,7 +3,7 @@ import { Byte } from "../../core/byte"
 import { random } from "../../core/utils"
 import { calcChecksum_ } from "./calc-checksum"
 import { ACK, ESC, ETX, NACK, StartByteNum, STX } from "./core-types"
-import { ErrorEvent, StateChangeEvent, SuccessEvent } from "./interpreter"
+import { InterpretationErrorEvent, StateChangeEvent, SuccessEvent } from "./interpreter"
 
 export type Payload = readonly [dirChan: number, waddr: number, dataLow: number, dataHigh: number]
 
@@ -61,7 +61,7 @@ export const getRandomStartByte = ():StartByteNum => {
 
 export type ExecutionResult = {
     onSucess: readonly SuccessEvent[]
-    onError: readonly ErrorEvent[]
+    onError: readonly InterpretationErrorEvent[]
     onStateChange: readonly StateChangeEvent[]
 }
 

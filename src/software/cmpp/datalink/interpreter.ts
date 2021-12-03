@@ -41,9 +41,8 @@ export type SuccessEvent = {
     readonly rawInput: readonly Byte[]
 }
 
-//TODO: rename to InterpretationErrorEvent
-export type ErrorEvent = {
-    readonly kind: 'ErrorEvent'
+export type InterpretationErrorEvent = {
+    readonly kind: 'InterpretationErrorEvent'
     readonly errorMessage: string, 
     readonly partialFrame: Partial<FrameInterpreted>, 
     readonly rawInput: readonly Byte[], 
@@ -61,7 +60,7 @@ export type StateChangeEvent = {
 
 export type EventsHandler = {
     onSuccess: (event: SuccessEvent) => void,
-    onError: (event: ErrorEvent) => void,
+    onError: (event: InterpretationErrorEvent) => void,
     onStateChange?: (event: StateChangeEvent) => void
 }
 
@@ -118,9 +117,9 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         return `${ErrorHeader}: ${specificMessage}` as const
     }
 
-    const produceErrorEvent = (errorMessage: ErrorEvent['errorMessage']):void => {
-        const event: ErrorEvent = {
-            kind: 'ErrorEvent',
+    const produceErrorEvent = (errorMessage: InterpretationErrorEvent['errorMessage']):void => {
+        const event: InterpretationErrorEvent = {
+            kind: 'InterpretationErrorEvent',
             errorMessage,
             partialFrame: frame,
             rawInput,

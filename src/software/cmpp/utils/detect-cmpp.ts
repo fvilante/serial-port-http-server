@@ -92,7 +92,7 @@ export const detectCmpp = (tunnel: Tunnel, timeoutMilisecs: number, handler: Eve
                 .catch( err => {
                     const err_: PayloadTransactError = err as PayloadTransactError
                     const [transactError ] = err_
-                    if(transactError.kind === 'ErrorEvent' ) {
+                    if(transactError.kind === 'InterpretationErrorEvent' ) {
                         //is not timout error but 'interpretation?' error, then:
                         //try again!
                         closePortSafe(portOpened)

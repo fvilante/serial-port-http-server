@@ -1,6 +1,6 @@
 import { StartByteNum, StartByteToText, StartByteTxt, STX } from "../core-types";
 import { Payload, makeWellFormedFrame, PayloadCore } from "../payload";
-import { CmppDataLinkInterpreter, StateChangeEvent, SuccessEvent, ErrorEvent } from "../interpreter";
+import { CmppDataLinkInterpreter, StateChangeEvent, SuccessEvent, InterpretationErrorEvent } from "../interpreter";
 import { runOnce } from "../../../core/utils";
 import { Byte } from "../../../core/byte";
 import { PortOpened } from "../../../serial";
@@ -34,7 +34,7 @@ const makeHeaderEvent = (n: StartByteNum, payload: Payload): HeaderEvent => {
     }
 }
 
-export type TransactErrorEvent = ErrorEvent | TimeoutErrorEvent
+export type TransactErrorEvent = InterpretationErrorEvent | TimeoutErrorEvent
 
 export type EventHandler = {
     BEGIN: (header: HeaderEvent) => void       // before all (garanteed that any event will be generated before this one)
