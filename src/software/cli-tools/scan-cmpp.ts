@@ -24,7 +24,7 @@ const calculateTimeout = (baudRate: BaudRate): number => {
 
 export const scanCmppInTunnel = (tunnel: Tunnel):Future<Result<FrameInterpreted, Fail>> => {
     const timeout = calculateTimeout(tunnel.portSpec.baudRate)
-    const totalRetries = 3
+    const totalRetries = 10 //being ignorante in number of retries :D
     return detectCmpp(tunnel,timeout, totalRetries)
 }
 
