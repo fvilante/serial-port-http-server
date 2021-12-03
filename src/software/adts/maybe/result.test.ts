@@ -31,6 +31,32 @@ describe('basic tests', () => {
         expect(actual).toEqual(expected)
     })
 
+    it('Can construct from the makeConstructor facility', async () => {
+        //prepare
+        type Ok = 777
+        type Fail =  'hello world'
+        const probeOk: Ok = 777
+        const probeFail: Fail = 'hello world' as const
+        const expectedOk = {
+            hasError: false,
+            value: 777,
+        }
+        const expectedFail = {
+            hasError: true,
+            value: "hello world",
+        }
+        
+        //act
+        const {ok, fail } = Result_.makeConstructors<Ok,Fail>()
+        const ma1 = ok(probeOk)
+        const ma2 = fail(probeFail)
+        //check
+        const actual1 = ma1.unsafeRun()
+        const actual2 = ma2.unsafeRun()
+        expect(actual1).toEqual(expectedOk)
+        expect(actual2).toEqual(expectedFail)
+    })
+
     it('Can match a value', async () => {
         // FIX: not implemented
     })
