@@ -1,11 +1,13 @@
-import { PortOpened, PortSpec } from "../../serial"
-import { PortOpenError, portOpener_CB } from "../../serial/port-opener-cb"
+import { Future } from "../../adts/future"
+import { Result } from "../../adts/result"
+import { PortSpec } from "../../serial"
 import { Channel } from "../datalink/core-types"
-import { frameCoreToPayload } from "../datalink/frame-core"
-import { payloadTransact, PayloadTransactError } from "../datalink/transactioners/payload-transact"
+import { frameCoreToPayload, FrameInterpreted } from "../datalink/frame-core"
+import { Fail, safePayloadTransact } from "../datalink/transactioners/safe-payload-transact"
 
-//NOTE: 'true' means cmpp is present in that channel/port, 'false' otherwise.
-// NOTE: This payload is just a information request of any arbitrary cmpp address
+// NOTE: This payload is just a information request of any arbitrary cmpp address. I'm assuming if this answer to this 
+//       request is given back as a valid Cmpp Frame Interpreted, then the CMPP device is present in the tunnel 
+//       connection. 
 const makeDetectionPayloadCore = (channel: Channel) => {
     const dataToSend = frameCoreToPayload({
         startByte: 'STX',
@@ -24,97 +26,11 @@ export type Tunnel = {
     readonly channel: Channel
 } 
 
-export type EventHandler = {
-    readonly BEGIN: () => void
-    readonly onDetected: (tunnel: Tunnel) => void
-    readonly onNotDetected: (tunnel: Tunnel) => void
-    readonly onError: (_: unknown | PortOpenError) => void
-    readonly END: () => void
-}
-
 //NOTE: you must call this function when there is no more then one cmpp per each Tunnel connected
 //NOTE: Important! this function never throws
-export const detectCmpp = (tunnel: Tunnel, timeoutMilisecs: number, handler: EventHandler, retryCounter: number = 3): void => {
-
+export const detectCmpp = (tunnel: Tunnel, timeoutMilisecs: number, totalRetries: number):Future<Result<FrameInterpreted, Fail>> => {
     const { channel, portSpec} = tunnel
-
-    const closePortSafe = (portOpened: PortOpened): Promise<void> => {
-        return new Promise( (resolve, reject) => {
-            //close port
-            try {
-                portOpened.close()
-                    .then( () => {
-                        // ok sucessful closed
-                        resolve()
-                    })
-                    .catch( err => {
-                        handler?.onError(err)
-                    })
-                    .finally( () => {
-                        handler?.END()
-                        resolve()
-                    })
-            } catch (err) {
-                handler?.onError(err)
-                handler?.END()
-                resolve()
-            }
-        })
-        
-    }
-
-    portOpener_CB(portSpec, {
-        onError: err => {
-            handler?.onError(err)
-            handler?.END()
-        },
-        onSuccess: portOpened => {
-
-            const cleanupAndFinalize = (isDetected: boolean, tunnel: Tunnel): Promise<void> => {
-                return new Promise( (resolve,reject) => {
-                    if (isDetected) {
-                        handler?.onDetected(tunnel)
-                    } else {
-                        handler?.onNotDetected(tunnel)
-                    }
-                    closePortSafe(portOpened).then( () => resolve())
-                }) 
-            }
-
-            const dataToSend = makeDetectionPayloadCore(channel)
-
-            //run
-            try {
-                payloadTransact(portOpened, dataToSend, timeoutMilisecs)
-                .then( response => {
-                    cleanupAndFinalize(true, tunnel)
-                })
-                .catch( err => {
-                    const err_: PayloadTransactError = err as PayloadTransactError
-                    const [transactError ] = err_
-                    if(transactError.kind === 'InterpretationErrorEvent' ) {
-                        //is not timout error but 'interpretation?' error, then:
-                        //try again!
-                        closePortSafe(portOpened)
-                            .then( () => {
-                                if (retryCounter>0) {
-                                    detectCmpp(tunnel,timeoutMilisecs,handler,retryCounter-1)
-                                }
-                            })
-                    } else {
-                        //console.table(err)
-                        handler?.onError(err)
-                        cleanupAndFinalize(false, tunnel)
-                    }
-
-                    
-                })
-            } catch (err) {
-                handler?.onError(err)
-                cleanupAndFinalize(false, tunnel)
-            }
-            
-        },
-    })
-        
+    const dataToSend = makeDetectionPayloadCore(channel)
+    return safePayloadTransact(portSpec,dataToSend,timeoutMilisecs, totalRetries)
+    
 }

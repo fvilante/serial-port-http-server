@@ -3,6 +3,10 @@ import { ExecuteInParalel, executeInSequence } from "../core/promise-utils"
 import { makeRange } from "../core/utils"
 import { listSerialPorts, isSerialPortEmulatedWithCom0Com, isSerialPortLoopBackForTest} from "../serial/list-serial-ports"
 import { BaudRate, PossibleBaudRates } from "../serial/baudrate"
+import { Future } from "../adts/future"
+import { Result } from "../adts/result"
+import { FrameInterpreted } from "../cmpp/datalink"
+import { Fail } from "../cmpp/datalink/transactioners/safe-payload-transact"
 
 
 
@@ -17,33 +21,10 @@ const calculateTimeout = (baudRate: BaudRate): number => {
     return Math.round(timeout)
 }
 
-export const scanCmppInTunnel = (tunnel: Tunnel): Promise<DetectionResult> => {
-
-    return new Promise( (resolve, reject) => {
-
-        const timeout = calculateTimeout(tunnel.portSpec.baudRate)
-        //console.log(timeout)
-
-        detectCmpp(tunnel,timeout, {
-            BEGIN: () => {
-                
-            },
-            onDetected: tunnel => {
-                resolve('Detected')
-            },
-            onNotDetected: () => {
-                resolve('NotDetected')
-            },
-            onError: () => {
-                resolve('NotDetected')
-            },
-            END: () => {
-    
-            }
-        })
-
-
-    })
+export const scanCmppInTunnel = (tunnel: Tunnel):Future<Result<FrameInterpreted, Fail>> => {
+    const timeout = calculateTimeout(tunnel.portSpec.baudRate)
+    const totalRetries = 3
+    return detectCmpp(tunnel,timeout, totalRetries)
 }
 
 
@@ -97,21 +78,24 @@ const main = async () => {
             return () => { 
                 //console.log(`scanning...`, tunnel)
                 return scanCmppInTunnel(tunnel)
-                .then(result => {
-                    if (result==='Detected') {
-                        const { channel, portSpec} = tunnel
-                        const { path, baudRate} = portSpec
-                        console.log(`${result}: port=${path} baudrate=${baudRate}, cannal=${channel}`)
-                    } else {
-                        //console.log(tunnel)
-                    }
-                }).then()
+                .map(result => {
+                    result.forEach({
+                        Ok: response => {
+                            const { channel, portSpec} = tunnel
+                            const { path, baudRate} = portSpec
+                            console.log(`DETECTED: port=${path} baudrate=${baudRate}, cannal=${channel}`)
+                        },
+                        Error: err => {
+                            //console.log(tunnel, err)
+                        }
+                    })
+                }).async()
             }
         })
         return () => executeInSequence(y)
     })
 
-    await ExecuteInParalel(x)
+    await executeInSequence(x) //TODO: make this execution in paralel if possible
 
 }
 
