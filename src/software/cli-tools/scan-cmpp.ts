@@ -1,3 +1,4 @@
+import ora from 'ora'
 import { detectCmpp, Tunnel } from "../cmpp/utils/detect-cmpp"
 import { ExecuteInParalel, executeInSequence } from "../core/promise-utils"
 import { makeRange } from "../core/utils"
@@ -30,6 +31,8 @@ export const scanCmppInTunnel = (tunnel: Tunnel):Future<Result<FrameInterpreted,
 
 //TODO: If we return an Iterator instead of an Array, we can earlier return in case of error 
 const main = async () => {
+
+    const spinner = ora('Loading...')
 
     //param
     const scanFromChannel = 1
@@ -66,12 +69,16 @@ const main = async () => {
         return makeAllTunnelsForPortPath(port)
     }) 
 
-    console.log(`Scanning CMPP devices...
+
+    const msg = `Scanning CMPP devices...
     Looking at:
         Ports [${portsToScan}], 
         Channels [${scanFromChannel}..${scanToChannel}], 
-        Baudrates [${baudRatesToScan}]:`)
-    console.log(`Results:`)
+        Baudrates [${baudRatesToScan}]:
+    
+    Results:
+    `
+    spinner.info(msg)
 
     const x = allTunnelsByPorts.map( tunnels => {
         const y = tunnels.map( tunnel => {
@@ -83,9 +90,13 @@ const main = async () => {
                         Ok: response => {
                             const { channel, portSpec} = tunnel
                             const { path, baudRate} = portSpec
-                            console.log(`DETECTED: port=${path} baudrate=${baudRate}, cannal=${channel}`)
+                            const msg = `DETECTED: port=${path} baudrate=${baudRate}, cannal=${channel}`
+                            spinner.succeed(msg)
+                            //console.log(msg)
                         },
                         Error: err => {
+                            spinner.start()
+                            spinner.text = `channel= ${tunnel.channel} port=${tunnel.portSpec.path} baudrate=${tunnel.portSpec.baudRate} error type=${err.kind} `
                             //console.log(tunnel, err)
                         }
                     })
@@ -95,7 +106,10 @@ const main = async () => {
         return () => executeInSequence(y)
     })
 
-    await ExecuteInParalel(x) //TODO: make this execution in paralel if possible
+    await ExecuteInParalel(x)
+        .then( () => {
+            spinner.stop()
+        })
 
 }
 
