@@ -13,8 +13,8 @@
     "watch": "echo to be done!",
     "moveCmpp": "npx ts-node .\\src\\serial-port\\cmpp\\temp\\moveAxisTo.ts",
     "updateDependencyGraph1": "npx dependency-cruiser --include-only '^src' --output-type dot src | dot -T svg > dependencygraph1All.svg",
-    "updateDependencyGraph2":  "npx ts_dependency_graph --start ./src/software/main/main3.ts  | dot -T svg > dependencygraph2Main3.svg",
-    "updateDependencyGraph2Main2":  "npx ts_dependency_graph --start ./src/software/main/main2.ts  | dot -T svg > dependencygraph2Main2.svg",
+    "updateDependencyGraph2": "npx ts_dependency_graph --start ./src/software/main/main3.ts  | dot -T svg > dependencygraph2Main3.svg",
+    "updateDependencyGraph2Main2": "npx ts_dependency_graph --start ./src/software/main/main2.ts  | dot -T svg > dependencygraph2Main2.svg",
     "dep1": "npm run updateDependencyGraph1",
     "dep2": "npm run updateDependencyGraph2",
     "dep3": "npm run updateDependencyGraph2Main2",
@@ -33,9 +33,11 @@
     "dependency-cruiser": "^10.0.4"
   },
   "dependencies": {
+    "@types/cli-spinner": "^0.2.1",
     "@types/jest": "^26.0.14",
     "@types/node": "^14.14.31",
     "@types/terminal-kit": "^1.28.2",
+    "cli-spinners": "^2.6.1",
     "control-terminal": "^1.0.0-alpha.0",
     "serialport": "^9.0.1",
     "terminal-kit": "^2.0.3",
