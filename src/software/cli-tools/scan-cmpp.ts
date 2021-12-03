@@ -46,56 +46,72 @@ export const scanCmppInTunnel = (tunnel: Tunnel): Promise<DetectionResult> => {
     })
 }
 
+
+//TODO: If we return an Iterator instead of an Array, we can earlier return in case of error 
 const main = async () => {
 
-
-    const allPaths = (await listSerialPorts()).filter( port => {
+    //param
+    const scanFromChannel = 1
+    const scanToChannel = 64
+    const baudRatesToScan: readonly BaudRate[] = [9600,4800,2400] //PossibleBaudRates //[9600,2400]  // TODO: When I use a larger range PossibleBaudRates the detection starts to fail to localize some cmpps. If you want to use a larger range you should first solve this problem.
+    const portsToScan = (await listSerialPorts()).filter( port => {
         //TODO: There is an error if we try to scan Software emulated serial port. The program halts. Solve this problem when possible
         const isSoftwareEmulatedPort = isSerialPortEmulatedWithCom0Com(port) || isSerialPortLoopBackForTest(port)
         const isPhysicalPort = !isSoftwareEmulatedPort
         return isPhysicalPort
     }).map( port => port.path)
-    const allBaudRates: readonly BaudRate[] = [9600,2400] 
-    const allChannels = [...makeRange(1,10,1)]
+    
+    //program
+    const channelsToScan = [...makeRange(scanFromChannel,scanToChannel,1)]
 
     
-    const makeAllTunnels = (): readonly Tunnel[] => {
+    const makeAllTunnelsForPortPath = (path: Tunnel['portSpec']['path']): readonly Tunnel[] => {
         let tunnels: readonly Tunnel[] = []
-        allPaths.forEach( path => {
-            allBaudRates.forEach( baudRate => {
-                allChannels.forEach( channel => {
-                    tunnels = [...tunnels, {
-                        channel,
-                        portSpec: {
-                            path,
-                            baudRate,
-                        },
-                    }]
-                })
-            })
+        baudRatesToScan.forEach( baudRate => {
+            channelsToScan.forEach( channel => {
+                tunnels = [...tunnels, {
+                    channel,
+                    portSpec: {
+                        path,
+                        baudRate,
+                    },
+                }]
+            }) 
         })
         return tunnels
     }
 
-    const allTunnels = makeAllTunnels()
+    const allTunnelsByPorts = portsToScan.map( port => {
+        return makeAllTunnelsForPortPath(port)
+    }) 
 
-    //TODO: If we return an Iterator instead of an Array, we can earlier return if any error 
+    console.log(`Scanning CMPP devices...
+    Looking at:
+        Ports [${portsToScan}], 
+        Channels [${scanFromChannel}..${scanToChannel}], 
+        Baudrates [${baudRatesToScan}]:`)
+    console.log(`Results:`)
 
-    const scanAll = allTunnels.map( tunnel => {
-        
-        return () => scanCmppInTunnel(tunnel)
-            .then(result => {
-                if (result==='Detected') {
-                    const { channel, portSpec} = tunnel
-                    const { path, baudRate} = portSpec
-                    console.log(`${result}: porta=${path}/${baudRate}, cannal=${channel}`)
-                }
-            })
+    const x = allTunnelsByPorts.map( tunnels => {
+        const y = tunnels.map( tunnel => {
+            return () => { 
+                //console.log(`scanning...`, tunnel)
+                return scanCmppInTunnel(tunnel)
+                .then(result => {
+                    if (result==='Detected') {
+                        const { channel, portSpec} = tunnel
+                        const { path, baudRate} = portSpec
+                        console.log(`${result}: port=${path} baudrate=${baudRate}, cannal=${channel}`)
+                    } else {
+                        //console.log(tunnel)
+                    }
+                }).then()
+            }
+        })
+        return () => executeInSequence(y)
     })
 
-    
-
-    await executeInSequence(scanAll)
+    await ExecuteInParalel(x)
 
 }
 
