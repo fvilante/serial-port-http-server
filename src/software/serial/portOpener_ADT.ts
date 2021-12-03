@@ -12,10 +12,10 @@ export const portOpener_ADT = (spec: PortSpec):Future<Result<PortOpened, PortOpe
 
         portOpener_CB(spec,{
             onError: portOpenError => {
-                fail(portOpenError)
+                _yield(fail(portOpenError))
             },
             onSuccess: portOpened => {
-                ok(portOpened)
+                _yield(ok(portOpened))
             }
         })
     })
