@@ -105,4 +105,4 @@ const runProgram = async () => {
 }
 
 
-//runProgram()
+runProgram()
