@@ -4,12 +4,15 @@ import {
     FrameInterpreted,
     compileCoreFrame,
     flattenFrameSerialized,
+    frameCoreToPayload,
 } from './frame-core'
 import { CmppDataLinkInterpreter } from './interpreter'
 import { BaudRate } from '../../serial/baudrate'
 import { listSerialPorts } from '../../serial/index'
-
-const CmppTimeout = 5000
+import { PortSpec } from '../../serial/port-opener-cb'
+import { safePayloadTransact } from './transactioners/safe-payload-transact'
+import { RetryPolicy } from './transactioners/retry-logic-ADT'
+import { calculateTimeout } from '../../cli-tools/scan-cmpp'
 
 export const sendCmpp = (
         portName: string, baudRate: BaudRate
@@ -17,57 +20,36 @@ export const sendCmpp = (
         frame: FrameCore
     ): Promise<FrameInterpreted> => new Promise ( (resolve, reject) => {
 
-        let hasError: boolean = false
+        const portSpec: PortSpec = {
+            path: portName,
+            baudRate,
+        }
 
-        const s0 = compileCoreFrame(frame)
-        const dataToSend = flattenFrameSerialized(s0)
-        //console.log(`Enviando para CMPP: `, dataToSend)
-        const hasSentSignal = () => undefined // do nothing
+        const dataToSend_ = frameCoreToPayload(frame)
 
-        communicate(
-            portName, 
-            baudRate, 
-            dataToSend, 
-            //onData
-            (dataReceived, hasFinished):void => {
+        const timeout = calculateTimeout(baudRate)
 
-                //console.log(`==============================> recebeu!`)
-                //console.log(dataReceived)
-                
-                const handleByte = CmppDataLinkInterpreter({
-                    onSuccess: event => {
-                        const {frameInterpreted, rawInput} = event
-                        console.log(`Received a frame from CMPP on port ${portName}/${String(baudRate)}`)
-                        console.log(`original input raw:`, rawInput)
-                        console.log("Frame interpreted:")
-                        console.table(frameInterpreted)
-                        hasFinished().then( () => {
-                            resolve(frameInterpreted)
-                        })
-                        
-                    },
-                    onError: event => {
-                        const {errorMessage, partialFrame, rawInput, coreState} = event
-                        console.log(`Error on interpreting cmpp returned frame: ${errorMessage}`) 
-                        hasError = true
-                        hasFinished().then( () => {
-                            reject(event)
-                        })
-                    }
-                })
+        const retryPolicy: RetryPolicy = {
+            totalRetriesOnInterpretationError: 10,
+            totalRetriesOnTimeoutError: 5
+        }
 
-                for (const eachByte of dataReceived) {
-                    if (hasError===false) {
-                        handleByte(eachByte)
-                    } else {
-                        //console.log(`TO BE DONE: fix: What to do with unhandled remaining data in the case of a error detection in between receved data`)
-                        // fix: What to do with unhandled remaining data in the case of a error detection in between receved data
-                    }
-                }
+        safePayloadTransact(portSpec,dataToSend_, timeout, retryPolicy)
+        .forResult({
+            Ok: frameInterpreted => {
+                console.log(`Received a frame from CMPP on port ${portName}/${String(baudRate)}`)        
+                console.log("Frame interpreted:")
+                console.table(frameInterpreted)
+                resolve(frameInterpreted)
+            },
+            Error: err => {
+                console.log(`Error on receiving data from cmpp: '${err.kind}'`) 
+                console.table(err)
+                reject(err)
+            }
 
-            }, 
-            CmppTimeout,
-            )
+        })
+
 })
 
 
