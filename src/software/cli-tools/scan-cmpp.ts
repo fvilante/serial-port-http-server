@@ -1,37 +1,10 @@
 import ora from 'ora'
-import { detectCmpp, Tunnel } from "../cmpp/utils/detect-cmpp"
+import { detectCmppInTunnel, Tunnel } from "../cmpp/utils/detect-cmpp"
 import { ExecuteInParalel, executeInSequence } from "../core/promise-utils"
 import { makeRange } from "../core/utils"
 import { listSerialPorts, isSerialPortEmulatedWithCom0Com, isSerialPortLoopBackForTest} from "../serial/list-serial-ports"
 import { BaudRate, PossibleBaudRates } from "../serial/baudrate"
-import { Future } from "../adts/future"
-import { Result } from "../adts/result"
-import { FrameInterpreted } from "../cmpp/datalink"
-import { Fail } from "../cmpp/datalink/transactioners/safe-payload-transact"
-import { RetryPolicy } from '../cmpp/datalink/transactioners/retry-logic-ADT'
 
-
-
-export type DetectionResult = 'Detected' | 'NotDetected'
-
-
-//TODO: In future extract this function to a better place
-//TODO: Implement 'Milisecond' as the return type instead of 'number'
-export const calculateTimeout = (baudRate: BaudRate): number => {
-    //Here we stabilish the timeout as a function of baudRate
-    //NOTE: the 100 miliseconds below is totaly arbitrary based in my feelings and experience, maybe this number can be optimized in future
-    const timeout =  (9600/baudRate) * 100 // Note: for 9600 is acceptable a 100 miliseconds timeout for wait the reception frame from cmpp then...
-    return Math.round(timeout)
-}
-
-export const scanCmppInTunnel = (tunnel: Tunnel):Future<Result<FrameInterpreted, Fail>> => {
-    const timeout = calculateTimeout(tunnel.portSpec.baudRate)
-    const retryPolicy: RetryPolicy = {
-        totalRetriesOnTimeoutError: 0,        // low because most of the attempts will return a timeout error
-        totalRetriesOnInterpretationError: 15 // higher so we can deal with very noise enviroments
-    }
-    return detectCmpp(tunnel,timeout, retryPolicy)
-}
 
 
 //TODO: If we return an Iterator instead of an Array, we can earlier return in case of error 
@@ -89,7 +62,7 @@ const test1 = async () => {
         const y = tunnels.map( tunnel => {
             return () => { 
                 //console.log(`scanning...`, tunnel)
-                return scanCmppInTunnel(tunnel)
+                return detectCmppInTunnel(tunnel)
                 .map(result => {
                     result.forEach({
                         Ok: response => {
