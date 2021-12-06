@@ -8,7 +8,7 @@ export type StartBit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13
 
 export type UInt16 = number // unsigned integer of 16 bits //TODO: Improve the safety of this cast (ie: Validated<A> ?!)
 export type UInt8 = number // unsigned integer of 8 bits //TODO: Improve the safety of this cast (ie: Validated<A> ?!)
-export type UInt1 = number // unsigned integer of 1 bits //TODO: Improve the safety of this cast (ie: Validated<A> ?!)
+export type UInt1 = 0 | 1 // unsigned integer of 1 bits //TODO: Improve the safety of this cast (ie: Validated<A> ?!)
 
 
 export type ParamCore<T extends string, A, B> = {
