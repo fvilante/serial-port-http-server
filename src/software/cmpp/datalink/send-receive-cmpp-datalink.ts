@@ -10,7 +10,7 @@ import { safePayloadTransact } from './transactioners/safe-payload-transact'
 import { RetryPolicy } from './transactioners/retry-logic-ADT'
 import { calculateTimeout } from './calculate-timeout'
 
-//TODO: Make this function with an ADT API
+//TODO: API CHANGE: Make this function ADT API, and use PortSpec as function argment. Eventually use PayloadCore instead of frame (?!)
 export const sendCmpp = (
         portName: string, baudRate: BaudRate
     ) => (
