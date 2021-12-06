@@ -22,16 +22,17 @@ export const sendCmpp = (
         }
         const dataToSend_ = frameCoreToPayload(frame)
         const timeout = calculateTimeout(baudRate)
+        //NOTE: Very conservative policy, for robustness even in extremally noisy enviroments
         const retryPolicy: RetryPolicy = {
-            totalRetriesOnInterpretationError: 10,
-            totalRetriesOnTimeoutError: 5
+            totalRetriesOnInterpretationError: 10, // NOTE: this error is more common. I'm exagerating and being over conservative here with number 10, maybe number 5 is enough for most of enviroments.
+            totalRetriesOnTimeoutError: 4 //NOTE: In very noise enviroments, entire responses packages can evaporate. Four is a conservative value
         }
         safePayloadTransact(portSpec,dataToSend_, timeout, retryPolicy)
             .forResult({
                 Ok: frameInterpreted => {
-                    console.log(`Received a frame from CMPP on port ${portName}/${String(baudRate)}`)        
-                    console.log("Frame interpreted:")
-                    console.table(frameInterpreted)
+                    //console.log(`Received a frame from CMPP on port ${portName}/${String(baudRate)}`)        
+                    //console.log("Frame interpreted:")
+                    //console.table(frameInterpreted)
                     resolve(frameInterpreted)
                 },
                 Error: err => {
