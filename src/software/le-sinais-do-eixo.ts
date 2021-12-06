@@ -1,9 +1,9 @@
 import { bit_test } from "./core/bit-wise-utils"
-import { FrameCore } from "./cmpp/datalink/cmpp-datalink-protocol"
 import { Address, Axis } from "./global-env/global"
 import { sendCmpp } from "./cmpp/datalink/send-receive-cmpp-datalink"
 import { Range } from "./core/utils"
 import { executeInSequence } from "./core/promise-utils"
+import { FrameCore } from "./cmpp/datalink"
 
 //FIX:
 //  this module is not being used by others
@@ -32,7 +32,13 @@ export const LeSinaisEixo = (eixo: Axis):Promise<ESinais> => new Promise( (resol
     const {portName, baudRate, channel} = Address['Axis'][axis] 
     const waddr = 107 //0x38
     const data = 0
-    const frame = FrameCore('STX','Solicitacao',channel,waddr,data)
+    const frame:FrameCore = {
+        startByte: 'STX',
+        direction: 'Solicitacao',
+        channel,
+        waddr,
+        uint16: data
+    }
 
     sendCmpp(portName, baudRate)(frame)
         .then( res => {
