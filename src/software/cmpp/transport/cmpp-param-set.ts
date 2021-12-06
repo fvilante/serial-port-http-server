@@ -35,7 +35,7 @@ const set16BitsParam = <T extends string,A>(tunnel: Tunnel, param: Param_16bits<
 }
 
 //TODO: Should be refactored to reduce code repetition in relation to others functions (ie: set16bits, set8bits, etc)
-const set1BitsParam = <T extends string,A>(tunnel: Tunnel, param: Param_1bit<T,A>, value:A) => {
+const set1BitsParam = <T extends string,A>(tunnel: Tunnel, param: Param_1bit<T,A>, value:A):Promise<void> => {
     return new Promise<void>( (resolve,reject) => {
         let direction: DirectionKeys | undefined = undefined
         const { portSpec, channel} = tunnel
@@ -69,7 +69,7 @@ const set1BitsParam = <T extends string,A>(tunnel: Tunnel, param: Param_1bit<T,A
 }
 
 
-const set8BitsParam = <T extends string,A>(tunnel: Tunnel, param: Param_8bits<T,A>, value:A) => {
+const set8BitsParam = <T extends string,A>(tunnel: Tunnel, param: Param_8bits<T,A>, value:A): Promise<void> => {
     return new Promise<void>( (resolve,reject) => {
         //
         const { portSpec, channel} = tunnel
@@ -122,8 +122,8 @@ const set8BitsParam = <T extends string,A>(tunnel: Tunnel, param: Param_8bits<T,
     }
 )}
 
-
-export const setCmppParam = <T extends string,A>(tunnel: Tunnel, param: Param<T,A>, value:A) => {
+//TODO: Change return type to return anything more useful
+export const setCmppParam = <T extends string,A>(tunnel: Tunnel, param: Param<T,A>, value:A):Promise<void> => {
 
     switch (param.type) {
         case '16 Bits': return set16BitsParam(tunnel, param,value)
