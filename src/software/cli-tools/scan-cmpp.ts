@@ -15,8 +15,9 @@ import { RetryPolicy } from '../cmpp/datalink/transactioners/retry-logic-ADT'
 export type DetectionResult = 'Detected' | 'NotDetected'
 
 
+//TODO: In future extract this function to a better place
 //TODO: Implement 'Milisecond' as the return type instead of 'number'
-const calculateTimeout = (baudRate: BaudRate): number => {
+export const calculateTimeout = (baudRate: BaudRate): number => {
     //Here we stabilish the timeout as a function of baudRate
     //NOTE: the 100 miliseconds below is totaly arbitrary based in my feelings and experience, maybe this number can be optimized in future
     const timeout =  (9600/baudRate) * 100 // Note: for 9600 is acceptable a 100 miliseconds timeout for wait the reception frame from cmpp then...
@@ -34,7 +35,7 @@ export const scanCmppInTunnel = (tunnel: Tunnel):Future<Result<FrameInterpreted,
 
 
 //TODO: If we return an Iterator instead of an Array, we can earlier return in case of error 
-const main = async () => {
+const test1 = async () => {
 
     const spinner = ora('Loading...')
 
@@ -124,4 +125,4 @@ const main = async () => {
 }
 
 
-main()
+//test1()
