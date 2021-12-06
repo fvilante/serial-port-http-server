@@ -1,6 +1,6 @@
 
 
-
+//represents number of pulses in relation to a reference not specified
 export type Pulses = {
     kind: 'Pulses'
     value: number //pulses
