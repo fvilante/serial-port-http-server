@@ -37,7 +37,7 @@ const main = async () => {
     //param
     const scanFromChannel = 1
     const scanToChannel = 64
-    const baudRatesToScan: readonly BaudRate[] = PossibleBaudRates.filter( b => b >=2400 && b<=9600)
+    const baudRatesToScan: readonly BaudRate[] = [9600,2400] //[9600,2400, 115200] //PossibleBaudRates.filter( b => b >=2400 && b<=19200)
     const portsToScan = (await listSerialPorts()).filter( port => {
         //TODO: There is an error if we try to scan Software emulated serial port. The program halts. Solve this problem when possible
         const isSoftwareEmulatedPort = isSerialPortEmulatedWithCom0Com(port) || isSerialPortLoopBackForTest(port)
@@ -78,7 +78,7 @@ const main = async () => {
     
     Results:
     `
-    spinner.info(msg)
+    console.log(msg)
 
     const x = allTunnelsByPorts.map( tunnels => {
         const y = tunnels.map( tunnel => {
@@ -90,13 +90,19 @@ const main = async () => {
                         Ok: response => {
                             const { channel, portSpec} = tunnel
                             const { path, baudRate} = portSpec
-                            const msg = `DETECTED: port=${path} baudrate=${baudRate}, cannal=${channel}`
+                            const msg = `CMPP DEVICE DETECTED: port=${path} baudrate=${baudRate}, channel=${channel}.`
                             spinner.succeed(msg)
                             //console.log(msg)
                         },
                         Error: err => {
                             spinner.start()
-                            spinner.text = `channel= ${tunnel.channel} port=${tunnel.portSpec.path} baudrate=${tunnel.portSpec.baudRate} error type=${err.kind} `
+                            if(err.kind==='TimeoutErrorEvent') {
+                                spinner.text = `channel=${tunnel.channel}, port=${tunnel.portSpec.path}, baudrate=${tunnel.portSpec.baudRate}, error_type=${err.kind}.`
+                            } else {
+                                const msg = `error_type=${err.kind}: channel=${tunnel.channel}, port=${tunnel.portSpec.path}, baudrate=${tunnel.portSpec.baudRate}`
+                                spinner.warn(msg)
+                            }
+
                             //console.log(tunnel, err)
                         }
                     })
