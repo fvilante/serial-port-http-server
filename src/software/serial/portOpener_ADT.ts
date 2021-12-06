@@ -1,5 +1,5 @@
 import { PortOpened, PortSpec } from ".";
-import { Future } from "../adts/future";
+import { Future, Future_ } from "../adts/future";
 import { Result, Result_ } from "../adts/result";
 import { PortOpenError, portOpener_CB } from "./port-opener-cb";
 
@@ -8,14 +8,14 @@ export const portOpener_ADT = (spec: PortSpec):Future<Result<PortOpened, PortOpe
     
     return Future( _yield => {
 
-        const { ok, fail } = Result_.makeConstructorsFromResolver(_yield)
+        const { return_ok, return_error } = Future_.makeContructorsFromResultEmitter (_yield)
 
         portOpener_CB(spec,{
             onError: portOpenError => {
-                _yield(fail(portOpenError))
+                return_error(portOpenError)
             },
             onSuccess: portOpened => {
-                _yield(ok(portOpened))
+                return_ok(portOpened)
             }
         })
     })

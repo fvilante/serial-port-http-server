@@ -7,7 +7,7 @@ import { portOpener_ADT } from "../../../serial/portOpener_ADT"
 import { frameCoreToPayload } from "../frame-core"
 import { PayloadCore } from "../payload"
 import { TransactErrorEvent } from "./payload-transact-cb"
-import { transactPayloadWithRetryPolicy } from "./retry-logic-ADT"
+import { RetryPolicy, transactPayloadWithRetryPolicy } from "./retry-logic-ADT"
 
 //TODO: Should we extract this type to serial lib as 'portCloser_ADT' ?
 export type PortCloseError = {
@@ -19,18 +19,18 @@ export type PortCloseError = {
 //TODO: Should we extract this function to serial lib as 'portCloser' ?
 const portCloser = (portOpened: PortOpened, portSpec: PortSpec): Future<Result<void,PortCloseError>> => {
     return Future( _yield => {
-        const {ok, fail} = Result_.makeConstructorsFromResolver(_yield)
+        const { return_ok, return_error } = Future_.makeContructorsFromResultEmitter(_yield)
         const closeIt = Future_.fromUnsafePromise(portOpened.close)
         closeIt.forResult({
             Error: UnsafePromiseError => {
-                _yield(fail({
+                return_error({
                     kind: 'Port close error',
                     portSpec,
                     detail: UnsafePromiseError
-                }))
+                })
             },
             Ok: () => {
-                _yield(ok()) // port is closed
+                return_ok() // port is closed
             }
         })
     })
@@ -43,22 +43,22 @@ export type Fail =
     | TransactErrorEvent // = InterpretationErrorEvent | TimeoutErrorEvent
 
 
-export const safePayloadTransact = (portSpec: PortSpec, dataToSend: PayloadCore, timeout: number, retries: number): Future<Result<FrameInterpreted, Fail>> => {
+export const safePayloadTransact = (portSpec: PortSpec, dataToSend: PayloadCore, timeout: number, retryPolicy: RetryPolicy): Future<Result<FrameInterpreted, Fail>> => {
 
     return Future( _yield => {
 
-        const { ok, fail } = Result_.makeConstructorsFromResolver(_yield)
+        const { return_ok, return_error } = Future_.makeContructorsFromResultEmitter(_yield)
 
         portOpener_ADT(portSpec)
         .forResult({
             Error: portOpenError => {
-                _yield(fail(portOpenError))
+                return_error(portOpenError)
             },
             Ok: portOpened => {
             
                 const run = async () => {
 
-                    const transactPayload = transactPayloadWithRetryPolicy(retries)
+                    const transactPayload = transactPayloadWithRetryPolicy(retryPolicy)
     
                     const response = transactPayload({
                         dataToSend,
@@ -74,12 +74,12 @@ export const safePayloadTransact = (portSpec: PortSpec, dataToSend: PayloadCore,
                                 .forResult({
                                     Error: PortCloseError => {
                                         //console.log('PortCloseError')
-                                        _yield(fail(PortCloseError))
+                                        return_error(PortCloseError)
                                     },
                                     Ok: () => {
                                         //console.log(`Port ${portSpec.path} closed`)
                                         //console.log('emiting success frameInterpreted')
-                                        _yield(ok(frameInterpreted))
+                                        return_ok(frameInterpreted)
                                     }
                                 })
                         },
@@ -89,11 +89,11 @@ export const safePayloadTransact = (portSpec: PortSpec, dataToSend: PayloadCore,
                                 .forResult({
                                     Error: PortCloseError => {
                                         //console.log('PortCloseError')
-                                        _yield(fail(PortCloseError)) //TODO: Two errors simultaneously happen here, but only one of them can be sent. What if we just could send both of them? This is possible? how?
+                                        return_error(PortCloseError) //TODO: Two errors simultaneously happen here, but only one of them can be sent. What if we just could send both of them? This is possible? how?
                                     },
                                     Ok: () => {
                                         //console.log('transactErrorEvent')
-                                        _yield(fail(transactErrorEvent))
+                                        return_error(transactErrorEvent)
                                     }
                                 })
                         }

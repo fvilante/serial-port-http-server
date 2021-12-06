@@ -1,5 +1,5 @@
 import { FrameInterpreted } from "..";
-import { Future } from "../../../adts/future";
+import { Future, Future_ } from "../../../adts/future";
 import { Result, Result_ } from "../../../adts/result";
 import { portOpener_CB } from "../../../serial/port-opener-cb";
 import { frameCoreToPayload } from "../frame-core";
@@ -7,36 +7,59 @@ import { TransactErrorEvent } from "./payload-transact-cb";
 import { TransactPayloadArgument_ADT, transactPayload_ADT } from "./transact-payload_ADT";
 
 
+export type RetryPolicy = {
+    readonly totalRetriesOnTimeoutError: number  // number of retries
+    readonly totalRetriesOnInterpretationError: number
+}
+
 // TODO: Improve this API when possible,
 //       It shold be in such way that client of function can receive intermediarry attemps statys
 // Applies a retry policy over the transactionPayload API
-export const transactPayloadWithRetryPolicy = (retries: number) => (arg: TransactPayloadArgument_ADT): Future<Result<FrameInterpreted,TransactErrorEvent>>  => {
-    const { ok, fail } = Result_.makeConstructors<FrameInterpreted, TransactErrorEvent>()
+export const transactPayloadWithRetryPolicy = (totalRetry: RetryPolicy) => (arg: TransactPayloadArgument_ADT): Future<Result<FrameInterpreted,TransactErrorEvent>>  => {
+
     return Future( _yield => {
 
-        const run = (retryCount: number) => {
+        const { return_ok, return_error} = Future_.makeContructorsFromResultEmitter(_yield)
+
+        const run = (currentRetry: RetryPolicy) => {
 
             transactPayload_ADT(arg).unsafeRun( result => {
                 result.forEach( {
                     Ok: value => {
-                        _yield(ok(value))
+                        return_ok(value)
                     },
                     Error: err => {
                         switch (err.kind) {
                             case 'TimeoutErrorEvent': {
-                                //console.log('timeout error event')
-                                _yield(fail(err))
+                                const totalRetries = totalRetry.totalRetriesOnTimeoutError
+                                const retryCount = currentRetry.totalRetriesOnTimeoutError
+                                // do not retry if counter reach zero
+                                if (retryCount<=0) {
+                                    return_error(err)
+                                } else {
+                                    console.log(`new attempy: ${retryCount}/${totalRetries}`)
+                                    //retry
+                                    run({
+                                        ...currentRetry,
+                                        totalRetriesOnInterpretationError: retryCount - 1
+                                    })
+                                }
                                 break;
                             }
     
                             case 'InterpretationErrorEvent': {
+                                const totalRetries = totalRetry.totalRetriesOnInterpretationError
+                                const retryCount = currentRetry.totalRetriesOnInterpretationError
                                 // retry if the problem is an interpretation error
                                 if (retryCount<=0) {
-                                    _yield(fail(err))
+                                    return_error(err)
                                 } else {
-                                    console.log(`new attempy: ${retryCount}/${retries}`, )
+                                    console.log(`new attempy: ${retryCount}/${totalRetries}`)
                                     //retry
-                                    run(retryCount-1)
+                                    run({
+                                        ...currentRetry,
+                                        totalRetriesOnInterpretationError: retryCount - 1
+                                    })
                                 }
                                 break;
                             }
@@ -51,7 +74,8 @@ export const transactPayloadWithRetryPolicy = (retries: number) => (arg: Transac
 
         }
 
-        run(retries);
+        //BEGIN
+        run(totalRetry);
 
     })
 
