@@ -2,13 +2,9 @@ import { communicate} from '../../serial/communicate'
 import { 
     FrameCore, 
     FrameInterpreted,
-    compileCoreFrame,
-    flattenFrameSerialized,
     frameCoreToPayload,
 } from './frame-core'
-import { CmppDataLinkInterpreter } from './interpreter'
 import { BaudRate } from '../../serial/baudrate'
-import { listSerialPorts } from '../../serial/index'
 import { PortSpec } from '../../serial/port-opener-cb'
 import { safePayloadTransact } from './transactioners/safe-payload-transact'
 import { RetryPolicy } from './transactioners/retry-logic-ADT'
@@ -20,36 +16,31 @@ export const sendCmpp = (
     ) => (
         frame: FrameCore
     ): Promise<FrameInterpreted> => new Promise ( (resolve, reject) => {
-
         const portSpec: PortSpec = {
             path: portName,
             baudRate,
         }
-
         const dataToSend_ = frameCoreToPayload(frame)
-
         const timeout = calculateTimeout(baudRate)
-
         const retryPolicy: RetryPolicy = {
             totalRetriesOnInterpretationError: 10,
             totalRetriesOnTimeoutError: 5
         }
-
         safePayloadTransact(portSpec,dataToSend_, timeout, retryPolicy)
-        .forResult({
-            Ok: frameInterpreted => {
-                console.log(`Received a frame from CMPP on port ${portName}/${String(baudRate)}`)        
-                console.log("Frame interpreted:")
-                console.table(frameInterpreted)
-                resolve(frameInterpreted)
-            },
-            Error: err => {
-                console.log(`Error on receiving data from cmpp: '${err.kind}'`) 
-                console.table(err)
-                reject(err)
-            }
+            .forResult({
+                Ok: frameInterpreted => {
+                    console.log(`Received a frame from CMPP on port ${portName}/${String(baudRate)}`)        
+                    console.log("Frame interpreted:")
+                    console.table(frameInterpreted)
+                    resolve(frameInterpreted)
+                },
+                Error: err => {
+                    console.log(`Error on receiving data from cmpp: '${err.kind}'`) 
+                    console.table(err)
+                    reject(err)
+                }
 
-        })
+            })
 
 })
 
