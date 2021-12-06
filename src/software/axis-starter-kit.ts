@@ -4,10 +4,13 @@
 // strategy for initialization of the axis. Something more robust.
 
 import { delay } from "./core/delay"
-import { setParam_ } from "./cmpp/transport/cmpp-memmap-layer"
 import { Address, Axis } from "./global-env/global"
-import { Driver } from "./cmpp/transport/mapa_de_memoria"
 import { executeInSequence } from "./core/promise-utils"
+import { CMPP00LG } from "./cmpp/transport/memmap-CMPP00LG"
+import { Tunnel } from "./cmpp/utils/detect-cmpp"
+import { Pulses, PulsesPerTick, PulsesPerTickSquered } from "./cmpp/transport/memmap-types"
+
+const makeAxis = CMPP00LG
 
 
 export type AxisStarterKit = {
@@ -36,51 +39,68 @@ export const Z_AxisStarterKit: AxisStarterKit = {
     defaultAcceleration: 5000,
     preReferenceConfig: (axisName: Axis, velRef, acRef) => {
         const { portName, baudRate, channel} = Address[`Axis`][axisName]
-        const axis = setParam_(portName,baudRate,channel)(Driver)
+        const tunnel: Tunnel = {
+            portSpec: { 
+                path: portName,
+                baudRate,
+            },
+            channel,
+        }
+        const axis = makeAxis(tunnel)
 
         return executeInSequence([
             //Atencao: O sensor da gaveta 1 parece estar ligado no pino do start entre eixos de uma das placas
             //por esta razao, antes de tudo é necessario desabilitar o start entre eixos das placas
-            () => axis('Start externo habilitado', false),
-            () => axis('Entrada de start entre eixo habilitado', false),
-            () => axis('Saida de start no avanco ligado', false),
-            () => axis('Saida de start no retorno ligado', false),
+            () => axis.set('Start externo habilitado', 'desligado'),
+            () => axis.set('Entrada de start entre eixo habilitado', 'desligado'),
+            () => axis.set('Saida de start no avanco ligado', 'desligado'),
+            () => axis.set('Saida de start no retorno ligado', 'desligado'),
             //
-            () => axis('Start automatico no avanco ligado', false),
-            () => axis('Start automatico no retorno ligado', false),
+            () => axis.set('Start automatico no avanco', 'desligado'),
+            () => axis.set('Start automatico no retorno', 'desligado'),
             //O eixo Z é vertical, por isto a corrente nele é mantida em máxima
             //As correcoes são desligadas para evitar a situacao onde o motor seja desenergijado
             //e o cabeçote caia sem aviso previo.
             // FIX: O referenciamento do eixo Z deveria ser monitorado, de modo que uma perda da referencia no Z deveria levar aos demais eixos a parar
             // como medida preventiva
-            () => axis('Reducao do nivel de corrente em repouso', false),
-            () => axis('Zero Index habilitado p/ protecao', true), // veja FIX acima (nao foi ainda implementado por completo!)
-            () => axis('Zero Index habilitado p/ correcao', false),
+            () => axis.set('Reducao do nivel de corrente em repouso', 'desligado'),
+            () => axis.set('Zero Index habilitado p/ protecao', 'ligado'), // veja FIX acima (nao foi ainda implementado por completo!)
+            () => axis.set('Zero Index habilitado p/ correcao', 'desligado'),
             // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
-            () => axis('Velocidade de referencia', velRef),
-            () => axis('Aceleracao de referencia', acRef),
+            () => axis.set('Velocidade de referencia', PulsesPerTick(velRef)), // TODO: Remove this unsafe type coersion here
+            () => axis.set('Aceleracao de referencia', PulsesPerTickSquered(acRef)), // TODO: Remove this unsafe type coersion here
             // necessario para referencia quando o equipamento é ligado ou foi forçado a perda da referencia
             // remove pausa serial
-            () => axis('Pausa serial', false),
+            () => axis.set('Pausa serial', 'desligado'),
             // parece ser necessario um delay para que a placa processe estas
             // informacoes antes de receber o start
             // talvez este seja o motivo de algumas vezes na referencia, o eixo sair correndo velozmente
             // acompanhar se isto resolverá este problema em definitivo
+            // RESPOSTA: Apos alguns meses o problema parece estar resolvido, porem nao estou certo que é este delay que resolveu
+            //           mas uma serie de ações para deixar a communicacao com o cmpp mais robusta e menos sucetivel a erros
+            // TODO: Remove below delay if possible
             () => delay(1500), 
         ])
     },
     afterReferenceConfig: async (axisName, min, max, defaultVelocity, defaultAcceleration) => {
         const { portName, baudRate, channel} = Address[`Axis`][axisName]
-        const axis = setParam_(portName,baudRate,channel)(Driver)
+        const tunnel: Tunnel = {
+            portSpec: { 
+                path: portName,
+                baudRate,
+            },
+            channel,
+        }
+        const axis = makeAxis(tunnel)
         return executeInSequence([
-            () => axis('Posicao inicial', min),
-            () => axis('Posicao final', max),
-            () => axis('Velocidade de avanco', defaultVelocity), //400
-            () => axis('Velocidade de retorno', defaultVelocity), //600
-            () => axis('Aceleracao de avanco', defaultAcceleration),
-            () => axis('Aceleracao de retorno', defaultAcceleration),
-            () => axis('Start automatico no avanco ligado', false),
-            () => axis('Start automatico no retorno ligado', false),
+            () => axis.set('Posicao inicial', Pulses(min)),
+            () => axis.set('Posicao final', Pulses(max)),
+            () => axis.set('Velocidade de avanco', PulsesPerTick(defaultVelocity)), //400
+            () => axis.set('Velocidade de retorno', PulsesPerTick(defaultVelocity)), //600
+            () => axis.set('Aceleracao de avanco', PulsesPerTickSquered(defaultAcceleration)),
+            () => axis.set('Aceleracao de retorno', PulsesPerTickSquered(defaultAcceleration)),
+            () => axis.set('Start automatico no avanco', 'desligado'),
+            () => axis.set('Start automatico no retorno', 'desligado'),
         ])
     }   
 }
@@ -96,28 +116,35 @@ export const X_AxisStarterKit: AxisStarterKit = {
     defaultAcceleration: 4000,
     preReferenceConfig: (axisName: Axis, velRef, acRef) => {
         const { portName, baudRate, channel} = Address[`Axis`][axisName]
-        const axis = setParam_(portName,baudRate,channel)(Driver)
+        const tunnel: Tunnel = {
+            portSpec: { 
+                path: portName,
+                baudRate,
+            },
+            channel,
+        }
+        const axis = makeAxis(tunnel)
 
         return executeInSequence([
             //Atencao: O sensor da gaveta 1 parece estar ligado no pino do start entre eixos de uma das placas
             //por esta razao, antes de tudo é necessario desabilitar o start entre eixos das placas
-            () => axis('Start externo habilitado', false),
-            () => axis('Entrada de start entre eixo habilitado', false),
-            () => axis('Saida de start no avanco ligado', false),
-            () => axis('Saida de start no retorno ligado', false),
+            () => axis.set('Start externo habilitado', 'desligado'),
+            () => axis.set('Entrada de start entre eixo habilitado', "desligado"),
+            () => axis.set('Saida de start no avanco ligado', "desligado"),
+            () => axis.set('Saida de start no retorno ligado', "desligado"),
             //
-            () => axis('Start automatico no avanco ligado', false),
-            () => axis('Start automatico no retorno ligado', false),
+            () => axis.set('Start automatico no avanco', "desligado"),
+            () => axis.set('Start automatico no retorno', "desligado"),
             //
-            () => axis('Reducao do nivel de corrente em repouso', true),
-            () => axis('Zero Index habilitado p/ protecao', true), // veja FIX acima (nao foi ainda implementado por completo!)
-            () => axis('Zero Index habilitado p/ correcao', false),
+            () => axis.set('Reducao do nivel de corrente em repouso', 'ligado'),
+            () => axis.set('Zero Index habilitado p/ protecao', 'ligado'), // veja FIX acima (nao foi ainda implementado por completo!)
+            () => axis.set('Zero Index habilitado p/ correcao', "desligado"),
             // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
-            () => axis('Velocidade de referencia', velRef),
-            () => axis('Aceleracao de referencia', acRef),
+            () => axis.set('Velocidade de referencia', PulsesPerTick(velRef)),
+            () => axis.set('Aceleracao de referencia', PulsesPerTickSquered(acRef)),
             // necessario para referencia quando o equipamento é ligado ou foi forçado a perda da referencia
             // remove pausa serial
-            () => axis('Pausa serial', false),
+            () => axis.set('Pausa serial', "desligado"),
             // parece ser necessario um delay para que a placa processe estas
             // informacoes antes de receber o start
             // talvez este seja o motivo de algumas vezes na referencia, o eixo sair correndo velozmente
@@ -127,16 +154,23 @@ export const X_AxisStarterKit: AxisStarterKit = {
     },
     afterReferenceConfig: async (axisName, min, max, defaultVelocity, defaultAcceleration) => {
         const { portName, baudRate, channel} = Address[`Axis`][axisName]
-        const axis = setParam_(portName,baudRate,channel)(Driver)
+        const tunnel: Tunnel = {
+            portSpec: { 
+                path: portName,
+                baudRate,
+            },
+            channel,
+        }
+        const axis = makeAxis(tunnel)
         return executeInSequence([
-            () => axis('Posicao inicial', min),
-            () => axis('Posicao final', max),
-            () => axis('Velocidade de avanco', defaultVelocity), 
-            () => axis('Velocidade de retorno', defaultVelocity),
-            () => axis('Aceleracao de avanco', defaultAcceleration),
-            () => axis('Aceleracao de retorno', defaultAcceleration),
-            () => axis('Start automatico no avanco ligado', false),
-            () => axis('Start automatico no retorno ligado', false),
+            () => axis.set('Posicao inicial', Pulses(min)),
+            () => axis.set('Posicao final', Pulses(max)),
+            () => axis.set('Velocidade de avanco', PulsesPerTick(defaultVelocity)), 
+            () => axis.set('Velocidade de retorno', PulsesPerTick(defaultVelocity)),
+            () => axis.set('Aceleracao de avanco', PulsesPerTickSquered(defaultAcceleration)),
+            () => axis.set('Aceleracao de retorno', PulsesPerTickSquered(defaultAcceleration)),
+            () => axis.set('Start automatico no avanco', 'desligado'),
+            () => axis.set('Start automatico no retorno', 'desligado'),
         ])
     }
 }
@@ -153,32 +187,39 @@ export const Y_AxisStarterKit: AxisStarterKit = {
     defaultAcceleration: 1500,
     preReferenceConfig: (axisName: Axis, velRef, acRef) => {
         const { portName, baudRate, channel} = Address[`Axis`][axisName]
-        const axis = setParam_(portName,baudRate,channel)(Driver)
+        const tunnel: Tunnel = {
+            portSpec: { 
+                path: portName,
+                baudRate,
+            },
+            channel,
+        }
+        const axis = makeAxis(tunnel)
 
         return executeInSequence([
             //Atencao: O sensor da gaveta 1 parece estar ligado no pino do start entre eixos de uma das placas
             //por esta razao, antes de tudo é necessario desabilitar o start entre eixos das placas
-            () => axis('Start externo habilitado', false),
-            () => axis('Entrada de start entre eixo habilitado', false),
-            () => axis('Saida de start no avanco ligado', false),
-            () => axis('Saida de start no retorno ligado', false),
+            () => axis.set('Start externo habilitado', 'desligado'),
+            () => axis.set('Entrada de start entre eixo habilitado', 'desligado'),
+            () => axis.set('Saida de start no avanco ligado', 'desligado'),
+            () => axis.set('Saida de start no retorno ligado', 'desligado'),
             //desliga modo passo a passo e garante modo continuo,
-            () => axis('Numero de mensagem no avanco', 0),
-            () => axis('Numero de mensagem no retorno', 0),
-            () => axis('Modo continuo/passo a passo', false),
+            () => axis.set('Numero de mensagem no avanco', 0),
+            () => axis.set('Numero de mensagem no retorno', 0),
+            () => axis.set('Modo continuo/passo a passo', 'continuo'),
             //
-            () => axis('Start automatico no avanco ligado', false),
-            () => axis('Start automatico no retorno ligado', false),
+            () => axis.set('Start automatico no avanco', 'desligado'),
+            () => axis.set('Start automatico no retorno', 'desligado'),
             //
-            () => axis('Reducao do nivel de corrente em repouso', true),
-            () => axis('Zero Index habilitado p/ protecao', true), // veja FIX acima (nao foi ainda implementado por completo!)
-            () => axis('Zero Index habilitado p/ correcao', false),
+            () => axis.set('Reducao do nivel de corrente em repouso', 'ligado'),
+            () => axis.set('Zero Index habilitado p/ protecao', 'ligado'), // veja FIX acima (nao foi ainda implementado por completo!)
+            () => axis.set('Zero Index habilitado p/ correcao', 'desligado'),
             // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
-            () => axis('Velocidade de referencia', velRef),
-            () => axis('Aceleracao de referencia', acRef),
+            () => axis.set('Velocidade de referencia', PulsesPerTick(velRef)),
+            () => axis.set('Aceleracao de referencia', PulsesPerTickSquered(acRef)),
             // necessario para referencia quando o equipamento é ligado ou foi forçado a perda da referencia
             // remove pausa serial
-            () => axis('Pausa serial', false),
+            () => axis.set('Pausa serial', 'desligado'),
             // parece ser necessario um delay para que a placa processe estas
             // informacoes antes de receber o start
             // talvez este seja o motivo de algumas vezes na referencia, o eixo sair correndo velozmente
@@ -188,16 +229,23 @@ export const Y_AxisStarterKit: AxisStarterKit = {
     },
     afterReferenceConfig: async (axisName, min, max, defaultVelocity, defaultAcceleration) => {
         const { portName, baudRate, channel} = Address[`Axis`][axisName]
-        const axis = setParam_(portName,baudRate,channel)(Driver)
+        const tunnel: Tunnel = {
+            portSpec: { 
+                path: portName,
+                baudRate,
+            },
+            channel,
+        }
+        const axis = makeAxis(tunnel)
         return executeInSequence([
-            () => axis('Posicao inicial', min),
-            () => axis('Posicao final', max),
-            () => axis('Velocidade de avanco', defaultVelocity), 
-            () => axis('Velocidade de retorno', defaultVelocity), 
-            () => axis('Aceleracao de avanco', defaultAcceleration),
-            () => axis('Aceleracao de retorno', defaultAcceleration),
-            () => axis('Start automatico no avanco ligado', false),
-            () => axis('Start automatico no retorno ligado', false),
+            () => axis.set('Posicao inicial', Pulses(min)),
+            () => axis.set('Posicao final', Pulses(max)),
+            () => axis.set('Velocidade de avanco', PulsesPerTick(defaultVelocity)), 
+            () => axis.set('Velocidade de retorno', PulsesPerTick(defaultVelocity)), 
+            () => axis.set('Aceleracao de avanco', PulsesPerTickSquered(defaultAcceleration)),
+            () => axis.set('Aceleracao de retorno', PulsesPerTickSquered(defaultAcceleration)),
+            () => axis.set('Start automatico no avanco', 'desligado'),
+            () => axis.set('Start automatico no retorno', 'desligado'),
         ])
     }
 }
