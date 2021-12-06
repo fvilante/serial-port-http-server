@@ -1,14 +1,12 @@
-
-
-// This is an append file for axis-controler.ts, and my dreem is to use another
-// strategy for initialization of the axis. Something more robust.
-
 import { delay } from "./core/delay"
 import { Address, Axis } from "./global-env/global"
 import { executeInSequence } from "./core/promise-utils"
 import { CMPP00LG } from "./cmpp/transport/memmap-CMPP00LG"
 import { Tunnel } from "./cmpp/utils/detect-cmpp"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared } from "./cmpp/transport/memmap-types"
+
+// This is an append file for axis-controler.ts, and my dreem is to use another
+// strategy for initialization of the axis. Something more robust.
 
 const makeAxis = CMPP00LG
 
