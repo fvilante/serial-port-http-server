@@ -1,7 +1,5 @@
 import { BaudRate } from '../../serial/baudrate'
 import { FrameCore } from "../datalink/index"
-import { setParam_ } from "../transport/cmpp-memmap-layer"
-import { Driver } from "../transport/mapa_de_memoria"
 import { sendCmpp } from "../datalink/send-receive-cmpp-datalink"
 import { word2int } from '../datalink/int-to-word-conversion'
 
@@ -33,27 +31,3 @@ export const getPosicaoAtual = (portName: string, baudRate: BaudRate, channel: n
             .catch( err => reject(err))
 
 })
-
-const Test = () => {
-
-    const portName = 'com8'
-
-    const Z = setParam_('com8',9600,0)(Driver)
-
-    getPosicaoAtual(portName, 9600, 0)
-        .then( posicaoAtualIni => {
-            console.log(`POSICAO ATUAL = ${posicaoAtualIni}`)
-            Z('Start serial', true)
-            .then( () => {
-                getPosicaoAtual(portName, 9600, 0)
-                .then( posicaoAtual => {
-                    console.log(`POSICAO ATUAL = ${posicaoAtual}`)
-                })
-        })
-
-        })
-    
-}
-
-
-//Test();
