@@ -8,7 +8,7 @@ import { Address, Axis } from "./global-env/global"
 import { executeInSequence } from "./core/promise-utils"
 import { CMPP00LG } from "./cmpp/transport/memmap-CMPP00LG"
 import { Tunnel } from "./cmpp/utils/detect-cmpp"
-import { Pulses, PulsesPerTick, PulsesPerTickSquered } from "./cmpp/transport/memmap-types"
+import { Pulses, PulsesPerTick, PulsesPerTickSquared } from "./cmpp/transport/memmap-types"
 
 const makeAxis = CMPP00LG
 
@@ -68,7 +68,7 @@ export const Z_AxisStarterKit: AxisStarterKit = {
             () => axis.set('Zero Index habilitado p/ correcao', 'desligado'),
             // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
             () => axis.set('Velocidade de referencia', PulsesPerTick(velRef)), // TODO: Remove this unsafe type coersion here
-            () => axis.set('Aceleracao de referencia', PulsesPerTickSquered(acRef)), // TODO: Remove this unsafe type coersion here
+            () => axis.set('Aceleracao de referencia', PulsesPerTickSquared(acRef)), // TODO: Remove this unsafe type coersion here
             // necessario para referencia quando o equipamento é ligado ou foi forçado a perda da referencia
             // remove pausa serial
             () => axis.set('Pausa serial', 'desligado'),
@@ -97,8 +97,8 @@ export const Z_AxisStarterKit: AxisStarterKit = {
             () => axis.set('Posicao final', Pulses(max)),
             () => axis.set('Velocidade de avanco', PulsesPerTick(defaultVelocity)), //400
             () => axis.set('Velocidade de retorno', PulsesPerTick(defaultVelocity)), //600
-            () => axis.set('Aceleracao de avanco', PulsesPerTickSquered(defaultAcceleration)),
-            () => axis.set('Aceleracao de retorno', PulsesPerTickSquered(defaultAcceleration)),
+            () => axis.set('Aceleracao de avanco', PulsesPerTickSquared(defaultAcceleration)),
+            () => axis.set('Aceleracao de retorno', PulsesPerTickSquared(defaultAcceleration)),
             () => axis.set('Start automatico no avanco', 'desligado'),
             () => axis.set('Start automatico no retorno', 'desligado'),
         ])
@@ -141,7 +141,7 @@ export const X_AxisStarterKit: AxisStarterKit = {
             () => axis.set('Zero Index habilitado p/ correcao', "desligado"),
             // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
             () => axis.set('Velocidade de referencia', PulsesPerTick(velRef)),
-            () => axis.set('Aceleracao de referencia', PulsesPerTickSquered(acRef)),
+            () => axis.set('Aceleracao de referencia', PulsesPerTickSquared(acRef)),
             // necessario para referencia quando o equipamento é ligado ou foi forçado a perda da referencia
             // remove pausa serial
             () => axis.set('Pausa serial', "desligado"),
@@ -167,8 +167,8 @@ export const X_AxisStarterKit: AxisStarterKit = {
             () => axis.set('Posicao final', Pulses(max)),
             () => axis.set('Velocidade de avanco', PulsesPerTick(defaultVelocity)), 
             () => axis.set('Velocidade de retorno', PulsesPerTick(defaultVelocity)),
-            () => axis.set('Aceleracao de avanco', PulsesPerTickSquered(defaultAcceleration)),
-            () => axis.set('Aceleracao de retorno', PulsesPerTickSquered(defaultAcceleration)),
+            () => axis.set('Aceleracao de avanco', PulsesPerTickSquared(defaultAcceleration)),
+            () => axis.set('Aceleracao de retorno', PulsesPerTickSquared(defaultAcceleration)),
             () => axis.set('Start automatico no avanco', 'desligado'),
             () => axis.set('Start automatico no retorno', 'desligado'),
         ])
@@ -216,7 +216,7 @@ export const Y_AxisStarterKit: AxisStarterKit = {
             () => axis.set('Zero Index habilitado p/ correcao', 'desligado'),
             // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
             () => axis.set('Velocidade de referencia', PulsesPerTick(velRef)),
-            () => axis.set('Aceleracao de referencia', PulsesPerTickSquered(acRef)),
+            () => axis.set('Aceleracao de referencia', PulsesPerTickSquared(acRef)),
             // necessario para referencia quando o equipamento é ligado ou foi forçado a perda da referencia
             // remove pausa serial
             () => axis.set('Pausa serial', 'desligado'),
@@ -242,8 +242,8 @@ export const Y_AxisStarterKit: AxisStarterKit = {
             () => axis.set('Posicao final', Pulses(max)),
             () => axis.set('Velocidade de avanco', PulsesPerTick(defaultVelocity)), 
             () => axis.set('Velocidade de retorno', PulsesPerTick(defaultVelocity)), 
-            () => axis.set('Aceleracao de avanco', PulsesPerTickSquered(defaultAcceleration)),
-            () => axis.set('Aceleracao de retorno', PulsesPerTickSquered(defaultAcceleration)),
+            () => axis.set('Aceleracao de avanco', PulsesPerTickSquared(defaultAcceleration)),
+            () => axis.set('Aceleracao de retorno', PulsesPerTickSquared(defaultAcceleration)),
             () => axis.set('Start automatico no avanco', 'desligado'),
             () => axis.set('Start automatico no retorno', 'desligado'),
         ])

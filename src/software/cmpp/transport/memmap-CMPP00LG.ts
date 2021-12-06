@@ -1,7 +1,7 @@
 import { Tunnel } from '../utils/detect-cmpp'
 import { makeSettersAndGettersFromCmppAPI } from './api-beaultifier'
 import { param_16bits, param_1bit, param_8bits, UInt1, UInt16 } from './memmap-core'
-import { Pulses, PulsesPerTick, PulsesPerTickSquered, TicksOfClock } from './memmap-types'
+import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from './memmap-types'
 
 // typing casting
 
@@ -26,8 +26,8 @@ const pulsesPerTick = {
 }
 
 const pulsesPerTickSquered = {
-    serialize: (_: PulsesPerTickSquered) => _.value,
-    deserialize: (raw: UInt16) => PulsesPerTickSquered(raw)
+    serialize: (_: PulsesPerTickSquared) => _.value,
+    deserialize: (raw: UInt16) => PulsesPerTickSquared(raw)
 }
 
 const ticksOfClock = {
