@@ -6,20 +6,21 @@ import { Byte } from "../../core/byte"
 //TODO: Extract this type to a more convenient file (ie: core-types.ts ?!)
 export type StartBit = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 
 
+// CmppTypes targets
 export type UInt16 = number // unsigned integer of 16 bits //TODO: Improve the safety of this cast (ie: Validated<A> ?!)
 export type UInt8 = number // unsigned integer of 8 bits //TODO: Improve the safety of this cast (ie: Validated<A> ?!)
 export type UInt1 = 0 | 1 // unsigned integer of 1 bits //TODO: Improve the safety of this cast (ie: Validated<A> ?!)
 
 
 export type ParamCore<T extends string, A, B> = {
-    name: T
-    waddr: Byte   // word address 
+    readonly name: T
+    readonly waddr: Byte   // word address 
 } & CmppType<A,B>
 
-// NOTE: 'A' is the source in user level, 'B' is the target in the transport level
+// NOTE: A=Source (user level) / B=Target (cmpp transport layer level)
 export type CmppType<A,B> = {
-    serialize: (_:A) => B
-    deserialize: (_:B) => A
+    readonly serialize: (_:A) => B
+    readonly deserialize: (_:B) => A
 }
 
 export type Param_16bits<T extends string, A> = {
@@ -28,14 +29,14 @@ export type Param_16bits<T extends string, A> = {
 
 
 export type Param_8bits<T extends string, A> = {
-    type: '8 Bits'
-    startBit: StartBit //takes 8 bits stating in 'startsBit' (included)
+    readonly type: '8 Bits'
+    readonly startBit: StartBit //takes 8 bits stating in 'startsBit' (included)
 } & ParamCore<T,A,UInt8>
 
 
 export type Param_1bit<T extends string,A> = { 
-    type: '1 Bit'
-    startBit: StartBit //takes 1 bits stating in 'startsBit' (included)
+    readonly type: '1 Bit'
+    readonly startBit: StartBit //takes 1 bits stating in 'startsBit' (included)
 } & ParamCore<T,A,UInt1>
 
 export type Param<T extends string, A> = 

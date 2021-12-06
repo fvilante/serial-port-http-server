@@ -565,6 +565,8 @@ const NivelSinalEmotor = param_1bit({
 
 // api 
 
+
+//NOTE: Do not forgot to insert "as const" after the ending brackets. Each key must be annotated as 'readonly'
 export const api = {
     'Posicao inicial': PosicaoInicial,
     'Posicao final': PosicaoFinal,
@@ -634,4 +636,4 @@ export const api = {
     'Nivel: FC-': NivelSinalFimDeCursoMenos,
     'Nivel: REF': NivelSinalReferencia,
     'Nivel: Emotor': NivelSinalEmotor,
-}
+} as const
