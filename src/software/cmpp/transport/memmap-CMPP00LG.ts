@@ -1,4 +1,5 @@
-import { deserialize } from 'v8'
+import { Tunnel } from '../utils/detect-cmpp'
+import { makeSettersAndGettersFromCmppAPI } from './api-beaultifier'
 import { param_16bits, param_1bit, param_8bits, UInt1, UInt16 } from './memmap-core'
 import { Pulses, PulsesPerTick, PulsesPerTickSquered, TicksOfClock } from './memmap-types'
 
@@ -566,8 +567,8 @@ const NivelSinalEmotor = param_1bit({
 // api 
 
 
-//NOTE: Do not forgot to insert "as const" after the ending brackets. Each key must be annotated as 'readonly'
-export const api = {
+//NOTE: Do not forget to insert "as const" after the ending brackets. Each key must be annotated as 'readonly'
+const api = {
     'Posicao inicial': PosicaoInicial,
     'Posicao final': PosicaoFinal,
     'Aceleracao de avanco': AceleracaoDeAvanco,
@@ -637,3 +638,15 @@ export const api = {
     'Nivel: REF': NivelSinalReferencia,
     'Nivel: Emotor': NivelSinalEmotor,
 } as const
+
+
+// API: just used to pre-apply tunnel to set and get
+// TODO: maybe 'makeSettersAndGettersFromCmppAPI' can already do this work
+export const CMPP00LG = (tunnel: Tunnel) => {
+    const { set: internalSet, get: internalGet} = makeSettersAndGettersFromCmppAPI(api)
+
+    return {
+        set: internalSet(tunnel),
+        get: internalGet(tunnel),
+    }
+}
