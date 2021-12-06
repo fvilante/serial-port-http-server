@@ -12,7 +12,8 @@ import { listSerialPorts } from '../../serial/index'
 import { PortSpec } from '../../serial/port-opener-cb'
 import { safePayloadTransact } from './transactioners/safe-payload-transact'
 import { RetryPolicy } from './transactioners/retry-logic-ADT'
-import { calculateTimeout } from '../../cli-tools/scan-cmpp'
+import { calculateTimeout } from './calculate-timeout'
+
 
 export const sendCmpp = (
         portName: string, baudRate: BaudRate
