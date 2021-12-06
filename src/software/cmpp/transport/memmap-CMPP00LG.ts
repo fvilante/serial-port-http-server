@@ -161,10 +161,17 @@ const RetardoParaStartAutomaticoPassoAPasso = param_16bits({
 
 // X+0x20 = Flag de configuracao da programacao
 
-const StartAutomaticoNoAvancoLigado = param_1bit({
-    name: 'Start automatico no avanco ligado',
+const StartAutomaticoNoAvanco = param_1bit({
+    name: 'Start automatico no avanco',
     waddr: X+0x20,
     startBit: 0,
+    ...ligadoDesligado,
+})
+
+const StartAutomaticoNoRetorno = param_1bit({
+    name: 'Start automatico no retorno',
+    waddr: X+0x20,
+    startBit: 1,
     ...ligadoDesligado,
 })
 
@@ -586,7 +593,8 @@ const api = {
     'Tempo para o start externo': TempoParaStartExterno,
     'Cota de antecipacao do start entre eixos (pinelmatico)': CotaDeAntecipacaoDoStartEntreEixosPinelmatico,
     'Retardo para o start automatico passo a passo': RetardoParaStartAutomaticoPassoAPasso,
-    'Start automatico no avanco ligado': StartAutomaticoNoAvancoLigado,
+    'Start automatico no avanco': StartAutomaticoNoAvanco,
+    'Start automatico no retorno': StartAutomaticoNoRetorno,
     'Saida de start no avanco ligado': StartAutomaticoNoRetornoLigado,
     'Saida de start no retorno ligado': SaidaDeStartNoRetornoLigado,
     'Start externo habilitado': StartExternoHabilitado,
