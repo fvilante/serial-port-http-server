@@ -1,12 +1,10 @@
 import { bit_test } from "../../core/bit-wise-utils";
 import { FrameCore } from "../datalink";
-import { Direction, DirectionKeys } from "../datalink/core-types";
-import { int2word, word2int } from "../datalink/int-to-word-conversion";
+import { DirectionKeys } from "../datalink/core-types";
+import { word2int } from "../datalink/int-to-word-conversion";
 import { sendCmpp } from "../datalink/send-receive-cmpp-datalink";
 import { Tunnel } from "../utils/detect-cmpp";
-import { api } from "./memmap-CMPP00LG";
 import { Param, Param_16bits, Param_1bit, Param_8bits } from "./memmap-core";
-import { Pulses } from "./memmap-types";
 
 
 
@@ -124,26 +122,3 @@ export const getCmppParam = <T extends string,A>(tunnel: Tunnel, param: Param<T,
     }
 
 } 
-
-
-const Test1 = async () => {
-
-    getCmppParam({
-        portSpec: {
-            path: 'com50',
-            baudRate: 9600,
-        },
-        channel: 0x00,
-    }, api['Numero de mensagem no avanco'])
-        .then( value => {
-            console.log('recebido', value)
-        })
-        .catch( err => {
-            throw new Error(String(err))
-        })
-
-
-}
-
-
-Test1()
