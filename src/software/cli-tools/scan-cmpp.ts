@@ -4,32 +4,16 @@ import { ExecuteInParalel, executeInSequence } from "../core/promise-utils"
 import { makeRange } from "../core/utils"
 import { listSerialPorts, isSerialPortEmulatedWithCom0Com, isSerialPortLoopBackForTest} from "../serial/list-serial-ports"
 import { BaudRate, PossibleBaudRates } from "../serial/baudrate"
+import { PortSpec } from '../serial'
+import { Channel } from '../cmpp/datalink/core-types'
 
 
-
-//TODO: If we return an Iterator instead of an Array, we can earlier return in case of error 
-const test1 = async () => {
-
-    const spinner = ora('Loading...')
-
-    //param
-    const scanFromChannel = 1
-    const scanToChannel = 64
-    const baudRatesToScan: readonly BaudRate[] = [9600,2400] //[9600,2400, 115200] //PossibleBaudRates.filter( b => b >=2400 && b<=19200)
-    const portsToScan = (await listSerialPorts()).filter( port => {
-        //TODO: There is an error if we try to scan Software emulated serial port. The program halts. Solve this problem when possible
-        const isSoftwareEmulatedPort = isSerialPortEmulatedWithCom0Com(port) || isSerialPortLoopBackForTest(port)
-        const isPhysicalPort = !isSoftwareEmulatedPort
-        return isPhysicalPort
-    }).map( port => port.path)
-    
-    //program
-    const channelsToScan = [...makeRange(scanFromChannel,scanToChannel,1)]
-
-    
+// Strategy: First all tunnels of same baudrate, then the second baudarate, until the end
+const makeAllTunnels = (from: Channel, to: Channel, baudRates: readonly BaudRate[], paths: readonly string[]):(readonly Tunnel[])[] => {
+    const channelsToScan = [...makeRange(from,to,1)]
     const makeAllTunnelsForPortPath = (path: Tunnel['portSpec']['path']): readonly Tunnel[] => {
         let tunnels: readonly Tunnel[] = []
-        baudRatesToScan.forEach( baudRate => {
+        baudRates.forEach( baudRate => {
             channelsToScan.forEach( channel => {
                 tunnels = [...tunnels, {
                     channel,
@@ -42,12 +26,33 @@ const test1 = async () => {
         })
         return tunnels
     }
-
-    const allTunnelsByPorts = portsToScan.map( port => {
+    const allTunnelsByPorts = paths.map( port => {
         return makeAllTunnelsForPortPath(port)
     }) 
+    return allTunnelsByPorts
+}
+
+const getPortsToScan = async ():Promise<string[]> => {
+    return (await listSerialPorts()).filter( port => {
+        //TODO: There is an error if we try to scan Software emulated serial port. The program halts. Solve this problem when possible
+        const isSoftwareEmulatedPort = isSerialPortEmulatedWithCom0Com(port) || isSerialPortLoopBackForTest(port)
+        const isPhysicalPort = !isSoftwareEmulatedPort
+        return isPhysicalPort
+    }).map( port => port.path)
+}
 
 
+//TODO: If we return an Iterator instead of an Array, we can earlier return in case of error 
+const runProgram = async () => {
+
+    const spinner = ora('Loading...')
+
+    //configure
+    const [ scanFromChannel, scanToChannel] = [1,64] //[inclusive, exclusive]
+    const portsToScan = await getPortsToScan()
+    const baudRatesToScan: readonly BaudRate[] = [9600,2400]
+
+    //program
     const msg = `Scanning CMPP devices...
     Looking at:
         Ports [${portsToScan}], 
@@ -57,6 +62,8 @@ const test1 = async () => {
     Results:
     `
     console.log(msg)
+
+    const allTunnelsByPorts = makeAllTunnels(scanFromChannel, scanToChannel, baudRatesToScan, portsToScan)
 
     const x = allTunnelsByPorts.map( tunnels => {
         const y = tunnels.map( tunnel => {
@@ -98,4 +105,4 @@ const test1 = async () => {
 }
 
 
-//test1()
+//runProgram()
