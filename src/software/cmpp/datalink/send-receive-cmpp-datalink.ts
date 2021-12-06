@@ -10,7 +10,7 @@ import { safePayloadTransact } from './transactioners/safe-payload-transact'
 import { RetryPolicy } from './transactioners/retry-logic-ADT'
 import { calculateTimeout } from './calculate-timeout'
 
-
+//TODO: Make this function with an ADT API
 export const sendCmpp = (
         portName: string, baudRate: BaudRate
     ) => (
