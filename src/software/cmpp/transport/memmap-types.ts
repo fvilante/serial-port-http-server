@@ -42,4 +42,5 @@ export type PulsesPerTickSquered = {
     dimension: 'Frequency/Time' // = Freq / Time  ;
 }
 
+//TODO: Correct the name: is not 'squered' but 'squared'
 export const PulsesPerTickSquered = (value: number): PulsesPerTickSquered => ({kind: 'PulsesPerTickSquered', value, unitOfMeasurement: 'PulsesPerTickSquered', dimension: 'Frequency/Time'})
