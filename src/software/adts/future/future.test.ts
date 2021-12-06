@@ -57,6 +57,36 @@ describe('basic tests', () => {
         })
     })
 
+    it('Can construct from a Future resolver', async (done) => {
+        //prepare
+        jest.useFakeTimers(); // we don't need to wait real time to pass :)
+        type A = number
+        type E = string 
+        const probe: E = `hello world`
+        const expected = probe
+        const absurd = () => {expect(false).toEqual(true) }
+        const timeReference = 100 // milisecs
+        //act
+        let buffer: any[] = []
+        const ma: Future<Result<A,E>> = Future( yield_ => {
+            const { return_ok, return_error} = Future_.makeContructorsFromResultEmitter(yield_)
+            setTimeout( () => {
+                return_error(probe)
+                buffer = [...buffer, probe]
+            },timeReference)
+        })
+        //check
+        ma.forResult({
+            Ok: value => { absurd() },
+            Error: error => { expect(error).toEqual(expected) }
+        })
+        setTimeout( () => {
+            expect(buffer).toEqual([expected])
+            done()
+        },timeReference*10)
+        jest.runAllTimers(); // but we need to wait all timers to run :)
+    })
+
     it('Can construct a single __setTimeout interval', async (done) => {
         //prepare
         const deltaTime = 100
