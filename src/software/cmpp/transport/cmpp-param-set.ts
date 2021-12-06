@@ -1,13 +1,9 @@
 import { FrameCore } from "../datalink";
-import { Direction, DirectionKeys } from "../datalink/core-types";
-import { int2word, word2int } from "../datalink/int-to-word-conversion";
+import { DirectionKeys } from "../datalink/core-types";
+import { word2int } from "../datalink/int-to-word-conversion";
 import { sendCmpp } from "../datalink/send-receive-cmpp-datalink";
 import { Tunnel } from "../utils/detect-cmpp";
-import { api } from "./memmap-CMPP00LG";
 import { Param, Param_16bits, Param_1bit, Param_8bits } from "./memmap-core";
-import { Pulses } from "./memmap-types";
-
-
 
 
 //TODO: Implement ADT API
@@ -136,26 +132,3 @@ export const setCmppParam = <T extends string,A>(tunnel: Tunnel, param: Param<T,
     }
 
 } 
-
-
-const Test1 = async () => {
-
-    setCmppParam({
-        portSpec: {
-            path: 'com50',
-            baudRate: 9600,
-        },
-        channel: 0x00,
-    }, api['Numero de mensagem no avanco'], 10)
-        .then( () => {
-            console.log('enviado')
-        })
-        .catch( err => {
-            throw new Error(String(err))
-        })
-
-
-}
-
-
-//Test1()
