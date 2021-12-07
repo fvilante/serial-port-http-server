@@ -4,12 +4,7 @@ import { FrameCore } from "../datalink/index"
 import { sendCmpp } from "../datalink/send-receive-cmpp-datalink"
 import { word2int } from '../datalink/int-to-word-conversion'
 
-//let statusLRaw: number | undefined = undefined 
-
-
-
-
-export type StatusLCasted = {
+export type StatusL = {
     referenciado: boolean, //d0
     posicaoExecutada: boolean, //d1
     referenciando: boolean, //d2
@@ -19,7 +14,7 @@ export type StatusLCasted = {
     //velocidadeConstante: boolean // derivado de d4 e d5
 }
 
-const castStatusL = (statusL: number): StatusLCasted => {
+const castStatusL = (statusL: number): StatusL => {
     return {
         referenciado: bit_test(statusL,0),
         posicaoExecutada: bit_test(statusL,1),
@@ -30,7 +25,7 @@ const castStatusL = (statusL: number): StatusLCasted => {
     }
 }
 
-export const getStatusLow = (portName: string, baudRate: BaudRate, channel: number): Promise<StatusLCasted> => 
+export const getStatusLow = (portName: string, baudRate: BaudRate, channel: number): Promise<StatusL> => 
     new Promise( (resolve, reject) => {
         //algorigthm: I cannot resolve the waddr of statusL correctly, so I will
         //read 'posicao inicial' and write the same value to get a return packet with the statusL

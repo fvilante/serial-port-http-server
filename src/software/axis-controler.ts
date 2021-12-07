@@ -1,6 +1,6 @@
 import { AxisStarterKit } from "./axis-starter-kit"
 import { Milimeter } from "../temp/unused files/axis-position"
-import { getStatusLow, StatusLCasted } from "./cmpp/utils/get-status-low"
+import { getStatusLow, StatusL } from "./cmpp/utils/get-status-low"
 import { getPosicaoAtual } from "./cmpp/utils/get-pos-atual"
 import { Address, Axis } from "./global-env/global"
 import { WaitUntilTrueFastPooling } from "./core/promise-utils"
@@ -44,7 +44,7 @@ export type AxisControler = {
     readonly _setPosicaoInicial: (pulses: number) => Promise<void>
     readonly _setPosicaoFinal: (pulses: number) => Promise<void>
     readonly _waitUntilCurrentPositionIsAbout: (position: number, window: readonly [lowerBound: number, upperBound: number], monitor?: (currentPosition: number, tagetRange: readonly [LBound: number, UBound: number], hasReached: boolean) => void) => Promise<void>
-    readonly _getStatusL: () => Promise<StatusLCasted>
+    readonly _getStatusL: () => Promise<StatusL>
     readonly _forceLooseReference: () => Promise<void>
     readonly _printTest: () => Promise<void>
     readonly _getAbsolutePositionRange: () => readonly [min: number, max: number]

@@ -1,6 +1,6 @@
 import { BaudRate } from '../../software/serial/baudrate'
 import { setParam_ } from '../../software/cmpp/transport/cmpp-memmap-layer'
-import { getStatusLow, StatusLCasted } from '../../software/cmpp/utils/get-status-low'
+import { getStatusLow, StatusL } from '../../software/cmpp/utils/get-status-low'
 import { getPosicaoAtual } from '../../software/cmpp/utils/get-pos-atual'
 import { Driver, HyperDriver } from '../../software/cmpp/transport/mapa_de_memoria'
 import { isInsideRange, now } from "../../software/core/utils"
@@ -170,7 +170,7 @@ type CmppControlerInfo = {
 
 type CmppControler = {
     getInfo: () => Promise<CmppControlerInfo>
-    _getStatusL: () => Promise<StatusLCasted>
+    _getStatusL: () => Promise<StatusL>
     //onDisconnect: () => Promise<DisconnectionStatus>
     _isConnected: (_since: Milisecond) => Promise<boolean> // fix: consider a parameter like (sinceMiliseconds: number) to avoid unnecessary polling
     _isReferenced: () => Promise<boolean> 
