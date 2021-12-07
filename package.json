@@ -6,6 +6,7 @@
   "scripts": {
     "format:source": "npx prettier --write \"src/**/*.ts\"",
     "test": "jest",
+    "clear_test": "jest --clearCache",
     "coverage": "jest --coverage",
     "clean": "echo to be done!",
     "build": "echo to be done!",
