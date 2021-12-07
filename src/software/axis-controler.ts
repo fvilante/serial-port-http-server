@@ -1,6 +1,6 @@
 import { AxisStarterKit } from "./axis-starter-kit"
 import { Milimeter } from "../temp/unused files/axis-position"
-import { fetchCMPPStatusL, StatusLCasted } from "./cmpp/utils/get-cmpp-status"
+import { fetchCMPPStatusL, StatusLCasted } from "./cmpp/utils/get-status-low"
 import { getPosicaoAtual } from "./cmpp/utils/get-pos-atual"
 import { Address, Axis } from "./global-env/global"
 import { WaitUntilTrueFastPooling } from "./core/promise-utils"
