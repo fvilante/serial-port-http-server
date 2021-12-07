@@ -111,10 +111,13 @@ const get8BitsParam = <T extends string,A>(tunnel: Tunnel, param: Param_8bits<T,
 
 export const getCmppParam = <T extends string,A>(tunnel: Tunnel, param: Param<T,A>): Promise<A> => {
 
-    switch (param.type) {
-        case '16 Bits': return get16BitsParam(tunnel, param)
-        case '8 Bits': return get8BitsParam(tunnel, param)
-        case '1 Bit': return get1BitsParam(tunnel, param)
+    //TODO: Discovery why I need to divede waddr by two !!
+    const param_adjusted = {...param, waddr: param.waddr/2} 
+
+    switch (param_adjusted.type) {
+        case '16 Bits': return get16BitsParam(tunnel, param_adjusted)
+        case '8 Bits': return get8BitsParam(tunnel, param_adjusted)
+        case '1 Bit': return get1BitsParam(tunnel, param_adjusted)
         default: {
             //TODO: Make this switch case statically exaustive
             throw new Error('This error should never happens: Non exaustive switch case clause. Cmpp communication/memmap context')
