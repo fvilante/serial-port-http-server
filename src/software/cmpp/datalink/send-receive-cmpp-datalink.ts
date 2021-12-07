@@ -30,9 +30,9 @@ export const sendCmpp = (
         safePayloadTransact(portSpec,dataToSend_, timeout, retryPolicy)
             .forResult({
                 Ok: frameInterpreted => {
-                    //console.log(`Received a frame from CMPP on port ${portName}/${String(baudRate)}`)        
-                    //console.log("Frame interpreted:")
-                    //console.table(frameInterpreted)
+                    console.log(`Received a frame from CMPP on port ${portName}/${String(baudRate)}`)        
+                    console.log("Frame interpreted:")
+                    console.table(frameInterpreted)
                     resolve(frameInterpreted)
                 },
                 Error: err => {
