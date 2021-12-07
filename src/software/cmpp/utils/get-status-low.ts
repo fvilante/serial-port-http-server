@@ -30,7 +30,7 @@ const castStatusL = (statusL: number): StatusLCasted => {
     }
 }
 
-export const fetchCMPPStatusL = (portName: string, baudRate: BaudRate, channel: number): Promise<StatusLCasted> => 
+export const getStatusLow = (portName: string, baudRate: BaudRate, channel: number): Promise<StatusLCasted> => 
     new Promise( (resolve, reject) => {
         //algorigthm: I cannot resolve the waddr of statusL correctly, so I will
         //read 'posicao inicial' and write the same value to get a return packet with the statusL
@@ -63,7 +63,7 @@ export const fetchCMPPStatusL = (portName: string, baudRate: BaudRate, channel: 
 
 const Test1 = () => {
 
-    fetchCMPPStatusL('com8',9600,0)
+    getStatusLow('com8',9600,0)
         .then( statusL => {
             console.table(statusL)
         })

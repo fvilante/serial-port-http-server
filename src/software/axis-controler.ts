@@ -1,6 +1,6 @@
 import { AxisStarterKit } from "./axis-starter-kit"
 import { Milimeter } from "../temp/unused files/axis-position"
-import { fetchCMPPStatusL, StatusLCasted } from "./cmpp/utils/get-status-low"
+import { getStatusLow, StatusLCasted } from "./cmpp/utils/get-status-low"
 import { getPosicaoAtual } from "./cmpp/utils/get-pos-atual"
 import { Address, Axis } from "./global-env/global"
 import { WaitUntilTrueFastPooling } from "./core/promise-utils"
@@ -240,7 +240,7 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
     } 
 
     const _getStatusL: T['_getStatusL'] = async () => {
-        const statusL = await fetchCMPPStatusL(portName, baudRate, channel)
+        const statusL = await getStatusLow(portName, baudRate, channel)
         return statusL
     }
 
