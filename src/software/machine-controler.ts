@@ -189,6 +189,7 @@ export const MachineControler = async (
         }
 
         const safelyReferenceSystemIfNecessary:T['safelyReferenceSystemIfNecessary'] = async () => {
+            console.log('*************** JUCA &&&&&&&&&&&&&&&&&& ********************')
             const referenceXandYIfNecessary = async () => {
                 await executeInSerie([
                     () => x.doReferenceIfNecessary(),
