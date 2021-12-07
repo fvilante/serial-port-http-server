@@ -3,18 +3,9 @@ import { Channel } from "../datalink/core-types"
 import { CMPP00LG } from "../transport/memmap-CMPP00LG"
 import { Tunnel } from "./detect-cmpp"
 import { getStatusLow } from "./get-status-low"
-import { decomposeTunnel, makeTunnel } from "./tunnel-core"
+import { decomposeTunnel, isReferenced, makeTunnel } from "./core"
 
 const makeAxis_ = CMPP00LG
-
-
-
-
-export const isReferenced = async (tunnel: Tunnel, makeAxis: typeof makeAxis_): Promise<boolean> => {
-    const { path, channel, baudRate} = decomposeTunnel(tunnel)
-    const statusL = await getStatusLow(path, baudRate, channel)
-    return statusL.referenciado
-}
 
 export const forceLooseReference = async (tunnel: Tunnel, makeAxis: typeof makeAxis_): Promise<void> => {
     const axis = makeAxis(tunnel)
