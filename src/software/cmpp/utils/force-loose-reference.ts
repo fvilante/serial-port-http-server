@@ -9,21 +9,13 @@ const makeAxis_ = CMPP00LG
 
 export const forceLooseReference = async (tunnel: Tunnel, makeAxis: typeof makeAxis_): Promise<void> => {
     const axis = makeAxis(tunnel)
-    await axis.set('Pausa serial','ligado')
+    const { path, baudRate, channel} = decomposeTunnel(tunnel)
+    const isReferenced_ = await isReferenced(tunnel, makeAxis_)
+    if(isReferenced_) {
+        await axis.set('Pausa serial','ligado')
+    } else {
+        return
+    }   
 }
+    
 
-const test1 = async () => {
-
-    const tunnel = makeTunnel('com50',9600,0)
-
-    const isRefBefore = await isReferenced(tunnel, makeAxis_)
-    await forceLooseReference(tunnel, makeAxis_)
-    const isRefAfter = await isReferenced(tunnel, makeAxis_)
-    console.table({
-        isRefBefore,
-        isRefAfter
-    })
-
-}
-
-//test1()
