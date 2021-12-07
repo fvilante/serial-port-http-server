@@ -584,7 +584,7 @@ const api = {
     'Velocidade de retorno': VelocidadeDeRetorno,
     'Numero de mensagem no avanco': NumeroDeMensagemNoAvanco,
     'Numero de mensagem no retorno': NumeroDeMensagemNoRetorno,
-    'PosicaoDaPrimeiraImpressaoNoAvanco': PosicaoDaPrimeiraImpressaoNoAvanco,
+    'Posicao da primeira impressao no avanco': PosicaoDaPrimeiraImpressaoNoAvanco,
     'Posicao da primeira impressao no retorno': PosicaoDaPrimeiraImpressaoNoRetorno,
     'Posicao da ultima mensagem no avanco': PosicaoDaUltimaMensagemNoAvanco,
     'Posicao da ultima mensagem no retorno': PosicaoDaUltimaMensagemNoRetorno,
