@@ -20,10 +20,14 @@ export const start = async (tunnel: Tunnel, makeAxis: typeof makeAxis_) => {
 }
 
 export const waitToStopThenStart = async (tunnel: Tunnel, makeAxis: typeof makeAxis_) => {
-    const axis = makeAxis(tunnel)
+    await waitToStop(tunnel, makeAxis)
+    await start (tunnel, makeAxis)
+}
+
+export const waitToStop = async (tunnel: Tunnel, makeAxis: typeof makeAxis_) => {
     const isNotStoped = async () => !(await isStoped(tunnel, makeAxis))
     while (await isNotStoped()) {
         //loop until stopped
     }
-    await start (tunnel, makeAxis)
+    return
 }
