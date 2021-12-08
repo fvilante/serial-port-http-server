@@ -2,7 +2,7 @@ import { CMPP00LG } from "../transport/memmap-CMPP00LG"
 import { explodeTunnel, isReferenced, makeTunnel } from "./core"
 import { forceLooseReference } from "./force-loose-reference"
 import ora from 'ora'
-import { forceReference } from "./force-reference"
+import { forceReference } from "./reference"
 import { start, waitToStopThenStart } from "./start"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../transport/memmap-types"
 
