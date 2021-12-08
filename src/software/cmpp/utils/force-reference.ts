@@ -1,7 +1,7 @@
 import { CMPP00LG } from "../transport/memmap-CMPP00LG"
 import { Tunnel } from "./detect-cmpp"
 import { forceLooseReference } from "./force-loose-reference"
-import { decomposeTunnel, isReferenced, makeTunnel } from "./core"
+import { explodeTunnel, isReferenced, makeTunnel } from "./core"
 import { getStatusLow } from "./get-status-low"
 import { PulsesPerTick, PulsesPerTickSquared } from "../transport/memmap-types"
 
@@ -9,7 +9,7 @@ const makeAxis_ = CMPP00LG
 
 //TODO: Extract from this file to better place if possible
 export const isReferencing = async (tunnel: Tunnel, makeAxis: typeof makeAxis_):Promise<boolean> => {
-    const { path, baudRate, channel} = decomposeTunnel(tunnel)
+    const { path, baudRate, channel} = explodeTunnel(tunnel)
     const statusL = await getStatusLow(path, baudRate, channel)
     const isReferencing = statusL.referenciado===false && statusL.referenciando===true
     return isReferencing
@@ -35,9 +35,8 @@ export const forceReference = async (tunnel: Tunnel, makeAxis: typeof makeAxis_,
         await axis.set('Pausa serial','desligado')
         await axis.set('Start serial','ligado')
 
-
-
         while( await isReferencing(tunnel, makeAxis) ) {
+            //TODO: should this loop be protected with an timeout error ?
             // wait until reference proccess is done!
         }
 
