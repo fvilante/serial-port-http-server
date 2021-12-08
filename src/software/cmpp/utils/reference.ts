@@ -15,13 +15,13 @@ export const isReferencing = async (tunnel: Tunnel, makeAxis: typeof makeAxis_):
     return isReferencing
 } 
 
-type ForceReferenceParameters = {
+export type ReferenceParameters = {
     'Velocidade de referencia': PulsesPerTick,
     'Aceleracao de referencia': PulsesPerTickSquared,
 }
 
 //NOTE: only returns when axis finished the reference proccess
-export const forceReference = async (tunnel: Tunnel, makeAxis: typeof makeAxis_, program: ForceReferenceParameters): Promise<void> => {
+export const forceReference = async (tunnel: Tunnel, makeAxis: typeof makeAxis_, program: ReferenceParameters): Promise<void> => {
     
     return new Promise ( async (resolve, reject) => {
 
@@ -43,6 +43,17 @@ export const forceReference = async (tunnel: Tunnel, makeAxis: typeof makeAxis_,
         resolve()
     
     })
+}
 
-    
+export const doReferenceIfNecessary = async (tunnel: Tunnel, makeAxis: typeof makeAxis_, program: ReferenceParameters): Promise<void> => {
+    const axis = makeAxis(tunnel)
+
+    const isReferenced_ = await isReferenced(tunnel, makeAxis)
+    if(isReferenced_) {
+        return
+    } else {
+        await forceReference(tunnel, makeAxis, program)
+    }
+
+
 }
