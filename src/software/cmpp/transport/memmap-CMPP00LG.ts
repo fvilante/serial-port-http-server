@@ -35,22 +35,30 @@ const ticksOfClock = {
     deserialize: (raw: UInt16) => TicksOfClock(raw)
 }
 
+// --- discrete/optional -> cmpp types
+
+//TODO: maybe exist a better place for this type (ie: near 'Aceleracao', 'Velocidade', etc)
+export type LigadoDesligado = 'desligado' | 'ligado'
 //TODO: Check if the convertion logic is not inverted
 const ligadoDesligado = {
-    serialize: (_: 'ligado' | 'desligado'):UInt1 => _==='ligado' ? 1 : 0,
-    deserialize: (raw: UInt1) => raw === 0 ? 'desligado' : 'ligado'
+    serialize: (_: LigadoDesligado):UInt1 => _==='ligado' ? 1 : 0,
+    deserialize: (raw: UInt1):LigadoDesligado => raw === 0 ? 'desligado' : 'ligado'
 }
 
+//TODO: maybe exist a better place for this type (ie: near 'Aceleracao', 'Velocidade', etc)
+export type AbertoFechado = 'aberto' | 'fechado'
 //TODO: Check if the convertion logic is not inverted
 const abertoFechado = {
-    serialize: (_: 'aberto' | 'fechado'):UInt1 => _==='aberto' ? 1 : 0,
-    deserialize: (raw: UInt1) => raw === 0 ? 'fechado' : 'aberto'
+    serialize: (_: AbertoFechado):UInt1 => _==='aberto' ? 1 : 0,
+    deserialize: (raw: UInt1):AbertoFechado => raw === 0 ? 'fechado' : 'aberto'
 }
 
+//TODO: maybe exist a better place for this type (ie: near 'Aceleracao', 'Velocidade', etc)
+export type ContinuoPassoAPasso = 'continuo' | 'passo-a-passo'
 //TODO: Check if the convertion logic is not inverted
 const continuoPassoAPasso = {
-    serialize: (_: 'continuo' | 'passo-a-passo'):UInt1 => _==='passo-a-passo' ? 1 : 0,
-    deserialize: (raw: UInt1) => raw === 0 ? 'continuo' : 'passo-a-passo'
+    serialize: (_: ContinuoPassoAPasso):UInt1 => _==='passo-a-passo' ? 1 : 0,
+    deserialize: (raw: UInt1):ContinuoPassoAPasso => raw === 0 ? 'continuo' : 'passo-a-passo'
 }
 
 // ---- Inicio dos dados do usuario ---------
