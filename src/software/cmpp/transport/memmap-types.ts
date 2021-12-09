@@ -1,11 +1,19 @@
 
 
+
+
 //represents number of pulses in relation to a reference not specified
 export type Pulses = {
     kind: 'Pulses'
     value: number //pulses
     unitOfMeasurement: 'Pulses'
     dimension: 'Unit'
+}
+
+export const Pulses_ = {
+    add: (a: Pulses, b: Pulses):Pulses => Pulses(a.value+b.value),   
+    subtract:  (a: Pulses, b: Pulses):Pulses => Pulses(a.value-b.value),
+    abs: (a: Pulses): Pulses => Pulses(a.value < 0 ? (-1)*a.value : a.value)   
 }
 
 export const Pulses = (value: number): Pulses => ({kind: 'Pulses', value, unitOfMeasurement: 'Pulses', dimension: 'Unit'})
