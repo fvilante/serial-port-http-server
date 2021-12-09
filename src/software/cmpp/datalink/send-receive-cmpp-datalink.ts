@@ -10,6 +10,7 @@ import { safePayloadTransact } from './transactioners/safe-payload-transact'
 import { RetryPolicy } from './transactioners/retry-logic-ADT'
 import { calculateTimeout } from './calculate-timeout'
 
+//TODO: os clientes desta funcao deveriam checar se resposta em frameInterpreted foi 'ACK' ou 'NACK' mas eles nao estao fazendo isto. Poderia haver uma funcao intermediaria que jogue um erro caso o frame retornado seja NACK
 //TODO: API CHANGE: Make this function ADT API, and use PortSpec as function argment. Eventually use PayloadCore instead of frame (?!)
 export const sendCmpp = (
         portName: string, baudRate: BaudRate

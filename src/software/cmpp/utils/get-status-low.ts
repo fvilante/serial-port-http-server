@@ -54,7 +54,6 @@ export const getStatusLow = (portName: string, baudRate: BaudRate, channel: numb
                         const statusH_ = response.dataHigh[0]
 
                         const statusL = castStatusL(statusL_)
-                        console.table(statusL)
                         resolve(statusL)
             }) 
         })

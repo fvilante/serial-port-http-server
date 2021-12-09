@@ -6,6 +6,7 @@ import { getStatusLow } from "./get-status-low"
 
 const makeAxis_ = CMPP00LG
 
+//TODO: extract this function to a better place
 export const isReferenced = async (tunnel: Tunnel, makeAxis: typeof makeAxis_): Promise<boolean> => {
     const { path, channel, baudRate} = explodeTunnel(tunnel)
     const statusL = await getStatusLow(path, baudRate, channel)
