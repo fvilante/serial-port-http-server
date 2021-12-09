@@ -1,13 +1,16 @@
 import { AxisStarterKit } from "./axis-starter-kit"
-import { setParam_ } from "./cmpp/transport/cmpp-memmap-layer"
 import { Milimeter } from "../temp/unused files/axis-position"
-import { fetchCMPPStatusL, StatusLCasted } from "./cmpp/utils/get-cmpp-status"
+import { getStatusLow, StatusL } from "./cmpp/utils/get-status-low"
 import { getPosicaoAtual } from "./cmpp/utils/get-pos-atual"
 import { Address, Axis } from "./global-env/global"
-import { Driver } from "./cmpp/transport/mapa_de_memoria"
 import { WaitUntilTrueFastPooling } from "./core/promise-utils"
 import { isInsideRange, now } from "./core/utils"
+import { Tunnel } from "./cmpp/utils/detect-cmpp"
+import { CMPP00LG } from "./cmpp/transport/memmap-CMPP00LG"
+import { Pulses, PulsesPerTick, PulsesPerTickSquared } from "./cmpp/transport/memmap-types"
 //import { PrintingPositions } from "./cmpp-controler"
+
+const makeAxis = CMPP00LG
 
 // ***********************************************************
 // A generic Axis driver
@@ -41,7 +44,7 @@ export type AxisControler = {
     readonly _setPosicaoInicial: (pulses: number) => Promise<void>
     readonly _setPosicaoFinal: (pulses: number) => Promise<void>
     readonly _waitUntilCurrentPositionIsAbout: (position: number, window: readonly [lowerBound: number, upperBound: number], monitor?: (currentPosition: number, tagetRange: readonly [LBound: number, UBound: number], hasReached: boolean) => void) => Promise<void>
-    readonly _getStatusL: () => Promise<StatusLCasted>
+    readonly _getStatusL: () => Promise<StatusL>
     readonly _forceLooseReference: () => Promise<void>
     readonly _printTest: () => Promise<void>
     readonly _getAbsolutePositionRange: () => readonly [min: number, max: number]
@@ -85,7 +88,14 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
 
 
     const { portName, baudRate, channel} = Address[`Axis`][axisName]
-    const axis = setParam_(portName,baudRate,channel)(Driver)
+        const tunnel: Tunnel = {
+            portSpec: { 
+                path: portName,
+                baudRate,
+            },
+            channel,
+        }
+        const axis = makeAxis(tunnel)
 
 
     const isReferenced: T['isReferenced'] = async () => {
@@ -105,7 +115,7 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
     }
   
     const start: T['_start'] = async () => {
-        return axis('Start serial', true)
+        return axis.set('Start serial', 'ligado')
     }
 
     const stop: T['_start'] = async () => {
@@ -198,12 +208,12 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
         
 
     const _setPosicaoInicial: T['_setPosicaoInicial'] = async (positionInPulses) => {
-        await axis('Posicao inicial', positionInPulses)
+        await axis.set('Posicao inicial', Pulses(positionInPulses)) //TODO: Remove this type cast
         return 
     }
 
     const _setPosicaoFinal: T['_setPosicaoFinal'] = async (positionInPulses) => {
-        await axis('Posicao final', positionInPulses)
+        await axis.set('Posicao final', Pulses(positionInPulses)) //TODO: Remove this type cast
         return 
     }
 
@@ -230,14 +240,14 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
     } 
 
     const _getStatusL: T['_getStatusL'] = async () => {
-        const statusL = await fetchCMPPStatusL(portName, baudRate, channel)
+        const statusL = await getStatusLow(portName, baudRate, channel)
         return statusL
     }
 
     const _forceLooseReference: T['_forceLooseReference'] = async () => {
         const isReferenced = (await _getStatusL()).referenciado
         if (isReferenced===true) {
-            await axis('Pausa serial', true)
+            await axis.set('Pausa serial', 'ligado') 
             return
         } else {
             return
@@ -245,7 +255,7 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
     }
 
     const _printTest: T['_printTest'] = async () => {
-        return await axis('Teste de impressao serial', true)
+        return await axis.set('Teste de impressao serial', 'ligado')
     }
 
     const _getAbsolutePositionRange: T['_getAbsolutePositionRange'] = () => {
@@ -253,26 +263,26 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
     }
 
     const _setVelocity: T['_setVelocity'] = async velocity => {
-        await axis('Velocidade de avanco', velocity)
-        await axis('Velocidade de retorno', velocity)
+        await axis.set('Velocidade de avanco', PulsesPerTick(velocity)) //TODO: Remove this type cast
+        await axis.set('Velocidade de retorno', PulsesPerTick(velocity)) //TODO: Remove this type cast
         return
     }
 
     const _setAcceleration: T['_setAcceleration'] = async acceleration => {
-        await axis('Aceleracao de avanco', acceleration)
-        await axis('Aceleracao de retorno', acceleration)
+        await axis.set('Aceleracao de avanco', PulsesPerTickSquared(acceleration)) //TODO: remove this type cast
+        await axis.set('Aceleracao de retorno', PulsesPerTickSquared(acceleration)) //TODO: remove this type cast
         return
     }
 
     const _setVelocityDefault: T['_setVelocityDefault'] = async () => {
-        await axis('Velocidade de avanco', defaultVelocity)
-        await axis('Velocidade de retorno', defaultVelocity)
+        await axis.set('Velocidade de avanco', PulsesPerTick(defaultVelocity)) //TODO: remove this type cast
+        await axis.set('Velocidade de retorno', PulsesPerTick(defaultVelocity)) //TODO: remove this type cast
         return
     }
 
     const _setAccelerationDefault: T['_setAccelerationDefault'] = async () => {
-        await axis('Aceleracao de avanco', defaultAcceleration)
-        await axis('Aceleracao de retorno', defaultAcceleration)
+        await axis.set('Aceleracao de avanco', PulsesPerTickSquared(defaultAcceleration)) //TODO: remove this type cast
+        await axis.set('Aceleracao de retorno', PulsesPerTickSquared(defaultAcceleration)) //TODO: remove this type cast
         return
     }
 
@@ -286,18 +296,18 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
             posicaoDaUltimaMensagemNoRetorno,
         } = settings
 
-        await axis('Numero de mensagem no avanco', numeroDeMensagensNoAvanco)
-        await axis('Numero de mensagem no retorno', numeroDeMensagensNoRetorno)
-        await axis('Posicao da primeira impressao no avanco', posicaoDaPrimeiraMensagemNoAvanco)
-        await axis('Posicao da ultima mensagem no avanco', posicaoDaUltimaMensagemNoAvanco)
-        await axis('Posicao da primeira impressao no retorno', posicaoDaPrimeiraMensagemNoRetorno)
-        await axis('Posicao da ultima mensagem no retorno', posicaoDaUltimaMensagemNoRetorno)
+        await axis.set('Numero de mensagem no avanco', numeroDeMensagensNoAvanco)
+        await axis.set('Numero de mensagem no retorno', numeroDeMensagensNoRetorno)
+        await axis.set('Posicao da primeira impressao no avanco', Pulses(posicaoDaPrimeiraMensagemNoAvanco)) //TODO: Remove those types cast
+        await axis.set('Posicao da ultima mensagem no avanco', Pulses(posicaoDaUltimaMensagemNoAvanco))
+        await axis.set('Posicao da primeira impressao no retorno', Pulses(posicaoDaPrimeiraMensagemNoRetorno))
+        await axis.set('Posicao da ultima mensagem no retorno', Pulses(posicaoDaUltimaMensagemNoRetorno))
         return
     }
 
     const _clearPrintingMessages: T['_clearPrintingMessages'] = async () => {
-        await axis('Numero de mensagem no avanco', 0)
-        await axis('Numero de mensagem no retorno', 0)
+        await axis.set('Numero de mensagem no avanco', 0)
+        await axis.set('Numero de mensagem no retorno', 0)
         return  
     }
 

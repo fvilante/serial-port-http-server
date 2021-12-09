@@ -1,6 +1,6 @@
 import { Maybe } from "./maybe"
 import { Either, Either_ } from "./maybe/either"
-import { Result_, Result, ResultMatcher } from "./result"
+import { Result_, Result, ResultMatcher, InferResult } from "./result"
 
 // IMPORTANT: 
 //  the idea of future is that he never trows an error
@@ -38,7 +38,7 @@ export type Future<A> = {
     kind: 'Future'
     // unsafe part
     unsafeRun: (_: Receiver<A>) => void
-    forResult: <X>(m: FutureResultMatcher<A,void>) => void
+    forResult: (m: FutureResultMatcher<A,void>) => void
     // safe part (?)
     runToAsync: () => () => Promise<A> // never should fails, all error treatment SHOULD be made inside A
     async: () => Promise<A> //async is designed to use 'await' keyword on futures
@@ -75,7 +75,7 @@ export const Future = <A>(emitter: (receiver: (received: A) => void) => void): F
 
     const runToAsync: T['runToAsync'] = () => () => new Promise( (resolve, reject) => unsafeRun(resolve) )
 
-    const forResult: T['forResult'] = matcher => matchResult(matcher).unsafeRun( () => {})
+    const forResult: T['forResult'] = matcher => matchResult(matcher).unsafeRun( () => { })
 
     const async: T['async'] = runToAsync()
 
@@ -171,6 +171,7 @@ export type Future_ = {
     fromValue: <A>(value:A) => Future<A>
     fromThunk: <A>(thunk: () => A) => Future<A>
     fromUnsafePromise: <A>(f: () => Promise<A>) => Future<Result<A,UnsafePromiseError>>
+    makeContructorsFromResultEmitter: <A,E>(resolver: (_: Result<A,E>) => void) => { readonly return_ok: (ok_value: A) => void, readonly return_error: (error_value: E) => void }
     delay: <N extends number>(msecs: N) => Future<N> //Note: cannot be canceled, returns the number of msecs programed
     delayCancelable: <A, N extends number = number>(msecs: N, cancelation: Future<A>) => Future<Either<N,A>> // left if not has been canceled (returns the msecs programed), right if has been canceled (returns the type of the cancelation promise)
     race: <A,B>(f0: Future<A>, f1: Future<B>) => Future<Either<A,B>>
@@ -220,6 +221,17 @@ const fromUnsafePromise: T['fromUnsafePromise'] = runPromise => Future( yield_ =
         yield_(Result_.Error(makeError(err)))
     }
 })
+
+const makeContructorsFromResultEmitter: T['makeContructorsFromResultEmitter'] = resolver => {
+    type R = Parameters<typeof resolver>[0]
+    type I = InferResult<R>
+    type A = I['value']
+    type E = I['error']
+    return {
+        return_ok: (value:A) => { resolver(Result_.Ok<A,E>(value)); },
+        return_error: (error:E) => { resolver(Result_.Error<A,E>(error)); }
+    } 
+}
 
 const delay: T['delay'] = msecs => Future( yield_ => {
     Future_.__setTimeout( (n) => {
@@ -304,6 +316,7 @@ export const Future_: Future_ = {
     fromValue,
     fromThunk,
     fromUnsafePromise,
+    makeContructorsFromResultEmitter,
     delay,
     delayCancelable,
     race,

@@ -1,5 +1,6 @@
 import { BaudRate } from './baudrate'
-import { PortOpened, PortOpener } from './port-opener'
+import { portOpener } from './port-opener'
+import { PortOpened, PortSpec } from './port-opener-cb'
 
 // CRITICAL
 // Fix: When timeout hapens, communicate should return the rejection of a promise
@@ -20,6 +21,11 @@ export const communicate = (
 
     let portOpened: PortOpened | undefined = undefined
     let id: NodeJS.Timeout | undefined = undefined
+
+    const spec: PortSpec = {
+        path: portName,
+        baudRate,
+    }
 
     // release resources
     const hasFinished_ = ():Promise<void> => new Promise( (resolve, reject) => {
@@ -42,7 +48,7 @@ export const communicate = (
     })
 
     console.log(`Abrindo porta ${portName}...`)
-    PortOpener(portName, baudRate)
+    portOpener(spec)
         .then( portOpened_ => {
             portOpened = portOpened_;
             console.log(`aberta ${portName}`);

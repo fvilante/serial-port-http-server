@@ -1,40 +1,53 @@
-import { PortOpener } from "../serial";
 import { frameCoreToPayload } from "../cmpp/datalink/frame-core";
-import { cmppSimpleTransaction } from "../cmpp/datalink/transactioners/cmpp-transaction";
+import { payloadTransact } from "../cmpp/datalink/transactioners/payload-transact";
+import { payloadTransaction_CB } from "../cmpp/datalink/transactioners/payload-transact-cb";
+import { PortOpened, portOpener, PortSpec } from "../serial";
 
 
 const main = async () => {
 
-    const portOpened = await PortOpener('com50',9600)
-    const [payload] = frameCoreToPayload({
-        startByte: 'STX',
-        direction: 'Solicitacao',
-        waddr: 0x00,
-        channel: 0,
-        uint16: 0x00,
-    })
-    const responses = [
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-        await cmppSimpleTransaction(portOpened,payload),
-    ]
+    let portOpened_: PortOpened | undefined = undefined
 
-    console.table(responses)
-    await portOpened.close()
-    
+    const spec: PortSpec = {
+        path: 'com50',
+        baudRate: 9600
+    }
+
+    portOpener(spec)
+        .then( async portOpened => {
+
+            const timeout = 1000 // miliseconds
+
+            const dataToSend = frameCoreToPayload({
+                startByte: 'STX',
+                direction: 'Solicitacao',
+                waddr: 0x00,
+                channel: 2,
+                uint16: 0x00,
+            })
+
+            try {
+                const response = await payloadTransact(portOpened, dataToSend, timeout)
+                console.table(response)
+            } catch (err) {
+                console.log('saiu por erro')
+                console.log(err)
+            } finally {
+                portOpened.close()
+            }
+            
+
+            
+
+        })
+        .catch( err => {
+            console.log('outro tipo de erro ->', err)
+        })
+
     
 }
 
 main().then( () => {
     console.log('fim')
+
 });

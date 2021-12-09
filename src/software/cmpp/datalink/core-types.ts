@@ -16,6 +16,7 @@ export const NACK: NACK = 0x15
 
 
 // Define protocol direction chars
+export type DirectionNum = Direction[keyof Direction]
 export type DirectionKeys = keyof Direction
 export type Direction = typeof Direction
 export const Direction = {
@@ -24,6 +25,14 @@ export const Direction = {
     MascaraParaSetar: 0x80 as const,
     Envio: 0xC0 as const,
 } 
+export const DirectionNumToText = (_: DirectionNum):DirectionKeys => {
+    switch (_) {
+        case 0: return 'Solicitacao'
+        case 0x40: return 'MascaraParaResetar'
+        case 0x80: return 'MascaraParaSetar'
+        case 0xC0: return 'Envio'
+    }
+}
 
 // Define what is considered valid start byte
 export type StartByte = typeof StartByte

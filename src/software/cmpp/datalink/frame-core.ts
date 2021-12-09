@@ -1,7 +1,8 @@
 import { calcChecksum } from "./calc-checksum";
-import { int2word } from "./int-to-word-conversion";
-import { Direction, ESC, ETX, StartByte, StartByteNum, StartByteTxt } from "./core-types";
-import { Payload } from "./payload";
+import { int2word, word2int } from "./int-to-word-conversion";
+import { Direction, DirectionNum, DirectionNumToText, ESC, ETX, StartByte, StartByteNum, StartByteToText, StartByteTxt } from "./core-types";
+import { Payload, PayloadCore } from "./payload";
+import { bit_clear, bit_test } from "../../core/bit-wise-utils";
 
 export type FrameCore = {
     startByte: StartByteTxt
@@ -11,7 +12,7 @@ export type FrameCore = {
     uint16: number // data
 }
 
-export const frameCoreToPayload = (frame:FrameCore): [payload: Payload, startByteNum: StartByteNum] => {
+export const frameCoreToPayload = (frame:FrameCore): PayloadCore => {
     // TODO: validate range of channel, waddr, etc.
     const { startByte, direction, channel, waddr, uint16} = frame
     const dirNum = Direction[direction]
@@ -24,7 +25,32 @@ export const frameCoreToPayload = (frame:FrameCore): [payload: Payload, startByt
         dataHigh,
     ]
     const startByteNum = StartByte[startByte]
-    return [payload, startByteNum]
+    return {payload, startByte: startByteNum}
+}
+
+//TODO: implement test unit
+export const payloadToFrameCore = (payload: Payload, startByte_: StartByteNum): FrameCore => {
+    // TODO: validate range of channel, waddr, etc.
+    const bitD7 = 7
+    const bitD6 = 6
+    const dirAndChannel = payload[0]
+    const channel = bit_clear( bit_clear(dirAndChannel,bitD7) , bitD6)
+    const d7 = Number(bit_test(dirAndChannel, bitD7))
+    const d6 = Number(bit_test(dirAndChannel, bitD6))
+    const directionNum = (d7 << bitD7) + (d6 << bitD6) as unknown as DirectionNum
+    const direction = DirectionNumToText(directionNum)
+    const waddr = payload[1]
+    const dataLow = payload[2]
+    const dataHigh = payload[3]
+    const uint16 = word2int(dataHigh, dataLow)
+    const startByte = StartByteToText(startByte_)
+    return {
+        startByte,
+        direction,
+        channel,
+        waddr,
+        uint16,
+    }
 }
 
 // TODO: Create CoreFrame class, with method: Serialize and SerializeFlatten, getWord, getByteLow, and other picks

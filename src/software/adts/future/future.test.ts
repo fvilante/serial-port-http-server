@@ -16,6 +16,35 @@ describe('basic tests', () => {
             done();
         })
     })
+
+    it('Can consider just the first yielded value, even when multiple values are yielded.', async (done) => {
+        jest.useFakeTimers(); // we don't need to wait real time to pass :)
+        //prepare
+        const head = 2
+        const tail = 666
+        const delayBetweenAsyncEmittion = 100
+        //act
+        const ma = Future<number>( yield_ => {
+            yield_(head);
+            yield_(tail); //second emission emitted synchronously
+            setTimeout( () => {
+                yield_(tail) //third emission emitted asynchronously
+            },delayBetweenAsyncEmittion)
+        })
+        //check
+        let c = 0
+        ma.unsafeRun( actual => {
+            c++
+            expect(actual).toEqual(head) //yield just the head 
+        })
+        //wait all possible emittions
+        setTimeout( () => {
+            expect(c).toEqual(1)         //and yield the head once
+            done();
+        }, 3*delayBetweenAsyncEmittion)
+        jest.runAllTimers(); // but we need to wait all timers to run :)
+    })
+
     it('Can construct from a thunk', async (done) => {
         //prepare
         const probe = () => 2
@@ -28,10 +57,40 @@ describe('basic tests', () => {
         })
     })
 
+    it('Can construct from a Future resolver', async (done) => {
+        //prepare
+        jest.useFakeTimers(); // we don't need to wait real time to pass :)
+        type A = number
+        type E = string 
+        const probe: E = `hello world`
+        const expected = probe
+        const absurd = () => {expect(false).toEqual(true) }
+        const timeReference = 100 // milisecs
+        //act
+        let buffer: any[] = []
+        const ma: Future<Result<A,E>> = Future( yield_ => {
+            const { return_ok, return_error} = Future_.makeContructorsFromResultEmitter(yield_)
+            setTimeout( () => {
+                return_error(probe)
+                buffer = [...buffer, probe]
+            },timeReference)
+        })
+        //check
+        ma.forResult({
+            Ok: value => { absurd() },
+            Error: error => { expect(error).toEqual(expected) }
+        })
+        setTimeout( () => {
+            expect(buffer).toEqual([expected])
+            done()
+        },timeReference*10)
+        jest.runAllTimers(); // but we need to wait all timers to run :)
+    })
+
     it('Can construct a single __setTimeout interval', async (done) => {
         //prepare
         const deltaTime = 100
-        const tolerance = 40/100 // arbitrary defined
+        const tolerance = 70/100 // arbitrary defined
         const t0 = now()
         //act
         const canceller = Future_.__setTimeout((ms) => {
@@ -189,14 +248,15 @@ describe('basic tests', () => {
     it('Can construct a sucessful cancelable delay which reach its finish being canceled', async () => {
         //prepare
         jest.useFakeTimers(); // we don't need to wait real time to pass :)
-        const t = 200
-        const cancelation = Future_.delay(t-100)
-        const probe = Future_.delayCancelable(t,cancelation)
+        const t0 = 600
+        const t1 = t0-300
+        const cancelation = Future_.delay(t1)
+        const probe = Future_.delayCancelable(t0,cancelation)
         //act
         const ma = await probe.async()
         //check
         const actual = ma.unsafeRun()
-        const expected = { isLeft: false, value: t-100 }
+        const expected = { isLeft: false, value: t1 }
         jest.runAllTimers(); // but we need to wait all timers to run :)
         expect(actual).toEqual(expected)
         // Note: I don't know, why bellow is called 0 times, the expected should be two times: cancelation and probe, but... :(
@@ -273,13 +333,10 @@ describe('basic tests', () => {
         expect(setTimeout).toHaveBeenCalledTimes(0) // I'm just couting how many times Setimeout has been called.  
     })
 
-    it('it can ignore value', async () => {
-        //fix: test 'ignore' method
-    })
+    it.todo('it can ignore value') //fix: test 'ignore' method
 
-    it('it can transform', async () => {
-        //fix: test 'transform' method
-    })
+    it.todo('it can transform') //fix: test 'transform' method
+    
 /*
     it('Can decompose Result ADT inside future', async (done) => {
         //prepare
@@ -335,6 +392,34 @@ describe('basic tests', () => {
             expect(actual).toBe(expected);
             done();
         })
+    })
+
+    it('Can match for Result', async (done) => {
+        //prepare
+        jest.useFakeTimers(); // we don't need to wait real time to pass :)
+        const text = 'future is not certain' as const
+        const probe = Future<Result<number,typeof text>>( yield_ => {
+            yield_(Result_.Error(text))
+        })
+        const probe2 = Future_.fromValue(2 as const) // fix: Note that some times Typescript let you manipulate never functions
+        const expected = 'future is not certain, but...' as const
+        //act
+        let buffer:string = `unloadedBuffer`
+        probe.forResult({
+            Error: err => { 
+                buffer = err.concat(', but...')
+            },
+            Ok: val => {
+                buffer = String(val).concat('as you know')
+            },
+        })
+        //check
+        setTimeout( () => {
+            expect(buffer).toBe(expected);
+            done();
+        },10)
+        jest.runAllTimers(); // but we need to wait all timers to run :)
+        
     })
 /*
     it('Can decompose Result ADT inside future', async (done) => {

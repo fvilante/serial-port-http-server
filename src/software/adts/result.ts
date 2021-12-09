@@ -136,6 +136,9 @@ export type UnsafeSyncCallError = {
 export type Result_ = {
     Ok: <A,E>(_:A) => Result<A,E>
     Error: <A,E>(_:E) => Result<A,E>
+    makeConstructors: <A,E>() => { ok: (_:A) => Result<A,E>, fail: (_:E) => Result<A,E>}
+    //NOTE: I deprecated below constructors in favor of the more safe version Future_.makeContructorsFromResultEmitter
+    //makeConstructorsFromResolver: <A,E>(resolver: (received: Result<A, E>) => void) => { ok: (_:A) => Result<A,E>, fail: (_:E) => Result<A,E>}
     fromUnsafeSyncCall: <A>(f: () => A) => Result<A,UnsafeSyncCallError>
     andThen: <A,E,B,E1>(ma: Result<A,E>, mb: Result<B,E1>) => Result<readonly [A,B], E | E1>
     orElse: <A,E,B,E1>(ma: Result<A,E>, mb: Result<B,E1>) => Result<Either<A,B>, readonly [E, E1]>
@@ -147,6 +150,23 @@ type T = Result_
 const Ok_: T['Ok'] = <A,E>(value:A) => Result(() => ({hasError: false, value})) as unknown as Result<A,E>
 
 const Error_: T['Error'] = <A,E>(error:E) => Result(() => ({hasError: true, value: error})) as unknown as Result<A,E>
+
+const makeConstructors: T['makeConstructors'] = () => {
+    return {
+        ok: value => Ok_(value),
+        fail: error => Error_(error),
+    }
+}
+
+/* NOTE: DEPRECATED
+//NOTE: I deprecated below constructors in favor of the more safe version Future_.makeContructorsFromResultEmitter
+const makeConstructorsFromResolver: T['makeConstructorsFromResolver'] = resolver => {
+    type R_ = Parameters<typeof resolver>[0]
+    type R = InferResult<R_>
+    type A = R['value']
+    type E = R['error']
+    return makeConstructors<A,E>()
+}*/
 
 const fromUnsafeSyncCall: T['fromUnsafeSyncCall'] = <A>(f: () => A) => {
     return Result<A,UnsafeSyncCallError>( () => {
@@ -228,6 +248,8 @@ const orElse: T['orElse'] = <A, E, B, E1>(ma: Result<A, E>, mb: Result<B, E1>): 
 export const Result_: Result_ = {
     Ok: Ok_,
     Error: Error_,
+    makeConstructors,
+    //makeConstructorsFromResolver,
     fromUnsafeSyncCall,
     andThen,
     orElse,

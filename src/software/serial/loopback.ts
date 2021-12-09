@@ -1,8 +1,9 @@
 // Emulates a serialport loopback where PortA is connected (cross-over) to PortB and vice-versa 
 
 import { delay } from "../core/delay"
-import { PortOpened } from "./port-opener"
+import { PortOpened } from "./port-opener-cb"
 
+//TODO: Change below names to more mneumonic names
 export const LoopBackPortA_Path = 'LoopBackTest_PortA' //TODO: rename by a more meneumonic name
 export const LoopBackPortB_Path = 'LoopBackTest_PortB'
 
@@ -50,14 +51,14 @@ export const portAOpened:PortOpened = {
     close: async () => {
         portAConsumer = undefined
     },
-    removeOnDataListener: f => {
+    removeAllDataListeners: () => {
         portAConsumer = undefined
     },
     onError: f => {
         // TODO: to be implemented
         throw new Error('Not implemented')
     },
-    removeOnErrorListener: f => {
+    removeAllErrorListeners: () => {
         // TODO: to be implemented
         throw new Error('Not implemented')
     },
@@ -80,14 +81,14 @@ export const portBOpened:PortOpened = {
     close: async () => {
         portBConsumer = undefined
     },
-    removeOnDataListener: f => {
+    removeAllDataListeners: () => {
         portBConsumer = undefined
     },
     onError: f => {
         // TODO: to be implemented
         throw new Error('Not implemented')
     },
-    removeOnErrorListener: f => {
+    removeAllErrorListeners: () => {
         // TODO: to be implemented
         throw new Error('Not implemented')
     },

@@ -1,5 +1,6 @@
+import { PortOpened } from "."
 import { Byte, Bytes } from "../core/byte"
-import { PortOpened } from "./port-opener"
+import { portOpener } from "./port-opener"
 
 
 

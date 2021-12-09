@@ -3,6 +3,8 @@ import { Byte, Bytes } from "./../../core/byte"
 import { calcChecksum_ } from "./calc-checksum"
 import { ACK, ESC, ETX, NACK, StartByteNum, STX } from "./core-types"
 
+//TODO: Introduce 'checksum error' type as an interpretation error
+
 export type CoreState = 
     | 'Waiting first Esc'
     | 'Waiting start byte'
@@ -36,11 +38,13 @@ resetInterpreter();
 const validStartBytes: readonly [STX, ACK, NACK] = [STX, ACK, NACK] 
 
 export type SuccessEvent = {
+    readonly kind: 'SuccessEvent'
     readonly frameInterpreted: FrameInterpreted, 
     readonly rawInput: readonly Byte[]
 }
 
-export type ErrorEvent = {
+export type InterpretationErrorEvent = {
+    readonly kind: 'InterpretationErrorEvent'
     readonly errorMessage: string, 
     readonly partialFrame: Partial<FrameInterpreted>, 
     readonly rawInput: readonly Byte[], 
@@ -58,7 +62,7 @@ export type StateChangeEvent = {
 
 export type EventsHandler = {
     onSuccess: (event: SuccessEvent) => void,
-    onError: (event: ErrorEvent) => void,
+    onError: (event: InterpretationErrorEvent) => void,
     onStateChange?: (event: StateChangeEvent) => void
 }
 
@@ -115,8 +119,9 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         return `${ErrorHeader}: ${specificMessage}` as const
     }
 
-    const produceErrorEvent = (errorMessage: ErrorEvent['errorMessage']):void => {
-        const event: ErrorEvent = {
+    const produceErrorEvent = (errorMessage: InterpretationErrorEvent['errorMessage']):void => {
+        const event: InterpretationErrorEvent = {
+            kind: 'InterpretationErrorEvent',
             errorMessage,
             partialFrame: frame,
             rawInput,
@@ -270,6 +275,7 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
     // produces successful event
     if (coreState==='Successful') {
         const event: SuccessEvent = {
+            kind: 'SuccessEvent',
             frameInterpreted: frame as FrameInterpreted,
             rawInput,
         }
