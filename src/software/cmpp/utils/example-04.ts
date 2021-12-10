@@ -3,6 +3,7 @@ import ora, { Spinner } from 'ora'
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, Pulses_, TicksOfClock } from "../transport/memmap-types"
 import { Kinematics, makeTunnel, Moviment } from "../controlers/core"
 import { makeAxisControler } from "../controlers/axis-controler"
+import { forceSmartReference } from "../controlers/utils/smart-reference"
 
 
 const run = async () => {
@@ -12,32 +13,6 @@ const run = async () => {
     const tunnel = makeTunnel('com50', 9600, 0)
     // 
     const axis = makeAxisControler(tunnel)
-
-    // VERY IMPORTANT: parameter 'endPosition' represents the position where the reference procedure will delivery the motor.
-    //                 If this number is greater than 1292 pulses, the cmpp microcnotroler will truncate it to 1292
-    const forceSmartReference = async (arg: {reference: Kinematics, endPosition: Pulses}) => {
-        const { reference, endPosition } = arg
-
-        //stop motor imediatelly
-        await axis.forceLooseReference()
-        //save previous parameters
-        //const saved = await axis.getMainParameters()
-        //configure next moviment
-        await axis.setMainParameters({
-            "Posicao inicial": endPosition,
-            "Posicao final": Pulses(endPosition.value+10), // defined here just to assure it is a valid position and it is different of "Posicao Inicial"
-            //TODO: CAN I avoid send both (avanco and retorno) given just one of them will really be necessary?
-            "Velocidade de avanco": reference.speed,
-            "Velocidade de retorno": reference.speed,
-            "Aceleracao de avanco": reference.acceleration,
-            "Aceleracao de retorno": reference.acceleration,
-        })
-        // perform reference proccess
-        await axis.forceReference({
-            "Velocidade de referencia": reference.speed,
-            "Aceleracao de referencia": reference.acceleration,
-        })
-    }
 
     const goNext = async (next: Moviment) => {
         await setNext(next)
@@ -108,7 +83,7 @@ const run = async () => {
     const detectEndOfCourse = async (args: DetecEndOfCourseParameters): Promise<Pulses> => {
         const { referencePhase, searchPhase} = args
         const { reference, endPosition} = referencePhase
-        await forceSmartReference(referencePhase)
+        await forceSmartReference(axis,referencePhase)
         await goNext(searchPhase.startAt)
 
         const firstApproximation = async (amount: Pulses, kinematics: Kinematics): Promise<Pulses> => {  
@@ -219,7 +194,7 @@ const run = async () => {
     
         spinner.succeed(`Confirmando curso do motor detectado: ${lastPosition.value} ${lastPosition.unitOfMeasurement}`)
     
-        await forceSmartReference(config.referencePhase)
+        await forceSmartReference(axis,config.referencePhase)
         await goNext({...config.searchPhase.advancingKinematics, position: lastPosition})
         await goNext({...config.searchPhase.advancingKinematics, position: config.referencePhase.endPosition})
         await goNext({...config.searchPhase.advancingKinematics, position: lastPosition})

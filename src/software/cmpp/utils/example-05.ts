@@ -12,6 +12,7 @@ import { getPosicaoAtual } from "../controlers/utils/get-pos-atual"
 import { estimateMovimentEvents } from "../controlers/utils/moviment-status"
 import { now, random, Timer__ } from "../../core/utils"
 import { makeAxisControler } from "../controlers/axis-controler"
+import { doSmartReferenceIfNecessary, forceSmartReference } from "../controlers/utils/smart-reference"
 
 const makeAxis_ = CMPP00LG
 
@@ -26,40 +27,6 @@ const run = async () => {
     const axis = makeAxisControler(tunnel)
     //
 
-    // VERY IMPORTANT: parameter 'endPosition' represents the position where the reference procedure will delivery the motor.
-    //                 If this number is greater than 1292 pulses, the cmpp microcnotroler will truncate it to 1292
-    const forceSmartReference = async (arg: {reference: Kinematics, endPosition: Pulses}) => {
-        const { reference, endPosition } = arg
-
-        //stop motor imediatelly
-        await axis.forceLooseReference()
-        //save previous parameters
-        //const saved = await axis.getMainParameters()
-        //configure next moviment
-        await axis.setMainParameters({
-            "Posicao inicial": endPosition,
-            "Posicao final": Pulses(endPosition.value+10), // defined here just to assure it is a valid position and it is different of "Posicao Inicial"
-            //TODO: CAN I avoid send both (avanco and retorno) given just one of them will really be necessary?
-            "Velocidade de avanco": reference.speed,
-            "Velocidade de retorno": reference.speed,
-            "Aceleracao de avanco": reference.acceleration,
-            "Aceleracao de retorno": reference.acceleration,
-        })
-        // perform reference proccess
-        await axis.forceReference({
-            "Velocidade de referencia": reference.speed,
-            "Aceleracao de referencia": reference.acceleration,
-        })
-    }
-
-    const doSmartReferenceIfNecessary = async (arg: {reference: Kinematics, endPosition: Pulses}) => {
-        const isReferenced_ = await isReferenced(tunnel)
-        if(isReferenced_) {
-            return
-        } else {
-            await forceSmartReference(arg)
-        }
-    }
 
     const goNext = async (next: Moviment) => {
         await setNext(next)
@@ -139,7 +106,7 @@ const run = async () => {
     const detectEndOfCourse = async (args: DetecEndOfCourseParameters): Promise<Pulses> => {
         const { referencePhase, searchPhase} = args
         const { reference, endPosition} = referencePhase
-        await forceSmartReference(referencePhase)
+        await forceSmartReference(axis,referencePhase)
         await goNext(searchPhase.startAt)
 
         const firstApproximation = async (amount: Pulses, kinematics: Kinematics): Promise<Pulses> => {  
@@ -243,7 +210,7 @@ const run = async () => {
         const spinner = ora().start()
         spinner.text = 'resetando parametros...'
         await resetMainParameters()
-        await doSmartReferenceIfNecessary(config.referencePhase)
+        await doSmartReferenceIfNecessary(axis,config.referencePhase)
 
         function* generator():Generator<Moviment, void, unknown> {
             let counter = 0

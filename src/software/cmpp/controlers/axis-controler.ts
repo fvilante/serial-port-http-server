@@ -1,12 +1,13 @@
 import { executeInSequence } from "../../core/promise-utils"
 import { CMPP00LG, LigadoDesligado } from "../transport/memmap-CMPP00LG"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../transport/memmap-types"
-import { explodeTunnel } from "./core"
+import { explodeTunnel, Kinematics } from "./core"
 import { Tunnel } from "../utils/detect-cmpp"
 import { forceLooseReference } from "./utils/force-loose-reference"
 import { getPosicaoAtual } from "./utils/get-pos-atual"
 import { doReferenceIfNecessary, forceReference, isReferenced, isReferencing, ReferenceParameters } from "./utils/reference"
 import { isStoped, start, waitToStop } from "./utils/start"
+import { forceSmartReference } from "./utils/smart-reference"
 
 const makeAxis_ = CMPP00LG
 
@@ -97,6 +98,10 @@ export const makeAxisControler = (tunnel: Tunnel) => {
         // TODO: decide if the private mark of this functions should be removed
         __set: axis.set,
         __get: axis.get,
+
+        /*forceSmartReference: async (arg: {reference: Kinematics, endPosition: Pulses}) => {
+            return await forceSmartReference(this, arg)
+        }*/
     }
 
 }
