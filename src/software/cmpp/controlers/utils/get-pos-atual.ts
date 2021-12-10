@@ -1,8 +1,8 @@
-import { BaudRate } from '../../serial/baudrate'
-import { FrameCore } from "../datalink/index"
-import { sendCmpp } from "../datalink/send-receive-cmpp-datalink"
-import { word2int } from '../datalink/int-to-word-conversion'
-import { ACK } from '../datalink/core-types'
+import { BaudRate } from '../../../serial/baudrate'
+import { FrameCore } from "../../datalink/index"
+import { sendCmpp } from "../../datalink/send-receive-cmpp-datalink"
+import { word2int } from '../../datalink/int-to-word-conversion'
+import { ACK } from '../../datalink/core-types'
 
 // obtem posicao atual
 // TODO:

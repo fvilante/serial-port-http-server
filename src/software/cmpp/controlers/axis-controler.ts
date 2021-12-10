@@ -4,7 +4,7 @@ import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../tr
 import { explodeTunnel } from "../utils/core"
 import { Tunnel } from "../utils/detect-cmpp"
 import { forceLooseReference } from "../utils/force-loose-reference"
-import { getPosicaoAtual } from "../utils/get-pos-atual"
+import { getPosicaoAtual } from "./utils/get-pos-atual"
 import { doReferenceIfNecessary, forceReference, isReferenced, isReferencing, ReferenceParameters } from "../utils/reference"
 import { isStoped, start, waitToStop } from "../utils/start"
 

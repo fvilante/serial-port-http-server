@@ -8,7 +8,7 @@ import { Pulses, PulsesPerTick, PulsesPerTickSquared, Pulses_, TicksOfClock } fr
 import { delay } from "../../core/delay"
 import { Tunnel } from "./detect-cmpp"
 import { executeInSequence } from "../../core/promise-utils"
-import { getPosicaoAtual } from "./get-pos-atual"
+import { getPosicaoAtual } from "../controlers/utils/get-pos-atual"
 import { estimateMovimentEvents } from "./moviment-status"
 import { now, random, Timer__ } from "../../core/utils"
 import { makeAxisControler } from "../controlers/axis-controler"
