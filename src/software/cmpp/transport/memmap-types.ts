@@ -13,6 +13,8 @@ export type Pulses = {
 export const Pulses_ = {
     add: (a: Pulses, b: Pulses):Pulses => Pulses(a.value+b.value),   
     subtract:  (a: Pulses, b: Pulses):Pulses => Pulses(a.value-b.value),
+    scale: (a: Pulses, factor: number) => Pulses(a.value*factor), //TODO: Check if a rounding is necessary
+    invert: (a: Pulses):Pulses => Pulses(a.value * (-1)),
     abs: (a: Pulses): Pulses => Pulses(a.value < 0 ? (-1)*a.value : a.value)   
 }
 
