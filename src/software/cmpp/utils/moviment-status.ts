@@ -3,6 +3,8 @@ import { Tunnel } from "./detect-cmpp"
 import { getStatusLow, StatusL } from "./get-status-low"
 
 
+export type MovimentStage = 'ramp_up' | 'const_speed_and_moving' | 'ramp_down' | 'stoped'
+
 // Moviment status is basicaly a helper formating over StatusL data
 // NOTE: Maybe in future it contain more data that will require multiples payload transactions with cmpp
 export type MovimentStatus = {
@@ -10,8 +12,10 @@ export type MovimentStatus = {
     direction: 'Avanco' | 'Retorno'
     isStopped: boolean  // if true all all following are false: isInConstantSpeedGreaterThanZero, isAcelerating, isDeacelerating
     isInConstantSpeedGreaterThanZero: boolean // if true all accelerations are false and vice versa
+    isChangingVelocity: boolean // acelerating or deacelerating
     isAcelerating: boolean
     isDeacelerating: boolean
+    movimentStage: MovimentStage
 } & {
     // REFERENCE STATUS PART
     isReferenced: boolean
@@ -27,6 +31,20 @@ export const formatter = (statusL: StatusL):MovimentStatus => {
     const direction = direcaoDoMovimento
     const isReferenced = referenciado
     const isReferencing = referenciando
+    const isChangingVelocity = isAcelerating || isDeacelerating
+    const formatStage = (): MovimentStage => {
+        let stage: MovimentStage = 'stoped' 
+        if (isAcelerating) stage = 'ramp_up'
+        else if(isDeacelerating) stage = 'ramp_down'
+        else if(isInConstantSpeedGreaterThanZero) stage = 'const_speed_and_moving'
+        else if(isStopped) stage = 'stoped'
+        else {
+            //TODO: implement unit test for this case or make it more statically safe
+            throw new Error('Should never happens')
+        }
+        return stage
+    }
+    const movimentStage = formatStage()
     return {
         direction,
         isStopped,
@@ -35,6 +53,8 @@ export const formatter = (statusL: StatusL):MovimentStatus => {
         isDeacelerating,
         isReferenced,
         isReferencing,
+        isChangingVelocity,
+        movimentStage,
     }
 }
 
@@ -44,5 +64,8 @@ export const getMovimentStatus = async(tunnel: Tunnel): Promise<MovimentStatus> 
     const { path, baudRate, channel} = explodeTunnel(tunnel)
     const statusL = await getStatusLow(path, baudRate, channel)
     const response = formatter(statusL)
+    //console.table(response)
     return response
 }
+
+

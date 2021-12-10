@@ -1,16 +1,13 @@
 
 import { CMPP00LG } from "../transport/memmap-CMPP00LG"
-import { explodeTunnel } from "./core"
 import { Tunnel } from "./detect-cmpp"
-import { getStatusLow } from "./get-status-low"
+import { getMovimentStatus } from "./moviment-status"
 
 const makeAxis_ = CMPP00LG
 
 export const isStoped =  async (tunnel: Tunnel) => {
-    const { path, baudRate, channel} = explodeTunnel(tunnel)
-    const statusL = await getStatusLow(path, baudRate, channel)
-    const isStoped_ = statusL.aceleracaoLigada===false && statusL.desaceleracaoLigada===false
-    return isStoped_
+    const status = await getMovimentStatus(tunnel)
+    return status.isStopped
 }
 
 export const start = async (tunnel: Tunnel) => {
