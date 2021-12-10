@@ -1,5 +1,5 @@
 import { CMPP00LG, LigadoDesligado } from "../transport/memmap-CMPP00LG"
-import { explodeTunnel, makeTunnel } from "./core"
+import { explodeTunnel, Kinematics, makeTunnel, Moviment } from "./core"
 import { forceLooseReference } from "./force-loose-reference"
 import ora, { Spinner } from 'ora'
 import { doReferenceIfNecessary, forceReference, isReferenced, isReferencing, ReferenceParameters } from "./reference"
@@ -118,15 +118,6 @@ const run = async () => {
     // 
     const axis = makeAxisControler({tunnel, driver: makeAxis_})
     //
-
-    type Kinematics = {
-        speed: PulsesPerTick
-        acceleration: PulsesPerTickSquared
-    }
-
-    type Moviment = {
-        position: Pulses
-    } & Kinematics
 
     // VERY IMPORTANT: parameter 'endPosition' represents the position where the reference procedure will delivery the motor.
     //                 If this number is greater than 1292 pulses, the cmpp microcnotroler will truncate it to 1292
