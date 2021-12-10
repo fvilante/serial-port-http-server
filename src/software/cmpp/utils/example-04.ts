@@ -226,6 +226,7 @@ const run = async () => {
 
         const firstApproximation = async (amount: Pulses, kinematics: Kinematics): Promise<Pulses> => {  
             while ( await axis.isReferenced()) {
+                // 1 advancement step forward
                 await setNextRelative({position: amount, ...kinematics})
                 await axis.start()
                 await axis.waitToStop()
@@ -248,7 +249,7 @@ const run = async () => {
         const performDetectionAlorithm = async () => {
             const firstApprox = await firstApproximation(searchPhase.advancingSteps, searchPhase.advancingKinematics)
             const secondApprox = secondApproximation(firstApprox)
-            await forceSmartReference(referencePhase)
+            //await forceSmartReference(referencePhase)
             return secondApprox
         }
 
