@@ -1,113 +1,8 @@
-import { CMPP00LG, LigadoDesligado } from "../transport/memmap-CMPP00LG"
-import { explodeTunnel, Kinematics, makeTunnel, Moviment } from "./core"
-import { forceLooseReference } from "./force-loose-reference"
+import { CMPP00LG } from "../transport/memmap-CMPP00LG"
 import ora, { Spinner } from 'ora'
-import { doReferenceIfNecessary, forceReference, isReferenced, isReferencing, ReferenceParameters } from "./reference"
-import { isStoped, start, waitToStop, waitToStopThenStart } from "./start"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, Pulses_, TicksOfClock } from "../transport/memmap-types"
-import { delay } from "../../core/delay"
-import { Tunnel } from "./detect-cmpp"
-import { executeInSequence } from "../../core/promise-utils"
-import { getPosicaoAtual } from "./get-pos-atual"
-
-const makeAxis_ = CMPP00LG
-
-type EventHandler = {
-    onStart: () => void
-    onStop: () => void
-}
-
-type MainParameters = {
-    'Posicao inicial': Pulses
-    'Posicao final': Pulses
-    'Velocidade de avanco': PulsesPerTick
-    'Velocidade de retorno': PulsesPerTick
-    'Aceleracao de avanco': PulsesPerTickSquared
-    'Aceleracao de retorno': PulsesPerTickSquared
-    'Start automatico no avanco': LigadoDesligado
-    'Start automatico no retorno': LigadoDesligado
-    'Tempo para o start automatico': TicksOfClock
-    'Reducao do nivel de corrente em repouso': LigadoDesligado
-}
-
-export type AxisControler = ReturnType<typeof makeAxisControler> 
-
-export const makeAxisControler = (arg: { tunnel: Tunnel, driver: typeof makeAxis_, handler?: EventHandler}) => {
-    const { tunnel, driver, handler} = arg
-    const { path, baudRate, channel} = explodeTunnel(tunnel)
-    const axis = makeAxis_(tunnel)
-    const args = [tunnel, makeAxis_] as const
-
-    const defaultReferenceParameters: ReferenceParameters = {
-        "Velocidade de referencia": PulsesPerTick(600),
-        "Aceleracao de referencia": PulsesPerTickSquared(5000),
-    }
-
-    return {
-        start: async () => {
-            return await start(tunnel)
-        },
-        waitToStop: async () => {
-            return await waitToStop(tunnel)
-        },
-        isReferencing: async () => {
-            return await isReferencing(tunnel) 
-        },
-        isReferenced: async () => {
-            return await isReferenced(tunnel)
-        },
-        isStoped: async () => {
-            return await isStoped(tunnel)
-        },
-        forceReference: async (program: Partial<ReferenceParameters> = defaultReferenceParameters) => {
-            const program_ = {...defaultReferenceParameters, ...program}
-            return await forceReference(tunnel, program_)   
-        },
-        forceLooseReference: async () => {
-            return await forceLooseReference(tunnel)
-        },
-        doReferenceIfNecessary: async (program: ReferenceParameters = defaultReferenceParameters) => {
-            return await doReferenceIfNecessary(tunnel, program)
-        },
-        setMainParameters: async (parameters: Partial<MainParameters>) => {
-            const keys = Object.keys(parameters) as readonly (keyof MainParameters)[]
-            return await executeInSequence(keys.map( key => {
-                const value = parameters[key]
-                if (value!==undefined) {
-                    return () => axis.set(key,value)
-                } else {
-                    throw new Error('This branch should never happen')
-                }
-            }))
-        },
-
-        getMainParameters: async (): Promise<MainParameters> => {
-            const fetch = async(): Promise<MainParameters> => {
-                return {
-                    'Posicao inicial': await axis.get('Posicao inicial'),
-                    'Posicao final': await axis.get('Posicao final'),
-                    'Velocidade de avanco':await axis.get('Velocidade de avanco'),
-                    'Velocidade de retorno': await axis.get('Velocidade de retorno'),
-                    'Aceleracao de avanco': await axis.get('Aceleracao de avanco'),
-                    'Aceleracao de retorno': await axis.get('Aceleracao de retorno'),
-                    'Start automatico no avanco': await axis.get('Start automatico no avanco'),
-                    'Start automatico no retorno': await axis.get('Start automatico no retorno'),
-                    'Tempo para o start automatico': await axis.get('Tempo para o start automatico'),
-                    'Reducao do nivel de corrente em repouso': await axis.get('Reducao do nivel de corrente em repouso'),
-                }
-            }
-            return fetch()
-        },
-        getCurrentPosition: async () => {
-            const pos = await getPosicaoAtual(path, baudRate, channel) 
-            return Pulses(pos) 
-        },
-        // TODO: decide if the private mark of this functions should be removed
-        __set: axis.set,
-        __get: axis.get,
-    }
-
-}
+import { Kinematics, makeTunnel, Moviment } from "./core"
+import { makeAxisControler } from "../controlers/axis-controler"
 
 
 const run = async () => {
@@ -116,8 +11,7 @@ const run = async () => {
     
     const tunnel = makeTunnel('com50', 9600, 0)
     // 
-    const axis = makeAxisControler({tunnel, driver: makeAxis_})
-    //
+    const axis = makeAxisControler(tunnel)
 
     // VERY IMPORTANT: parameter 'endPosition' represents the position where the reference procedure will delivery the motor.
     //                 If this number is greater than 1292 pulses, the cmpp microcnotroler will truncate it to 1292
