@@ -1,4 +1,5 @@
-import { explodeTunnel } from "./core"
+import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../transport/memmap-types"
+import { explodeTunnel, Moviment } from "./core"
 import { Tunnel } from "./detect-cmpp"
 import { getStatusLow, StatusL } from "./get-status-low"
 
@@ -66,6 +67,99 @@ export const getMovimentStatus = async(tunnel: Tunnel): Promise<MovimentStatus> 
     const response = formatter(statusL)
     //console.table(response)
     return response
+}
+
+//IMPORTANT: All values can be positive, negative and/or irrational. No round mathed are performed here.
+export type MovimentEstimatives = {
+    //given
+    nextMoviment: Moviment
+    //then
+    totalDisplacement: Pulses // may be positive or negative
+    totalTime: TicksOfClock
+    maxVelocity: PulsesPerTick
+    estimatedVelocity: PulsesPerTick
+    rampTime: TicksOfClock
+    rampDisplacement: Pulses
+    constVelocityDisplacement: Pulses
+    constVelocityTime: TicksOfClock
+}
+
+export const estimateMovimentEvents = (nextMoviment: Moviment): MovimentEstimatives => {
+    const { position: finalPosition, speed, acceleration } = nextMoviment
+
+    const getTimeForRamp = (finalVelocity: PulsesPerTick, acceleration: PulsesPerTickSquared): TicksOfClock => {
+        const iv = 0 // initial velocity
+        const fv = finalVelocity.value
+        const deltaV = fv - iv
+        const ac = acceleration.value
+        const deltaTime = deltaV / ac
+        return TicksOfClock(deltaTime) 
+    }
+
+    const getMaxVelocity = (totalDisplacement: Pulses, acceleration: PulsesPerTickSquared): PulsesPerTick => {
+        const deltaS = Math.abs(totalDisplacement.value)
+        const ac = Math.abs(acceleration.value)
+        const maxVelocity = Math.sqrt(deltaS * ac) //NOTE: number two may be canceled; not done here for improve code readability.
+        return PulsesPerTick(maxVelocity)
+    }
+
+    const getTotalDisplacement = ():Pulses => { // return value may be positive or negative
+        const initialPosition = Pulses(0).value   // assume relative reference
+        const finalPosition = nextMoviment.position.value
+        const totalDisplacement = finalPosition - initialPosition
+        return Pulses(totalDisplacement)
+    }
+
+    const getRampDisplacement = (finalVelocity: PulsesPerTick, acceleration: PulsesPerTickSquared):Pulses => {
+        const fv = finalVelocity.value
+        const ac = acceleration.value
+        const displacement = (fv^2)/(2*ac) // torricelli equation
+        return Pulses(displacement)
+    }
+
+    const getConstantVelocityDisplacement = (totalDisplacement: Pulses, rampDisplacement: Pulses): Pulses => { // return value may be positive or negative
+        const total = totalDisplacement.value
+        const ramp = rampDisplacement.value
+        const numberOfRamps = 2
+        const response = total - ( ramp * numberOfRamps )
+        return Pulses(response) 
+    }
+
+    const getConstantVelocityTime = (velocity: PulsesPerTick, displacement: Pulses): TicksOfClock => {
+        const v = velocity.value
+        const s = displacement.value
+        const t = s / v
+        return TicksOfClock(t)
+    }
+
+    const getTotalTime = (rampTime: TicksOfClock, constVelocityTime: TicksOfClock): TicksOfClock => {
+        const rampTime_ = rampTime.value
+        const constTime = constVelocityTime.value
+        const totalTime = (rampTime_*2) + constTime
+        return TicksOfClock(totalTime)
+    }
+
+    const totalDisplacement = getTotalDisplacement()
+    const maxVelocity = getMaxVelocity(totalDisplacement, acceleration)
+    const estimatedVelocity = speed.value >= maxVelocity.value ? maxVelocity : speed
+    const rampTime = getTimeForRamp(estimatedVelocity, acceleration)
+    const rampDisplacement = getRampDisplacement(estimatedVelocity, acceleration)
+    const constVelocityDisplacement = getConstantVelocityDisplacement(totalDisplacement, rampDisplacement)
+    const constVelocityTime = getConstantVelocityTime(estimatedVelocity, constVelocityDisplacement)
+    const totalTime = getTotalTime(rampTime, constVelocityTime)
+
+    return {
+        nextMoviment,
+        totalDisplacement,
+        maxVelocity,
+        estimatedVelocity,
+        rampTime,
+        rampDisplacement,
+        constVelocityDisplacement,
+        constVelocityTime,
+        totalTime,
+    }
+
 }
 
 
