@@ -1,6 +1,6 @@
 import { CMPP00LG, LigadoDesligado } from "../transport/memmap-CMPP00LG"
 import { explodeTunnel, Kinematics, makeTunnel, Moviment } from "./core"
-import { forceLooseReference } from "./force-loose-reference"
+import { forceLooseReference } from "../controlers/utils/force-loose-reference"
 import ora, { Spinner } from 'ora'
 import { doReferenceIfNecessary, forceReference, isReferenced, isReferencing, ReferenceParameters } from "./reference"
 import { isStoped, start, waitToStop, waitToStopThenStart } from "./start"

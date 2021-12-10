@@ -1,6 +1,6 @@
 import { CMPP00LG } from "../transport/memmap-CMPP00LG"
 import { explodeTunnel, makeTunnel } from "./core"
-import { forceLooseReference } from "./force-loose-reference"
+import { forceLooseReference } from "../controlers/utils/force-loose-reference"
 import ora from 'ora'
 import { forceReference, isReferenced } from "./reference"
 import { start, waitToStopThenStart } from "./start"
