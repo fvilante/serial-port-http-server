@@ -1,10 +1,7 @@
 import { BaudRate } from "../../serial/baudrate"
 import { Channel } from "../datalink/core-types"
-import { CMPP00LG } from "../transport/memmap-CMPP00LG"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared } from "../transport/memmap-types"
-import { Tunnel } from "./detect-cmpp"
-import { getStatusLow } from "./get-status-low"
-import { getMovimentStatus } from "./moviment-status"
+import { Tunnel } from "../utils/detect-cmpp"
 
 
 

@@ -1,11 +1,9 @@
-import { BaudRate } from '../../serial/baudrate'
-import { bit_test } from "../../core/bit-wise-utils"
-import { FrameCore } from "../datalink/index"
-import { sendCmpp } from "../datalink/send-receive-cmpp-datalink"
-import { word2int } from '../datalink/int-to-word-conversion'
-import { CMPP00LG } from '../transport/memmap-CMPP00LG'
+import { BaudRate } from '../../../serial/baudrate'
+import { bit_test } from "../../../core/bit-wise-utils"
+import { FrameCore } from "../../datalink/index"
+import { sendCmpp } from "../../datalink/send-receive-cmpp-datalink"
+import { word2int } from '../../datalink/int-to-word-conversion'
 
-const makeAxis = CMPP00LG
 
 export type StatusL = {
     referenciado: boolean, //d0

@@ -1,6 +1,6 @@
-import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../transport/memmap-types"
-import { explodeTunnel, Moviment } from "./core"
-import { Tunnel } from "./detect-cmpp"
+import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../transport/memmap-types"
+import { explodeTunnel, Moviment } from "../core"
+import { Tunnel } from "../../utils/detect-cmpp"
 import { getStatusLow, StatusL } from "./get-status-low"
 
 

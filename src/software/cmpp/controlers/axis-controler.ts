@@ -1,12 +1,12 @@
 import { executeInSequence } from "../../core/promise-utils"
 import { CMPP00LG, LigadoDesligado } from "../transport/memmap-CMPP00LG"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../transport/memmap-types"
-import { explodeTunnel } from "../utils/core"
+import { explodeTunnel } from "./core"
 import { Tunnel } from "../utils/detect-cmpp"
 import { forceLooseReference } from "./utils/force-loose-reference"
 import { getPosicaoAtual } from "./utils/get-pos-atual"
-import { doReferenceIfNecessary, forceReference, isReferenced, isReferencing, ReferenceParameters } from "../utils/reference"
-import { isStoped, start, waitToStop } from "../utils/start"
+import { doReferenceIfNecessary, forceReference, isReferenced, isReferencing, ReferenceParameters } from "./utils/reference"
+import { isStoped, start, waitToStop } from "./utils/start"
 
 const makeAxis_ = CMPP00LG
 

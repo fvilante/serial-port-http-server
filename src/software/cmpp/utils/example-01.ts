@@ -1,9 +1,9 @@
 import { CMPP00LG } from "../transport/memmap-CMPP00LG"
-import { explodeTunnel, makeTunnel } from "./core"
+import { explodeTunnel, makeTunnel } from "../controlers/core"
 import { forceLooseReference } from "../controlers/utils/force-loose-reference"
 import ora from 'ora'
-import { forceReference, isReferenced } from "./reference"
-import { start, waitToStopThenStart } from "./start"
+import { forceReference, isReferenced } from "../controlers/utils/reference"
+import { start, waitToStopThenStart } from "../controlers/utils/start"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../transport/memmap-types"
 
 const makeAxis_ = CMPP00LG

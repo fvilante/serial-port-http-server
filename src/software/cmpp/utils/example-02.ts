@@ -1,8 +1,8 @@
 import { CMPP00LG } from "../transport/memmap-CMPP00LG"
-import { explodeTunnel, makeTunnel } from "./core"
+import { explodeTunnel, makeTunnel } from "../controlers/core"
 import ora from 'ora'
-import { doReferenceIfNecessary} from "./reference"
-import { start, waitToStop } from "./start"
+import { doReferenceIfNecessary} from "../controlers/utils/reference"
+import { start, waitToStop } from "../controlers/utils/start"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../transport/memmap-types"
 import { delay } from "../../core/delay"
 
