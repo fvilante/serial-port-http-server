@@ -208,13 +208,15 @@ const run = async () => {
 
     type DetecEndOfCourseParameters = {
         referencePhase: {
-            reference: Kinematics,
-            endPosition: Pulses,
+            reference: Kinematics,  // kinematics of reference
+            endPosition: Pulses,    // where the cursor will be after the end of reference phase
         }
         searchPhase: {
-            startAt: Moviment
-            advancingKinematics: Kinematics
-            advancingSteps: Pulses
+            startAt: Moviment   // you may start near your best guess, instead of from zero
+            endSearchAt: Pulses // but eventually if you not reach never the end, you can consider to not go so far then about 'endSearchAt'. 
+            advancingSteps: Pulses // how many steps to advance
+            advancingKinematics: Kinematics // what kinematics to advance
+            
         }
     }
 
@@ -225,18 +227,20 @@ const run = async () => {
         await goNext(searchPhase.startAt)
 
         const firstApproximation = async (amount: Pulses, kinematics: Kinematics): Promise<Pulses> => {  
-            while ( await axis.isReferenced()) {
+            const isNotVeryLargeCourse = async () => (await axis.getCurrentPosition()).value <= searchPhase.endSearchAt.value
+            while ( await axis.isReferenced() && await isNotVeryLargeCourse()) {
                 // 1 advancement step forward
                 await setNextRelative({position: amount, ...kinematics})
                 await axis.start()
                 await axis.waitToStop()
             }
-            return await axis.getCurrentPosition()
+            const result = await axis.getCurrentPosition()
+            return result
         }
 
         const secondApproximation = async (firstApproximation: Pulses): Promise<Pulses> => {
             const estimatedNumberOfPulsesPerMotorRevolution = 400
-            const safetyFactor = 1.2
+            const safetyFactor = 1.2 // TODO: this factor was arbitrary defined, verify if it can be computated from any concrete parameter
             const delta = Pulses(estimatedNumberOfPulsesPerMotorRevolution * safetyFactor)
             const result = Pulses_.subtract(firstApproximation, delta)
             return result
@@ -310,6 +314,7 @@ const run = async () => {
                 speed: PulsesPerTick(3000),
                 acceleration: PulsesPerTickSquared(5000)
             },
+            endSearchAt: Pulses(15000),
             advancingSteps: Pulses(400), // TODO: que tal pulsos por giro aqui ? 
             advancingKinematics: {
                 speed: PulsesPerTick(6000),
@@ -325,8 +330,9 @@ const run = async () => {
     
         spinner.text = 'detectando curso do motor...'
         const lastPosition = await detectEndOfCourse(config)
+        spinner.succeed(`curso detectado ${lastPosition.value} ${lastPosition.unitOfMeasurement}`)
     
-        spinner.text = `Confirmando curso do motor detectado: ${lastPosition.value} ${lastPosition.unitOfMeasurement}`
+        spinner.succeed(`Confirmando curso do motor detectado: ${lastPosition.value} ${lastPosition.unitOfMeasurement}`)
     
         await forceSmartReference(config.referencePhase)
         await goNext({...config.searchPhase.advancingKinematics, position: lastPosition})
