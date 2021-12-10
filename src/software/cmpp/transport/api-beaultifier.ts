@@ -1,10 +1,10 @@
 import { Tunnel } from "../utils/detect-cmpp"
 import { getCmppParam } from "./get-param"
 import { setCmppParam } from "./set-param"
-import { Param } from "./memmap-core"
+import { ParamCaster } from "./memmap-caster"
 
 export type THE_API = {
-    readonly [K in string]: Param<string,any>
+    readonly [K in string]: ParamCaster<string,any>
 }
 
 // TODO: Probably this types facilities can be generalized and extracted

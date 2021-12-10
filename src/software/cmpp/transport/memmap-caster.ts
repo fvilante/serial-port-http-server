@@ -12,7 +12,7 @@ export type UInt8 = number // unsigned integer of 8 bits //TODO: Improve the saf
 export type UInt1 = 0 | 1 // unsigned integer of 1 bits //TODO: Improve the safety of this cast (ie: Validated<A> ?!)
 
 
-export type ParamCore<T extends string, A, B> = {
+export type ParamCasterCore<T extends string, A, B> = {
     readonly name: T
     readonly waddr: Byte   // word address 
 } & CmppType<A,B>
@@ -23,38 +23,38 @@ export type CmppType<A,B> = {
     readonly deserialize: (_:B) => A
 }
 
-export type Param_16bits<T extends string, A> = {
+export type ParamCaster_16bits<T extends string, A> = {
     type: '16 Bits'
-} & ParamCore<T,A, UInt16>
+} & ParamCasterCore<T,A, UInt16>
 
 
-export type Param_8bits<T extends string, A> = {
+export type ParamCaster_8bits<T extends string, A> = {
     readonly type: '8 Bits'
     readonly startBit: StartBit //takes 8 bits stating in 'startsBit' (included)
-} & ParamCore<T,A,UInt8>
+} & ParamCasterCore<T,A,UInt8>
 
 
-export type Param_1bit<T extends string,A> = { 
+export type ParamCaster_1bit<T extends string,A> = { 
     readonly type: '1 Bit'
     readonly startBit: StartBit //takes 1 bits stating in 'startsBit' (included)
-} & ParamCore<T,A,UInt1>
+} & ParamCasterCore<T,A,UInt1>
 
-export type Param<T extends string, A> = 
-    | Param_16bits<T,A>
-    | Param_8bits<T,A>
-    | Param_1bit<T,A>
+export type ParamCaster<T extends string, A> = 
+    | ParamCaster_16bits<T,A>
+    | ParamCaster_8bits<T,A>
+    | ParamCaster_1bit<T,A>
 
 
 // constructors
 
-export const param_16bits = <T extends string,A>(etc: Omit<Param_16bits<T,A>,'type'>):Param_16bits<T,A> => {
+export const paramCaster_16bits = <T extends string,A>(etc: Omit<ParamCaster_16bits<T,A>,'type'>):ParamCaster_16bits<T,A> => {
     return {  type: '16 Bits', ...etc }
 }
 
-export const param_8bits = <T extends string,A>(etc: Omit<Param_8bits<T,A>,'type'>):Param_8bits<T,A> => {
+export const paramCaster_8bits = <T extends string,A>(etc: Omit<ParamCaster_8bits<T,A>,'type'>):ParamCaster_8bits<T,A> => {
     return {  type: '8 Bits', ...etc }
 }
 
-export const param_1bit = <T extends string,A>(etc: Omit<Param_1bit<T,A>,'type'>):Param_1bit<T,A> => {
+export const paramCaster_1bit = <T extends string,A>(etc: Omit<ParamCaster_1bit<T,A>,'type'>):ParamCaster_1bit<T,A> => {
     return {  type: '1 Bit', ...etc }
 }
