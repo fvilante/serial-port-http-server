@@ -1,6 +1,6 @@
 import { Tunnel } from "../utils/detect-cmpp"
-import { getCmppParam } from "./cmpp-param-get"
-import { setCmppParam } from "./cmpp-param-set"
+import { getCmppParam } from "./get-param"
+import { setCmppParam } from "./set-param"
 import { Param } from "./memmap-core"
 
 export type THE_API = {
