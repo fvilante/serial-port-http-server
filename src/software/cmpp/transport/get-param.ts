@@ -4,13 +4,13 @@ import { DirectionKeys } from "../datalink/core-types";
 import { word2int } from "../datalink/int-to-word-conversion";
 import { sendCmpp } from "../datalink/send-receive-cmpp-datalink";
 import { Tunnel } from "../utils/detect-cmpp";
-import { Param, Param_16bits, Param_1bit, Param_8bits } from "./memmap-core";
+import { ParamCaster, ParamCaster_16bits, ParamCaster_1bit, ParamCaster_8bits } from "./memmap-caster";
 
 
 
 
 //TODO: Implement ADT API
-const get16BitsParam = <T extends string,A>(tunnel: Tunnel, param: Param_16bits<T,A>):Promise<A> => {
+const get16BitsParam = <T extends string,A>(tunnel: Tunnel, param: ParamCaster_16bits<T,A>):Promise<A> => {
     return new Promise( (resolve,reject) => {
         const { portSpec, channel} = tunnel
         const { type, name, waddr, serialize, deserialize} = param
@@ -38,7 +38,7 @@ const get16BitsParam = <T extends string,A>(tunnel: Tunnel, param: Param_16bits<
 }
 
 //TODO: Should be refactored to reduce code repetition in relation to others functions (ie: set16bits, set8bits, etc)
-const get1BitsParam = <T extends string,A>(tunnel: Tunnel, param: Param_1bit<T,A>): Promise<A> => {
+const get1BitsParam = <T extends string,A>(tunnel: Tunnel, param: ParamCaster_1bit<T,A>): Promise<A> => {
     return new Promise( (resolve,reject) => {
         let direction: DirectionKeys | undefined = undefined
         const { portSpec, channel} = tunnel
@@ -70,7 +70,7 @@ const get1BitsParam = <T extends string,A>(tunnel: Tunnel, param: Param_1bit<T,A
 }
 
 
-const get8BitsParam = <T extends string,A>(tunnel: Tunnel, param: Param_8bits<T,A>): Promise<A> => {
+const get8BitsParam = <T extends string,A>(tunnel: Tunnel, param: ParamCaster_8bits<T,A>): Promise<A> => {
     return new Promise( (resolve,reject) => {
         //
         const { portSpec, channel} = tunnel
@@ -109,7 +109,7 @@ const get8BitsParam = <T extends string,A>(tunnel: Tunnel, param: Param_8bits<T,
 )}
 
 
-export const getCmppParam = <T extends string,A>(tunnel: Tunnel, param: Param<T,A>): Promise<A> => {
+export const getCmppParam = <T extends string,A>(tunnel: Tunnel, param: ParamCaster<T,A>): Promise<A> => {
 
     //TODO: Discovery why I need to divede waddr by two !!
     const param_adjusted = {...param, waddr: param.waddr/2} 

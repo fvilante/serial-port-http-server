@@ -1,8 +1,8 @@
 import { CMPP00LG } from "../transport/memmap-CMPP00LG"
-import { explodeTunnel, isReferenced, makeTunnel } from "./core"
+import { explodeTunnel, makeTunnel } from "./core"
 import { forceLooseReference } from "./force-loose-reference"
 import ora from 'ora'
-import { forceReference } from "./reference"
+import { forceReference, isReferenced } from "./reference"
 import { start, waitToStopThenStart } from "./start"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../transport/memmap-types"
 
@@ -32,35 +32,35 @@ const run = async () => {
         await axis_.set('Tempo para o start automatico', TicksOfClock(1))
         const [valref, acRef] = program
         spinner.text = `Executando programa: valRef=${valref}, acRef=${acRef}`
-        const isRef1 = await isReferenced(...axis)
+        const isRef1 = await isReferenced(tunnel)
         spinner.text = `Eixo esta referenciado? ${isRef1}`
         spinner.text = `forçando perda da referencia`
-        await forceLooseReference(...axis)
-        const isRef2 = await isReferenced(...axis)
+        await forceLooseReference(tunnel)
+        const isRef2 = await isReferenced(tunnel)
         spinner.text = `Eixo esta referenciado? ${isRef2}`
         spinner.text = `forçando referenciar`
-        await forceReference(...axis, { 
+        await forceReference(tunnel, { 
             "Velocidade de referencia": PulsesPerTick(valref),
             "Aceleracao de referencia": PulsesPerTickSquared(acRef),
         })
-        const isRef3 = await isReferenced(...axis)
+        const isRef3 = await isReferenced(tunnel)
         spinner.text = `Eixo esta referenciado? ${isRef3}`
         spinner.text = 'emitindo sinal de start...'
-        await start(tunnel, makeAxis_)
+        await start(tunnel)
         spinner.text = 'start emitido'
         spinner.text = 'programado parametros de movimento'
         spinner.text = 'aguardando parada para dar restart 1'
-        await waitToStopThenStart(tunnel, makeAxis_)
+        await waitToStopThenStart(tunnel)
         spinner.text = 'aguardando parada para dar restart 2'
-        await waitToStopThenStart(tunnel, makeAxis_)
+        await waitToStopThenStart(tunnel)
         spinner.text = 'aguardando parada para dar restart 3'
-        await waitToStopThenStart(tunnel, makeAxis_)
+        await waitToStopThenStart(tunnel)
         spinner.text = 'aguardando parada para dar restart 4'
-        await waitToStopThenStart(tunnel, makeAxis_)
+        await waitToStopThenStart(tunnel)
         spinner.text = 'aguardando parada para dar restart 5'
-        await waitToStopThenStart(tunnel, makeAxis_)
+        await waitToStopThenStart(tunnel)
         spinner.text = 'aguardando parada para dar restart 6'
-        await waitToStopThenStart(tunnel, makeAxis_)
+        await waitToStopThenStart(tunnel)
         spinner.text = 'fim!'
 
 

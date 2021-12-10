@@ -6,26 +6,25 @@ import { getStatusLow } from "./get-status-low"
 
 const makeAxis_ = CMPP00LG
 
-export const isStoped =  async (tunnel: Tunnel, makeAxis: typeof makeAxis_) => {
-    const axis = makeAxis(tunnel)
+export const isStoped =  async (tunnel: Tunnel) => {
     const { path, baudRate, channel} = explodeTunnel(tunnel)
     const statusL = await getStatusLow(path, baudRate, channel)
     const isStoped_ = statusL.aceleracaoLigada===false && statusL.desaceleracaoLigada===false
     return isStoped_
 }
 
-export const start = async (tunnel: Tunnel, makeAxis: typeof makeAxis_) => {
-    const axis = makeAxis(tunnel)
+export const start = async (tunnel: Tunnel) => {
+    const axis = makeAxis_(tunnel)
     await axis.set('Start serial','ligado')
 }
 
-export const waitToStopThenStart = async (tunnel: Tunnel, makeAxis: typeof makeAxis_) => {
-    await waitToStop(tunnel, makeAxis)
-    await start (tunnel, makeAxis)
+export const waitToStopThenStart = async (tunnel: Tunnel) => {
+    await waitToStop(tunnel)
+    await start (tunnel)
 }
 
-export const waitToStop = async (tunnel: Tunnel, makeAxis: typeof makeAxis_) => {
-    const isNotStoped = async () => !(await isStoped(tunnel, makeAxis))
+export const waitToStop = async (tunnel: Tunnel) => {
+    const isNotStoped = async () => !(await isStoped(tunnel))
     while (await isNotStoped()) {
         //loop until stopped
     }

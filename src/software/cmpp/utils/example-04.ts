@@ -1,8 +1,8 @@
 import { CMPP00LG, LigadoDesligado } from "../transport/memmap-CMPP00LG"
-import { explodeTunnel, isReferenced, makeTunnel } from "./core"
+import { explodeTunnel, makeTunnel } from "./core"
 import { forceLooseReference } from "./force-loose-reference"
 import ora, { Spinner } from 'ora'
-import { doReferenceIfNecessary, forceReference, isReferencing, ReferenceParameters } from "./reference"
+import { doReferenceIfNecessary, forceReference, isReferenced, isReferencing, ReferenceParameters } from "./reference"
 import { isStoped, start, waitToStop, waitToStopThenStart } from "./start"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, Pulses_, TicksOfClock } from "../transport/memmap-types"
 import { delay } from "../../core/delay"
@@ -45,29 +45,29 @@ export const makeAxisControler = (arg: { tunnel: Tunnel, driver: typeof makeAxis
 
     return {
         start: async () => {
-            return await start(...args)
+            return await start(tunnel)
         },
         waitToStop: async () => {
-            return await waitToStop(...args)
+            return await waitToStop(tunnel)
         },
         isReferencing: async () => {
-            return await isReferencing(...args) 
+            return await isReferencing(tunnel) 
         },
         isReferenced: async () => {
-            return await isReferenced(...args)
+            return await isReferenced(tunnel)
         },
         isStoped: async () => {
-            return await isStoped(...args)
+            return await isStoped(tunnel)
         },
         forceReference: async (program: Partial<ReferenceParameters> = defaultReferenceParameters) => {
             const program_ = {...defaultReferenceParameters, ...program}
-            return await forceReference(...args, program_)   
+            return await forceReference(tunnel, program_)   
         },
         forceLooseReference: async () => {
-            return await forceLooseReference(...args)
+            return await forceLooseReference(tunnel)
         },
         doReferenceIfNecessary: async (program: ReferenceParameters = defaultReferenceParameters) => {
-            return await doReferenceIfNecessary(...args, program)
+            return await doReferenceIfNecessary(tunnel, program)
         },
         setMainParameters: async (parameters: Partial<MainParameters>) => {
             const keys = Object.keys(parameters) as readonly (keyof MainParameters)[]
