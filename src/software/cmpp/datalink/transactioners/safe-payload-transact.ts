@@ -84,15 +84,15 @@ export const safePayloadTransact = (portSpec: PortSpec, dataToSend: PayloadCore,
                                 })
                         },
                         Error: transactErrorEvent => {
-                            console.log(`closing port ${portSpec.path}`)
+                            //console.log(`closing port ${portSpec.path}`)
                             portCloser(portOpened, portSpec)
                                 .forResult({
                                     Error: PortCloseError => {
-                                        console.log('PortCloseError')
+                                        //console.log('PortCloseError')
                                         return_error(PortCloseError) //TODO: Two errors simultaneously happen here, but only one of them can be sent. What if we just could send both of them? This is possible? how?
                                     },
                                     Ok: () => {
-                                        console.log('transactErrorEvent')
+                                        //console.log('transactErrorEvent')
                                         return_error(transactErrorEvent)
                                     }
                                 })
