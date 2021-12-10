@@ -2,7 +2,7 @@ import { AbertoFechado, ContinuoPassoAPasso, LigadoDesligado } from "./memmap-CM
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "./memmap-types";
 
 
-
+//TODO: Implement something useful with this if is the case, currently it is not being used.
 export type ClassicApi = {
     'Posicao inicial': Pulses,
     'Posicao final': Pulses,
