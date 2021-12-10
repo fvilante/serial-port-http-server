@@ -3,15 +3,9 @@ import { Channel } from "../datalink/core-types"
 import { CMPP00LG } from "../transport/memmap-CMPP00LG"
 import { Tunnel } from "./detect-cmpp"
 import { getStatusLow } from "./get-status-low"
+import { getMovimentStatus } from "./moviment-status"
 
-const makeAxis_ = CMPP00LG
 
-//TODO: extract this function to a better place
-export const isReferenced = async (tunnel: Tunnel, makeAxis: typeof makeAxis_): Promise<boolean> => {
-    const { path, channel, baudRate} = explodeTunnel(tunnel)
-    const statusL = await getStatusLow(path, baudRate, channel)
-    return statusL.referenciado
-}
 
 // helper function
 export const explodeTunnel = (tunnel: Tunnel) => {

@@ -1,9 +1,8 @@
 import { CMPP00LG } from "../transport/memmap-CMPP00LG"
-import { explodeTunnel, isReferenced, makeTunnel } from "./core"
-import { forceLooseReference } from "./force-loose-reference"
+import { explodeTunnel, makeTunnel } from "./core"
 import ora from 'ora'
-import { doReferenceIfNecessary, forceReference } from "./reference"
-import { isStoped, start, waitToStop, waitToStopThenStart } from "./start"
+import { doReferenceIfNecessary } from "./reference"
+import { start, waitToStop } from "./start"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../transport/memmap-types"
 import { delay } from "../../core/delay"
 
@@ -36,22 +35,22 @@ const run = async () => {
         //
         spinner.text = `Preparando eixos...`
         //await forceLooseReference(...axis)
-        await doReferenceIfNecessary(...axis,{
+        await doReferenceIfNecessary(tunnel,{
             "Velocidade de referencia": PulsesPerTick(600),
             "Aceleracao de referencia": PulsesPerTickSquared(5000),
         })
         //
         let total=0
         spinner.text = `emitindo start`
-        await start(tunnel, makeAxis_)
-        await waitToStop(tunnel, makeAxis_)
+        await start(tunnel)
+        await waitToStop(tunnel)
         spinner.text = `Referenciado e Pronto.`
         await delay(3000)
 
         const sentStarts = async (n: number) => {
             for (let k=0; k<n; k++) {
                 spinner.text = `emitindo start ${k++}, total=${total++}`
-                await start(tunnel, makeAxis_)
+                await start(tunnel)
             }
         }
         
@@ -63,7 +62,7 @@ const run = async () => {
         
 
         spinner.text = 'fim!'
-        await waitToStop(tunnel, makeAxis_)
+        await waitToStop(tunnel)
     }
 
     for (let k=0; k<100;k++) {

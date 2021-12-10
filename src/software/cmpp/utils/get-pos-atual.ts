@@ -11,6 +11,7 @@ import { ACK } from '../datalink/core-types'
 //  como monitorar frequentemente sem bloquear a comunicacao para outros blocos?
 
 //TODO: Return type Pulses instead of uncasted 'number'
+//TODO: change parameters to Tunnel
 export const getPosicaoAtual = (portName: string, baudRate: BaudRate, channel: number): Promise<number> => 
     new Promise( (resolve, reject) => {
 

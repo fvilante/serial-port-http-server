@@ -28,6 +28,7 @@ const castStatusL = (statusL: number): StatusL => {
     }
 }
 
+//TODO: Change arguments to type Tunnel
 export const getStatusLow = (portName: string, baudRate: BaudRate, channel: number): Promise<StatusL> => 
 
     new Promise( (resolve, reject) => {
@@ -60,7 +61,7 @@ export const getStatusLow = (portName: string, baudRate: BaudRate, channel: numb
         
 })
 
-
+// TODO: delete this test code
 const Test1 = () => {
 
     getStatusLow('com51',9600,0)
