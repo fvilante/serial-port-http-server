@@ -25,10 +25,10 @@ export const goNext = async (cmppControler: CmppControler, next: Moviment) => {
 
 //relative moviment
 
-export const setNextRelative = async (cmppControler: CmppControler, step: Moviment) => {
+export const setNextRelative = async (cmppControler: CmppControler, next: Moviment) => {
     const currentPosition = await cmppControler.getCurrentPosition()
-    const nextPosition = Pulses_.add(currentPosition, step.position)
-    const nextMoviment = {...step, position: nextPosition}
+    const nextPosition = Pulses_.add(currentPosition, next.position)
+    const nextMoviment = {...next, position: nextPosition}
     await cmppControler.setMainParameters({
         "Posicao final": nextMoviment.position,
         //TODO: There should be a way looking startL.direcao to decide whether to use 'avanco' or 'retorno' to perform next moviment. This should increse performance.
@@ -39,8 +39,8 @@ export const setNextRelative = async (cmppControler: CmppControler, step: Movime
     })
 }
 
-export const goNextRelative = async (cmppControler: CmppControler, step: Moviment) => {
-    await setNextRelative(cmppControler,step)
+export const goNextRelative = async (cmppControler: CmppControler, next: Moviment) => {
+    await setNextRelative(cmppControler,next)
     await cmppControler.start()
     await cmppControler.waitToStop()
 }

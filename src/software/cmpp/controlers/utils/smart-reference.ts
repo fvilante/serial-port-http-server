@@ -33,12 +33,12 @@ export const forceSmartReference = async (cmppControler: CmppControler, arg: {re
     })
 }
 
-export const doSmartReferenceIfNecessary = async (axis: CmppControler,arg: {reference: Kinematics, endPosition: Pulses}) => {
-    const isReferenced_ = await axis.isReferenced()
+export const doSmartReferenceIfNecessary = async (cmppControler: CmppControler,arg: {reference: Kinematics, endPosition: Pulses}) => {
+    const isReferenced_ = await cmppControler.isReferenced()
     if(isReferenced_) {
         return
     } else {
-        await forceSmartReference(axis,arg)
+        await forceSmartReference(cmppControler,arg)
     }
 }
 
