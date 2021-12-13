@@ -8,7 +8,7 @@ import { Tunnel } from "./cmpp/datalink/tunnel"
 // This is an append file for axis-controler.ts, and my dreem is to use another
 // strategy for initialization of the axis. Something more robust.
 
-const makeAxis = CMPP00LG
+const makeTransportLayer = CMPP00LG
 
 
 export type AxisStarterKit = {
@@ -44,32 +44,32 @@ export const Z_AxisStarterKit: AxisStarterKit = {
             },
             channel,
         }
-        const axis = makeAxis(tunnel)
+        const transportLayer = makeTransportLayer(tunnel)
 
         return executeInSequence([
             //Atencao: O sensor da gaveta 1 parece estar ligado no pino do start entre eixos de uma das placas
             //por esta razao, antes de tudo é necessario desabilitar o start entre eixos das placas
-            () => axis.set('Start externo habilitado', 'desligado'),
-            () => axis.set('Entrada de start entre eixo habilitado', 'desligado'),
-            () => axis.set('Saida de start no avanco', 'desligado'),
-            () => axis.set('Saida de start no retorno', 'desligado'),
+            () => transportLayer.set('Start externo habilitado', 'desligado'),
+            () => transportLayer.set('Entrada de start entre eixo habilitado', 'desligado'),
+            () => transportLayer.set('Saida de start no avanco', 'desligado'),
+            () => transportLayer.set('Saida de start no retorno', 'desligado'),
             //
-            () => axis.set('Start automatico no avanco', 'desligado'),
-            () => axis.set('Start automatico no retorno', 'desligado'),
+            () => transportLayer.set('Start automatico no avanco', 'desligado'),
+            () => transportLayer.set('Start automatico no retorno', 'desligado'),
             //O eixo Z é vertical, por isto a corrente nele é mantida em máxima
             //As correcoes são desligadas para evitar a situacao onde o motor seja desenergijado
             //e o cabeçote caia sem aviso previo.
             // FIX: O referenciamento do eixo Z deveria ser monitorado, de modo que uma perda da referencia no Z deveria levar aos demais eixos a parar
             // como medida preventiva
-            () => axis.set('Reducao da corrente em repouso', 'desligado'),
-            () => axis.set('Giro com funcao de protecao', 'ligado'), // veja FIX acima (nao foi ainda implementado por completo!)
-            () => axis.set('Giro com funcao de correcao', 'desligado'),
+            () => transportLayer.set('Reducao da corrente em repouso', 'desligado'),
+            () => transportLayer.set('Giro com funcao de protecao', 'ligado'), // veja FIX acima (nao foi ainda implementado por completo!)
+            () => transportLayer.set('Giro com funcao de correcao', 'desligado'),
             // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
-            () => axis.set('Velocidade de referencia', PulsesPerTick(velRef)), // TODO: Remove this unsafe type coersion here
-            () => axis.set('Aceleracao de referencia', PulsesPerTickSquared(acRef)), // TODO: Remove this unsafe type coersion here
+            () => transportLayer.set('Velocidade de referencia', PulsesPerTick(velRef)), // TODO: Remove this unsafe type coersion here
+            () => transportLayer.set('Aceleracao de referencia', PulsesPerTickSquared(acRef)), // TODO: Remove this unsafe type coersion here
             // necessario para referencia quando o equipamento é ligado ou foi forçado a perda da referencia
             // remove pausa serial
-            () => axis.set('Pausa serial', 'desligado'),
+            () => transportLayer.set('Pausa serial', 'desligado'),
             // parece ser necessario um delay para que a placa processe estas
             // informacoes antes de receber o start
             // talvez este seja o motivo de algumas vezes na referencia, o eixo sair correndo velozmente
@@ -89,16 +89,16 @@ export const Z_AxisStarterKit: AxisStarterKit = {
             },
             channel,
         }
-        const axis = makeAxis(tunnel)
+        const transportLayer = makeTransportLayer(tunnel)
         return executeInSequence([
-            () => axis.set('Posicao inicial', Pulses(min)),
-            () => axis.set('Posicao final', Pulses(max)),
-            () => axis.set('Velocidade de avanco', PulsesPerTick(defaultVelocity)), //400
-            () => axis.set('Velocidade de retorno', PulsesPerTick(defaultVelocity)), //600
-            () => axis.set('Aceleracao de avanco', PulsesPerTickSquared(defaultAcceleration)),
-            () => axis.set('Aceleracao de retorno', PulsesPerTickSquared(defaultAcceleration)),
-            () => axis.set('Start automatico no avanco', 'desligado'),
-            () => axis.set('Start automatico no retorno', 'desligado'),
+            () => transportLayer.set('Posicao inicial', Pulses(min)),
+            () => transportLayer.set('Posicao final', Pulses(max)),
+            () => transportLayer.set('Velocidade de avanco', PulsesPerTick(defaultVelocity)), //400
+            () => transportLayer.set('Velocidade de retorno', PulsesPerTick(defaultVelocity)), //600
+            () => transportLayer.set('Aceleracao de avanco', PulsesPerTickSquared(defaultAcceleration)),
+            () => transportLayer.set('Aceleracao de retorno', PulsesPerTickSquared(defaultAcceleration)),
+            () => transportLayer.set('Start automatico no avanco', 'desligado'),
+            () => transportLayer.set('Start automatico no retorno', 'desligado'),
         ])
     }   
 }
@@ -121,28 +121,28 @@ export const X_AxisStarterKit: AxisStarterKit = {
             },
             channel,
         }
-        const axis = makeAxis(tunnel)
+        const transportLayer = makeTransportLayer(tunnel)
 
         return executeInSequence([
             //Atencao: O sensor da gaveta 1 parece estar ligado no pino do start entre eixos de uma das placas
             //por esta razao, antes de tudo é necessario desabilitar o start entre eixos das placas
-            () => axis.set('Start externo habilitado', 'desligado'),
-            () => axis.set('Entrada de start entre eixo habilitado', "desligado"),
-            () => axis.set('Saida de start no avanco', "desligado"),
-            () => axis.set('Saida de start no retorno', "desligado"),
+            () => transportLayer.set('Start externo habilitado', 'desligado'),
+            () => transportLayer.set('Entrada de start entre eixo habilitado', "desligado"),
+            () => transportLayer.set('Saida de start no avanco', "desligado"),
+            () => transportLayer.set('Saida de start no retorno', "desligado"),
             //
-            () => axis.set('Start automatico no avanco', "desligado"),
-            () => axis.set('Start automatico no retorno', "desligado"),
+            () => transportLayer.set('Start automatico no avanco', "desligado"),
+            () => transportLayer.set('Start automatico no retorno', "desligado"),
             //
-            () => axis.set('Reducao da corrente em repouso', 'ligado'),
-            () => axis.set('Giro com funcao de protecao', 'ligado'), // veja FIX acima (nao foi ainda implementado por completo!)
-            () => axis.set('Giro com funcao de correcao', "desligado"),
+            () => transportLayer.set('Reducao da corrente em repouso', 'ligado'),
+            () => transportLayer.set('Giro com funcao de protecao', 'ligado'), // veja FIX acima (nao foi ainda implementado por completo!)
+            () => transportLayer.set('Giro com funcao de correcao', "desligado"),
             // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
-            () => axis.set('Velocidade de referencia', PulsesPerTick(velRef)),
-            () => axis.set('Aceleracao de referencia', PulsesPerTickSquared(acRef)),
+            () => transportLayer.set('Velocidade de referencia', PulsesPerTick(velRef)),
+            () => transportLayer.set('Aceleracao de referencia', PulsesPerTickSquared(acRef)),
             // necessario para referencia quando o equipamento é ligado ou foi forçado a perda da referencia
             // remove pausa serial
-            () => axis.set('Pausa serial', "desligado"),
+            () => transportLayer.set('Pausa serial', "desligado"),
             // parece ser necessario um delay para que a placa processe estas
             // informacoes antes de receber o start
             // talvez este seja o motivo de algumas vezes na referencia, o eixo sair correndo velozmente
@@ -159,16 +159,16 @@ export const X_AxisStarterKit: AxisStarterKit = {
             },
             channel,
         }
-        const axis = makeAxis(tunnel)
+        const transportLayer = makeTransportLayer(tunnel)
         return executeInSequence([
-            () => axis.set('Posicao inicial', Pulses(min)),
-            () => axis.set('Posicao final', Pulses(max)),
-            () => axis.set('Velocidade de avanco', PulsesPerTick(defaultVelocity)), 
-            () => axis.set('Velocidade de retorno', PulsesPerTick(defaultVelocity)),
-            () => axis.set('Aceleracao de avanco', PulsesPerTickSquared(defaultAcceleration)),
-            () => axis.set('Aceleracao de retorno', PulsesPerTickSquared(defaultAcceleration)),
-            () => axis.set('Start automatico no avanco', 'desligado'),
-            () => axis.set('Start automatico no retorno', 'desligado'),
+            () => transportLayer.set('Posicao inicial', Pulses(min)),
+            () => transportLayer.set('Posicao final', Pulses(max)),
+            () => transportLayer.set('Velocidade de avanco', PulsesPerTick(defaultVelocity)), 
+            () => transportLayer.set('Velocidade de retorno', PulsesPerTick(defaultVelocity)),
+            () => transportLayer.set('Aceleracao de avanco', PulsesPerTickSquared(defaultAcceleration)),
+            () => transportLayer.set('Aceleracao de retorno', PulsesPerTickSquared(defaultAcceleration)),
+            () => transportLayer.set('Start automatico no avanco', 'desligado'),
+            () => transportLayer.set('Start automatico no retorno', 'desligado'),
         ])
     }
 }
@@ -192,7 +192,7 @@ export const Y_AxisStarterKit: AxisStarterKit = {
             },
             channel,
         }
-        const axis = makeAxis(tunnel)
+        const axis = makeTransportLayer(tunnel)
 
         return executeInSequence([
             //Atencao: O sensor da gaveta 1 parece estar ligado no pino do start entre eixos de uma das placas
@@ -234,7 +234,7 @@ export const Y_AxisStarterKit: AxisStarterKit = {
             },
             channel,
         }
-        const axis = makeAxis(tunnel)
+        const axis = makeTransportLayer(tunnel)
         return executeInSequence([
             () => axis.set('Posicao inicial', Pulses(min)),
             () => axis.set('Posicao final', Pulses(max)),

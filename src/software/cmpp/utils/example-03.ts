@@ -1,37 +1,35 @@
 import { CMPP00LG } from "../transport/memmap-CMPP00LG"
-import { explodeTunnel, makeTunnel } from "../controlers/core"
 import ora from 'ora'
 import { doReferenceIfNecessary } from "../controlers/utils/reference"
 import { start, waitToStop } from "../controlers/utils/start"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../transport/memmap-types"
 import { delay } from "../../core/delay"
+import { makeTunnel } from "../datalink/tunnel"
 
-const makeAxis_ = CMPP00LG
+const TransportLayer = CMPP00LG
 
 const run = async () => {
 
     const spinner = ora().start()
 
     const tunnel = makeTunnel('com48', 9600, 0)
-    const { baudRate, channel, path} = explodeTunnel(tunnel)
-    const axis = [tunnel, makeAxis_] as  const
 
     // perde referencia, busca referencia, da um start afastando o eixo da origem (velocidade e aceleracao de refernecia parametrizada)
     const routine = async () => {
-        const axis_ = makeAxis_(tunnel)
+        const transportLayer = TransportLayer(tunnel)
         //
         spinner.text = 'programando parametros de movimento'
-        await axis_.set('Posicao inicial', Pulses(3000))
-        await axis_.set('Posicao final', Pulses(6000))
-        await axis_.set('Velocidade de avanco', PulsesPerTick(2500))
-        await axis_.set('Velocidade de retorno', PulsesPerTick(2500))
-        await axis_.set('Aceleracao de avanco', PulsesPerTickSquared(9000))
-        await axis_.set('Aceleracao de retorno', PulsesPerTickSquared(9000))
+        await transportLayer.set('Posicao inicial', Pulses(3000))
+        await transportLayer.set('Posicao final', Pulses(6000))
+        await transportLayer.set('Velocidade de avanco', PulsesPerTick(2500))
+        await transportLayer.set('Velocidade de retorno', PulsesPerTick(2500))
+        await transportLayer.set('Aceleracao de avanco', PulsesPerTickSquared(9000))
+        await transportLayer.set('Aceleracao de retorno', PulsesPerTickSquared(9000))
         //
-        await axis_.set('Start automatico no avanco', 'desligado')
-        await axis_.set('Start automatico no retorno', 'desligado')
-        await axis_.set('Tempo para o start automatico', TicksOfClock(1))
-        await axis_.set('Reducao do nivel de corrente em repouso', 'ligado')
+        await transportLayer.set('Start automatico no avanco', 'desligado')
+        await transportLayer.set('Start automatico no retorno', 'desligado')
+        await transportLayer.set('Tempo para o start automatico', TicksOfClock(1))
+        await transportLayer.set('Reducao da corrente em repouso', 'ligado')
         //
         spinner.text = `Preparando eixos...`
         //await forceLooseReference(...axis)
@@ -56,9 +54,9 @@ const run = async () => {
         
         await sentStarts(1);
         await sentStarts(1);
-        await axis_.set('Velocidade de avanco', PulsesPerTick(500))
-        await axis_.set('Velocidade de retorno', PulsesPerTick(500))
-        await axis_.set('Posicao final', Pulses(4000))
+        await transportLayer.set('Velocidade de avanco', PulsesPerTick(500))
+        await transportLayer.set('Velocidade de retorno', PulsesPerTick(500))
+        await transportLayer.set('Posicao final', Pulses(4000))
         
 
         spinner.text = 'fim!'

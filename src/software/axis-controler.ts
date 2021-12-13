@@ -10,7 +10,7 @@ import { Pulses, PulsesPerTick, PulsesPerTickSquared } from "./cmpp/transport/me
 import { makeTunnel } from "./cmpp/datalink/tunnel"
 //import { PrintingPositions } from "./cmpp-controler"
 
-const makeAxis = CMPP00LG
+const makeTransportLayer = CMPP00LG
 
 // ***********************************************************
 // A generic Axis driver
@@ -89,7 +89,7 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
 
     const { portName, baudRate, channel} = Address[`Axis`][axisName]
         const tunnel = makeTunnel(portName, baudRate, channel)
-        const axis = makeAxis(tunnel)
+        const transportLayer = makeTransportLayer(tunnel)
 
 
     const isReferenced: T['isReferenced'] = async () => {
@@ -109,7 +109,7 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
     }
   
     const start: T['_start'] = async () => {
-        return axis.set('Start serial', 'ligado')
+        return transportLayer.set('Start serial', 'ligado')
     }
 
     const stop: T['_start'] = async () => {
@@ -202,12 +202,12 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
         
 
     const _setPosicaoInicial: T['_setPosicaoInicial'] = async (positionInPulses) => {
-        await axis.set('Posicao inicial', Pulses(positionInPulses)) //TODO: Remove this type cast
+        await transportLayer.set('Posicao inicial', Pulses(positionInPulses)) //TODO: Remove this type cast
         return 
     }
 
     const _setPosicaoFinal: T['_setPosicaoFinal'] = async (positionInPulses) => {
-        await axis.set('Posicao final', Pulses(positionInPulses)) //TODO: Remove this type cast
+        await transportLayer.set('Posicao final', Pulses(positionInPulses)) //TODO: Remove this type cast
         return 
     }
 
@@ -241,7 +241,7 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
     const _forceLooseReference: T['_forceLooseReference'] = async () => {
         const isReferenced = (await _getStatusL()).referenciado
         if (isReferenced===true) {
-            await axis.set('Pausa serial', 'ligado') 
+            await transportLayer.set('Pausa serial', 'ligado') 
             return
         } else {
             return
@@ -249,7 +249,7 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
     }
 
     const _printTest: T['_printTest'] = async () => {
-        return await axis.set('Teste de impressao serial', 'ligado')
+        return await transportLayer.set('Teste de impressao serial', 'ligado')
     }
 
     const _getAbsolutePositionRange: T['_getAbsolutePositionRange'] = () => {
@@ -257,26 +257,26 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
     }
 
     const _setVelocity: T['_setVelocity'] = async velocity => {
-        await axis.set('Velocidade de avanco', PulsesPerTick(velocity)) //TODO: Remove this type cast
-        await axis.set('Velocidade de retorno', PulsesPerTick(velocity)) //TODO: Remove this type cast
+        await transportLayer.set('Velocidade de avanco', PulsesPerTick(velocity)) //TODO: Remove this type cast
+        await transportLayer.set('Velocidade de retorno', PulsesPerTick(velocity)) //TODO: Remove this type cast
         return
     }
 
     const _setAcceleration: T['_setAcceleration'] = async acceleration => {
-        await axis.set('Aceleracao de avanco', PulsesPerTickSquared(acceleration)) //TODO: remove this type cast
-        await axis.set('Aceleracao de retorno', PulsesPerTickSquared(acceleration)) //TODO: remove this type cast
+        await transportLayer.set('Aceleracao de avanco', PulsesPerTickSquared(acceleration)) //TODO: remove this type cast
+        await transportLayer.set('Aceleracao de retorno', PulsesPerTickSquared(acceleration)) //TODO: remove this type cast
         return
     }
 
     const _setVelocityDefault: T['_setVelocityDefault'] = async () => {
-        await axis.set('Velocidade de avanco', PulsesPerTick(defaultVelocity)) //TODO: remove this type cast
-        await axis.set('Velocidade de retorno', PulsesPerTick(defaultVelocity)) //TODO: remove this type cast
+        await transportLayer.set('Velocidade de avanco', PulsesPerTick(defaultVelocity)) //TODO: remove this type cast
+        await transportLayer.set('Velocidade de retorno', PulsesPerTick(defaultVelocity)) //TODO: remove this type cast
         return
     }
 
     const _setAccelerationDefault: T['_setAccelerationDefault'] = async () => {
-        await axis.set('Aceleracao de avanco', PulsesPerTickSquared(defaultAcceleration)) //TODO: remove this type cast
-        await axis.set('Aceleracao de retorno', PulsesPerTickSquared(defaultAcceleration)) //TODO: remove this type cast
+        await transportLayer.set('Aceleracao de avanco', PulsesPerTickSquared(defaultAcceleration)) //TODO: remove this type cast
+        await transportLayer.set('Aceleracao de retorno', PulsesPerTickSquared(defaultAcceleration)) //TODO: remove this type cast
         return
     }
 
@@ -290,18 +290,18 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
             posicaoDaUltimaMensagemNoRetorno,
         } = settings
 
-        await axis.set('Numero de mensagem no avanco', numeroDeMensagensNoAvanco)
-        await axis.set('Numero de mensagem no retorno', numeroDeMensagensNoRetorno)
-        await axis.set('Posicao da primeira impressao no avanco', Pulses(posicaoDaPrimeiraMensagemNoAvanco)) //TODO: Remove those types cast
-        await axis.set('Posicao da ultima mensagem no avanco', Pulses(posicaoDaUltimaMensagemNoAvanco))
-        await axis.set('Posicao da primeira impressao no retorno', Pulses(posicaoDaPrimeiraMensagemNoRetorno))
-        await axis.set('Posicao da ultima mensagem no retorno', Pulses(posicaoDaUltimaMensagemNoRetorno))
+        await transportLayer.set('Numero de mensagem no avanco', numeroDeMensagensNoAvanco)
+        await transportLayer.set('Numero de mensagem no retorno', numeroDeMensagensNoRetorno)
+        await transportLayer.set('Posicao da primeira impressao no avanco', Pulses(posicaoDaPrimeiraMensagemNoAvanco)) //TODO: Remove those types cast
+        await transportLayer.set('Posicao da ultima mensagem no avanco', Pulses(posicaoDaUltimaMensagemNoAvanco))
+        await transportLayer.set('Posicao da primeira impressao no retorno', Pulses(posicaoDaPrimeiraMensagemNoRetorno))
+        await transportLayer.set('Posicao da ultima mensagem no retorno', Pulses(posicaoDaUltimaMensagemNoRetorno))
         return
     }
 
     const _clearPrintingMessages: T['_clearPrintingMessages'] = async () => {
-        await axis.set('Numero de mensagem no avanco', 0)
-        await axis.set('Numero de mensagem no retorno', 0)
+        await transportLayer.set('Numero de mensagem no avanco', 0)
+        await transportLayer.set('Numero de mensagem no retorno', 0)
         return  
     }
 

@@ -3,7 +3,7 @@ import { Tunnel } from "../../datalink/tunnel"
 import { CMPP00LG } from "../../transport/memmap-CMPP00LG"
 import { getMovimentStatus } from "./moviment-status"
 
-const makeAxis_ = CMPP00LG
+const makeTransportLayer = CMPP00LG
 
 export const isStoped =  async (tunnel: Tunnel) => {
     const status = await getMovimentStatus(tunnel)
@@ -11,8 +11,8 @@ export const isStoped =  async (tunnel: Tunnel) => {
 }
 
 export const start = async (tunnel: Tunnel) => {
-    const axis = makeAxis_(tunnel)
-    await axis.set('Start serial','ligado')
+    const transportLayer = makeTransportLayer(tunnel)
+    await transportLayer.set('Start serial','ligado')
 }
 
 export const waitToStopThenStart = async (tunnel: Tunnel) => {

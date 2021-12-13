@@ -4,7 +4,7 @@ import { PulsesPerTick, PulsesPerTickSquared } from "../../transport/memmap-type
 import { getMovimentStatus } from "./moviment-status"
 import { Tunnel } from "../../datalink/tunnel"
 
-const makeAxis_ = CMPP00LG
+const makeTransportLayer = CMPP00LG
 
 //TODO: Extract from this file to better place if possible
 export const isReferencing = async (tunnel: Tunnel):Promise<boolean> => {
@@ -29,15 +29,15 @@ export const forceReference = async (tunnel: Tunnel, program: ReferenceParameter
     
     return new Promise ( async (resolve, reject) => {
 
-        const axis = makeAxis_(tunnel)
+        const transportLayer = makeTransportLayer(tunnel)
 
         await forceLooseReference(tunnel)
-        await axis.set('Velocidade de referencia', program['Velocidade de referencia'])
-        await axis.set('Aceleracao de referencia', program['Aceleracao de referencia'])
+        await transportLayer.set('Velocidade de referencia', program['Velocidade de referencia'])
+        await transportLayer.set('Aceleracao de referencia', program['Aceleracao de referencia'])
 
         // do
-        await axis.set('Pausa serial','desligado')
-        await axis.set('Start serial','ligado')
+        await transportLayer.set('Pausa serial','desligado')
+        await transportLayer.set('Start serial','ligado')
 
         while( await isReferencing(tunnel) ) {
             //TODO: should this loop be protected with an timeout error ?
