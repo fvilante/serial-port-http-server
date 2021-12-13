@@ -233,3 +233,10 @@ export const runButIgnoreIfItThrow = (f: () => void):void => {
         // do nothing
     }
 }
+
+
+// used to create static-safe exhaustive swtich case statements
+// for more see: https://dev.to/ddiprose/exhaustive-switch-statement-with-typescript-26dh
+export function assertUnreachable(x: never): never {
+    throw new Error("Didn't expect to get here");
+  }
