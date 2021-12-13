@@ -1,3 +1,4 @@
+import { assertUnreachable } from "../../core/utils";
 import { FrameCore } from "../datalink";
 import { DirectionKeys } from "../datalink/core-types";
 import { word2int } from "../datalink/int-to-word-conversion";
@@ -124,13 +125,14 @@ export const setCmppParam = <T extends string,A>(tunnel: Tunnel, param: ParamCas
     //TODO: Discovery why the hell I need to divede waddr by two !!
     const param_adjusted = {...param, waddr: param.waddr/2}
 
-    switch (param_adjusted.type) {
+    const kind = param_adjusted.type
+
+    switch (kind) {
         case '16 Bits': return set16BitsParam(tunnel, param_adjusted,value)
         case '8 Bits': return set8BitsParam(tunnel, param_adjusted,value)
         case '1 Bit': return set1BitsParam(tunnel, param_adjusted,value)
         default: {
-            //TODO: Make this switch case statically exaustive
-            throw new Error('This error should never happens: Non exaustive switch case clause. Cmpp communication/memmap context')
+            assertUnreachable(kind)
         }
     }
 
