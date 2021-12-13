@@ -183,15 +183,15 @@ const StartAutomaticoNoRetorno = paramCaster_1bit({
     ...ligadoDesligado,
 })
 
-const StartAutomaticoNoRetornoLigado = paramCaster_1bit({
-    name: 'Saida de start no avanco ligado',
+const SaidaDeStartNoAvanco = paramCaster_1bit({
+    name: 'Saida de start no avanco',
     waddr: X+0x20,
     startBit: 2,
     ...ligadoDesligado,
 })
 
-const SaidaDeStartNoRetornoLigado = paramCaster_1bit({
-    name: 'Saida de start no retorno ligado',
+const SaidaDeStartNoRetorno = paramCaster_1bit({
+    name: 'Saida de start no retorno',
     waddr: X+0x20,
     startBit: 3,
     ...ligadoDesligado,
@@ -211,15 +211,15 @@ const LogicaDoStartExterno = paramCaster_1bit({
     ...ligadoDesligado,
 })
 
-const EntradaDeStartEntreEixoHabilitado = paramCaster_1bit({
+const EntradaDeStartEntreEixo = paramCaster_1bit({
     name: 'Entrada de start entre eixo habilitado',
     waddr: X+0x20,
     startBit: 6,
     ...ligadoDesligado,
 })
 
-const StartExternoParaReferenciarHabilitado = paramCaster_1bit({
-    name: 'Start externo para referenciar habilitado',
+const ReferenciaPeloStartExterno = paramCaster_1bit({
+    name: 'Referencia pelo start externo',
     waddr: X+0x20,
     startBit: 7,
     ...ligadoDesligado,
@@ -241,36 +241,36 @@ const LogicaDoSinalDeReversao = paramCaster_1bit({
     ...abertoFechado,
 })
 
-const SelecaoDeImpressaoViaSerialLigada = paramCaster_1bit({
-    name: 'Selecao de impressao via serial ligada',
+const SelecaoDeImpressaoViaSerial = paramCaster_1bit({
+    name: 'Selecao de impressao via serial',
     waddr: X+0x20,
     startBit: 10,
     ...ligadoDesligado
 })
     
-const ReversaoDeImpressaoViaSerialLigada = paramCaster_1bit({
-    name: 'Reversao de impressao via serial ligada',
+const ReversaoDeImpressaoViaSerial = paramCaster_1bit({
+    name: 'Reversao de impressao via serial',
     waddr: X+0x20,
     startBit: 11,
     ...ligadoDesligado,
 })
 
-const ZeroIndexHabilitadoParaProtecao = paramCaster_1bit({
-    name: 'Zero Index habilitado p/ protecao',
+const GiroComFuncaoDeProtecao = paramCaster_1bit({
+    name: 'Giro com funcao de protecao',
     waddr: X+0x20,
     startBit: 12,
     ...ligadoDesligado,
 })
 
-const ZeroIndexHabilitadoParaCorrecao = paramCaster_1bit({
-    name: 'Zero Index habilitado p/ correcao',
+const GiroComFuncaoDeCorrecao = paramCaster_1bit({
+    name: 'Giro com funcao de correcao',
     waddr: X+0x20,
     startBit: 13,
     ...ligadoDesligado,
 })
 
-const ReducaoDoNivelDeCorrenteEmRepouso = paramCaster_1bit({
-    name: 'Reducao do nivel de corrente em repouso',
+const ReducaoDaCorrenteEmRepouso = paramCaster_1bit({
+    name: 'Reducao da corrente em repouso',
     waddr: X+0x20,
     startBit: 14,
     ...ligadoDesligado,
@@ -315,8 +315,8 @@ const NumeroDePulsosPorVoltaDoMotor = paramCaster_16bits({
     ...pulses,
 })
 
-const ValorProgramadoDaReferencia = paramCaster_16bits({
-    name: 'Valor programado da referencia',
+const ValorDaPosicaoDeReferencia = paramCaster_16bits({
+    name: 'Valor da posicao de referencia',
     waddr: X+0x2A,
     ...pulses,
 })
@@ -581,7 +581,7 @@ const NivelSinalEmotor = paramCaster_1bit({
 
 // api 
 
-
+//TODO: Cast below variable
 //NOTE: Do not forget to insert "as const" after the ending brackets. Each key must be annotated as 'readonly'
 const api = {
     'Posicao inicial': PosicaoInicial,
@@ -603,24 +603,24 @@ const api = {
     'Retardo para o start automatico passo a passo': RetardoParaStartAutomaticoPassoAPasso,
     'Start automatico no avanco': StartAutomaticoNoAvanco,
     'Start automatico no retorno': StartAutomaticoNoRetorno,
-    'Saida de start no avanco ligado': StartAutomaticoNoRetornoLigado,
-    'Saida de start no retorno ligado': SaidaDeStartNoRetornoLigado,
+    'Saida de start no avanco': SaidaDeStartNoAvanco,
+    'Saida de start no retorno': SaidaDeStartNoRetorno,
     'Start externo habilitado': StartExternoHabilitado,
     'Logica do start externo': LogicaDoStartExterno,
-    'Entrada de start entre eixo habilitado': EntradaDeStartEntreEixoHabilitado,
-    'Start externo para referenciar habilitado': StartExternoParaReferenciarHabilitado,
+    'Entrada de start entre eixo habilitado': EntradaDeStartEntreEixo,
+    'Referencia pelo start externo': ReferenciaPeloStartExterno,
     'Logica do sinal de impressao': LogicaDoSinalDeImpressao,
     'Logica do sinal de reversao': LogicaDoSinalDeReversao,
-    'Selecao de impressao via serial ligada': SelecaoDeImpressaoViaSerialLigada,
-    'Reversao de impressao via serial ligada': ReversaoDeImpressaoViaSerialLigada,
-    'Zero Index habilitado p/ protecao': ZeroIndexHabilitadoParaProtecao,
-    'Zero Index habilitado p/ correcao': ZeroIndexHabilitadoParaCorrecao,
-    'Reducao do nivel de corrente em repouso': ReducaoDoNivelDeCorrenteEmRepouso,
+    'Selecao de impressao via serial': SelecaoDeImpressaoViaSerial,
+    'Reversao de impressao via serial': ReversaoDeImpressaoViaSerial,
+    'Giro com funcao de protecao': GiroComFuncaoDeProtecao,
+    'Giro com funcao de correcao': GiroComFuncaoDeCorrecao,
+    'Reducao da corrente em repouso': ReducaoDaCorrenteEmRepouso,
     'Modo continuo/passo a passo': ModoContinuoOuPassoAPasso,
     'Retardo para o sinal de impressao': RetardoParaOSinalDeImpressao,
     'Tolerancia de Erro do zero index': ToleranciaDeErroDoZeroIndex,
     'Numero de pulsos por volta do motor': NumeroDePulsosPorVoltaDoMotor,
-    'Valor programado da referencia': ValorProgramadoDaReferencia,
+    'Valor da posicao de referencia': ValorDaPosicaoDeReferencia,
     'Aceleracao de referencia': AceleracaoDeReferencia,
     'Velocidade de referencia': VelocidadeDeReferencia,
     'Saida de start passo a passo': SaidaDeStartPassoAPasso,

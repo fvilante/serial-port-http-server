@@ -51,8 +51,8 @@ export const Z_AxisStarterKit: AxisStarterKit = {
             //por esta razao, antes de tudo é necessario desabilitar o start entre eixos das placas
             () => axis.set('Start externo habilitado', 'desligado'),
             () => axis.set('Entrada de start entre eixo habilitado', 'desligado'),
-            () => axis.set('Saida de start no avanco ligado', 'desligado'),
-            () => axis.set('Saida de start no retorno ligado', 'desligado'),
+            () => axis.set('Saida de start no avanco', 'desligado'),
+            () => axis.set('Saida de start no retorno', 'desligado'),
             //
             () => axis.set('Start automatico no avanco', 'desligado'),
             () => axis.set('Start automatico no retorno', 'desligado'),
@@ -61,9 +61,9 @@ export const Z_AxisStarterKit: AxisStarterKit = {
             //e o cabeçote caia sem aviso previo.
             // FIX: O referenciamento do eixo Z deveria ser monitorado, de modo que uma perda da referencia no Z deveria levar aos demais eixos a parar
             // como medida preventiva
-            () => axis.set('Reducao do nivel de corrente em repouso', 'desligado'),
-            () => axis.set('Zero Index habilitado p/ protecao', 'ligado'), // veja FIX acima (nao foi ainda implementado por completo!)
-            () => axis.set('Zero Index habilitado p/ correcao', 'desligado'),
+            () => axis.set('Reducao da corrente em repouso', 'desligado'),
+            () => axis.set('Giro com funcao de protecao', 'ligado'), // veja FIX acima (nao foi ainda implementado por completo!)
+            () => axis.set('Giro com funcao de correcao', 'desligado'),
             // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
             () => axis.set('Velocidade de referencia', PulsesPerTick(velRef)), // TODO: Remove this unsafe type coersion here
             () => axis.set('Aceleracao de referencia', PulsesPerTickSquared(acRef)), // TODO: Remove this unsafe type coersion here
@@ -128,15 +128,15 @@ export const X_AxisStarterKit: AxisStarterKit = {
             //por esta razao, antes de tudo é necessario desabilitar o start entre eixos das placas
             () => axis.set('Start externo habilitado', 'desligado'),
             () => axis.set('Entrada de start entre eixo habilitado', "desligado"),
-            () => axis.set('Saida de start no avanco ligado', "desligado"),
-            () => axis.set('Saida de start no retorno ligado', "desligado"),
+            () => axis.set('Saida de start no avanco', "desligado"),
+            () => axis.set('Saida de start no retorno', "desligado"),
             //
             () => axis.set('Start automatico no avanco', "desligado"),
             () => axis.set('Start automatico no retorno', "desligado"),
             //
-            () => axis.set('Reducao do nivel de corrente em repouso', 'ligado'),
-            () => axis.set('Zero Index habilitado p/ protecao', 'ligado'), // veja FIX acima (nao foi ainda implementado por completo!)
-            () => axis.set('Zero Index habilitado p/ correcao', "desligado"),
+            () => axis.set('Reducao da corrente em repouso', 'ligado'),
+            () => axis.set('Giro com funcao de protecao', 'ligado'), // veja FIX acima (nao foi ainda implementado por completo!)
+            () => axis.set('Giro com funcao de correcao', "desligado"),
             // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
             () => axis.set('Velocidade de referencia', PulsesPerTick(velRef)),
             () => axis.set('Aceleracao de referencia', PulsesPerTickSquared(acRef)),
@@ -199,8 +199,8 @@ export const Y_AxisStarterKit: AxisStarterKit = {
             //por esta razao, antes de tudo é necessario desabilitar o start entre eixos das placas
             () => axis.set('Start externo habilitado', 'desligado'),
             () => axis.set('Entrada de start entre eixo habilitado', 'desligado'),
-            () => axis.set('Saida de start no avanco ligado', 'desligado'),
-            () => axis.set('Saida de start no retorno ligado', 'desligado'),
+            () => axis.set('Saida de start no avanco', 'desligado'),
+            () => axis.set('Saida de start no retorno', 'desligado'),
             //desliga modo passo a passo e garante modo continuo,
             () => axis.set('Numero de mensagem no avanco', 0),
             () => axis.set('Numero de mensagem no retorno', 0),
@@ -209,9 +209,9 @@ export const Y_AxisStarterKit: AxisStarterKit = {
             () => axis.set('Start automatico no avanco', 'desligado'),
             () => axis.set('Start automatico no retorno', 'desligado'),
             //
-            () => axis.set('Reducao do nivel de corrente em repouso', 'ligado'),
-            () => axis.set('Zero Index habilitado p/ protecao', 'ligado'), // veja FIX acima (nao foi ainda implementado por completo!)
-            () => axis.set('Zero Index habilitado p/ correcao', 'desligado'),
+            () => axis.set('Reducao da corrente em repouso', 'ligado'),
+            () => axis.set('Giro com funcao de protecao', 'ligado'), // veja FIX acima (nao foi ainda implementado por completo!)
+            () => axis.set('Giro com funcao de correcao', 'desligado'),
             // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
             () => axis.set('Velocidade de referencia', PulsesPerTick(velRef)),
             () => axis.set('Aceleracao de referencia', PulsesPerTickSquared(acRef)),

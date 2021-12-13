@@ -10,9 +10,7 @@ import { goNext } from '../controlers/utils/go-next'
 const run = async () => {
 
     // config
-    
     const tunnel = makeTunnel('com50', 9600, 0)
-    // 
     const cmppControler = makeCmppControler(tunnel)
 
     const resetMainParameters = async () => {
@@ -26,7 +24,7 @@ const run = async () => {
             'Start automatico no avanco': 'desligado',
             'Start automatico no retorno': 'desligado',
             'Tempo para o start automatico': TicksOfClock(10),
-            'Reducao do nivel de corrente em repouso': 'ligado',
+            'Reducao da corrente em repouso': 'ligado',
         })
     }
 
