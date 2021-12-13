@@ -1,10 +1,10 @@
-import { CMPP00LG } from "../transport/memmap-CMPP00LG"
-import { forceLooseReference } from "../controlers/utils/force-loose-reference"
+import { CMPP00LG } from "../../transport/memmap-CMPP00LG"
+import { forceLooseReference } from "../utils/force-loose-reference"
 import ora from 'ora'
-import { forceReference, isReferenced } from "../controlers/utils/reference"
-import { start, waitToStopThenStart } from "../controlers/utils/start"
-import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../transport/memmap-types"
-import { explodeTunnel, makeTunnel } from "../datalink/tunnel"
+import { forceReference, isReferenced } from "../utils/reference"
+import { start, waitToStopThenStart } from "../utils/start"
+import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../transport/memmap-types"
+import { explodeTunnel, makeTunnel } from "../../datalink/tunnel"
 
 const makeTransportLayer = CMPP00LG
 

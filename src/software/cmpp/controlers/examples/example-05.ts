@@ -1,10 +1,13 @@
 import ora, { Spinner } from 'ora'
-import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../transport/memmap-types"
-import { makeCmppControler } from "../controlers/cmpp-controler"
-import { forceSmartReference } from "../controlers/utils/smart-reference"
-import { detectEndOfCourse } from '../controlers/utils/detect-end-of-course'
-import { goNext } from '../controlers/utils/go-next'
-import { makeTunnel } from '../datalink/tunnel'
+import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../transport/memmap-types"
+import { delay } from "../../../core/delay"
+import { random } from "../../../core/utils"
+import { makeCmppControler } from "../cmpp-controler"
+import { doSmartReferenceIfNecessary } from "../utils/smart-reference"
+import { Moviment } from "../core"
+import { goMany } from '../utils/go-many'
+import { makeTunnel } from '../../datalink/tunnel'
+
 
 
 const run = async () => {
@@ -57,23 +60,29 @@ const run = async () => {
         const spinner = ora().start()
         spinner.text = 'resetando parametros...'
         await resetMainParameters()
-    
-        spinner.text = 'detectando curso do motor...'
-        const lastPosition = await detectEndOfCourse(cmppControler,config)
-        spinner.succeed(`curso detectado ${lastPosition.value} ${lastPosition.unitOfMeasurement}`)
-    
-        spinner.succeed(`Confirmando curso do motor detectado: ${lastPosition.value} ${lastPosition.unitOfMeasurement}`)
-    
-        await forceSmartReference(cmppControler,config.referencePhase)
-        await goNext(cmppControler, {...config.searchPhase.advancingKinematics, position: lastPosition})
-        await goNext(cmppControler, {...config.searchPhase.advancingKinematics, position: config.referencePhase.endPosition})
-        await goNext(cmppControler, {...config.searchPhase.advancingKinematics, position: lastPosition})
-        await goNext(cmppControler, {...config.searchPhase.advancingKinematics, position: config.referencePhase.endPosition})
-        spinner.succeed(`Confirmado! curso do motor detectado: ${lastPosition.value} ${lastPosition.unitOfMeasurement}`)
-        spinner.stop()
+        await doSmartReferenceIfNecessary(cmppControler,config.referencePhase)
+
+        function* generator():Generator<Moviment, void, unknown> {
+            let counter = 0
+            while (counter++ < 150) {
+                const nextPos = random(3000, 4000)
+                const nextVelocity = random(859, 860)
+                const nextAcceleration = random(5500, 5501)
+
+                yield( {
+                    position: Pulses(nextPos),
+                    speed: PulsesPerTick(nextVelocity),
+                    acceleration: PulsesPerTickSquared(nextAcceleration),
+                })
+            }
+            
+        }
+
+        await goMany(cmppControler, generator())
+        await delay(15000)
     }
 
-    for (let k=0; k<10; k++ ) {
+    for (let k=0; k<3; k++ ) {
         await runRoutine()
     }
 
