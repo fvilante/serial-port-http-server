@@ -10,7 +10,7 @@ import { isStoped, start, waitToStop } from "./utils/start"
 
 const makeAxis_ = CMPP00LG
 
-export type AxisControler = ReturnType<typeof makeAxisControler> 
+export type CmppControler = ReturnType<typeof makeCmppControler> 
 
 
 export type MainParameters = {
@@ -26,7 +26,7 @@ export type MainParameters = {
     'Reducao do nivel de corrente em repouso': LigadoDesligado
 }
 
-export const makeAxisControler = (tunnel: Tunnel) => {
+export const makeCmppControler = (tunnel: Tunnel) => {
     const axis = makeAxis_(tunnel)
 
     const defaultReferenceParameters: ReferenceParameters = {

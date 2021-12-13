@@ -1,12 +1,12 @@
 import { Pulses_ } from "../../transport/memmap-types"
-import { AxisControler } from "../axis-controler"
+import { CmppControler } from "../cmpp-controler"
 import { Moviment } from "../core"
 
 
 //absolute moviment
 
-export const setNext = async (axisControler: AxisControler, next: Moviment) => {
-    await axisControler.setMainParameters({
+export const setNext = async (cmppControler: CmppControler, next: Moviment) => {
+    await cmppControler.setMainParameters({
         "Posicao final": next.position,
         //TODO: There should be a way looking startL.direcao to decide whether to use 'avanco' or 'retorno' to perform next moviment. This should increse performance.
         "Velocidade de avanco": next.speed,
@@ -17,19 +17,19 @@ export const setNext = async (axisControler: AxisControler, next: Moviment) => {
 }
 
 
-export const goNext = async (axisControler: AxisControler, next: Moviment) => {
-    await setNext(axisControler, next)
-    await axisControler.start()
-    await axisControler.waitToStop()
+export const goNext = async (cmppControler: CmppControler, next: Moviment) => {
+    await setNext(cmppControler, next)
+    await cmppControler.start()
+    await cmppControler.waitToStop()
 }
 
 //relative moviment
 
-export const setNextRelative = async (axisControler: AxisControler, step: Moviment) => {
-    const currentPosition = await axisControler.getCurrentPosition()
+export const setNextRelative = async (cmppControler: CmppControler, step: Moviment) => {
+    const currentPosition = await cmppControler.getCurrentPosition()
     const nextPosition = Pulses_.add(currentPosition, step.position)
     const nextMoviment = {...step, position: nextPosition}
-    await axisControler.setMainParameters({
+    await cmppControler.setMainParameters({
         "Posicao final": nextMoviment.position,
         //TODO: There should be a way looking startL.direcao to decide whether to use 'avanco' or 'retorno' to perform next moviment. This should increse performance.
         "Velocidade de avanco": nextMoviment.speed,
@@ -39,8 +39,8 @@ export const setNextRelative = async (axisControler: AxisControler, step: Movime
     })
 }
 
-export const goNextRelative = async (axisControler: AxisControler, step: Moviment) => {
-    await setNextRelative(axisControler,step)
-    await axisControler.start()
-    await axisControler.waitToStop()
+export const goNextRelative = async (cmppControler: CmppControler, step: Moviment) => {
+    await setNextRelative(cmppControler,step)
+    await cmppControler.start()
+    await cmppControler.waitToStop()
 }

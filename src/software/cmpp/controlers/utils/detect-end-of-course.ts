@@ -1,6 +1,6 @@
 
 import { Pulses, Pulses_ } from "../../transport/memmap-types"
-import { AxisControler } from "../axis-controler"
+import { CmppControler } from "../cmpp-controler"
 import { Kinematics, Moviment } from "../core"
 import { goNext, setNextRelative } from "./go-next"
 import { forceSmartReference } from "./smart-reference"
@@ -21,20 +21,20 @@ export type DetecEndOfCourseParameters = {
     }
 }
 
-export const detectEndOfCourse = async (axisControler: AxisControler, args: DetecEndOfCourseParameters): Promise<Pulses> => {
+export const detectEndOfCourse = async (cmppControler: CmppControler, args: DetecEndOfCourseParameters): Promise<Pulses> => {
     const { referencePhase, searchPhase} = args
-    await forceSmartReference(axisControler, referencePhase)
-    await goNext(axisControler, searchPhase.startAt)
+    await forceSmartReference(cmppControler, referencePhase)
+    await goNext(cmppControler, searchPhase.startAt)
 
     const firstApproximation = async (amount: Pulses, kinematics: Kinematics): Promise<Pulses> => {  
-        const isNotVeryLargeCourse = async () => (await axisControler.getCurrentPosition()).value <= searchPhase.endSearchAt.value
-        while ( await axisControler.isReferenced() && await isNotVeryLargeCourse()) {
+        const isNotVeryLargeCourse = async () => (await cmppControler.getCurrentPosition()).value <= searchPhase.endSearchAt.value
+        while ( await cmppControler.isReferenced() && await isNotVeryLargeCourse()) {
             // 1 advancement step forward
-            await setNextRelative(axisControler,{position: amount, ...kinematics})
-            await axisControler.start()
-            await axisControler.waitToStop()
+            await setNextRelative(cmppControler,{position: amount, ...kinematics})
+            await cmppControler.start()
+            await cmppControler.waitToStop()
         }
-        const result = await axisControler.getCurrentPosition()
+        const result = await cmppControler.getCurrentPosition()
         return result
     }
 

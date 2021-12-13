@@ -2,7 +2,7 @@ import ora, { Spinner } from 'ora'
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../transport/memmap-types"
 import { delay } from "../../core/delay"
 import { random } from "../../core/utils"
-import { makeAxisControler } from "../controlers/axis-controler"
+import { makeCmppControler } from "../controlers/cmpp-controler"
 import { doSmartReferenceIfNecessary } from "../controlers/utils/smart-reference"
 import { makeTunnel, Moviment } from "../controlers/core"
 import { goMany } from '../controlers/utils/go-many'
@@ -15,11 +15,11 @@ const run = async () => {
     
     const tunnel = makeTunnel('com50', 9600, 0)
     // 
-    const axisControler = makeAxisControler(tunnel)
+    const cmppControler = makeCmppControler(tunnel)
     //
 
     const resetMainParameters = async () => {
-        return await axisControler.setMainParameters({
+        return await cmppControler.setMainParameters({
             'Posicao inicial': Pulses(1000),
             'Posicao final': Pulses(1100),
             'Velocidade de avanco': PulsesPerTick(1000),
@@ -62,7 +62,7 @@ const run = async () => {
         const spinner = ora().start()
         spinner.text = 'resetando parametros...'
         await resetMainParameters()
-        await doSmartReferenceIfNecessary(axisControler,config.referencePhase)
+        await doSmartReferenceIfNecessary(cmppControler,config.referencePhase)
 
         function* generator():Generator<Moviment, void, unknown> {
             let counter = 0
@@ -80,7 +80,7 @@ const run = async () => {
             
         }
 
-        await goMany(axisControler, generator())
+        await goMany(cmppControler, generator())
         await delay(15000)
     }
 

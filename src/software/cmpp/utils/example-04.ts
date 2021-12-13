@@ -1,7 +1,7 @@
 import ora, { Spinner } from 'ora'
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../transport/memmap-types"
 import { makeTunnel } from "../controlers/core"
-import { makeAxisControler } from "../controlers/axis-controler"
+import { makeCmppControler } from "../controlers/cmpp-controler"
 import { forceSmartReference } from "../controlers/utils/smart-reference"
 import { detectEndOfCourse } from '../controlers/utils/detect-end-of-course'
 import { goNext } from '../controlers/utils/go-next'
@@ -13,10 +13,10 @@ const run = async () => {
     
     const tunnel = makeTunnel('com50', 9600, 0)
     // 
-    const axisControler = makeAxisControler(tunnel)
+    const cmppControler = makeCmppControler(tunnel)
 
     const resetMainParameters = async () => {
-        return await axisControler.setMainParameters({
+        return await cmppControler.setMainParameters({
             'Posicao inicial': Pulses(1000),
             'Posicao final': Pulses(1100),
             'Velocidade de avanco': PulsesPerTick(1000),
@@ -61,16 +61,16 @@ const run = async () => {
         await resetMainParameters()
     
         spinner.text = 'detectando curso do motor...'
-        const lastPosition = await detectEndOfCourse(axisControler,config)
+        const lastPosition = await detectEndOfCourse(cmppControler,config)
         spinner.succeed(`curso detectado ${lastPosition.value} ${lastPosition.unitOfMeasurement}`)
     
         spinner.succeed(`Confirmando curso do motor detectado: ${lastPosition.value} ${lastPosition.unitOfMeasurement}`)
     
-        await forceSmartReference(axisControler,config.referencePhase)
-        await goNext(axisControler, {...config.searchPhase.advancingKinematics, position: lastPosition})
-        await goNext(axisControler, {...config.searchPhase.advancingKinematics, position: config.referencePhase.endPosition})
-        await goNext(axisControler, {...config.searchPhase.advancingKinematics, position: lastPosition})
-        await goNext(axisControler, {...config.searchPhase.advancingKinematics, position: config.referencePhase.endPosition})
+        await forceSmartReference(cmppControler,config.referencePhase)
+        await goNext(cmppControler, {...config.searchPhase.advancingKinematics, position: lastPosition})
+        await goNext(cmppControler, {...config.searchPhase.advancingKinematics, position: config.referencePhase.endPosition})
+        await goNext(cmppControler, {...config.searchPhase.advancingKinematics, position: lastPosition})
+        await goNext(cmppControler, {...config.searchPhase.advancingKinematics, position: config.referencePhase.endPosition})
         spinner.succeed(`Confirmado! curso do motor detectado: ${lastPosition.value} ${lastPosition.unitOfMeasurement}`)
         spinner.stop()
     }
