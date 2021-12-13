@@ -1,18 +1,12 @@
-import { CMPP00LG, LigadoDesligado } from "../transport/memmap-CMPP00LG"
-import { explodeTunnel, Kinematics, makeTunnel, Moviment } from "../controlers/core"
-import { forceLooseReference } from "../controlers/utils/force-loose-reference"
+import { CMPP00LG } from "../transport/memmap-CMPP00LG"
 import ora, { Spinner } from 'ora'
-import { doReferenceIfNecessary, forceReference, isReferenced, isReferencing, ReferenceParameters } from "../controlers/utils/reference"
-import { isStoped, start, waitToStop, waitToStopThenStart } from "../controlers/utils/start"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, Pulses_, TicksOfClock } from "../transport/memmap-types"
 import { delay } from "../../core/delay"
-import { Tunnel } from "./detect-cmpp"
-import { executeInSequence } from "../../core/promise-utils"
-import { getPosicaoAtual } from "../controlers/utils/get-pos-atual"
 import { estimateMovimentEvents } from "../controlers/utils/moviment-status"
-import { now, random, Timer__ } from "../../core/utils"
+import { now, random } from "../../core/utils"
 import { makeAxisControler } from "../controlers/axis-controler"
 import { doSmartReferenceIfNecessary, forceSmartReference } from "../controlers/utils/smart-reference"
+import { Kinematics, makeTunnel, Moviment } from "../controlers/core"
 
 const makeAxis_ = CMPP00LG
 
@@ -73,6 +67,7 @@ const run = async () => {
         while(!next.done) {
             //TODO: Should detect if motor has stoped or aborted their mission, loose reference, etc.
             //      If yes should make possible to return sequence from where it became interrupted
+            console.table(next.value)
             await setNext(next.value)
             await axis.start()
             const { totalTime } = estimateMovimentEvents(next.value)
@@ -175,7 +170,7 @@ const run = async () => {
             'Aceleracao de avanco': PulsesPerTickSquared(3000),
             'Aceleracao de retorno': PulsesPerTickSquared(3000),
             'Start automatico no avanco': 'desligado',
-            'Start automatico no retorno': 'ligado',
+            'Start automatico no retorno': 'desligado',
             'Tempo para o start automatico': TicksOfClock(10),
             'Reducao do nivel de corrente em repouso': 'ligado',
         })
@@ -214,10 +209,10 @@ const run = async () => {
 
         function* generator():Generator<Moviment, void, unknown> {
             let counter = 0
-            while (counter++ < 15) {
-                const nextPos = random(1000, 6000)
-                const nextVelocity = random(3000, 5000)
-                const nextAcceleration = random(5000, 9000)
+            while (counter++ < 150) {
+                const nextPos = random(3000, 4000)
+                const nextVelocity = random(859, 860)
+                const nextAcceleration = random(5500, 5501)
 
                 yield( {
                     position: Pulses(nextPos),

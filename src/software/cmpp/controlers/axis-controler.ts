@@ -7,7 +7,6 @@ import { forceLooseReference } from "./utils/force-loose-reference"
 import { getPosicaoAtual } from "./utils/get-pos-atual"
 import { doReferenceIfNecessary, forceReference, isReferenced, isReferencing, ReferenceParameters } from "./utils/reference"
 import { isStoped, start, waitToStop } from "./utils/start"
-import { forceSmartReference } from "./utils/smart-reference"
 
 const makeAxis_ = CMPP00LG
 

@@ -1,4 +1,3 @@
-import { CMPP00LG } from "../transport/memmap-CMPP00LG"
 import ora, { Spinner } from 'ora'
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, Pulses_, TicksOfClock } from "../transport/memmap-types"
 import { Kinematics, makeTunnel, Moviment } from "../controlers/core"
