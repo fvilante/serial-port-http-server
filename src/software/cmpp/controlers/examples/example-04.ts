@@ -1,5 +1,5 @@
 import ora, { Spinner } from 'ora'
-import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../transport/memmap-types"
+import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../physical-dimensions/physical-dimensions"
 import { makeCmppControler } from "../cmpp-controler"
 import { forceSmartReference } from "../utils/smart-reference"
 import { detectEndOfCourse } from '../utils/detect-end-of-course'

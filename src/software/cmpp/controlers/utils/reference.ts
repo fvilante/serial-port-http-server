@@ -1,6 +1,6 @@
 import { CMPP00LG } from "../../transport/memmap-CMPP00LG"
 import { forceLooseReference } from "./force-loose-reference"
-import { PulsesPerTick, PulsesPerTickSquared } from "../../transport/memmap-types"
+import { PulsesPerTick, PulsesPerTickSquared } from "../../physical-dimensions/physical-dimensions"
 import { getMovimentStatus } from "./moviment-status"
 import { Tunnel } from "../../datalink/tunnel"
 

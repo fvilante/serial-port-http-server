@@ -1,4 +1,4 @@
-import { Pulses } from "../../transport/memmap-types"
+import { Pulses } from "../../physical-dimensions/physical-dimensions"
 import { CmppControler } from "../cmpp-controler"
 import { Kinematics } from "../core"
 

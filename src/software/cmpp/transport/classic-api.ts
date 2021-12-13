@@ -1,5 +1,5 @@
 import { AbertoFechado, ContinuoPassoAPasso, LigadoDesligado } from "./memmap-CMPP00LG";
-import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "./memmap-types";
+import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../physical-dimensions/physical-dimensions";
 
 
 //TODO: Implement something useful with this if is the case, currently it is not being used.

@@ -1,4 +1,4 @@
-import { Pulses, PulsesPerTick, PulsesPerTickSquared } from "../transport/memmap-types"
+import { Pulses, PulsesPerTick, PulsesPerTickSquared } from "../physical-dimensions/physical-dimensions"
 
 //
 

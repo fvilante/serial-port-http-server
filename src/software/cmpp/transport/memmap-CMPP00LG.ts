@@ -1,7 +1,7 @@
 import { Tunnel } from '../datalink/tunnel'
 import { makeSettersAndGettersFromCmppAPI } from './api-beaultifier'
 import { paramCaster_16bits, paramCaster_1bit, paramCaster_8bits, UInt1, UInt16 } from './memmap-caster'
-import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from './memmap-types'
+import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from '../physical-dimensions/physical-dimensions'
 
 // typing casting
 

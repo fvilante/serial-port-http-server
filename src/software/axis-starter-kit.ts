@@ -2,7 +2,7 @@ import { delay } from "./core/delay"
 import { Address, Axis } from "./global-env/global"
 import { executeInSequence } from "./core/promise-utils"
 import { CMPP00LG } from "./cmpp/transport/memmap-CMPP00LG"
-import { Pulses, PulsesPerTick, PulsesPerTickSquared } from "./cmpp/transport/memmap-types"
+import { Pulses, PulsesPerTick, PulsesPerTickSquared } from "./cmpp/physical-dimensions/physical-dimensions"
 import { Tunnel } from "./cmpp/datalink/tunnel"
 
 // This is an append file for axis-controler.ts, and my dreem is to use another

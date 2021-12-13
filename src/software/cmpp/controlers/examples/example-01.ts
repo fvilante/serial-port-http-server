@@ -3,7 +3,7 @@ import { forceLooseReference } from "../utils/force-loose-reference"
 import ora from 'ora'
 import { forceReference, isReferenced } from "../utils/reference"
 import { start, waitToStopThenStart } from "../utils/start"
-import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../transport/memmap-types"
+import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../physical-dimensions/physical-dimensions"
 import { explodeTunnel, makeTunnel } from "../../datalink/tunnel"
 
 const makeTransportLayer = CMPP00LG

@@ -1,5 +1,5 @@
 import { explodeTunnel, Tunnel } from "../../datalink/tunnel"
-import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../transport/memmap-types"
+import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../physical-dimensions/physical-dimensions"
 import { Moviment } from "../core"
 import { getStatusLow, StatusL } from "./get-status-low"
 

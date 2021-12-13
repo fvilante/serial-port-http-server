@@ -1,5 +1,5 @@
 
-import { Pulses, Pulses_ } from "../../transport/memmap-types"
+import { Pulses, Pulses_ } from "../../physical-dimensions/physical-dimensions"
 import { CmppControler } from "../cmpp-controler"
 import { Kinematics, Moviment } from "../core"
 import { goNext, setNextRelative } from "./go-next"

@@ -2,7 +2,7 @@ import { CMPP00LG } from "../../transport/memmap-CMPP00LG"
 import ora from 'ora'
 import { doReferenceIfNecessary } from "../utils/reference"
 import { start, waitToStop } from "../utils/start"
-import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../transport/memmap-types"
+import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../physical-dimensions/physical-dimensions"
 import { delay } from "../../../core/delay"
 import { makeTunnel } from "../../datalink/tunnel"
 

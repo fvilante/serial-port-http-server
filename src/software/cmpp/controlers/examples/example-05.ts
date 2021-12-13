@@ -1,5 +1,5 @@
 import ora, { Spinner } from 'ora'
-import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../transport/memmap-types"
+import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../physical-dimensions/physical-dimensions"
 import { delay } from "../../../core/delay"
 import { random } from "../../../core/utils"
 import { makeCmppControler } from "../cmpp-controler"
