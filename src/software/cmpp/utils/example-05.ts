@@ -4,8 +4,9 @@ import { delay } from "../../core/delay"
 import { random } from "../../core/utils"
 import { makeCmppControler } from "../controlers/cmpp-controler"
 import { doSmartReferenceIfNecessary } from "../controlers/utils/smart-reference"
-import { makeTunnel, Moviment } from "../controlers/core"
+import { Moviment } from "../controlers/core"
 import { goMany } from '../controlers/utils/go-many'
+import { makeTunnel } from '../datalink/tunnel'
 
 
 

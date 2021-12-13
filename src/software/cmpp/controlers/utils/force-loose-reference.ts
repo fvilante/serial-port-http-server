@@ -1,5 +1,5 @@
+import { Tunnel } from "../../datalink/tunnel"
 import { CMPP00LG } from "../../transport/memmap-CMPP00LG"
-import { Tunnel } from "../../utils/detect-cmpp"
 import { getMovimentStatus } from "./moviment-status"
 
 const makeAxis_ = CMPP00LG

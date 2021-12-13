@@ -5,9 +5,9 @@ import { getPosicaoAtual } from "./cmpp/controlers/utils/get-pos-atual"
 import { Address, Axis } from "./global-env/global"
 import { WaitUntilTrueFastPooling } from "./core/promise-utils"
 import { isInsideRange, now } from "./core/utils"
-import { Tunnel } from "./cmpp/utils/detect-cmpp"
 import { CMPP00LG } from "./cmpp/transport/memmap-CMPP00LG"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared } from "./cmpp/transport/memmap-types"
+import { makeTunnel } from "./cmpp/datalink/tunnel"
 //import { PrintingPositions } from "./cmpp-controler"
 
 const makeAxis = CMPP00LG
@@ -88,13 +88,7 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
 
 
     const { portName, baudRate, channel} = Address[`Axis`][axisName]
-        const tunnel: Tunnel = {
-            portSpec: { 
-                path: portName,
-                baudRate,
-            },
-            channel,
-        }
+        const tunnel = makeTunnel(portName, baudRate, channel)
         const axis = makeAxis(tunnel)
 
 

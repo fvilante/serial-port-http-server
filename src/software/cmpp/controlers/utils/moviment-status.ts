@@ -1,6 +1,6 @@
+import { explodeTunnel, Tunnel } from "../../datalink/tunnel"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../transport/memmap-types"
-import { explodeTunnel, Moviment } from "../core"
-import { Tunnel } from "../../utils/detect-cmpp"
+import { Moviment } from "../core"
 import { getStatusLow, StatusL } from "./get-status-low"
 
 

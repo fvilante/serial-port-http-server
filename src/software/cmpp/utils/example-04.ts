@@ -1,10 +1,10 @@
 import ora, { Spinner } from 'ora'
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../transport/memmap-types"
-import { makeTunnel } from "../controlers/core"
 import { makeCmppControler } from "../controlers/cmpp-controler"
 import { forceSmartReference } from "../controlers/utils/smart-reference"
 import { detectEndOfCourse } from '../controlers/utils/detect-end-of-course'
 import { goNext } from '../controlers/utils/go-next'
+import { makeTunnel } from '../datalink/tunnel'
 
 
 const run = async () => {

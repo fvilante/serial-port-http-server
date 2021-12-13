@@ -1,8 +1,8 @@
 import { CMPP00LG } from "../../transport/memmap-CMPP00LG"
-import { Tunnel } from "../../utils/detect-cmpp"
 import { forceLooseReference } from "./force-loose-reference"
 import { PulsesPerTick, PulsesPerTickSquared } from "../../transport/memmap-types"
 import { getMovimentStatus } from "./moviment-status"
+import { Tunnel } from "../../datalink/tunnel"
 
 const makeAxis_ = CMPP00LG
 
