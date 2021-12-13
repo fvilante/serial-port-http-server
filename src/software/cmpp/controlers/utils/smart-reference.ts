@@ -33,12 +33,18 @@ export const forceSmartReference = async (cmppControler: CmppControler, arg: {re
     })
 }
 
-export const doSmartReferenceIfNecessary = async (cmppControler: CmppControler,arg: {reference: Kinematics, endPosition: Pulses}) => {
+
+export type SmartReferenceParameters = {
+    reference: Kinematics,      // the kinematics of the reference proccess
+    endPosition: Pulses,        // the position where the smart reference proccess will delivery the axis after it's reference proccess has been concluded
+}
+
+export const doSmartReferenceIfNecessary = async (cmppControler: CmppControler, parameters: SmartReferenceParameters) => {
     const isReferenced_ = await cmppControler.isReferenced()
     if(isReferenced_) {
         return
     } else {
-        await forceSmartReference(cmppControler,arg)
+        await forceSmartReference(cmppControler, parameters)
     }
 }
 
