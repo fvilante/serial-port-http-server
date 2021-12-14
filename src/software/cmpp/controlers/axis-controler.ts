@@ -23,8 +23,9 @@ export type AxisControler = {
     getMovimentStatus: () => Promise<MovimentStatus>
     //macros
     __autodetectEndOfCourse: (args: DetecEndOfCourseParameters) => Promise<Pulses>  //TODO: Verify if this function is safe to be here
+    //TODO: I'm not sure this return type is such that useful or ergonomic (ie: should be better return void or even a Monad ?!)
     goTo: (_: Moviment) => Promise<{currentPosition: Pulses, isReferenced: boolean}>
-    gotToRelative: (_: Moviment) => Promise<{currentPosition: Pulses, isReferenced: boolean}>
+    goToRelative: (_: Moviment) => Promise<{currentPosition: Pulses, isReferenced: boolean}>
 }
 
 export const AxisCotroler = (cmppControler: CmppControler): AxisControler => {
@@ -70,7 +71,7 @@ export const AxisCotroler = (cmppControler: CmppControler): AxisControler => {
         },
 
         //TODO: refactor to reduce redundancy with 'goTo' version
-        gotToRelative: async (next: Moviment) => {
+        goToRelative: async (next: Moviment) => {
             await setNextRelative(cmppControler, next)
             await cmppControler.start()
             while (!(await cmppControler.isStoped())) {
