@@ -18,10 +18,13 @@ export type AxisControler = {
     //start
     start: () => Promise<void>
     //
-    __autodetectEndOfCourse: (args: DetecEndOfCourseParameters) => Promise<Pulses>  //TODO: Verify if this function is safe to be here
     //
     getCurrentPosition: () => Promise<Pulses>
     getMovimentStatus: () => Promise<MovimentStatus>
+    //macros
+    __autodetectEndOfCourse: (args: DetecEndOfCourseParameters) => Promise<Pulses>  //TODO: Verify if this function is safe to be here
+    goTo: (_: Moviment) => Promise<{currentPosition: Pulses, isReferenced: boolean}>
+    gotToRelative: (_: Moviment) => Promise<{currentPosition: Pulses, isReferenced: boolean}>
 }
 
 export const AxisCotroler = (cmppControler: CmppControler): AxisControler => {
@@ -46,13 +49,36 @@ export const AxisCotroler = (cmppControler: CmppControler): AxisControler => {
 
         start: () => cmppControler.start(),
 
-        __autodetectEndOfCourse: (args: DetecEndOfCourseParameters) => detectEndOfCourse(cmppControler, args),
-
         getCurrentPosition: () => cmppControler.getCurrentPosition(),
 
         getMovimentStatus: async () => {
             const statusLow = await cmppControler.getStatusL()
             return castStatusLToMovimentStatus(statusLow)
+        },
+
+        __autodetectEndOfCourse: (args: DetecEndOfCourseParameters) => detectEndOfCourse(cmppControler, args),
+
+        goTo: async (next: Moviment) => {
+            await setNext(cmppControler, next)
+            await cmppControler.start()
+            while (!(await cmppControler.isStoped())) {
+                // loop while is moving
+            }
+            const isReferenced = await cmppControler.isReferenced()
+            const currentPosition = await cmppControler.getCurrentPosition()
+            return { currentPosition, isReferenced }
+        },
+
+        //TODO: refactor to reduce redundancy with 'goTo' version
+        gotToRelative: async (next: Moviment) => {
+            await setNextRelative(cmppControler, next)
+            await cmppControler.start()
+            while (!(await cmppControler.isStoped())) {
+                // loop while is moving
+            }
+            const isReferenced = await cmppControler.isReferenced()
+            const currentPosition = await cmppControler.getCurrentPosition()
+            return { currentPosition, isReferenced }
         },
         
     }
