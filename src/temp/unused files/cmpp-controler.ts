@@ -1,7 +1,7 @@
 import { BaudRate } from '../../software/serial/baudrate'
 import { setParam_ } from '../../software/cmpp/transport/cmpp-memmap-layer'
-import { getStatusLow, StatusL } from '../../software/cmpp/utils/get-status-low'
-import { getPosicaoAtual } from '../../software/cmpp/utils/get-pos-atual'
+import { getStatusLow, StatusL } from '../../software/cmpp/controlers/utils/get-status-low'
+import { getPosicaoAtual } from '../../software/cmpp/controlers/utils/get-pos-atual'
 import { Driver, HyperDriver } from '../../software/cmpp/transport/mapa_de_memoria'
 import { isInsideRange, now } from "../../software/core/utils"
 

@@ -1,11 +1,9 @@
-import { BaudRate } from '../../serial/baudrate'
-import { bit_test } from "../../core/bit-wise-utils"
-import { FrameCore } from "../datalink/index"
-import { sendCmpp } from "../datalink/send-receive-cmpp-datalink"
-import { word2int } from '../datalink/int-to-word-conversion'
-import { CMPP00LG } from '../transport/memmap-CMPP00LG'
+import { BaudRate } from '../../../serial/baudrate'
+import { bit_test } from "../../../core/bit-wise-utils"
+import { FrameCore } from "../../datalink/index"
+import { sendCmpp } from "../../datalink/send-receive-cmpp-datalink"
+import { word2int } from '../../datalink/int-to-word-conversion'
 
-const makeAxis = CMPP00LG
 
 export type StatusL = {
     referenciado: boolean, //d0
@@ -28,6 +26,7 @@ const castStatusL = (statusL: number): StatusL => {
     }
 }
 
+//TODO: Change arguments to type Tunnel
 export const getStatusLow = (portName: string, baudRate: BaudRate, channel: number): Promise<StatusL> => 
 
     new Promise( (resolve, reject) => {
@@ -60,7 +59,7 @@ export const getStatusLow = (portName: string, baudRate: BaudRate, channel: numb
         
 })
 
-
+// TODO: delete this test code
 const Test1 = () => {
 
     getStatusLow('com51',9600,0)

@@ -1,8 +1,8 @@
-import { BaudRate } from '../../serial/baudrate'
-import { FrameCore } from "../datalink/index"
-import { sendCmpp } from "../datalink/send-receive-cmpp-datalink"
-import { word2int } from '../datalink/int-to-word-conversion'
-import { ACK } from '../datalink/core-types'
+import { BaudRate } from '../../../serial/baudrate'
+import { FrameCore } from "../../datalink/index"
+import { sendCmpp } from "../../datalink/send-receive-cmpp-datalink"
+import { word2int } from '../../datalink/int-to-word-conversion'
+import { ACK } from '../../datalink/core-types'
 
 // obtem posicao atual
 // TODO:
@@ -11,6 +11,7 @@ import { ACK } from '../datalink/core-types'
 //  como monitorar frequentemente sem bloquear a comunicacao para outros blocos?
 
 //TODO: Return type Pulses instead of uncasted 'number'
+//TODO: change parameters to Tunnel
 export const getPosicaoAtual = (portName: string, baudRate: BaudRate, channel: number): Promise<number> => 
     new Promise( (resolve, reject) => {
 

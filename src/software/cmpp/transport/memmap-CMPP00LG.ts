@@ -1,7 +1,7 @@
-import { Tunnel } from '../utils/detect-cmpp'
+import { Tunnel } from '../datalink/tunnel'
 import { makeSettersAndGettersFromCmppAPI } from './api-beaultifier'
-import { param_16bits, param_1bit, param_8bits, UInt1, UInt16 } from './memmap-core'
-import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from './memmap-types'
+import { paramCaster_16bits, paramCaster_1bit, paramCaster_8bits, UInt1, UInt16 } from './memmap-caster'
+import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from '../physical-dimensions/physical-dimensions'
 
 // typing casting
 
@@ -63,105 +63,105 @@ const continuoPassoAPasso = {
 
 // ---- Inicio dos dados do usuario ---------
 
-const PosicaoInicial = param_16bits({
+const PosicaoInicial = paramCaster_16bits({
     name: 'Posicao inicial',
     waddr: X+0x00,
     ...pulses,
 })
 
-const PosicaoFinal = param_16bits({
+const PosicaoFinal = paramCaster_16bits({
     name: 'Posicao final',
     waddr: X+0x02,
     ...pulses,
 })
 
-const AceleracaoDeAvanco = param_16bits({
+const AceleracaoDeAvanco = paramCaster_16bits({
     name: 'Aceleracao de avanco',
     waddr: X+0x04,
     ...pulsesPerTickSquered,
 })
 
-const AceleracaoDeRetorno = param_16bits({
+const AceleracaoDeRetorno = paramCaster_16bits({
     name: 'Aceleracao de retorno',
     waddr: X+0x06,
     ...pulsesPerTickSquered,
 })
 
-const VelocidadeDeAvanco = param_16bits({
+const VelocidadeDeAvanco = paramCaster_16bits({
     name: 'Velocidade de avanco',
     waddr: X+0x08,
     ...pulsesPerTick,
 })
 
-const VelocidadeDeRetorno = param_16bits({
+const VelocidadeDeRetorno = paramCaster_16bits({
     name: 'Velocidade de retorno',
     waddr: X+0x0A,
     ...pulsesPerTick,
 })
 
-const NumeroDeMensagemNoAvanco = param_8bits({
+const NumeroDeMensagemNoAvanco = paramCaster_8bits({
     name: 'Numero de mensagem no avanco',
     waddr: X+0xC,
     startBit: 0,
     ...identityType, //TODO: Improve type
 })
 
-const NumeroDeMensagemNoRetorno = param_8bits({
+const NumeroDeMensagemNoRetorno = paramCaster_8bits({
     name: 'Numero de mensagem no retorno',
     waddr: X+0xC,
     startBit: 8,
     ...identityType,
 })
 
-const PosicaoDaPrimeiraImpressaoNoAvanco = param_16bits({
+const PosicaoDaPrimeiraImpressaoNoAvanco = paramCaster_16bits({
     name: 'Posicao da primeira impressao no avanco',
     waddr: X+0x0E,
     ...pulses,
 })
 
-const PosicaoDaPrimeiraImpressaoNoRetorno = param_16bits({
+const PosicaoDaPrimeiraImpressaoNoRetorno = paramCaster_16bits({
     name: 'Posicao da primeira impressao no retorno',
     waddr: X+0x10,
     ...pulses,
 })
 
-const PosicaoDaUltimaMensagemNoAvanco = param_16bits({
+const PosicaoDaUltimaMensagemNoAvanco = paramCaster_16bits({
     name: 'Posicao da ultima mensagem no avanco',
     waddr: X+0x12,
     ...pulses,
 })
 
-const PosicaoDaUltimaMensagemNoRetorno = param_16bits({
+const PosicaoDaUltimaMensagemNoRetorno = paramCaster_16bits({
     name: 'Posicao da ultima mensagem no retorno',
     waddr: X+0x14,
     ...pulses,
 })
 
-const LarguraDoSinalDeImpressao = param_16bits({
+const LarguraDoSinalDeImpressao = paramCaster_16bits({
     name: 'Largura do sinal de impressao',
     waddr: X+0x16,
     ...pulses,
 })
 
-const TempoParaStartAutomatico = param_16bits({
+const TempoParaStartAutomatico = paramCaster_16bits({
     name: 'Tempo para o start automatico',
     waddr: X+0x18,
     ...ticksOfClock,
 })
 
-const TempoParaStartExterno = param_16bits({
+const TempoParaStartExterno = paramCaster_16bits({
     name: 'Tempo para o start externo',
     waddr: X+0x1A,
     ...ticksOfClock,
 })
 
-const CotaDeAntecipacaoDoStartEntreEixosPinelmatico = param_16bits({
+const CotaDeAntecipacaoDoStartEntreEixosPinelmatico = paramCaster_16bits({
     name: 'Cota de antecipacao do start entre eixos (pinelmatico)',
     waddr: X+0x1C,
     ...pulses,
 })
 
-const RetardoParaStartAutomaticoPassoAPasso = param_16bits({
+const RetardoParaStartAutomaticoPassoAPasso = paramCaster_16bits({
     name: 'Retardo para o start automatico passo a passo',
     waddr: X+0x1E,
     ...ticksOfClock,
@@ -169,57 +169,57 @@ const RetardoParaStartAutomaticoPassoAPasso = param_16bits({
 
 // X+0x20 = Flag de configuracao da programacao
 
-const StartAutomaticoNoAvanco = param_1bit({
+const StartAutomaticoNoAvanco = paramCaster_1bit({
     name: 'Start automatico no avanco',
     waddr: X+0x20,
     startBit: 0,
     ...ligadoDesligado,
 })
 
-const StartAutomaticoNoRetorno = param_1bit({
+const StartAutomaticoNoRetorno = paramCaster_1bit({
     name: 'Start automatico no retorno',
     waddr: X+0x20,
     startBit: 1,
     ...ligadoDesligado,
 })
 
-const StartAutomaticoNoRetornoLigado = param_1bit({
-    name: 'Saida de start no avanco ligado',
+const SaidaDeStartNoAvanco = paramCaster_1bit({
+    name: 'Saida de start no avanco',
     waddr: X+0x20,
     startBit: 2,
     ...ligadoDesligado,
 })
 
-const SaidaDeStartNoRetornoLigado = param_1bit({
-    name: 'Saida de start no retorno ligado',
+const SaidaDeStartNoRetorno = paramCaster_1bit({
+    name: 'Saida de start no retorno',
     waddr: X+0x20,
     startBit: 3,
     ...ligadoDesligado,
 })
 
-const StartExternoHabilitado = param_1bit({
+const StartExternoHabilitado = paramCaster_1bit({
     name: 'Start externo habilitado',
     waddr: X+0x20,
     startBit: 4,
     ...ligadoDesligado,
 })
 
-const LogicaDoStartExterno = param_1bit({
+const LogicaDoStartExterno = paramCaster_1bit({
     name: 'Logica do start externo',
     waddr: X+0x20,
     startBit: 5,
     ...ligadoDesligado,
 })
 
-const EntradaDeStartEntreEixoHabilitado = param_1bit({
+const EntradaDeStartEntreEixo = paramCaster_1bit({
     name: 'Entrada de start entre eixo habilitado',
     waddr: X+0x20,
     startBit: 6,
     ...ligadoDesligado,
 })
 
-const StartExternoParaReferenciarHabilitado = param_1bit({
-    name: 'Start externo para referenciar habilitado',
+const ReferenciaPeloStartExterno = paramCaster_1bit({
+    name: 'Referencia pelo start externo',
     waddr: X+0x20,
     startBit: 7,
     ...ligadoDesligado,
@@ -227,56 +227,56 @@ const StartExternoParaReferenciarHabilitado = param_1bit({
 
 // X+0x21 = Flag de configuracao da programacao
 
-const LogicaDoSinalDeImpressao = param_1bit({
+const LogicaDoSinalDeImpressao = paramCaster_1bit({
     name: 'Logica do sinal de impressao',
     waddr: X+0x20,
     startBit: 8,
     ...abertoFechado,
 })
 
-const LogicaDoSinalDeReversao = param_1bit({
+const LogicaDoSinalDeReversao = paramCaster_1bit({
     name: 'Logica do sinal de reversao',
     waddr: X+0x20,
     startBit: 9,
     ...abertoFechado,
 })
 
-const SelecaoDeImpressaoViaSerialLigada = param_1bit({
-    name: 'Selecao de impressao via serial ligada',
+const SelecaoDeImpressaoViaSerial = paramCaster_1bit({
+    name: 'Selecao de impressao via serial',
     waddr: X+0x20,
     startBit: 10,
     ...ligadoDesligado
 })
     
-const ReversaoDeImpressaoViaSerialLigada = param_1bit({
-    name: 'Reversao de impressao via serial ligada',
+const ReversaoDeImpressaoViaSerial = paramCaster_1bit({
+    name: 'Reversao de impressao via serial',
     waddr: X+0x20,
     startBit: 11,
     ...ligadoDesligado,
 })
 
-const ZeroIndexHabilitadoParaProtecao = param_1bit({
-    name: 'Zero Index habilitado p/ protecao',
+const GiroComFuncaoDeProtecao = paramCaster_1bit({
+    name: 'Giro com funcao de protecao',
     waddr: X+0x20,
     startBit: 12,
     ...ligadoDesligado,
 })
 
-const ZeroIndexHabilitadoParaCorrecao = param_1bit({
-    name: 'Zero Index habilitado p/ correcao',
+const GiroComFuncaoDeCorrecao = paramCaster_1bit({
+    name: 'Giro com funcao de correcao',
     waddr: X+0x20,
     startBit: 13,
     ...ligadoDesligado,
 })
 
-const ReducaoDoNivelDeCorrenteEmRepouso = param_1bit({
-    name: 'Reducao do nivel de corrente em repouso',
+const ReducaoDaCorrenteEmRepouso = paramCaster_1bit({
+    name: 'Reducao da corrente em repouso',
     waddr: X+0x20,
     startBit: 14,
     ...ligadoDesligado,
 })
 
-const ModoContinuoOuPassoAPasso = param_1bit({
+const ModoContinuoOuPassoAPasso = paramCaster_1bit({
     name: 'Modo continuo/passo a passo',
     waddr: X+0x20,
     startBit: 15,
@@ -285,7 +285,7 @@ const ModoContinuoOuPassoAPasso = param_1bit({
 
 // ---------------
 
-const RetardoParaOSinalDeImpressao = param_16bits({
+const RetardoParaOSinalDeImpressao = paramCaster_16bits({
     name: 'Retardo para o sinal de impressao',
     waddr: X+0x22,
     ...ticksOfClock,
@@ -303,31 +303,31 @@ const Vago = param_16bits({
 })
 */
     
-const ToleranciaDeErroDoZeroIndex = param_16bits({
+const ToleranciaDeErroDoZeroIndex = paramCaster_16bits({
     name: 'Tolerancia de Erro do zero index',
     waddr: X+0x26,
     ...pulses,
 })
 
-const NumeroDePulsosPorVoltaDoMotor = param_16bits({
+const NumeroDePulsosPorVoltaDoMotor = paramCaster_16bits({
     name: 'Numero de pulsos por volta do motor',
     waddr: X+0x28,
     ...pulses,
 })
 
-const ValorProgramadoDaReferencia = param_16bits({
-    name: 'Valor programado da referencia',
+const ValorDaPosicaoDeReferencia = paramCaster_16bits({
+    name: 'Valor da posicao de referencia',
     waddr: X+0x2A,
     ...pulses,
 })
 
-const AceleracaoDeReferencia = param_16bits({
+const AceleracaoDeReferencia = paramCaster_16bits({
     name: 'Aceleracao de referencia',
     waddr: X+0x2C,
     ...pulsesPerTickSquered,
 })
 
-const VelocidadeDeReferencia = param_16bits({
+const VelocidadeDeReferencia = paramCaster_16bits({
     name: 'Velocidade de referencia',
     waddr: X+0x2A, //2E
     ...pulsesPerTick,
@@ -335,42 +335,42 @@ const VelocidadeDeReferencia = param_16bits({
 
 // X+0x30 = Flag especial de intertravamento
 
-const SaidaDeStartPassoAPasso = param_1bit({
+const SaidaDeStartPassoAPasso = paramCaster_1bit({
     name: 'Saida de start passo a passo',
     waddr: X+0x30,
     startBit: 0,
     ...ligadoDesligado,
 })
 
-const StartAutomaticoPassoAPasso = param_1bit({
+const StartAutomaticoPassoAPasso = paramCaster_1bit({
     name: 'Start automatico passo a passo',
     waddr: X+0x30,
     startBit: 1,
     ...ligadoDesligado,
 })
 
-const SelecaoDeMensagemPorMultipla = param_1bit({
+const SelecaoDeMensagemPorMultipla = paramCaster_1bit({
     name: 'Selecao de mensagem por multipla',
     waddr: X+0x30,
     startBit: 2,
     ...ligadoDesligado,
 })
 
-const SelecaoDeMensagemPorImpressao = param_1bit({
+const SelecaoDeMensagemPorImpressao = paramCaster_1bit({
     name: 'Selecao de mensagem por impresao',
     waddr: X+0x30,
     startBit: 3,
     ...ligadoDesligado,
 })
 
-const SelecaoDePensagemPelaParalela = param_1bit({
+const SelecaoDePensagemPelaParalela = paramCaster_1bit({
     name: 'Selecao de mensagem pela paralela',
     waddr: X+0x30,
     startBit: 4,
     ...ligadoDesligado,
 })
 
-const SelecaoDeMensagemDecrementadoNoRetorno = param_1bit({
+const SelecaoDeMensagemDecrementadoNoRetorno = paramCaster_1bit({
     name: 'Selecao de mensagem Decrementado no retorno',
     waddr: X+0x30,
     startBit: 5,
@@ -391,49 +391,49 @@ const DivisorProgramadoDomotor = param_16bits({
 
 // Controle via serial
 
-const StartSerial = param_1bit({
+const StartSerial = paramCaster_1bit({
     name: 'Start serial',
     waddr: X+0x32,
     startBit: 0,
     ...ligadoDesligado,
 })
 
-const StopSerial = param_1bit({
+const StopSerial = paramCaster_1bit({
     name: 'Stop serial',
     waddr: X+0x32,
     startBit: 1,
     ...ligadoDesligado,
 })
 
-const PausaSerial = param_1bit({
+const PausaSerial = paramCaster_1bit({
     name: 'Pausa serial',
     waddr: X+0x32,
     startBit: 2,
     ...ligadoDesligado,
 })
 
-const MonoManualSerial = param_1bit({
+const MonoManualSerial = paramCaster_1bit({
     name: 'Modo manual serial',
     waddr: X+0x32,
     startBit: 3,
     ...ligadoDesligado,
 })
 
-const TesteDeImpressaoSerial = param_1bit({
+const TesteDeImpressaoSerial = paramCaster_1bit({
     name: 'Teste de impressao serial',
     waddr: X+0x32,
     startBit: 4,
     ...ligadoDesligado,
 })
 
-const UsadoNaBahiaSulDescritoNaRotinaLEITOR_OK = param_1bit({
+const UsadoNaBahiaSulDescritoNaRotinaLEITOR_OK = paramCaster_1bit({
     name: 'Usado na bahia sul, descrito na rotina LEITOK',
     waddr: X+0x32,
     startBit: 5,
     ...ligadoDesligado,
 })
 
-const GravaEprom2 = param_1bit({
+const GravaEprom2 = paramCaster_1bit({
     name: 'Grava eprom2',
     waddr: X+0x32,
     startBit: 6,
@@ -453,13 +453,13 @@ const vago = param_1bit({
 // O Programa salva nesta variavel a diferenca
 // entre a saida do fc- e o primeiro giro do zindex
 
-const DiferencaEntreSaidaDoFCMenosEOPrimeiroGiroDoZeroIndex = param_16bits({
+const DiferencaEntreSaidaDoFCMenosEOPrimeiroGiroDoZeroIndex = paramCaster_16bits({
     name: 'Diferenca entre saida do FC- e o primeiro giro do zindex',
     waddr: X+0x34,
     ...pulses,
 })
 
-const ValorAnteriorDaPortaC = param_1bit({
+const ValorAnteriorDaPortaC = paramCaster_1bit({
     name: 'Valor anterior da porta C',
     waddr: X+0x36,
     startBit: 0,
@@ -468,28 +468,28 @@ const ValorAnteriorDaPortaC = param_1bit({
 
 // 0x37 = Flag de uso geral
 
-const FinalizacaoDaReferencia = param_1bit({
+const FinalizacaoDaReferencia = paramCaster_1bit({
     name: 'Finalizacao da referencia',
     waddr: X+0x36,
     startBit: 8,
     ...ligadoDesligado,
 })
 
-const BitDeValorDoZeroIndexInvalido = param_1bit({
+const BitDeValorDoZeroIndexInvalido = paramCaster_1bit({
     name: 'Bit de valor do zero index invalido',
     waddr: X+0x36,
     startBit: 9,
     ...ligadoDesligado,
 })
 
-const StartAutomaticoPendente = param_1bit({
+const StartAutomaticoPendente = paramCaster_1bit({
     name: 'Start automatico pendente',
     waddr: X+0x36,
     startBit: 10,
     ...ligadoDesligado,
 })
 
-const StartEntreEixosPendente = param_1bit({
+const StartEntreEixosPendente = paramCaster_1bit({
     name: 'Start entre eixo pendente',
     waddr: X+0x36,
     startBit: 11,
@@ -499,21 +499,21 @@ const StartEntreEixosPendente = param_1bit({
 //;D3	Solicitacao de reversao de mensagem via serial
 //;D4	Utilizado no iclude DOMINIC para inicializar a impressora e
 
-const AcessoAEpromViaSerial = param_1bit({
+const AcessoAEpromViaSerial = paramCaster_1bit({
     name: 'Acesso a eprom via serial',
     waddr: X+0x36,
     startBit: 13,
     ...ligadoDesligado,
 })
     
-const GravacaoDeBlocoNaEprom2EmAndamento = param_1bit({
+const GravacaoDeBlocoNaEprom2EmAndamento = paramCaster_1bit({
     name: 'Gravacao de bloco na eprom2 em andamento',
     waddr: X+0x36,
     startBit: 14,
     ...ligadoDesligado,
 })
 
-const GravacaoDaEprom2EmAndamento =  param_1bit({
+const GravacaoDaEprom2EmAndamento =  paramCaster_1bit({
     name: 'Gravacao da eprom2 em andamento',
     waddr: X+0x36,
     startBit: 15,
@@ -523,56 +523,56 @@ const GravacaoDaEprom2EmAndamento =  param_1bit({
 //0x39 = Nivel dos sinais de fc-/fc+/ref/zindex
 
 
-const NivelSinalHalfFull = param_1bit({
+const NivelSinalHalfFull = paramCaster_1bit({
     name: 'Nivel: H/F',
     waddr: X+0x38,
     startBit: 8,
     ...ligadoDesligado,
 })
 
-const NivelSinalNmotor = param_1bit({
+const NivelSinalNmotor = paramCaster_1bit({
     name: 'Nivel: Nmotor',
     waddr: X+0x38,
     startBit: 9,
     ...ligadoDesligado,
 })
 
-const NivelSinalGiro = param_1bit({
+const NivelSinalGiro = paramCaster_1bit({
     name: 'Nivel: FC+', // NOTE: Sinal de giro também é chamado de FC+ por questao de legado
     waddr: X+0x38,
     startBit: 10,
     ...ligadoDesligado,
 })
 
-const NivelSinalDmotor = param_1bit({
+const NivelSinalDmotor = paramCaster_1bit({
     name: 'Nivel: Dmotor',
     waddr: X+0x38,
     startBit: 11,
     ...ligadoDesligado,
 })
 
-const NivelSinalCKmotor = param_1bit({
+const NivelSinalCKmotor = paramCaster_1bit({
     name: 'Nivel: CKmotor',
     waddr: X+0x38,
     startBit: 12,
     ...ligadoDesligado,
 })
 
-const NivelSinalFimDeCursoMenos = param_1bit({
+const NivelSinalFimDeCursoMenos = paramCaster_1bit({
     name: 'Nivel: FC-',
     waddr: X+0x38,
     startBit: 13,
     ...ligadoDesligado,
 })
 
-const NivelSinalReferencia = param_1bit({
+const NivelSinalReferencia = paramCaster_1bit({
     name: 'Nivel: REF',
     waddr: X+0x38,
     startBit: 14,
     ...ligadoDesligado,
 })
 
-const NivelSinalEmotor = param_1bit({
+const NivelSinalEmotor = paramCaster_1bit({
     name: 'Nivel: Emotor',
     waddr: X+0x38,
     startBit: 15,
@@ -581,7 +581,7 @@ const NivelSinalEmotor = param_1bit({
 
 // api 
 
-
+//TODO: Cast below variable
 //NOTE: Do not forget to insert "as const" after the ending brackets. Each key must be annotated as 'readonly'
 const api = {
     'Posicao inicial': PosicaoInicial,
@@ -603,24 +603,24 @@ const api = {
     'Retardo para o start automatico passo a passo': RetardoParaStartAutomaticoPassoAPasso,
     'Start automatico no avanco': StartAutomaticoNoAvanco,
     'Start automatico no retorno': StartAutomaticoNoRetorno,
-    'Saida de start no avanco ligado': StartAutomaticoNoRetornoLigado,
-    'Saida de start no retorno ligado': SaidaDeStartNoRetornoLigado,
+    'Saida de start no avanco': SaidaDeStartNoAvanco,
+    'Saida de start no retorno': SaidaDeStartNoRetorno,
     'Start externo habilitado': StartExternoHabilitado,
     'Logica do start externo': LogicaDoStartExterno,
-    'Entrada de start entre eixo habilitado': EntradaDeStartEntreEixoHabilitado,
-    'Start externo para referenciar habilitado': StartExternoParaReferenciarHabilitado,
+    'Entrada de start entre eixo habilitado': EntradaDeStartEntreEixo,
+    'Referencia pelo start externo': ReferenciaPeloStartExterno,
     'Logica do sinal de impressao': LogicaDoSinalDeImpressao,
     'Logica do sinal de reversao': LogicaDoSinalDeReversao,
-    'Selecao de impressao via serial ligada': SelecaoDeImpressaoViaSerialLigada,
-    'Reversao de impressao via serial ligada': ReversaoDeImpressaoViaSerialLigada,
-    'Zero Index habilitado p/ protecao': ZeroIndexHabilitadoParaProtecao,
-    'Zero Index habilitado p/ correcao': ZeroIndexHabilitadoParaCorrecao,
-    'Reducao do nivel de corrente em repouso': ReducaoDoNivelDeCorrenteEmRepouso,
+    'Selecao de impressao via serial': SelecaoDeImpressaoViaSerial,
+    'Reversao de impressao via serial': ReversaoDeImpressaoViaSerial,
+    'Giro com funcao de protecao': GiroComFuncaoDeProtecao,
+    'Giro com funcao de correcao': GiroComFuncaoDeCorrecao,
+    'Reducao da corrente em repouso': ReducaoDaCorrenteEmRepouso,
     'Modo continuo/passo a passo': ModoContinuoOuPassoAPasso,
     'Retardo para o sinal de impressao': RetardoParaOSinalDeImpressao,
     'Tolerancia de Erro do zero index': ToleranciaDeErroDoZeroIndex,
     'Numero de pulsos por volta do motor': NumeroDePulsosPorVoltaDoMotor,
-    'Valor programado da referencia': ValorProgramadoDaReferencia,
+    'Valor da posicao de referencia': ValorDaPosicaoDeReferencia,
     'Aceleracao de referencia': AceleracaoDeReferencia,
     'Velocidade de referencia': VelocidadeDeReferencia,
     'Saida de start passo a passo': SaidaDeStartPassoAPasso,
