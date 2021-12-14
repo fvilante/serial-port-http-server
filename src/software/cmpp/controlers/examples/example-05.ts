@@ -17,7 +17,7 @@ const run = async () => {
     const cmppControler = makeCmppControler(tunnel)
 
     const resetMainParameters = async () => {
-        return await cmppControler.setMainParameters({
+        return await cmppControler.setParameters({
             'Posicao inicial': Pulses(1000),
             'Posicao final': Pulses(1100),
             'Velocidade de avanco': PulsesPerTick(1000),

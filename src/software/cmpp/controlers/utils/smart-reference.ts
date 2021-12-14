@@ -17,7 +17,7 @@ export const forceSmartReference = async (cmppControler: CmppControler, arg: {re
     //save previous parameters
     //const saved = await axis.getMainParameters()
     //configure next moviment
-    await cmppControler.setMainParameters({
+    await cmppControler.setParameters({
         "Posicao inicial": endPosition,
         "Posicao final": Pulses(endPosition.value+10), // defined here just to assure it is a valid position and it is different of "Posicao Inicial"
         //TODO: CAN I avoid send both (avanco and retorno) given just one of them will really be necessary?

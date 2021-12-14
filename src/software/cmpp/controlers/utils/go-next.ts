@@ -6,7 +6,7 @@ import { Moviment } from "../core"
 //absolute moviment
 
 export const setNext = async (cmppControler: CmppControler, next: Moviment) => {
-    await cmppControler.setMainParameters({
+    await cmppControler.setParameters({
         "Posicao final": next.position,
         //TODO: There should be a way looking startL.direcao to decide whether to use 'avanco' or 'retorno' to perform next moviment. This should increse performance.
         "Velocidade de avanco": next.speed,
@@ -29,7 +29,7 @@ export const setNextRelative = async (cmppControler: CmppControler, next: Movime
     const currentPosition = await cmppControler.getCurrentPosition()
     const nextPosition = Pulses_.add(currentPosition, next.position)
     const nextMoviment = {...next, position: nextPosition}
-    await cmppControler.setMainParameters({
+    await cmppControler.setParameters({
         "Posicao final": nextMoviment.position,
         //TODO: There should be a way looking startL.direcao to decide whether to use 'avanco' or 'retorno' to perform next moviment. This should increse performance.
         "Velocidade de avanco": nextMoviment.speed,
