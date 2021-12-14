@@ -23,7 +23,7 @@ export type MovimentStatus = {
     isReferencing: boolean
 }
 
-export const formatter = (statusL: StatusL):MovimentStatus => {
+export const castStatusLToMovimentStatus = (statusL: StatusL):MovimentStatus => {
     const {aceleracaoLigada, desaceleracaoLigada, direcaoDoMovimento, referenciado, referenciando } = statusL
     const isStopped = aceleracaoLigada===false && desaceleracaoLigada===false
     const isInConstantSpeedGreaterThanZero = aceleracaoLigada && desaceleracaoLigada && isStopped===false
@@ -64,7 +64,7 @@ export const formatter = (statusL: StatusL):MovimentStatus => {
 export const getMovimentStatus = async(tunnel: Tunnel): Promise<MovimentStatus> => {
     const { path, baudRate, channel} = explodeTunnel(tunnel)
     const statusL = await getStatusLow(path, baudRate, channel)
-    const response = formatter(statusL)
+    const response = castStatusLToMovimentStatus(statusL)
     //console.table(response)
     return response
 }

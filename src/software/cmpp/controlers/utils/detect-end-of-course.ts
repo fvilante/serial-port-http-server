@@ -3,15 +3,12 @@ import { Pulses, Pulses_ } from "../../physical-dimensions/physical-dimensions"
 import { CmppControler } from "../cmpp-controler"
 import { Kinematics, Moviment } from "../core"
 import { goNext, setNextRelative } from "./go-next"
-import { forceSmartReference } from "./smart-reference"
+import { forceSmartReference, SmartReferenceParameters } from "./smart-reference"
 
 
 
 export type DetecEndOfCourseParameters = {
-    referencePhase: {
-        reference: Kinematics,  // kinematics of reference
-        endPosition: Pulses,    // where the cursor will be after the end of reference phase
-    }
+    referencePhase: SmartReferenceParameters
     searchPhase: {
         startAt: Moviment   // you may start near your best guess, instead of from zero
         endSearchAt: Pulses // but eventually if you not reach never the end, you can consider to not go so far then about 'endSearchAt'. 

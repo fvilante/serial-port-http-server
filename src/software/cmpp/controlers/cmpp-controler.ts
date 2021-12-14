@@ -6,6 +6,7 @@ import { forceLooseReference } from "./utils/force-loose-reference"
 import { getPosicaoAtual } from "./utils/get-pos-atual"
 import { doReferenceIfNecessary, forceReference, isReferenced, isReferencing, ReferenceParameters } from "./utils/reference"
 import { isStoped, start, waitToStop } from "./utils/start"
+import { getStatusLow, StatusL } from "./utils/get-status-low"
 
 const makeTransportLayer = CMPP00LG
 
@@ -22,6 +23,7 @@ export type CmppControler = {
     setMainParameters: (parameters: Partial<MainParameters>) => Promise<void>
     //getMainParameters: () => Promise<MainParameters>
     getCurrentPosition: () => Promise<Pulses>
+    getStatusL: () => Promise<StatusL>
     // TODO: decide if the below functions should be removed
     //__set: () => void
     //__get: () => void
@@ -176,6 +178,11 @@ export const makeCmppControler = (tunnel: Tunnel):CmppControler => {
             const pos = await getPosicaoAtual(path, baudRate, channel) 
             return Pulses(pos) 
         },
+
+        getStatusL: () => {
+            const { path, baudRate, channel} = explodeTunnel(tunnel)
+            return getStatusLow(path, baudRate, channel)
+        }
 
         // TODO: decide if the below functions should be removed
         //__set: axis.set,
