@@ -1,6 +1,6 @@
 
 import Fastify from 'fastify'
-import { run } from '../cmpp/controlers/examples/example-07'
+import { run } from '../../cmpp/controlers/examples/example-07'
 
 const port = 8080
 
