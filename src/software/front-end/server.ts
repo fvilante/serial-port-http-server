@@ -1,6 +1,6 @@
 
 import Fastify from 'fastify'
-//import { run } from '../cmpp/controlers/examples/example-07'
+import { run } from '../cmpp/controlers/examples/example-07'
 
 const port = 8080
 
@@ -10,9 +10,16 @@ const fastify = Fastify({
 })
 
 // Declare a route
-fastify.get('/', async (request, reply) => {
-    //await run() 
+fastify.get('/doremifa', async (request, reply) => {
+    await run() 
     return { hello: 'world' }
+})
+
+fastify.get('/', async (request, reply) => {
+    reply
+        .type('text/html; charset=UTF-8')
+        .send(`<h1> juca </h1>`)
+    
 })
 
 // Run the server!

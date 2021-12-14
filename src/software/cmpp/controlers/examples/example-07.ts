@@ -10,7 +10,7 @@ import { exhaustiveSwitch } from '../../../core/utils'
 
 
 
-const run = async () => {
+export const run = async () => {
 
     // config
     const tunnel = makeTunnel('com50', 9600, 0)
@@ -65,7 +65,7 @@ const run = async () => {
     
     await axis.doSmartReferenceIfNecessary(config.referencePhase)
 
-    const pitchShift = 5
+    const pitchShift = 1
 
     type Tone = number  // the numbe represents a frequency in hertz 
     const silence: Tone = 0
@@ -169,29 +169,49 @@ const run = async () => {
     const tempo_reducer = 1
 
     const dingoBells: Composition = [
-        //first compass
         Sound([E4, 1*tempo]),
         Sound([E4, 1*tempo]),
         Sound([E4, 1*tempo]),
         Sound([E4, 1*tempo]),
-        //second compass
-        Sound([E4, 0.5*tempo]),
-        Sound([G4, 0.5*tempo]),
-        Sound([C4, 0.5*tempo]),
-        Sound([D4, 0.5*tempo]),
+        //
         Sound([E4, 1*tempo]),
-        Sound([E4, 0.5*tempo]),
-        Silence(0.5*tempo), 
-        //3rd compasss 
+        Sound([C4, 1*tempo]),
+        Sound([E4, 1*tempo]),
+        Sound([E4, 1*tempo]),
+        //
         Sound([F4, 1*tempo]),
         Sound([F4, 1*tempo]),
         Sound([E4, 1*tempo]),
         Sound([E4, 1*tempo]),
-        //4th
-        Sound([F4, 1*tempo]),
-        Sound([F4, 1*tempo]),
-        Sound([F4, 1*tempo]),
+        //
+        Sound([D4, 1*tempo]),
+        Sound([D4, 1*tempo]),
+        Sound([D4, 1*tempo]),
         Sound([G4, 1*tempo]),
+        //
+    ]
+
+    const doremifa: Composition = [
+        Sound([C4, 1*tempo]),
+        Sound([D4, 1*tempo]),
+        Sound([E4, 1*tempo]),
+        Sound([F4, 1*tempo]),
+        //
+        Sound([C4, 1*tempo]),
+        Sound([D4, 1*tempo]),
+        Sound([C4, 1*tempo]),
+        Sound([D4, 1*tempo]),
+        //
+        Sound([C4, 1*tempo]),
+        Sound([G4, 1*tempo]),
+        Sound([F4, 1*tempo]),
+        Sound([E4, 1*tempo]),
+        //
+        Sound([C4, 1*tempo]),
+        Sound([D4, 1*tempo]),
+        Sound([E4, 1*tempo]),
+        Sound([F4, 1*tempo]),
+        //
     ]
 
     const initial: Moviment = {
@@ -202,8 +222,8 @@ const run = async () => {
     const endPosition = Pulses(6000)
 
     await axis.goTo(initial)
-    await play(dingoBells)
-    await play(dingoBells)
+    await play(doremifa)
+    await play(doremifa)
 
     
     
@@ -211,4 +231,4 @@ const run = async () => {
 
 }
 
-run()
+//run()
