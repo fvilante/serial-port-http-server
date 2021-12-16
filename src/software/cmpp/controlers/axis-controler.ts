@@ -18,7 +18,6 @@ export type AxisControler = {
     //start
     start: () => Promise<void>
     //
-    //
     getCurrentPosition: () => Promise<Pulses>
     getMovimentStatus: () => Promise<MovimentStatus>
     //macros
