@@ -44,13 +44,30 @@ const main = async () => {
         cursor.style.transform = `translate(${x}px, ${y}px)`;
     }  
 
-    document.body.onmousemove = event => {
-        const messageBody = {
+    const handleMouseMove = event => {
+        const message = {
             x: event.clientX,
             y: event.clientY,
         }
-        ws.send(JSON.stringify(messageBody));
+        const dataToSend = JSON.stringify(message)
+        ws.send(dataToSend);
     }
+
+    const handleTouchStart = event => {
+        console.table(event)
+        event.preventDefault();
+        const touch = event.touches[0];
+        const x = touch.clientX
+        const y = touch.clientY
+        const message = {x, y}
+        const dataToSend = JSON.stringify(message)
+        ws.send(dataToSend);
+    }
+
+    document.body.onmousemove = handleMouseMove
+
+    document.body.ontouchstart = handleTouchStart
+    document.body.ontouchmove = handleTouchStart
 
 
 }
