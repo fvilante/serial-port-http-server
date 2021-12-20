@@ -14,18 +14,18 @@ const main = async () => {
     }
 
     const getOrCreateCursorFor = messageBody => {
-        const sender = messageBody.sender;
+        const { sender, color, x, y } = messageBody
         const existing = document.querySelector(`[data-sender='${sender}']`)
         if (existing) {
             return existing
         }
 
-        const template = document.getByElementId('cursor');
+        const template = document.getElementById('cursor');
         const cursor = template.content.firstElementChild.cloneNode(true);
-        const svgPath = cursor.getByElementsByTagName('path')[0]
+        const svgPath = cursor.getElementsByTagName('path')[0]
 
         cursor.setAttribute("data-sender", sender);
-        svgPath.setAttribute("fill", `hsl(${messageBody.color}), 50%, 50%)`);
+        svgPath.setAttribute("fill", `hsl(${messageBody.color}, 50%, 50%)`);
         document.body.appendChild(cursor);
 
         return cursor
@@ -36,18 +36,21 @@ const main = async () => {
     const ws = await connectToServer();
 
     ws.onmessage = (webSocketMessage) => {
+        console.log(`Recebido mensagem do servidor`)
         const messageBody = JSON.parse(webSocketMessage.data)
+        const { sender, color, x, y } = messageBody
+        console.table(messageBody)
         const cursor = getOrCreateCursorFor(messageBody)
-        cursor.style.transform = `translate(${messageBody.x}px, ${messageBody.y}px)`;
+        cursor.style.transform = `translate(${x}px, ${y}px)`;
     }  
 
-    document.body.onmousemove( event => {
+    document.body.onmousemove = event => {
         const messageBody = {
             x: event.clientX,
             y: event.clientY,
         }
         ws.send(JSON.stringify(messageBody));
-    })
+    }
 
 
 }
