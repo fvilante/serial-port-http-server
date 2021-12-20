@@ -1,7 +1,7 @@
 const main = async () => {
 
     const connectToServer = async () => {
-        const ws = new WebSocket('ws://localhost:7071')
+        const ws = new WebSocket('ws://192.168.15.80:7071')
         return new Promise( (resolve, reject) => {
             const timer = setInterval( () => {
                 const OPEN = 1 // The connection is open and ready to communicate.
