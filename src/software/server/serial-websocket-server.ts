@@ -54,7 +54,7 @@ wss.on('connection', ws => {
 
         const outbound = JSON.stringify(response);
 
-        [...clients.keys()].forEach( client => {
+        clients.forEach( (metadata, client) => {
             client.send(outbound)
         })
 
