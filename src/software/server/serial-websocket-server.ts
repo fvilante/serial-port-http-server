@@ -1,10 +1,24 @@
-import {WebSocket} from 'ws'
+import WebSocket from 'ws'
 import { v4 as uuidv4} from 'uuid'
+import http from 'http'
+import express from 'express'
+import cors from 'cors'
 
 const port = 7071 // TCP port
 
-// websocket server
-const wss = new WebSocket.Server({ port })
+const app = express()
+
+app.use(cors({
+    origin: '*', //TODO: Reduce the scope of the origin
+    credentials: true,  //NOTE: Necessary to work with websocket protocol
+}))
+
+app.use( express.static('client-test')) // serve folder as static files
+
+const server = http.createServer(app)
+server.listen(port)
+const wss = new WebSocket.Server({ server })
+
 
 type UUID = string
 
