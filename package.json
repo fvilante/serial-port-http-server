@@ -4,11 +4,12 @@
   "description": "Http server for local serial ports.",
   "main": "index.js",
   "scripts": {
+    "compile": "npx tsc",
     "format:source": "npx prettier --write \"src/**/*.ts\"",
     "test": "jest",
     "clear_test": "jest --clearCache",
     "coverage": "jest --coverage",
-    "clean": "echo to be done!",
+    "clean": "npx rimraf ts-output",
     "build": "echo to be done!",
     "start": "npx ts-node .\\src\\software\\server\\serial-websocket-server.ts",
     "watch": "nodemon -L .\\src\\software\\server\\serial-websocket-server.ts",

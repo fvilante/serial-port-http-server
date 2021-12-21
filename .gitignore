@@ -7,3 +7,4 @@ packages/*/lib
 src/serial-port/front-end/build/
 dependencygraph*.svg
 /coverage/
+ts-output/
