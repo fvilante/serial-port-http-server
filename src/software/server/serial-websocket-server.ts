@@ -3,6 +3,7 @@ import { v4 as uuidv4} from 'uuid'
 import http from 'http'
 import express from 'express'
 import cors from 'cors'
+import { CursorPosition, Metadata, Response } from './core-types'
 
 const port = 7071 // TCP port
 
@@ -20,27 +21,6 @@ app.use( express.static(CLIENT_FOLDER_)) // serve folder as static files
 const server = http.createServer(app)
 server.listen(port)
 const wss = new WebSocket.Server({ server })
-
-
-type UUID = string
-
-type HSV = number
-
-type Metadata = {
-    id: UUID;
-    color: HSV;
-}
-
-
-type CursorPosition = {
-    x: number
-    y: number
-}
-
-type Response = {
-    sender: UUID
-    color: HSV
-} & CursorPosition
 
 const clients = new Map<WebSocket,Metadata>()
 

@@ -1,9 +1,12 @@
+import { Response } from '../../core-types'
+import { getFoo } from '../../foo'
+
 const ip = `192.168.15.80`
 const port = 7071
 
 const main = async () => {
 
-    const connectToServer = async () => {
+    const connectToServer = async ():Promise<WebSocket> => {
         const ws = new WebSocket(`ws://${ip}:${port}`)
         return new Promise( (resolve, reject) => {
             const timer = setInterval( () => {
@@ -16,19 +19,19 @@ const main = async () => {
         })
     }
 
-    const getOrCreateCursorFor = messageBody => {
-        const { sender, color, x, y } = messageBody
+    const getOrCreateCursorFor = (serverResponse: Response):SVGElement => {
+        const { sender, color, x, y } = serverResponse
         const existing = document.querySelector(`[data-sender='${sender}']`)
         if (existing) {
-            return existing
+            return existing as SVGElement
         }
 
-        const template = document.getElementById('cursor');
-        const cursor = template.content.firstElementChild.cloneNode(true);
+        const template = document.getElementById('cursor') as HTMLTemplateElement;
+        const cursor = template.content?.firstElementChild?.cloneNode(true) as SVGElement;
         const svgPath = cursor.getElementsByTagName('path')[0]
 
         cursor.setAttribute("data-sender", sender);
-        svgPath.setAttribute("fill", `hsl(${messageBody.color}, 50%, 50%)`);
+        svgPath.setAttribute("fill", `hsl(${color}, 50%, 50%)`);
         document.body.appendChild(cursor);
 
         return cursor
@@ -38,16 +41,16 @@ const main = async () => {
 
     const ws = await connectToServer();
 
-    ws.onmessage = (webSocketMessage) => {
+    ws.onmessage = (webSocketMessage: any) => {
         console.log(`Recebido mensagem do servidor`)
-        const messageBody = JSON.parse(webSocketMessage.data)
-        const { sender, color, x, y } = messageBody
-        console.table(messageBody)
-        const cursor = getOrCreateCursorFor(messageBody)
+        const serverResponse: Response = JSON.parse(webSocketMessage.data)
+        const { sender, color, x, y } = serverResponse
+        console.table(serverResponse)
+        const cursor = getOrCreateCursorFor(serverResponse)
         cursor.style.transform = `translate(${x}px, ${y}px)`;
     }  
 
-    const handleMouseMove = event => {
+    const handleMouseMove = (event: MouseEvent) => {
         const message = {
             x: event.clientX,
             y: event.clientY,
@@ -56,7 +59,7 @@ const main = async () => {
         ws.send(dataToSend);
     }
 
-    const handleTouchStart = event => {
+    const handleTouchStart = (event: TouchEvent) => {
         console.table(event)
         event.preventDefault();
         const touch = event.touches[0];
@@ -76,5 +79,5 @@ const main = async () => {
 
 }
 
-console.log('hello world juca!')
+console.log('hello world juca!', getFoo())
 main();
