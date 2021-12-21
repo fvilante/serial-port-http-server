@@ -8,7 +8,7 @@ module.exports = {
     public: { url: '/' },
   },
   plugins: [
-    /* ... */
+    '@snowpack/plugin-typescript',
   ],
   packageOptions: {
     /* ... */
