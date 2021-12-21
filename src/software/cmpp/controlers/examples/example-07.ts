@@ -223,9 +223,18 @@ export const run = async () => {
 
     await axis.goTo(initial)
     await play(doremifa)
+    await play(doremifa)
     await play(dingoBells)
     await play(dingoBells)
     await play(doremifa)
+    await play(doremifa)
+    await play(dingoBells)
+    await play(dingoBells)
+    await play(doremifa)
+    await play(doremifa)
+    await play(dingoBells)
+    await play(dingoBells)
+
 
     
     
