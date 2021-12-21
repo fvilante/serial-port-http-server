@@ -13,7 +13,9 @@ app.use(cors({
     credentials: true,  //NOTE: Necessary to work with websocket protocol
 }))
 
-app.use( express.static('client-test')) // serve folder as static files
+const CLIENT_FOLDER_ = 'client'
+
+app.use( express.static(CLIENT_FOLDER_)) // serve folder as static files
 
 const server = http.createServer(app)
 server.listen(port)
