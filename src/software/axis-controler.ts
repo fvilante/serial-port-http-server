@@ -1,5 +1,4 @@
 import { AxisStarterKit } from "./axis-starter-kit"
-import { Milimeter } from "../temp/unused files/axis-position"
 import { getStatusLow, StatusL } from "./cmpp/controlers/utils/get-status-low"
 import { getPosicaoAtual } from "./cmpp/controlers/utils/get-pos-atual"
 import { Address, Axis } from "./global-env/global"
@@ -9,6 +8,15 @@ import { CMPP00LG } from "./cmpp/transport/memmap-CMPP00LG"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared } from "./cmpp/physical-dimensions/physical-dimensions"
 import { makeTunnel } from "./cmpp/datalink/tunnel"
 //import { PrintingPositions } from "./cmpp-controler"
+
+
+//TODO: Move below type to appropriate file
+export type Milimeter = {
+    kind: 'Milimeter'
+    value: number
+}
+export const Milimeter = (value: number): Milimeter => ({kind: 'Milimeter', value})
+
 
 const makeTransportLayer = CMPP00LG
 
