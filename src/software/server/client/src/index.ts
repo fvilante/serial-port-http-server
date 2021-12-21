@@ -3,7 +3,7 @@ const port = 7071
 
 const main = async () => {
 
-    const connectToServer = async () => {
+    const connectToServer = async ():Promise<WebSocket> => {
         const ws = new WebSocket(`ws://${ip}:${port}`)
         return new Promise( (resolve, reject) => {
             const timer = setInterval( () => {
@@ -16,15 +16,15 @@ const main = async () => {
         })
     }
 
-    const getOrCreateCursorFor = messageBody => {
+    const getOrCreateCursorFor = (messageBody: any):SVGElement => {
         const { sender, color, x, y } = messageBody
         const existing = document.querySelector(`[data-sender='${sender}']`)
         if (existing) {
-            return existing
+            return existing as SVGElement
         }
 
-        const template = document.getElementById('cursor');
-        const cursor = template.content.firstElementChild.cloneNode(true);
+        const template = document.getElementById('cursor') as HTMLTemplateElement;
+        const cursor = template.content?.firstElementChild?.cloneNode(true) as SVGElement;
         const svgPath = cursor.getElementsByTagName('path')[0]
 
         cursor.setAttribute("data-sender", sender);
@@ -38,7 +38,7 @@ const main = async () => {
 
     const ws = await connectToServer();
 
-    ws.onmessage = (webSocketMessage) => {
+    ws.onmessage = (webSocketMessage: any) => {
         console.log(`Recebido mensagem do servidor`)
         const messageBody = JSON.parse(webSocketMessage.data)
         const { sender, color, x, y } = messageBody
@@ -47,7 +47,7 @@ const main = async () => {
         cursor.style.transform = `translate(${x}px, ${y}px)`;
     }  
 
-    const handleMouseMove = event => {
+    const handleMouseMove = (event: MouseEvent) => {
         const message = {
             x: event.clientX,
             y: event.clientY,
@@ -56,7 +56,7 @@ const main = async () => {
         ws.send(dataToSend);
     }
 
-    const handleTouchStart = event => {
+    const handleTouchStart = (event: TouchEvent) => {
         console.table(event)
         event.preventDefault();
         const touch = event.touches[0];
