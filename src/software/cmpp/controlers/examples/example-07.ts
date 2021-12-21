@@ -164,7 +164,7 @@ export const run = async () => {
 
     type Composition = Iterable<Sound|Silence>
 
-    const tempo = 200 // represents each compass time (in miliseconds)
+    const tempo = 500 // represents each compass time (in miliseconds)
 
     const tempo_reducer = 1
 
@@ -223,6 +223,8 @@ export const run = async () => {
 
     await axis.goTo(initial)
     await play(doremifa)
+    await play(dingoBells)
+    await play(dingoBells)
     await play(doremifa)
 
     
@@ -231,4 +233,4 @@ export const run = async () => {
 
 }
 
-//run()
+run()
