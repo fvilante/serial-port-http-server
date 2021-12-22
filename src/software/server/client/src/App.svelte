@@ -1,8 +1,11 @@
 <script lang='ts'>
     import {onMount } from 'svelte'
+import { runServerCommunication } from './server-communication';
     
     let count: number = 0
+    
     onMount( () => {
+        runServerCommunication();
         const interval = setInterval(() => count++, 1000)
         return( () => {
             clearInterval(interval)

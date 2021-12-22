@@ -4,7 +4,7 @@ import { getFoo } from '../../foo'
 const ip = `192.168.15.80`
 const port = 7071
 
-const main = async () => {
+export const runServerCommunication = async (): Promise<void> => {
 
     const connectToServer = async ():Promise<WebSocket> => {
         const ws = new WebSocket(`ws://${ip}:${port}`)
@@ -78,6 +78,3 @@ const main = async () => {
 
 
 }
-
-console.log('hello world juca!', getFoo())
-main();
