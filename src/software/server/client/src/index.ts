@@ -52,8 +52,8 @@ const main = async () => {
 
     const handleMouseMove = (event: MouseEvent) => {
         const message = {
-            x: event.clientX,
-            y: event.clientY,
+            x: event.pageX,
+            y: event.pageY,
         }
         const dataToSend = JSON.stringify(message)
         ws.send(dataToSend);
@@ -63,8 +63,8 @@ const main = async () => {
         console.table(event)
         event.preventDefault();
         const touch = event.touches[0];
-        const x = touch.clientX
-        const y = touch.clientY
+        const x = touch.pageX
+        const y = touch.pageY
         const message = {x, y}
         const dataToSend = JSON.stringify(message)
         ws.send(dataToSend);
