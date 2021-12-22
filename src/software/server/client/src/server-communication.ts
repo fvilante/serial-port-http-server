@@ -1,5 +1,5 @@
 import { Response } from '../../core-types'
-import { getFoo } from '../../foo'
+
 
 const ip = `192.168.15.80`
 const port = 7071
