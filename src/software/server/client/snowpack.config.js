@@ -4,11 +4,13 @@
 /** @type {import("snowpack").SnowpackUserConfig } */
 module.exports = {
   mount: {
-    src: { url: '/dist'},
-    public: { url: '/' },
+    public: {url: '/', static: true},
+    src: {url: '/dist'},
   },
   workspaceRoot: '../',
   plugins: [
+    '@snowpack/plugin-svelte',
+    '@snowpack/plugin-dotenv',
     [
       '@snowpack/plugin-typescript',
       {
