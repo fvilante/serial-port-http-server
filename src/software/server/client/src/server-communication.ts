@@ -1,23 +1,8 @@
-import { Response } from '../../core-types'
+import { Response } from './interface/core-types'
+import { startWebSocket } from './websocket'
 
-
-const ip = `192.168.15.80`
-const port = 7071
 
 export const runServerCommunication = async (): Promise<void> => {
-
-    const connectToServer = async ():Promise<WebSocket> => {
-        const ws = new WebSocket(`ws://${ip}:${port}`)
-        return new Promise( (resolve, reject) => {
-            const timer = setInterval( () => {
-                const OPEN = 1 // The connection is open and ready to communicate.
-                if (ws.readyState===OPEN) {
-                    clearInterval(timer);
-                    resolve(ws)
-                }
-            }, 10);
-        })
-    }
 
     const getOrCreateCursorFor = (serverResponse: Response):SVGElement => {
         const { sender, color, x, y } = serverResponse
@@ -39,7 +24,7 @@ export const runServerCommunication = async (): Promise<void> => {
 
     // run 
 
-    const ws = await connectToServer();
+    const ws = await startWebSocket();
 
     ws.onmessage = (webSocketMessage: any) => {
         console.log(`Recebido mensagem do servidor`)

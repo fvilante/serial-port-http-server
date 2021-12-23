@@ -19,17 +19,11 @@
 
 </script>
 
-<div>
-    <Hero> </Hero>
-</div>
 
 <div class='flex'> 
-    <Button caption='Start'> 
+    <Button> 
         <h1> olha vamos colocar algo aqui? </h1>
     </Button>
-    <Button caption='Stop'> </Button>
-    <Button caption='Forcar Referencia'> </Button>
-    <Array> </Array>
 </div>
 
 

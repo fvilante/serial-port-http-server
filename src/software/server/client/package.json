@@ -29,7 +29,9 @@
     "typescript": "^4.5.4"
   },
   "dependencies": {
+    "@types/uuid": "^8.3.3",
     "autoprefixer": "^10.4.0",
-    "svelte": "^3.37.0"
+    "svelte": "^3.37.0",
+    "uuid": "^8.3.2"
   }
 }
