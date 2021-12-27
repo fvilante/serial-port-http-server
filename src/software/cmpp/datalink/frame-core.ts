@@ -1,4 +1,4 @@
-import { calcChecksum } from "./core/calc-checksum";
+import { calcChecksum_ } from "./core/calc-checksum";
 import { int2word, word2int } from "./int-to-word-conversion";
 import { Direction, DirectionNum, DirectionNumToText, ESC, ETX, StartByte, StartByteNum, StartByteToText, StartByteTxt } from "./core-types";
 import { Payload, PayloadCore } from "./payload";
@@ -100,15 +100,15 @@ export const compileCoreFrame = (core: FrameCore): FrameSerialized => {
 
     // TODO: validate range of channel, waddr, etc.
     const { startByte, direction, channel, waddr, uint16} = core
-    const startByte_ = StartByte[startByte]
+    const startByteNum = StartByte[startByte]
     const direction_ = Direction[direction]
     const dirChan = direction_ + channel
     const [dataHigh, dataLow] = int2word(uint16)
-    const checksum = calcChecksum([dirChan, waddr, dataHigh, dataLow], startByte)
+    const checksum = calcChecksum_([dirChan, waddr, dataHigh, dataLow], startByteNum)
 
     return [
         [ESC], 
-        [startByte_], 
+        [startByteNum], 
         dupIfNecessary(dirChan), 
         dupIfNecessary(waddr),
         dupIfNecessary(dataLow),

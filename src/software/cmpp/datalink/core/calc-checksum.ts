@@ -1,29 +1,24 @@
 import { Byte } from "../../../core/byte"
-import { ETX, StartByte, StartByteNum, StartByteToText, StartByteTxt } from "../core-types"
+import { ETX, StartByteNum } from "../core-types"
 
+// NOTE:
+//
+//      This checksum calculation is agnostic of the type of data. It can calculate checksum
+//      for any arbitrary length of data, and not only just cmpp payloads.
+//      It depends only of a [StartbyteNum, obj, ETX] protocol
+//
 
-// TODO: Deprecate this function API in favor of calcChecksum_ which receives StartByte as number instead of as text and is more generic
-export const calcChecksum = (
-    obj: readonly [dirChan: number, waddr: number, dataH: number, dataL: number], 
-    startByte: StartByteTxt
+export const calcChecksum_ = (
+    obj: readonly Byte[], //NOTE: Object should not contain the ESC_Duplicated byte 
+    startByte: StartByteNum
     ): number  => {
-        const startByte_ = StartByte[startByte]
-        const etx = ETX
         const objsum = obj.reduce( (acc, cur) => acc + cur)
-        const extra = startByte_ + etx
+        const extra = startByte + ETX
         const totalsum = objsum + extra
         const contained = totalsum % 256 
         const complimented = 256 - contained
         const adjusted = (complimented === 256) ? 0 : complimented
         // TODO: assure return is in uint8 range
         return adjusted
-}
 
-export const calcChecksum_ = (
-    obj: readonly Byte[], 
-    startByte: StartByteNum
-    ): number  => {
-        type RequiredCast = Parameters<typeof calcChecksum>[0]
-        const startByte_ = StartByteToText(startByte)
-        return calcChecksum(obj as RequiredCast, startByte_)
 }
