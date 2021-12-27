@@ -1,6 +1,6 @@
 import { FrameInterpreted } from "."
 import { Byte, Bytes } from "./../../core/byte"
-import { calcChecksum_ } from "./calc-checksum"
+import { calcChecksum_ } from "./core/calc-checksum"
 import { ACK, ESC, ETX, NACK, StartByteNum, STX } from "./core-types"
 
 //TODO: Introduce 'checksum error' type as an interpretation error

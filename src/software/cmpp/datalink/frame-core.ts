@@ -1,4 +1,4 @@
-import { calcChecksum } from "./calc-checksum";
+import { calcChecksum } from "./core/calc-checksum";
 import { int2word, word2int } from "./int-to-word-conversion";
 import { Direction, DirectionNum, DirectionNumToText, ESC, ETX, StartByte, StartByteNum, StartByteToText, StartByteTxt } from "./core-types";
 import { Payload, PayloadCore } from "./payload";

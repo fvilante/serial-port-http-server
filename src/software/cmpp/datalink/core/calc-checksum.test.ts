@@ -1,5 +1,5 @@
 import { calcChecksum, calcChecksum_ } from "./calc-checksum"
-import { StartByteNum, STX } from "./core-types"
+import { StartByteNum, STX } from "../core-types"
 
 describe('basic tests', () => {
 

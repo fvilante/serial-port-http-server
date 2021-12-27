@@ -1,7 +1,7 @@
 import { FrameInterpreted, InterpretIncomming } from "."
 import { Byte } from "../../core/byte"
 import { random } from "../../core/utils"
-import { calcChecksum_ } from "./calc-checksum"
+import { calcChecksum_ } from "./core/calc-checksum"
 import { ACK, ESC, ETX, NACK, StartByteNum, STX } from "./core-types"
 import { InterpretationErrorEvent, StateChangeEvent, SuccessEvent } from "./interpreter"
 

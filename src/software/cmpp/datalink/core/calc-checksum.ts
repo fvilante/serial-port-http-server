@@ -1,5 +1,5 @@
-import { Byte } from "../../core/byte"
-import { ETX, StartByte, StartByteNum, StartByteToText, StartByteTxt } from "./core-types"
+import { Byte } from "../../../core/byte"
+import { ETX, StartByte, StartByteNum, StartByteToText, StartByteTxt } from "../core-types"
 
 
 // TODO: Deprecate this function API in favor of calcChecksum_ which receives StartByte as number instead of as text and is more generic

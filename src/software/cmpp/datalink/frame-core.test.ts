@@ -1,5 +1,5 @@
 import { flattenArrayDeep } from '../../core/utils'
-import { calcChecksum_ } from './calc-checksum'
+import { calcChecksum_ } from './core/calc-checksum'
 import { 
     ESC,
     STX,
