@@ -1,7 +1,7 @@
 import { BaudRate } from '../../../serial/baudrate'
 import { FrameCore } from "../../datalink/index"
 import { sendCmpp } from "../../datalink/send-receive-cmpp-datalink"
-import { word2int } from '../../datalink/int-to-word-conversion'
+import { word16ToUint16 } from '../../datalink/core/int-to-word-conversion'
 import { ACK } from '../../datalink/core/core-types'
 
 // obtem posicao atual
@@ -25,7 +25,7 @@ export const getPosicaoAtual = (portName: string, baudRate: BaudRate, channel: n
                     const {dataHigh, dataLow } = frameInterpreted
                     const dataH = dataHigh[0]
                     const dataL = dataLow[0]
-                    const posicaoAtual = word2int(dataH, dataL)
+                    const posicaoAtual = word16ToUint16(dataH, dataL)
                     resolve(posicaoAtual)
                 } else {
                     throw new Error('ACK quando tentou-se saber a posicao atual do cmpp')

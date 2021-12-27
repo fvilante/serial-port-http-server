@@ -13,7 +13,7 @@ import {
     DirectionKeys,
 } from './core/core-types'
 import { compileCoreFrame, FrameCore, FrameInterpreted } from './frame-core'
-import { uInt16ToWord16 } from './int-to-word-conversion'
+import { uInt16ToWord16 } from './core/int-to-word-conversion'
 import { Payload, PayloadCore } from './core/payload'
 
 

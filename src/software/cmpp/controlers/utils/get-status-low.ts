@@ -2,7 +2,7 @@ import { BaudRate } from '../../../serial/baudrate'
 import { bit_test } from "../../../core/bit-wise-utils"
 import { FrameCore } from "../../datalink/index"
 import { sendCmpp } from "../../datalink/send-receive-cmpp-datalink"
-import { word2int } from '../../datalink/int-to-word-conversion'
+import { word16ToUint16 } from '../../datalink/core/int-to-word-conversion'
 
 
 export type StatusL = {
@@ -42,7 +42,7 @@ export const getStatusLow = (portName: string, baudRate: BaudRate, channel: numb
 
                 const dataL = response.dataLow[0]
                 const dataH = response.dataHigh[0]
-                const data = word2int(dataH, dataL)
+                const data = word16ToUint16(dataH, dataL)
                 const frameToSet = FrameCore('STX', 'Envio', channel, waddr, data)
                 
                 sendCmpp(portName, baudRate)(frameToSet)

@@ -1,5 +1,5 @@
 import { calcChecksum } from "./core/calc-checksum";
-import { uInt16ToWord16, word2int } from "./int-to-word-conversion";
+import { uInt16ToWord16, word16ToUint16 } from "./core/int-to-word-conversion";
 import { Direction, DirectionNum, DirectionNumToText, ESC, ETX, StartByte, StartByteNum, StartByteToText, StartByteTxt } from "./core/core-types";
 import { Payload, PayloadCore } from "./core/payload";
 import { bit_clear, bit_test } from "../../core/bit-wise-utils";
@@ -43,7 +43,7 @@ export const payloadToFrameCore = (payload: Payload, startByte_: StartByteNum): 
     const waddr = payload[1]
     const dataLow = payload[2]
     const dataHigh = payload[3]
-    const uint16 = word2int(dataHigh, dataLow)
+    const uint16 = word16ToUint16(dataHigh, dataLow)
     const startByte = StartByteToText(startByte_)
     return {
         startByte,
