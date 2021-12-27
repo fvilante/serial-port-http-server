@@ -13,7 +13,7 @@ import {
     DirectionKeys,
 } from './core/core-types'
 import { compileCoreFrame, FrameCore, FrameInterpreted } from './frame-core'
-import { int2word } from './int-to-word-conversion'
+import { uInt16ToWord16 } from './int-to-word-conversion'
 import { Payload, PayloadCore } from './core/payload'
 
 
@@ -28,7 +28,7 @@ describe('basic tests', () => {
         const startByte: StartByteTxt = 'STX'
         const direction: DirectionKeys = 'Envio'
         //prepare
-        const [dataHigh, dataLow] = int2word(uint16)
+        const [dataHigh, dataLow] = uInt16ToWord16(uint16)
         const directionNum = Direction[direction]
         const obj = [[directionNum+channel],[waddr],[dataLow],[dataHigh]] as const
         const payload = flattenArrayDeep(obj) as Payload
