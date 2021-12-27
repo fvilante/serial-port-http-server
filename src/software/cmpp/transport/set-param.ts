@@ -92,7 +92,7 @@ const set8BitsParam = <T extends string,A>(tunnel: Tunnel, param: ParamCaster_8b
                     const theUint8 = serialize(value)
                     const newDataLow = startBit===0 ? theUint8 : currentDataLow
                     const newDataHigh = startBit===8 ? theUint8 : currentDataHigh
-                    const newUint16 = word16ToUint16(newDataHigh, newDataLow)
+                    const newUint16 = word16ToUint16({ dataHigh: newDataHigh, dataLow: newDataLow })
                     
                     const finalFrame: FrameCore = {
                         ...requestFrame,

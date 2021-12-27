@@ -25,7 +25,7 @@ export const getPosicaoAtual = (portName: string, baudRate: BaudRate, channel: n
                     const {dataHigh, dataLow } = frameInterpreted
                     const dataH = dataHigh[0]
                     const dataL = dataLow[0]
-                    const posicaoAtual = word16ToUint16(dataH, dataL)
+                    const posicaoAtual = word16ToUint16({dataLow: dataL, dataHigh: dataH})
                     resolve(posicaoAtual)
                 } else {
                     throw new Error('ACK quando tentou-se saber a posicao atual do cmpp')

@@ -28,7 +28,7 @@ const get16BitsParam = <T extends string,A>(tunnel: Tunnel, param: ParamCaster_1
                 const { dataLow, dataHigh } = response
                 const dataH = dataHigh[0]
                 const dataL = dataLow[0]
-                const uint16 = word16ToUint16(dataH, dataL)
+                const uint16 = word16ToUint16({dataLow: dataL, dataHigh: dataH})
                 const result = deserialize(uint16)
                 resolve(result); 
             })
@@ -58,7 +58,7 @@ const get1BitsParam = <T extends string,A>(tunnel: Tunnel, param: ParamCaster_1b
                 const { dataLow, dataHigh } = response
                 const dataH = dataHigh[0]
                 const dataL = dataLow[0]
-                const uint16 = word16ToUint16(dataH, dataL)
+                const uint16 = word16ToUint16({dataLow: dataL, dataHigh: dataH})
                 const bit_ = bit_test(uint16, startBit)
                 const bit__ = bit_ === true ? 1 : 0
                 const result = deserialize(bit__)

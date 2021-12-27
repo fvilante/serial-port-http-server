@@ -24,7 +24,7 @@ describe('Perform tests on cmpp datalink routines', () => {
             0xFFFF,
         ]
         //act
-        const actual = probe.map(w => word16ToUint16(...w))
+        const actual = probe.map(w => word16ToUint16({dataHigh: w[0], dataLow: w[1]}))
         //check
         expect(actual).toEqual(expected);
 

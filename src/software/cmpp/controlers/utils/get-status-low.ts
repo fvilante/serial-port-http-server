@@ -42,7 +42,7 @@ export const getStatusLow = (portName: string, baudRate: BaudRate, channel: numb
 
                 const dataL = response.dataLow[0]
                 const dataH = response.dataHigh[0]
-                const data = word16ToUint16(dataH, dataL)
+                const data = word16ToUint16({dataLow: dataL, dataHigh: dataH})
                 const frameToSet = FrameCore('STX', 'Envio', channel, waddr, data)
                 
                 sendCmpp(portName, baudRate)(frameToSet)

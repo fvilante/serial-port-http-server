@@ -43,7 +43,7 @@ export const payloadToFrameCore = (payload: Payload, startByte_: StartByteNum): 
     const waddr = payload[1]
     const dataLow = payload[2]
     const dataHigh = payload[3]
-    const uint16 = word16ToUint16(dataHigh, dataLow)
+    const uint16 = word16ToUint16({dataHigh, dataLow})
     const startByte = StartByteToText(startByte_)
     return {
         startByte,
