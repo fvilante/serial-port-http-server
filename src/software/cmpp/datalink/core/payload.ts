@@ -1,5 +1,5 @@
 
-import { StartByteNum } from "../core-types"
+import { StartByteNum } from "./core-types"
 
 
 export type Payload = readonly [

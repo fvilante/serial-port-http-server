@@ -1,7 +1,7 @@
 import { Future } from "../../adts/future"
 import { Result } from "../../adts/result"
 import { calculateTimeout } from "../datalink/calculate-timeout"
-import { Channel } from "../datalink/core-types"
+import { Channel } from "../datalink/core/core-types"
 import { frameCoreToPayload, FrameInterpreted } from "../datalink/frame-core"
 import { RetryPolicy } from "../datalink/transactioners/retry-logic-ADT"
 import { Fail, safePayloadTransact } from "../datalink/transactioners/safe-payload-transact"

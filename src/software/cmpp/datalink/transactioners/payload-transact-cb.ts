@@ -1,4 +1,4 @@
-import { StartByteNum, StartByteToText, StartByteTxt, STX } from "../core-types";
+import { StartByteNum, StartByteToText, StartByteTxt, STX } from "../core/core-types";
 import { Payload, PayloadCore } from "../core/payload";
 import { CmppDataLinkInterpreter, StateChangeEvent, SuccessEvent, InterpretationErrorEvent } from "../interpreter";
 import { Byte } from "../../../core/byte";

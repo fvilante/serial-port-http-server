@@ -1,6 +1,6 @@
 import { FrameInterpreted } from ".."
 import { random } from "../../../core/utils"
-import { ACK, ESC, ETX, NACK, StartByteNum, STX } from "../core-types"
+import { ACK, ESC, ETX, NACK, StartByteNum, STX } from "./core-types"
 import { calcChecksum } from "./calc-checksum"
 import { duplicateEscIfNecessary } from "./esc-duplication"
 import { Payload, PayloadCore } from "./payload"

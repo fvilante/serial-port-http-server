@@ -1,5 +1,5 @@
 import { calcChecksumGeneric } from "./calc-checksum"
-import { StartByteNum, STX } from "../core-types"
+import { StartByteNum, STX } from "./core-types"
 import { makeRange } from "../../../core/utils"
 
 

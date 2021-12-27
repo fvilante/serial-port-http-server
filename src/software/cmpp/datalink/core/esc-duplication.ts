@@ -1,5 +1,5 @@
 import { Byte } from "../../../core/byte"
-import { ESC } from "../core-types"
+import { ESC } from "./core-types"
 
 //TODO: Maybe use iterable instead of array
 export const duplicateEscIfNecessary = (payload: readonly number[]): readonly number[] => {

@@ -1,7 +1,7 @@
 import { bit_test } from "../../core/bit-wise-utils";
 import { assertUnreachable } from "../../core/utils";
 import { FrameCore } from "../datalink";
-import { DirectionKeys } from "../datalink/core-types";
+import { DirectionKeys } from "../datalink/core/core-types";
 import { word2int } from "../datalink/int-to-word-conversion";
 import { sendCmpp } from "../datalink/send-receive-cmpp-datalink";
 import { Tunnel } from "./tunnel";

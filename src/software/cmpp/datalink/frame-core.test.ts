@@ -11,7 +11,7 @@ import {
     StartByteToText,
     StartByteTxt,
     DirectionKeys,
-} from './core-types'
+} from './core/core-types'
 import { compileCoreFrame, FrameCore, FrameInterpreted } from './frame-core'
 import { int2word } from './int-to-word-conversion'
 import { Payload, PayloadCore } from './core/payload'

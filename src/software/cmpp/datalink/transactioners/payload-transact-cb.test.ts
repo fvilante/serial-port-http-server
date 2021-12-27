@@ -1,7 +1,7 @@
 import { FrameInterpreted } from ".."
 import { runOnce } from "../../../core/utils"
 import { getLoopBackEmulatedSerialPort } from "../../../serial/loopback"
-import { ACK } from "../core-types"
+import { ACK } from "../core/core-types"
 import { makeWellFormedFrame, makeWellFormedFrameInterpreted } from "../core/special-case-data-constructors"
 import { Payload, PayloadCore } from "../core/payload"
 import { EventHandler, payloadTransaction_CB } from "./payload-transact-cb"

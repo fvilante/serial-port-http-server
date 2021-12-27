@@ -4,7 +4,7 @@ import { ExecuteInParalel, executeInSequence } from "../core/promise-utils"
 import { makeRange } from "../core/utils"
 import { listSerialPorts, isSerialPortEmulatedWithCom0Com, isSerialPortLoopBackForTest} from "../serial/list-serial-ports"
 import { BaudRate, PossibleBaudRates } from "../serial/baudrate"
-import { Channel } from '../cmpp/datalink/core-types'
+import { Channel } from '../cmpp/datalink/core/core-types'
 import { Tunnel } from '../cmpp/transport/tunnel'
 
 
