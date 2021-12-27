@@ -2,7 +2,8 @@ import { FrameInterpreted } from ".."
 import { runOnce } from "../../../core/utils"
 import { getLoopBackEmulatedSerialPort } from "../../../serial/loopback"
 import { ACK } from "../core-types"
-import { Payload, makeWellFormedFrame, makeWellFormedFrameInterpreted, PayloadCore } from "../core/payload"
+import { makeWellFormedFrame, makeWellFormedFrameInterpreted } from "../core/data-constructors"
+import { Payload, PayloadCore } from "../core/payload"
 import { EventHandler, payloadTransaction_CB } from "./payload-transact-cb"
 
 
@@ -14,9 +15,9 @@ describe('basic tests', () => {
         const timeout = 400
         const [ source, target ] = getLoopBackEmulatedSerialPort()
         const payload: Payload = [1, 2, 3, 4]
-        const dataToSend: PayloadCore = {startByte:ACK, payload }
-        const expectedResponse: FrameInterpreted = makeWellFormedFrameInterpreted(dataToSend)
-        const emulatedResponse: number[] = makeWellFormedFrame(dataToSend)
+        const payloadCore: PayloadCore = {startByte:ACK, payload }
+        const expectedResponse: FrameInterpreted = makeWellFormedFrameInterpreted(payloadCore)
+        const emulatedResponse: number[] = makeWellFormedFrame(payloadCore)
         target.onData( data => {
             const runResponse = runOnce(() => { 
                 target.write(emulatedResponse)
@@ -29,7 +30,7 @@ describe('basic tests', () => {
         //act
         let status_: Status = { }
         //TODO: When the API become more stable, test also the messages sent's through the events 
-        payloadTransaction_CB(source, dataToSend, timeout,{
+        payloadTransaction_CB(source, payloadCore, timeout,{
             //check
             BEGIN: () => {
                 status_ = { ...status_, BEGIN: true }
@@ -86,11 +87,11 @@ describe('basic tests', () => {
         const timeout = 100
         const [ source, target ] = getLoopBackEmulatedSerialPort()
         const payload: Payload = [1, 2, 3, 4]
-        const dataToSend: PayloadCore = {startByte:ACK, payload }
+        const payloadCore: PayloadCore = {startByte:ACK, payload }
         //act
         let timeoutErrorCounter: number = 0
         //TODO: When the API become more stable, test also the messages sent's through the events 
-        payloadTransaction_CB(source, dataToSend, timeout,{
+        payloadTransaction_CB(source, payloadCore, timeout,{
             //check
             BEGIN: () => {},
             willSend: () => {},

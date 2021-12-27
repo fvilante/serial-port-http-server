@@ -1,9 +1,9 @@
 import { StartByteNum, StartByteToText, StartByteTxt, STX } from "../core-types";
-import { Payload, makeWellFormedFrame, PayloadCore } from "../core/payload";
+import { Payload, PayloadCore } from "../core/payload";
 import { CmppDataLinkInterpreter, StateChangeEvent, SuccessEvent, InterpretationErrorEvent } from "../interpreter";
-import { runOnce } from "../../../core/utils";
 import { Byte } from "../../../core/byte";
 import { PortOpened } from "../../../serial";
+import { makeWellFormedFrame } from "../core/data-constructors";
 
 
 const cleanupPortResources = (p: PortOpened):void => {
@@ -54,11 +54,11 @@ export type EventHandler = {
 //TODO: Rename this function do 'payloadTransact_CB' to normalize it with other names
 //TODO: Should we improve type cast of timeout ?
 //TODO: Should we implement a 'proccess cancelation' callback ? (to be emitted with the BEGIN event and/or syncrhonous instead void)
-export const payloadTransaction_CB = (portOpened: PortOpened, dataToSend: PayloadCore, timeoutMilisec: number, handler: EventHandler): void => {
+export const payloadTransaction_CB = (portOpened: PortOpened, payloadCore: PayloadCore, timeoutMilisec: number, handler: EventHandler): void => {
     
     let resetInterpreter: () => void = () => { } 
 
-    const { payload, startByte } = dataToSend
+    const { payload, startByte } = payloadCore
 
     const header = makeHeaderEvent(startByte, payload)
 
@@ -109,7 +109,7 @@ export const payloadTransaction_CB = (portOpened: PortOpened, dataToSend: Payloa
     }
 
     //make frame
-    const dataSerialized = makeWellFormedFrame(dataToSend)
+    const dataSerialized = makeWellFormedFrame(payloadCore)
 
     let id:any = undefined //timer id
 
