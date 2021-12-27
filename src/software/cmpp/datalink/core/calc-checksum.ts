@@ -1,6 +1,6 @@
 import { Byte } from "../../../core/byte"
 import { ETX, StartByteNum } from "../core-types"
-import { Payload, PayloadCore } from "../payload"
+import { PayloadCore } from "./payload"
 
 // NOTE:
 //

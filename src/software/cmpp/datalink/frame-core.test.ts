@@ -14,7 +14,7 @@ import {
 } from './core-types'
 import { compileCoreFrame, FrameCore, FrameInterpreted } from './frame-core'
 import { int2word } from './int-to-word-conversion'
-import { Payload, PayloadCore } from './payload'
+import { Payload, PayloadCore } from './core/payload'
 
 
 

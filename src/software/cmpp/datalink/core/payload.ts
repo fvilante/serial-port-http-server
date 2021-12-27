@@ -1,9 +1,9 @@
-import { FrameInterpreted, InterpretIncomming } from "."
-import { Byte } from "../../core/byte"
-import { random } from "../../core/utils"
-import { calcChecksum } from "./core/calc-checksum"
-import { ACK, ESC, ETX, NACK, StartByteNum, STX } from "./core-types"
-import { InterpretationErrorEvent, StateChangeEvent, SuccessEvent } from "./interpreter"
+import { FrameInterpreted, InterpretIncomming } from ".."
+import { Byte } from "../../../core/byte"
+import { random } from "../../../core/utils"
+import { calcChecksum } from "./calc-checksum"
+import { ACK, ESC, ETX, NACK, StartByteNum, STX } from "../core-types"
+import { InterpretationErrorEvent, StateChangeEvent, SuccessEvent } from "../interpreter"
 
 export type Payload = readonly [dirChan: number, waddr: number, dataLow: number, dataHigh: number]
 

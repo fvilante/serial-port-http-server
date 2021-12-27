@@ -2,7 +2,7 @@ import { FrameInterpreted } from "..";
 import { Future } from "../../../adts/future";
 import { Result, Result_ } from "../../../adts/result";
 import { PortOpened } from "../../../serial";
-import { PayloadCore } from "../payload";
+import { PayloadCore } from "../core/payload";
 import { payloadTransaction_CB, TimeoutErrorEvent, TransactErrorEvent } from "./payload-transact-cb";
 
 //we are very safe because we deal with open/close of the port and not only data transfer

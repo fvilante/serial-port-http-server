@@ -1,7 +1,7 @@
 import { calcChecksum } from "./core/calc-checksum";
 import { int2word, word2int } from "./int-to-word-conversion";
 import { Direction, DirectionNum, DirectionNumToText, ESC, ETX, StartByte, StartByteNum, StartByteToText, StartByteTxt } from "./core-types";
-import { Payload, PayloadCore } from "./payload";
+import { Payload, PayloadCore } from "./core/payload";
 import { bit_clear, bit_test } from "../../core/bit-wise-utils";
 import { Byte } from "../../core/byte";
 

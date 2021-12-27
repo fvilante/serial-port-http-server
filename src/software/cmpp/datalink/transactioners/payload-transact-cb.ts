@@ -1,5 +1,5 @@
 import { StartByteNum, StartByteToText, StartByteTxt, STX } from "../core-types";
-import { Payload, makeWellFormedFrame, PayloadCore } from "../payload";
+import { Payload, makeWellFormedFrame, PayloadCore } from "../core/payload";
 import { CmppDataLinkInterpreter, StateChangeEvent, SuccessEvent, InterpretationErrorEvent } from "../interpreter";
 import { runOnce } from "../../../core/utils";
 import { Byte } from "../../../core/byte";

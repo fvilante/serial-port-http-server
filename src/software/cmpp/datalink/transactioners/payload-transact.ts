@@ -1,6 +1,6 @@
 import { FrameInterpreted } from "..";
 import { PortOpened } from "../../../serial";
-import { PayloadCore } from "../payload";
+import { PayloadCore } from "../core/payload";
 import { HeaderEvent, payloadTransaction_CB, TransactErrorEvent } from "./payload-transact-cb";
 
 // this type is what the function throws when error happens
