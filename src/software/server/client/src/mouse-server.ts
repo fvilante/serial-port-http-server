@@ -56,10 +56,7 @@ export const runServerCommunication = async (): Promise<void> => {
     }
 
     document.body.onmousemove = handleMouseMove
-
     document.body.ontouchstart = handleTouchStart
     document.body.ontouchmove = handleTouchStart
-
-
 
 }
