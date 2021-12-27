@@ -35,6 +35,7 @@ export const DirectionNumToText = (_: DirectionNum):DirectionKeys => {
 }
 
 // Define what is considered valid start byte
+//TODO: Rename this operation to 'startByteText2Num' or similar, maybe we should import a function instead of a type
 export type StartByte = typeof StartByte
 export const StartByte = {
     STX: STX,
