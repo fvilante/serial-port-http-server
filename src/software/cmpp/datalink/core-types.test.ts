@@ -8,10 +8,6 @@ import {
     StartByte,
     StartByteToText,
 } from './core-types'
-import { calcChecksum } from './calc-checksum'
-import { compileCoreFrame, FrameCore, FrameInterpreted, InterpretIncomming } from './index'
-
-
 
 describe('basic tests', () => {
 
@@ -46,25 +42,6 @@ describe('basic tests', () => {
         //check
         expect(Direction).toEqual(expected);
 
-    })
-
-    it('Can compile a frame', async () => {
-        //prepare
-        const probe: FrameCore = {
-            startByte: 'STX',
-            direction: 'Envio',
-            channel: 63,
-            waddr: 0xA0,
-            uint16: 1,
-        }
-        const expected = [
-            [ESC],[STX],[0xC0+63],[0xA0],[1],[0],[27],[ETX],[91]
-        ] 
-        
-        //act
-        const actual = compileCoreFrame(probe)
-        //check
-        expect(actual).toEqual(expected);
     })
 
 })
