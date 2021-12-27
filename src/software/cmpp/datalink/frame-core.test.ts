@@ -1,5 +1,5 @@
 import { flattenArrayDeep } from '../../core/utils'
-import { calcChecksum_ } from './core/calc-checksum'
+import { calcChecksum } from './core/calc-checksum'
 import { 
     ESC,
     STX,
@@ -14,6 +14,7 @@ import {
 } from './core-types'
 import { compileCoreFrame, FrameCore, FrameInterpreted } from './frame-core'
 import { int2word } from './int-to-word-conversion'
+import { Payload, PayloadCore } from './payload'
 
 
 
@@ -30,9 +31,10 @@ describe('basic tests', () => {
         const [dataHigh, dataLow] = int2word(uint16)
         const directionNum = Direction[direction]
         const obj = [[directionNum+channel],[waddr],[dataLow],[dataHigh]] as const
-        const obj_ = flattenArrayDeep(obj) as number[]
+        const payload = flattenArrayDeep(obj) as Payload
         const startByteNum = StartByte[startByte]
-        const checksum = calcChecksum_(obj_, startByteNum)
+        const payloadCore: PayloadCore = { payload, startByte: startByteNum}
+        const checksum = calcChecksum(payloadCore)
         
         const probe: FrameCore = {
             startByte,

@@ -1,7 +1,8 @@
 import { FrameInterpreted } from "."
 import { Byte, Bytes } from "./../../core/byte"
-import { calcChecksum_ } from "./core/calc-checksum"
+import { calcChecksum } from "./core/calc-checksum"
 import { ACK, ESC, ETX, NACK, StartByteNum, STX } from "./core-types"
+import { frameInterpretedToPayload } from "./frame-core"
 
 //TODO: Introduce 'checksum error' type as an interpretation error
 
@@ -83,14 +84,9 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
         resetInterpreter();
     }
 
-    const calcChecksum__ = (frame__: Partial<FrameInterpreted>): number => {
-        const dirChan = frame__.dirChan === undefined ? 0 : frame__.dirChan[0]
-        const waddr = frame__.waddr === undefined ? 0 : frame__.waddr[0]
-        const dataH = frame__.dataHigh === undefined ? 0 : frame__.dataHigh[0]
-        const dataL = frame__.dataLow === undefined ? 0 : frame__.dataLow[0]
-        const defaultStByte = validStartBytes[0] // any arbitrary among them is being the default value!
-        const startByte = frame__.startByte === undefined ? defaultStByte : frame__.startByte[0]
-        const chksum = calcChecksum_([dirChan, waddr, dataH, dataL], startByte)
+    const calcChecksum__ = (frame_: FrameInterpreted): number => {
+        const payloadCore = frameInterpretedToPayload(frame_)
+        const chksum = calcChecksum(payloadCore)
         return chksum
     }
 
@@ -166,7 +162,8 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
                 waitingEscDup = true;
             } else {
                 frame = {...frame, [pos]: [currentByte]};
-                const expectedChecksum = calcChecksum__(frame);
+                //TODO: Remove the expectedChecksum here, the purpose of this parser is not to check the checksum but to interpret frame
+                const expectedChecksum = calcChecksum__(frame as FrameInterpreted);
                 if(expectedChecksum===currentByte) {
                     frame = {...frame, expectedChecksum };
                     coreState = nextState;;
@@ -179,7 +176,8 @@ export const InterpretIncomming = (handle: EventsHandler) => (currentByte: numbe
             if (currentByte === ESC) {
                 frame = {...frame, [pos]: [ESC, ESC]};
                 waitingEscDup = false;
-                const expectedChecksum = calcChecksum__(frame);
+                //TODO: Remove the expectedChecksum here, the purpose of this parser is not to check the checksum but to interpret frame
+                const expectedChecksum = calcChecksum__(frame as FrameInterpreted);
                 frame = {...frame, expectedChecksum };
                 coreState = nextState;
             } else {

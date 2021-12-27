@@ -1,16 +1,17 @@
-import { calcChecksum_ } from "./calc-checksum"
+import { calcChecksumGeneric } from "./calc-checksum"
 import { StartByteNum, STX } from "../core-types"
 import { makeRange } from "../../../core/utils"
+
 
 describe('basic tests', () => {
 
     it('Can calc checksum of simple data', async () => {
         //prepare
-        const obj = [1,2,3,4]
+        const payload = [1,2,3,4]
         const startByte: StartByteNum = 2
         const expected = 241
         //act
-        const actual = calcChecksum_(obj, startByte)
+        const actual = calcChecksumGeneric(payload, startByte)
         //check
         expect(actual).toEqual(expected)
     })
@@ -21,7 +22,7 @@ describe('basic tests', () => {
         const startByte: StartByteNum = 2
         const expected = 27
         //act
-        const actual = calcChecksum_(obj, startByte)
+        const actual = calcChecksumGeneric(obj, startByte)
         //check
         expect(actual).toEqual(expected)
     })
@@ -37,9 +38,9 @@ describe('basic tests', () => {
         const slaveError_ = [...obj, 256-(21-2)]
         const expected = 27
         //act
-        const actual1 = calcChecksum_(master_, master)
-        const actual2 = calcChecksum_(slave_, slave)
-        const actual3 = calcChecksum_(slaveError_, slaveError)
+        const actual1 = calcChecksumGeneric(master_, master)
+        const actual2 = calcChecksumGeneric(slave_, slave)
+        const actual3 = calcChecksumGeneric(slaveError_, slaveError)
         //check
         expect(actual1).toEqual(expected)
         expect(actual2).toEqual(expected)
@@ -52,7 +53,7 @@ describe('basic tests', () => {
         const startByte: StartByteNum = 2
         const expected = 207
         //act
-        const actual = calcChecksum_(obj, startByte)
+        const actual = calcChecksumGeneric(obj, startByte)
         //check
         expect(actual).toEqual(expected)
     })

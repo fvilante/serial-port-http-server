@@ -1,7 +1,7 @@
 import { FrameInterpreted, InterpretIncomming } from "."
 import { Byte } from "../../core/byte"
 import { random } from "../../core/utils"
-import { calcChecksum_ } from "./core/calc-checksum"
+import { calcChecksum } from "./core/calc-checksum"
 import { ACK, ESC, ETX, NACK, StartByteNum, STX } from "./core-types"
 import { InterpretationErrorEvent, StateChangeEvent, SuccessEvent } from "./interpreter"
 
@@ -10,10 +10,10 @@ export type Payload = readonly [dirChan: number, waddr: number, dataLow: number,
 //TODO: Implement this type if it worth
 export type PayloadCore = { 
     readonly payload: Payload, 
-    readonly startByte: StartByteNum
+    readonly startByte: StartByteNum //TODO: Rename to 'startByteNum'
 }
 
-const duplicateEsc = (payload: readonly number[]): readonly number[] => {
+const duplicateEscIfNecessary = (payload: readonly number[]): readonly number[] => {
     let acc: readonly Byte[] = [] //payload_with_esc_duplicated
     payload.forEach( byte => {
         if (byte===ESC) {
@@ -28,23 +28,23 @@ const duplicateEsc = (payload: readonly number[]): readonly number[] => {
 // from given payload make well-formed frame
 export const makeWellFormedFrame = (_: PayloadCore) => {
     const { payload, startByte } = _
-    const checksum = calcChecksum_(payload,startByte)
-    return [ESC, startByte, ...duplicateEsc(payload), ESC, ETX, ...duplicateEsc([checksum])]
+    const checksum = calcChecksum(_)
+    return [ESC, startByte, ...duplicateEscIfNecessary(payload), ESC, ETX, ...duplicateEscIfNecessary([checksum])]
 }
 
 export const makeWellFormedFrameInterpreted = (_: PayloadCore): FrameInterpreted => {
     const { payload, startByte } = _
-    const checksum = calcChecksum_(payload,startByte)
+    const checksum = calcChecksum(_)
     return {
         firstEsc: [ESC],
         startByte: [startByte],
-        dirChan: duplicateEsc([payload[0]]),
-        waddr: duplicateEsc([payload[1]]),
-        dataLow: duplicateEsc([payload[2]]),
-        dataHigh: duplicateEsc([payload[3]]),
+        dirChan: duplicateEscIfNecessary([payload[0]]),
+        waddr: duplicateEscIfNecessary([payload[1]]),
+        dataLow: duplicateEscIfNecessary([payload[2]]),
+        dataHigh: duplicateEscIfNecessary([payload[3]]),
         lastEsc: [ESC],
         etx: [ETX],
-        checkSum: duplicateEsc([checksum]),
+        checkSum: duplicateEscIfNecessary([checksum]),
         expectedChecksum: checksum,
     } as unknown as any //TODO: remove this type cast 
 }

@@ -1,8 +1,9 @@
-import { calcChecksum_ } from "./core/calc-checksum";
+import { calcChecksum } from "./core/calc-checksum";
 import { int2word, word2int } from "./int-to-word-conversion";
 import { Direction, DirectionNum, DirectionNumToText, ESC, ETX, StartByte, StartByteNum, StartByteToText, StartByteTxt } from "./core-types";
 import { Payload, PayloadCore } from "./payload";
 import { bit_clear, bit_test } from "../../core/bit-wise-utils";
+import { Byte } from "../../core/byte";
 
 export type FrameCore = {
     startByte: StartByteTxt
@@ -79,14 +80,24 @@ export type FrameSerialized = [
 export type FrameInterpreted = {
     readonly firstEsc: [firstEsc: ESC],
     readonly startByte: [startByte: StartByteNum],
-    readonly dirChan: [dirChan: number] | [dirChan: ESC, escDup: ESC],
-    readonly waddr: [waddr: number] | [waddr: ESC, escDup: ESC],
-    readonly dataLow: [dataLow: number] | [dataLow: ESC, escDup: ESC],
-    readonly dataHigh: [dataHigh: number] | [dataHigh: ESC, escDup: ESC],
+    readonly dirChan: [dirChan: Byte] | [dirChan: ESC, escDup: ESC],
+    readonly waddr: [waddr: Byte] | [waddr: ESC, escDup: ESC],
+    readonly dataLow: [dataLow: Byte] | [dataLow: ESC, escDup: ESC],
+    readonly dataHigh: [dataHigh: Byte] | [dataHigh: ESC, escDup: ESC],
     readonly lastEsc: [lastEsc: ESC],
     readonly etx: [etx: ETX],
-    readonly checkSum: [checkSum: number] | [checkSum: ESC, escDup: ESC],
-    readonly expectedChecksum: number
+    readonly checkSum: [checkSum: Byte] | [checkSum: ESC, escDup: ESC],
+    readonly expectedChecksum: Byte
+}
+
+export const frameInterpretedToPayload = (_: FrameInterpreted): PayloadCore => {
+    const dirChan: Byte = _.dirChan[0]
+    const waddr: Byte = _.waddr[0]
+    const dataH: Byte = _.dataHigh[0]
+    const dataL: Byte = _.dataLow[0]
+    const startByte: StartByteNum = _.startByte[0]
+    const payload: Payload =   [dirChan, waddr, dataL, dataH]
+    return {payload, startByte}
 }
 
 // TODO: change name to 'serializeFrameCore' or 'serializeCoreFrame'
@@ -99,12 +110,10 @@ export const compileCoreFrame = (core: FrameCore): FrameSerialized => {
     }
 
     // TODO: validate range of channel, waddr, etc.
-    const { startByte, direction, channel, waddr, uint16} = core
-    const startByteNum = StartByte[startByte]
-    const direction_ = Direction[direction]
-    const dirChan = direction_ + channel
-    const [dataHigh, dataLow] = int2word(uint16)
-    const checksum = calcChecksum_([dirChan, waddr, dataHigh, dataLow], startByteNum)
+    const payloadCore = frameCoreToPayload(core)
+    const { payload, startByte: startByteNum } = payloadCore
+    const [ dirChan, waddr, dataLow, dataHigh] = payload
+    const checksum = calcChecksum(payloadCore)
 
     return [
         [ESC], 
