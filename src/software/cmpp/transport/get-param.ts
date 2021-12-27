@@ -4,7 +4,7 @@ import { FrameCore } from "../datalink";
 import { DirectionKeys } from "../datalink/core-types";
 import { word2int } from "../datalink/int-to-word-conversion";
 import { sendCmpp } from "../datalink/send-receive-cmpp-datalink";
-import { Tunnel } from "../datalink/tunnel";
+import { Tunnel } from "../datalink/core/tunnel";
 import { ParamCaster, ParamCaster_16bits, ParamCaster_1bit, ParamCaster_8bits } from "./memmap-caster";
 
 

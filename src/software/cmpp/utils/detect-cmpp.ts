@@ -5,12 +5,13 @@ import { Channel } from "../datalink/core-types"
 import { frameCoreToPayload, FrameInterpreted } from "../datalink/frame-core"
 import { RetryPolicy } from "../datalink/transactioners/retry-logic-ADT"
 import { Fail, safePayloadTransact } from "../datalink/transactioners/safe-payload-transact"
-import { Tunnel } from "../datalink/tunnel"
+import { Tunnel } from "../datalink/core/tunnel"
+import { PayloadCore } from "../datalink/core/payload"
 
 // NOTE: This payload is just a information request of any arbitrary cmpp address. I'm assuming if this answer to this 
 //       request is given back as a valid Cmpp Frame Interpreted, then the CMPP device is present in the tunnel 
 //       connection. 
-const makeDetectionPayloadCore = (channel: Channel) => {
+const makeDetectionPayloadCore = (channel: Channel): PayloadCore => {
     const dataToSend = frameCoreToPayload({
         startByte: 'STX',
         direction: 'Solicitacao',

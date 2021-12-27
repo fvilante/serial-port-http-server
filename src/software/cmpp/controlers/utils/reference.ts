@@ -2,7 +2,7 @@ import { CMPP00LG } from "../../transport/memmap-CMPP00LG"
 import { forceLooseReference } from "./force-loose-reference"
 import { PulsesPerTick, PulsesPerTickSquared } from "../../physical-dimensions/physical-dimensions"
 import { getMovimentStatus } from "./moviment-status"
-import { Tunnel } from "../../datalink/tunnel"
+import { Tunnel } from "../../datalink/core/tunnel"
 
 const makeTransportLayer = CMPP00LG
 

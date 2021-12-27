@@ -3,7 +3,7 @@ import { Address, Axis } from "./global-env/global"
 import { executeInSequence } from "./core/promise-utils"
 import { CMPP00LG } from "./cmpp/transport/memmap-CMPP00LG"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared } from "./cmpp/physical-dimensions/physical-dimensions"
-import { Tunnel } from "./cmpp/datalink/tunnel"
+import { Tunnel } from "./cmpp/datalink/core/tunnel"
 
 // This is an append file for axis-controler.ts, and my dreem is to use another
 // strategy for initialization of the axis. Something more robust.

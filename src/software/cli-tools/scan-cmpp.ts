@@ -4,9 +4,8 @@ import { ExecuteInParalel, executeInSequence } from "../core/promise-utils"
 import { makeRange } from "../core/utils"
 import { listSerialPorts, isSerialPortEmulatedWithCom0Com, isSerialPortLoopBackForTest} from "../serial/list-serial-ports"
 import { BaudRate, PossibleBaudRates } from "../serial/baudrate"
-import { PortSpec } from '../serial'
 import { Channel } from '../cmpp/datalink/core-types'
-import { Tunnel } from '../cmpp/datalink/tunnel'
+import { Tunnel } from '../cmpp/datalink/core/tunnel'
 
 
 // Strategy: First all tunnels of same baudrate, then the second baudarate, until the end

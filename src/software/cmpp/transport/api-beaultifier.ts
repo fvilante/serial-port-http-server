@@ -1,7 +1,7 @@
 import { getCmppParam } from "./get-param"
 import { setCmppParam } from "./set-param"
 import { ParamCaster } from "./memmap-caster"
-import { Tunnel } from "../datalink/tunnel"
+import { Tunnel } from "../datalink/core/tunnel"
 
 export type THE_API = {
     readonly [K in string]: ParamCaster<string,any>

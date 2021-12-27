@@ -2,7 +2,7 @@ import ora, { Spinner } from 'ora'
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, Pulses_, TicksOfClock } from "../../physical-dimensions/physical-dimensions"
 import { makeCmppControler } from "../cmpp-controler"
 import { Moviment } from "../core"
-import { makeTunnel } from '../../datalink/tunnel'
+import { makeTunnel } from '../../datalink/core/tunnel'
 import { AxisCotroler } from '../axis-controler'
 import { DetecEndOfCourseParameters } from '../utils/detect-end-of-course'
 import { delay } from '../../../core/delay'
