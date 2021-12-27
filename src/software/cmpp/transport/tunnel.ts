@@ -1,6 +1,6 @@
-import { PortSpec } from "../../../serial";
-import { BaudRate } from "../../../serial/baudrate";
-import { Channel } from "../core-types";
+import { PortSpec } from "../../serial";
+import { BaudRate } from "../../serial/baudrate";
+import { Channel } from "../datalink/core-types";
 
 
 /** Represents the addressing of a tunnel connection which we can communicate to/from a cmpp */

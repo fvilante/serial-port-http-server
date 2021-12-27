@@ -6,7 +6,7 @@ import { makeCmppControler } from "../cmpp-controler"
 import { doSmartReferenceIfNecessary } from "../utils/smart-reference"
 import { Moviment } from "../core"
 import { goMany } from '../utils/go-many'
-import { makeTunnel } from '../../datalink/core/tunnel'
+import { makeTunnel } from '../../transport/tunnel'
 
 
 

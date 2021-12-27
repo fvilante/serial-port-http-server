@@ -1,4 +1,4 @@
-import { explodeTunnel, Tunnel } from "../../datalink/core/tunnel"
+import { explodeTunnel, Tunnel } from "../../transport/tunnel"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../physical-dimensions/physical-dimensions"
 import { Moviment } from "../core"
 import { getStatusLow, StatusL } from "./get-status-low"
