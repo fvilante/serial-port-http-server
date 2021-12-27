@@ -1,7 +1,20 @@
-import { calcChecksum_ } from "./calc-checksum"
-import { StartByteNum } from "./core-types"
+import { calcChecksum, calcChecksum_ } from "./calc-checksum"
+import { StartByteNum, STX } from "./core-types"
 
 describe('basic tests', () => {
+
+    it('Can calc checksum using deprecated function', async () => {
+        //TODO: remove this test and the deprecated function
+        //prepare
+        type Content = readonly [dirChan: number, waddr: number, dataH: number, dataL: number]
+        const startByte = STX
+        const probe: Content = [1,0xA0,0,10]
+        const expected = 80
+        //act
+        const actual = calcChecksum(probe, 'STX')
+        //check
+        expect(actual).toEqual(expected);
+    })
 
     it('Can calc checksum of simple data', async () => {
         //prepare

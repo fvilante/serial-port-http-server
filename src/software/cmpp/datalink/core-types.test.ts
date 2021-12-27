@@ -48,19 +48,6 @@ describe('basic tests', () => {
 
     })
 
-
-    it('Can calc checksum', async () => {
-        //prepare
-        type Content = readonly [dirChan: number, waddr: number, dataH: number, dataL: number]
-        const startByte = STX
-        const probe: Content = [1,0xA0,0,10]
-        const expected = 80
-        //act
-        const actual = calcChecksum(probe, 'STX')
-        //check
-        expect(actual).toEqual(expected);
-    })
-
     it('Can compile a frame', async () => {
         //prepare
         const probe: FrameCore = {
