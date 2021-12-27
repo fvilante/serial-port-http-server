@@ -3,7 +3,7 @@ import { Payload, PayloadCore } from "../core/payload";
 import { CmppDataLinkInterpreter, StateChangeEvent, SuccessEvent, InterpretationErrorEvent } from "../interpreter";
 import { Byte } from "../../../core/byte";
 import { PortOpened } from "../../../serial";
-import { makeWellFormedFrame } from "../core/data-constructors";
+import { makeWellFormedFrame } from "../core/special-case-data-constructors";
 
 
 const cleanupPortResources = (p: PortOpened):void => {

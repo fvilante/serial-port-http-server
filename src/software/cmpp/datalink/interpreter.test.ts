@@ -2,7 +2,7 @@ import { FrameInterpreted, InterpretIncomming } from "."
 import { Byte } from "../../core/byte"
 import { flattenArrayDeep, makeRange, random, repeaterItor } from "../../core/utils"
 import { ACK, NACK, StartByteNum, STX } from "./core-types"
-import { getRandomPayload, getRandomStartByte, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "./core/data-constructors"
+import { getRandomPayload, getRandomStartByte, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "./core/special-case-data-constructors"
 import { Payload, PayloadCore } from "./core/payload"
 import { InterpretationErrorEvent, StateChangeEvent, SuccessEvent } from "./interpreter"
 
