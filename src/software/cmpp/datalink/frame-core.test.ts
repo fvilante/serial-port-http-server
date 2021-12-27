@@ -28,7 +28,7 @@ describe('basic tests', () => {
         const startByte: StartByteTxt = 'STX'
         const direction: DirectionKeys = 'Envio'
         //prepare
-        const [dataHigh, dataLow] = uInt16ToWord16(uint16)
+        const {dataHigh, dataLow} = uInt16ToWord16(uint16)
         const directionNum = Direction[direction]
         const obj = [[directionNum+channel],[waddr],[dataLow],[dataHigh]] as const
         const payload = flattenArrayDeep(obj) as Payload

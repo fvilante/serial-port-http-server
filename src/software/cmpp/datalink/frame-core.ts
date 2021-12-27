@@ -18,7 +18,7 @@ export const frameCoreToPayload = (frame:FrameCore): PayloadCore => {
     const { startByte, direction, channel, waddr, uint16} = frame
     const dirNum = Direction[direction]
     const directionAndChannel = dirNum + channel
-    const [dataHigh, dataLow] = uInt16ToWord16(uint16)
+    const {dataHigh, dataLow} = uInt16ToWord16(uint16)
     const payload: Payload = [
         directionAndChannel,
         waddr,

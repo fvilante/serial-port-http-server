@@ -19,10 +19,10 @@ export function word16ToUint16(word: Word16): Uint16 {
 }
 
 //TODO: invert input to DataLow first then DataHigh, and use interface in function argument
-export function uInt16ToWord16(uint16: Uint16): [dadoH: number, dadoL: number] {
+export function uInt16ToWord16(uint16: Uint16): Word16 {
     // fix: check if uint16 is beetween 0 and 0xffff
     const n = uint16
-    const dadoH = Math.floor( n/256 )
-    const dadoL = n % 256
-    return [dadoH, dadoL]
+    const dataHigh = Math.floor( n/256 )
+    const dataLow = n % 256
+    return { dataHigh, dataLow }
 }
