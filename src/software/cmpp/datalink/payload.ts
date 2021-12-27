@@ -66,6 +66,7 @@ export type ExecutionResult = {
 }
 
 // NOTE: This function is being used in test units; I'm not sure it is necessary for other conditions
+//       May be an unecessary indirection. Check and remove it if possible.
 export const executeCmppStreamInterpretation = (input: readonly Byte[], lastState?: ExecutionResult):ExecutionResult => {
     let result: ExecutionResult = lastState ? lastState : {onError: [], onStateChange: [], onSucess: []}
     const parser = InterpretIncomming
