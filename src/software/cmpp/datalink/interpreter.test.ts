@@ -1,4 +1,5 @@
-import { FrameInterpreted, InterpretIncomming } from "."
+import { FrameInterpreted } from "./core/frame-core"
+import { InterpretIncomming } from "./interpreter"
 import { Byte } from "../../core/byte"
 import { flattenArrayDeep, makeRange, random, repeaterItor } from "../../core/utils"
 import { ACK, NACK, StartByteNum, STX } from "./core/core-types"
@@ -31,7 +32,8 @@ const testRandomGeneratedFrame = ():void => {
     // prepare
     const dataToSend: PayloadCore = {
         payload: getRandomPayload(),
-        startByte: getRandomStartByte()
+        startByte: getRandomStartByte
+        ()
     }
     // act, test
     testParseSingleWellFormedFrame(dataToSend)

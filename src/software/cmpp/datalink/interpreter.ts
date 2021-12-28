@@ -1,4 +1,4 @@
-import { FrameInterpreted } from "."
+import { FrameInterpreted } from "./core/frame-core"
 import { Byte, Bytes } from "./../../core/byte"
 import { calcChecksum } from "./core/calc-checksum"
 import { ACK, ESC, ETX, NACK, StartByteNum, STX } from "./core/core-types"

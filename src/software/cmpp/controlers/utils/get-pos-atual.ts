@@ -1,5 +1,5 @@
 import { BaudRate } from '../../../serial/baudrate'
-import { FrameCore } from "../../datalink/index"
+import { FrameCore } from "../../datalink/core/frame-core"
 import { sendCmpp } from "../../datalink/send-receive-cmpp-datalink"
 import { word16ToUint16 } from '../../datalink/core/int-to-word-conversion'
 import { ACK } from '../../datalink/core/core-types'

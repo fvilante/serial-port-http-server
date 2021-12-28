@@ -1,5 +1,5 @@
 import { BaudRate } from '../serial/baudrate'
-import { FrameCore } from "../cmpp/datalink/index";
+import { FrameCore } from "../cmpp/datalink/core/frame-core";
 import { executeInSequence } from "../core/promise-utils";
 import { Address } from "../global-env/global";
 import { sendCmpp } from "../cmpp/datalink/send-receive-cmpp-datalink";

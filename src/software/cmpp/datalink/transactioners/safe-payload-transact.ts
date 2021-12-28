@@ -1,4 +1,4 @@
-import { FrameInterpreted } from ".."
+import { FrameInterpreted } from "../core/frame-core"
 import { Future, Future_, UnsafePromiseError } from "../../../adts/future"
 import { Result } from "../../../adts/result"
 import { PortSpec, PortOpened } from "../../../serial"

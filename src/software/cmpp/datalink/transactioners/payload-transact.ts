@@ -1,4 +1,4 @@
-import { FrameInterpreted } from "..";
+import { FrameInterpreted } from "../core/frame-core";
 import { PortOpened } from "../../../serial";
 import { PayloadCore } from "../core/payload";
 import { HeaderEvent, payloadTransaction_CB, TransactErrorEvent } from "./payload-transact-cb";

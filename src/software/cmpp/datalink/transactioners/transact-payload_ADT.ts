@@ -1,4 +1,4 @@
-import { FrameInterpreted } from "..";
+import { FrameInterpreted } from "../core/frame-core";
 import { Future } from "../../../adts/future";
 import { Result, Result_ } from "../../../adts/result";
 import { PortOpened } from "../../../serial";

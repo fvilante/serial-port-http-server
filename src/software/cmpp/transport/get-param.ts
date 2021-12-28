@@ -1,6 +1,6 @@
 import { bit_test } from "../../core/bit-wise-utils";
 import { assertUnreachable } from "../../core/utils";
-import { FrameCore } from "../datalink";
+import { FrameCore } from "../datalink/core/frame-core";
 import { DirectionKeys } from "../datalink/core/core-types";
 import { word16ToUint16 } from "../datalink/core/int-to-word-conversion";
 import { sendCmpp } from "../datalink/send-receive-cmpp-datalink";
