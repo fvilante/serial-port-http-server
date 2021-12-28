@@ -1,4 +1,4 @@
-import { uInt16ToWord16, word16ToUint16 } from './int-to-word-conversion'
+import { uInt16ToWord16, word16ToUint16 } from '../int-to-word-conversion'
 
 describe('Perform tests on cmpp datalink routines', () => {
 

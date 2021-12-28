@@ -1,5 +1,5 @@
-import { flattenArrayDeep } from '../../../core/utils'
-import { calcChecksum } from './calc-checksum'
+import { flattenArrayDeep } from '../../../../core/utils'
+import { calcChecksum } from '../calc-checksum'
 import { 
     ESC,
     STX,
@@ -11,10 +11,10 @@ import {
     StartByteToText,
     StartByteTxt,
     DirectionKeys,
-} from './core-types'
-import { compileCoreFrame, FrameCore, FrameInterpreted } from './frame-core'
-import { uInt16ToWord16 } from './int-to-word-conversion'
-import { Payload, PayloadCore } from './payload'
+} from '../core-types'
+import { compileCoreFrame, FrameCore, FrameInterpreted } from '../frame-core'
+import { uInt16ToWord16 } from '../int-to-word-conversion'
+import { Payload, PayloadCore } from '../payload'
 
 
 

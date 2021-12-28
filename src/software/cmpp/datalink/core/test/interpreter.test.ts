@@ -1,11 +1,11 @@
-import { FrameInterpreted } from "./frame-core"
-import { InterpretIncomming } from "./interpreter"
-import { Byte } from "../../../core/byte"
-import { flattenArrayDeep, makeRange, random, repeaterItor } from "../../../core/utils"
-import { ACK, NACK, StartByteNum, STX } from "./core-types"
-import { getRandomPayload, getRandomStartByte, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "./special-case-data-constructors"
-import { Payload, PayloadCore } from "./payload"
-import { InterpretationErrorEvent, StateChangeEvent, SuccessEvent } from "./interpreter"
+import { FrameInterpreted } from "../frame-core"
+import { InterpretIncomming } from "../interpreter"
+import { Byte } from "../../../../core/byte"
+import { flattenArrayDeep, makeRange, random, repeaterItor } from "../../../../core/utils"
+import { ACK, NACK, StartByteNum, STX } from "../core-types"
+import { getRandomPayload, getRandomStartByte, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "../special-case-data-constructors"
+import { Payload, PayloadCore } from "../payload"
+import { InterpretationErrorEvent, StateChangeEvent, SuccessEvent } from "../interpreter"
 
 // TODO:    Only well-formed stream are being tested. We MUST create unit test for error and edge cases 
 //          (ie: esc-dup in checksum?, intermediary noise?, etc).

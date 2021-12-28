@@ -7,7 +7,7 @@ import {
     Direction,
     StartByte,
     StartByteToText,
-} from './core-types'
+} from '../core-types'
 
 describe('basic tests', () => {
 

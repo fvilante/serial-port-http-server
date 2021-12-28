@@ -1,6 +1,6 @@
-import { calcChecksumGeneric } from "./calc-checksum"
-import { StartByteNum, STX } from "./core-types"
-import { makeRange } from "../../../core/utils"
+import { calcChecksumGeneric } from "../calc-checksum"
+import { StartByteNum, STX } from "../core-types"
+import { makeRange } from "../../../../core/utils"
 
 
 describe('basic tests', () => {
