@@ -1,6 +1,6 @@
 <script lang='ts'>
 
-    import { runServerCommunication } from './server-communication';
+    import { runServerCommunication } from './mouse-server';
     import Button from './components/Button.svelte'
     import {onMount } from 'svelte'
     import Array from './components/Array.svelte';

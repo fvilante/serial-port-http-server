@@ -1,7 +1,11 @@
-import { FrameInterpreted } from "."
-import { flattenArrayDeep, makeRange, random, repeaterItor } from "../../core/utils"
-import { ACK, NACK, StartByteNum, STX } from "./core-types"
-import { Payload, executeCmppStreamInterpretation, getRandomPayload, getRandomStartByte, makeWellFormedFrame, makeWellFormedFrameInterpreted, PayloadCore } from "./payload"
+import { FrameInterpreted } from "../frame-core"
+import { InterpretIncomming } from "../interpreter"
+import { Byte } from "../../../../core/byte"
+import { flattenArrayDeep, makeRange, random, repeaterItor } from "../../../../core/utils"
+import { ACK, NACK, StartByteNum, STX } from "../core-types"
+import { getRandomPayload, getRandomStartByte, makeWellFormedFrame, makeWellFormedFrameInterpreted } from "../special-case-data-constructors"
+import { Payload, PayloadCore } from "../payload"
+import { InterpretationErrorEvent, StateChangeEvent, SuccessEvent } from "../interpreter"
 
 // TODO:    Only well-formed stream are being tested. We MUST create unit test for error and edge cases 
 //          (ie: esc-dup in checksum?, intermediary noise?, etc).
@@ -28,10 +32,38 @@ const testRandomGeneratedFrame = ():void => {
     // prepare
     const dataToSend: PayloadCore = {
         payload: getRandomPayload(),
-        startByte: getRandomStartByte()
+        startByte: getRandomStartByte
+        ()
     }
     // act, test
     testParseSingleWellFormedFrame(dataToSend)
+}
+
+export type ExecutionResult = {
+    onSucess: readonly SuccessEvent[]
+    onError: readonly InterpretationErrorEvent[]
+    onStateChange: readonly StateChangeEvent[]
+}
+
+// NOTE: This function is being used in test units; I'm not sure it is necessary for other conditions
+//       May be an unecessary indirection. Check and remove it if possible.
+export const executeCmppStreamInterpretation = (input: readonly Byte[], lastState?: ExecutionResult):ExecutionResult => {
+    let result: ExecutionResult = lastState ? lastState : {onError: [], onStateChange: [], onSucess: []}
+    const parser = InterpretIncomming
+    const parse = parser({
+        onSuccess: event => {
+            result.onSucess = [...result.onSucess, event]
+        },
+        onError: event => {
+            result.onError = [...result.onError, event]
+        },
+        onStateChange: event => {
+            result.onStateChange = [...result.onStateChange, event]
+        }
+    })
+    //run
+    input.forEach( byte => parse(byte))
+    return result
 }
 
 
