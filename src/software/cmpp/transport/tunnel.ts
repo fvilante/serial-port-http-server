@@ -1,6 +1,6 @@
 import { PortSpec } from "../../serial";
 import { BaudRate } from "../../serial/baudrate";
-import { Channel } from "./core-types";
+import { Channel } from "../datalink/core/core-types";
 
 
 /** Represents the addressing of a tunnel connection which we can communicate to/from a cmpp */
@@ -9,6 +9,12 @@ export type Tunnel = {
     readonly channel: Channel
 } 
 
+export const makeTunnel = (path: string, baudRate: BaudRate, channel: Channel): Tunnel => {
+    return {
+        portSpec: { path, baudRate},
+        channel,
+    }
+}
 
 // helper function
 export const explodeTunnel = (tunnel: Tunnel) => {
@@ -17,10 +23,5 @@ export const explodeTunnel = (tunnel: Tunnel) => {
     return { path, baudRate, channel }
 }
 
-export const makeTunnel = (path: string, baudRate: BaudRate, channel: Channel): Tunnel => {
-    return {
-        portSpec: { path, baudRate},
-        channel,
-    }
-}
+
 

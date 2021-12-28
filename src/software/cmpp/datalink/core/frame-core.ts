@@ -1,8 +1,9 @@
 import { calcChecksum } from "./calc-checksum";
-import { int2word, word2int } from "./int-to-word-conversion";
+import { uInt16ToWord16, word16ToUint16 } from "./int-to-word-conversion";
 import { Direction, DirectionNum, DirectionNumToText, ESC, ETX, StartByte, StartByteNum, StartByteToText, StartByteTxt } from "./core-types";
 import { Payload, PayloadCore } from "./payload";
-import { bit_clear, bit_test } from "../../core/bit-wise-utils";
+import { bit_clear, bit_test } from "../../../core/bit-wise-utils";
+import { Byte } from "../../../core/byte";
 
 export type FrameCore = {
     startByte: StartByteTxt
@@ -17,7 +18,7 @@ export const frameCoreToPayload = (frame:FrameCore): PayloadCore => {
     const { startByte, direction, channel, waddr, uint16} = frame
     const dirNum = Direction[direction]
     const directionAndChannel = dirNum + channel
-    const [dataHigh, dataLow] = int2word(uint16)
+    const {dataHigh, dataLow} = uInt16ToWord16(uint16)
     const payload: Payload = [
         directionAndChannel,
         waddr,
@@ -42,7 +43,7 @@ export const payloadToFrameCore = (payload: Payload, startByte_: StartByteNum): 
     const waddr = payload[1]
     const dataLow = payload[2]
     const dataHigh = payload[3]
-    const uint16 = word2int(dataHigh, dataLow)
+    const uint16 = word16ToUint16({dataHigh, dataLow})
     const startByte = StartByteToText(startByte_)
     return {
         startByte,
@@ -79,14 +80,24 @@ export type FrameSerialized = [
 export type FrameInterpreted = {
     readonly firstEsc: [firstEsc: ESC],
     readonly startByte: [startByte: StartByteNum],
-    readonly dirChan: [dirChan: number] | [dirChan: ESC, escDup: ESC],
-    readonly waddr: [waddr: number] | [waddr: ESC, escDup: ESC],
-    readonly dataLow: [dataLow: number] | [dataLow: ESC, escDup: ESC],
-    readonly dataHigh: [dataHigh: number] | [dataHigh: ESC, escDup: ESC],
+    readonly dirChan: [dirChan: Byte] | [dirChan: ESC, escDup: ESC],
+    readonly waddr: [waddr: Byte] | [waddr: ESC, escDup: ESC],
+    readonly dataLow: [dataLow: Byte] | [dataLow: ESC, escDup: ESC],
+    readonly dataHigh: [dataHigh: Byte] | [dataHigh: ESC, escDup: ESC],
     readonly lastEsc: [lastEsc: ESC],
     readonly etx: [etx: ETX],
-    readonly checkSum: [checkSum: number] | [checkSum: ESC, escDup: ESC],
-    readonly expectedChecksum: number
+    readonly checkSum: [checkSum: Byte] | [checkSum: ESC, escDup: ESC],
+    readonly expectedChecksum: Byte
+}
+
+export const frameInterpretedToPayload = (_: FrameInterpreted): PayloadCore => {
+    const dirChan: Byte = _.dirChan[0]
+    const waddr: Byte = _.waddr[0]
+    const dataH: Byte = _.dataHigh[0]
+    const dataL: Byte = _.dataLow[0]
+    const startByte: StartByteNum = _.startByte[0]
+    const payload: Payload =   [dirChan, waddr, dataL, dataH]
+    return {payload, startByte}
 }
 
 // TODO: change name to 'serializeFrameCore' or 'serializeCoreFrame'
@@ -99,16 +110,15 @@ export const compileCoreFrame = (core: FrameCore): FrameSerialized => {
     }
 
     // TODO: validate range of channel, waddr, etc.
-    const { startByte, direction, channel, waddr, uint16} = core
-    const startByte_ = StartByte[startByte]
-    const direction_ = Direction[direction]
-    const dirChan = direction_ + channel
-    const [dataHigh, dataLow] = int2word(uint16)
-    const checksum = calcChecksum([dirChan, waddr, dataHigh, dataLow], startByte)
+    const payloadCore = frameCoreToPayload(core)
+    const checksum = calcChecksum(payloadCore)
+    const { payload, startByte} = payloadCore
+    const [ dirChan, waddr, dataLow, dataHigh] = payload
+    
 
     return [
         [ESC], 
-        [startByte_], 
+        [startByte], 
         dupIfNecessary(dirChan), 
         dupIfNecessary(waddr),
         dupIfNecessary(dataLow),
@@ -129,15 +139,5 @@ export const flattenFrameSerialized = (a: FrameSerialized): readonly number[] =>
         acc = [...acc, ...each]
     }
     return acc
-}
-
-
-// helper
-// TODO: deprecate the use of this function, it seems not enough useful nor necessary. Use independent functions instead.
-export const serializeFrame = (frame: FrameCore): [serialized: FrameSerialized, flatten: readonly number[]] => {
-    const frame_ = compileCoreFrame(frame)
-    //fix: Flattening an array should be extract to an util
-    const frame__ = flattenFrameSerialized(frame_)
-    return [frame_, frame__]
 }
 

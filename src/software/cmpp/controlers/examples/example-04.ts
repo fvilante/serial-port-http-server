@@ -4,7 +4,7 @@ import { makeCmppControler } from "../cmpp-controler"
 import { forceSmartReference } from "../utils/smart-reference"
 import { detectEndOfCourse } from '../utils/detect-end-of-course'
 import { goNext } from '../utils/go-next'
-import { makeTunnel } from '../../datalink/tunnel'
+import { makeTunnel } from '../../transport/tunnel'
 
 
 const run = async () => {

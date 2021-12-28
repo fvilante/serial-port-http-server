@@ -1,9 +1,9 @@
 import { assertUnreachable } from "../../core/utils";
-import { FrameCore } from "../datalink";
-import { DirectionKeys } from "../datalink/core-types";
-import { word2int } from "../datalink/int-to-word-conversion";
+import { FrameCore } from "../datalink/core/frame-core";
+import { DirectionKeys } from "../datalink/core/core-types";
+import { word16ToUint16 } from "../datalink/core/int-to-word-conversion";
 import { sendCmpp } from "../datalink/send-receive-cmpp-datalink";
-import { Tunnel } from "../datalink/tunnel";
+import { Tunnel } from "./tunnel";
 import { ParamCaster, ParamCaster_16bits, ParamCaster_1bit, ParamCaster_8bits } from "./memmap-caster";
 
 
@@ -92,7 +92,7 @@ const set8BitsParam = <T extends string,A>(tunnel: Tunnel, param: ParamCaster_8b
                     const theUint8 = serialize(value)
                     const newDataLow = startBit===0 ? theUint8 : currentDataLow
                     const newDataHigh = startBit===8 ? theUint8 : currentDataHigh
-                    const newUint16 = word2int(newDataHigh, newDataLow)
+                    const newUint16 = word16ToUint16({ dataHigh: newDataHigh, dataLow: newDataLow })
                     
                     const finalFrame: FrameCore = {
                         ...requestFrame,

@@ -1,4 +1,4 @@
-import { Tunnel } from "../../datalink/tunnel"
+import { Tunnel } from "../../transport/tunnel"
 import { CMPP00LG } from "../../transport/memmap-CMPP00LG"
 import { getMovimentStatus } from "./moviment-status"
 

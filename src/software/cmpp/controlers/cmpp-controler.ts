@@ -1,5 +1,5 @@
 import { executeInSequence } from "../../core/promise-utils"
-import { explodeTunnel, Tunnel } from "../datalink/tunnel"
+import { explodeTunnel, Tunnel } from "../transport/tunnel"
 import { CMPP00LG, LigadoDesligado, ContinuoPassoAPasso, AbertoFechado } from "../transport/memmap-CMPP00LG"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../physical-dimensions/physical-dimensions"
 import { forceLooseReference } from "./utils/force-loose-reference"

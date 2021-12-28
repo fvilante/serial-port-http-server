@@ -1,4 +1,4 @@
-import { int2word, word2int } from './int-to-word-conversion'
+import { uInt16ToWord16, word16ToUint16 } from '../int-to-word-conversion'
 
 describe('Perform tests on cmpp datalink routines', () => {
 
@@ -24,7 +24,7 @@ describe('Perform tests on cmpp datalink routines', () => {
             0xFFFF,
         ]
         //act
-        const actual = probe.map(w => word2int(...w))
+        const actual = probe.map(w => word16ToUint16({dataHigh: w[0], dataLow: w[1]}))
         //check
         expect(actual).toEqual(expected);
 
@@ -53,7 +53,10 @@ describe('Perform tests on cmpp datalink routines', () => {
             [0xFF,0xFF]
         ]
         //act
-        const actual = probe.map(w => int2word(w))
+        const actual = probe.map(w => {
+            const word = uInt16ToWord16(w)
+            return [word.dataHigh, word.dataLow]
+        })
         //check
         expect(actual).toEqual(expected);
     })

@@ -3,7 +3,7 @@ import { Address, Axis } from "./global-env/global"
 import { sendCmpp } from "./cmpp/datalink/send-receive-cmpp-datalink"
 import { Range } from "./core/utils"
 import { executeInSequence } from "./core/promise-utils"
-import { FrameCore } from "./cmpp/datalink"
+import { FrameCore } from "./cmpp/datalink/core/frame-core"
 
 //FIX:
 //  this module is not being used by others
