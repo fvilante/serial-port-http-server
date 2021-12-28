@@ -74,7 +74,10 @@ export type CmppProgram = {
 
 
 export const makeCmppControler = (tunnel: Tunnel):CmppControler => {
-    const transportLayer = makeTransportLayer(tunnel)
+
+    //TODO: In future abstract the version (ie: CMPP00LG) of the microcontroler software. What is important is to 
+    //      implement an particular interface. Define and implement which interface is it.
+    const transportLayer = CMPP00LG(tunnel)
 
     const defaultReferenceParameters: ReferenceParameters = {
         "Velocidade de referencia": PulsesPerTick(600),

@@ -6,7 +6,6 @@ import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../..
 import { delay } from "../../../core/delay"
 import { makeTunnel } from "../../transport/tunnel"
 
-const makeTransportLayer = CMPP00LG
 
 const run = async () => {
 
@@ -17,7 +16,7 @@ const run = async () => {
 
     // perde referencia, busca referencia, da um start afastando o eixo da origem (velocidade e aceleracao de refernecia parametrizada)
     const routine = async () => {
-        const transportLayer = makeTransportLayer(tunnel)
+        const transportLayer = CMPP00LG(tunnel)
         //
         spinner.text = `Preparando eixos...`
         await doReferenceIfNecessary(tunnel,{

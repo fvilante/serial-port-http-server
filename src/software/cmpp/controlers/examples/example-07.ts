@@ -4,9 +4,9 @@ import { makeCmppControler } from "../cmpp-controler"
 import { Moviment } from "../core"
 import { makeTunnel } from '../../transport/tunnel'
 import { AxisCotroler } from '../axis-controler'
-import { DetecEndOfCourseParameters } from '../utils/detect-end-of-course'
 import { delay } from '../../../core/delay'
 import { exhaustiveSwitch } from '../../../core/utils'
+import { SmartReferenceParameters } from '../utils/smart-reference'
 
 
 
@@ -33,27 +33,12 @@ export const run = async () => {
 
     // --------------
 
-    const config: DetecEndOfCourseParameters = {
-        referencePhase: {
-            reference: {
-                speed: PulsesPerTick(500),
-                acceleration: PulsesPerTickSquared(5000),
-            },
-            endPosition: Pulses(500)    //NOTE: This value may be variable in function of mechanics of the axis
+    const config: SmartReferenceParameters = {
+        reference: {
+            speed: PulsesPerTick(500),
+            acceleration: PulsesPerTickSquared(5000),
         },
-        searchPhase: {
-            startAt: {
-                position: Pulses(3000),
-                speed: PulsesPerTick(3000),
-                acceleration: PulsesPerTickSquared(5000)
-            },
-            endSearchAt: Pulses(15000),
-            advancingSteps: Pulses(400), // TODO: que tal pulsos por giro aqui ? 
-            advancingKinematics: {
-                speed: PulsesPerTick(6000),
-                acceleration: PulsesPerTickSquared(12000)
-            }
-        }
+        endPosition: Pulses(500)    //NOTE: This value may be variable in function of mechanics of the axis
     }
 
   
@@ -63,7 +48,7 @@ export const run = async () => {
     
     const axis = AxisCotroler(cmppControler)
     
-    await axis.doSmartReferenceIfNecessary(config.referencePhase)
+    await axis.doSmartReferenceIfNecessary(config)
 
     const pitchShift = 1
 
@@ -234,11 +219,6 @@ export const run = async () => {
     await play(doremifa)
     await play(dingoBells)
     await play(dingoBells)
-
-
-    
-    
-    
 
 }
 

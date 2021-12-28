@@ -6,7 +6,6 @@ import { start, waitToStopThenStart } from "../utils/start"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../physical-dimensions/physical-dimensions"
 import { makeTunnel } from "../../transport/tunnel"
 
-const makeTransportLayer = CMPP00LG
 
 const run = async () => {
 
@@ -17,7 +16,7 @@ const run = async () => {
     // perde referencia, busca referencia, da um start afastando o eixo da origem 
     // (velocidade e aceleracao de refernecia parametrizada)
     const routine = async (program: readonly [velRef: number, acRef: number]) => {
-        const transportLayer = makeTransportLayer(tunnel)
+        const transportLayer = CMPP00LG(tunnel)
         spinner.text = 'programando parametros de movimento'
         await transportLayer.set('Posicao inicial', Pulses(1000))
         await transportLayer.set('Posicao final', Pulses(2000))
