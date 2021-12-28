@@ -8,8 +8,6 @@ import { doReferenceIfNecessary, forceReference, isReferenced, isReferencing, Re
 import { isStoped, start, waitToStop } from "./utils/start"
 import { getStatusLow, StatusL } from "./utils/get-status-low"
 
-const makeTransportLayer = CMPP00LG
-
 export type CmppControler = {
     kind: 'CmppControler'
     start: () => Promise<void>
