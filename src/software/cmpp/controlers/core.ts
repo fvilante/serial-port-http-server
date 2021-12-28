@@ -7,6 +7,8 @@ export type Kinematics = {
     acceleration: PulsesPerTickSquared
 }
 
-export type Moviment = {
-    position: Pulses    // position for next moviment
-} & Kinematics          // kinematics for next moviment
+export type Position = {
+    position: Pulses
+}
+
+export type Moviment = Position & Kinematics          
