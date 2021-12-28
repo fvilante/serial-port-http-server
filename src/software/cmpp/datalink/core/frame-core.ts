@@ -141,13 +141,3 @@ export const flattenFrameSerialized = (a: FrameSerialized): readonly number[] =>
     return acc
 }
 
-
-// helper
-// TODO: deprecate the use of this function, it seems not enough useful nor necessary. Use independent functions instead.
-export const serializeFrame = (frame: FrameCore): [serialized: FrameSerialized, flatten: readonly number[]] => {
-    const frame_ = compileCoreFrame(frame)
-    //fix: Flattening an array should be extract to an util
-    const frame__ = flattenFrameSerialized(frame_)
-    return [frame_, frame__]
-}
-
