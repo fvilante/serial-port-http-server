@@ -30,7 +30,8 @@ export function* repeaterItor<K>(times: number, element: K): Generator<K, undefi
 
 // NOTE: min and max included 
 // NOTE: Consider to use pure generated random numbers instead of this inpure version
-export const random = (min:number, max:number) => { 
+// TODO: Convert return value to 'Iterable<number>' instead of 'number', make 'seed' a parameter
+export const random = (min:number, max:number): number => { 
     return Math.floor(Math.random() * (max - min + 1) + min)
 }
 

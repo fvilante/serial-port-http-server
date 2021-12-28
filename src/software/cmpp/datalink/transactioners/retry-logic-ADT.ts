@@ -1,8 +1,7 @@
-import { FrameInterpreted } from "..";
+import { FrameInterpreted } from "../core/frame-core";
 import { Future, Future_ } from "../../../adts/future";
 import { Result, Result_ } from "../../../adts/result";
-import { portOpener_CB } from "../../../serial/port-opener-cb";
-import { frameCoreToPayload } from "../frame-core";
+import { exhaustiveSwitch } from "../../../core/utils";
 import { TransactErrorEvent } from "./payload-transact-cb";
 import { TransactPayloadArgument_ADT, transactPayload_ADT } from "./transact-payload_ADT";
 
@@ -15,7 +14,9 @@ export type RetryPolicy = {
 // TODO: Improve this API when possible,
 //       It shold be in such way that client of function can receive intermediarry attemps statys
 // Applies a retry policy over the transactionPayload API
-export const transactPayloadWithRetryPolicy = (totalRetry: RetryPolicy) => (arg: TransactPayloadArgument_ADT): Future<Result<FrameInterpreted,TransactErrorEvent>>  => {
+export const transactPayloadWithRetryPolicy = 
+    (totalRetry: RetryPolicy) => 
+    (arg: TransactPayloadArgument_ADT): Future<Result<FrameInterpreted,TransactErrorEvent>>  => {
 
     return Future( _yield => {
 
@@ -29,7 +30,8 @@ export const transactPayloadWithRetryPolicy = (totalRetry: RetryPolicy) => (arg:
                         return_ok(value)
                     },
                     Error: err => {
-                        switch (err.kind) {
+                        const kind = err.kind
+                        switch (kind) {
                             case 'TimeoutErrorEvent': {
                                 const totalRetries = totalRetry.totalRetriesOnTimeoutError
                                 const retryCount = currentRetry.totalRetriesOnTimeoutError
@@ -65,7 +67,7 @@ export const transactPayloadWithRetryPolicy = (totalRetry: RetryPolicy) => (arg:
                             }
 
                             default: {
-                                fail(err)
+                                exhaustiveSwitch(kind)
                             }
                         }
                     }
