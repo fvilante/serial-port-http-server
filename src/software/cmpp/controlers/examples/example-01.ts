@@ -14,7 +14,8 @@ const run = async () => {
 
     const tunnel = makeTunnel('com48', 9600, 0)
 
-    // perde referencia, busca referencia, da um start afastando o eixo da origem (velocidade e aceleracao de refernecia parametrizada)
+    // perde referencia, busca referencia, da um start afastando o eixo da origem 
+    // (velocidade e aceleracao de refernecia parametrizada)
     const routine = async (program: readonly [velRef: number, acRef: number]) => {
         const transportLayer = makeTransportLayer(tunnel)
         spinner.text = 'programando parametros de movimento'
