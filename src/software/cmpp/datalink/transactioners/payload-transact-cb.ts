@@ -1,6 +1,6 @@
 import { StartByteNum, StartByteToText, StartByteTxt, STX } from "../core/core-types";
 import { Payload, PayloadCore } from "../core/payload";
-import { CmppDataLinkInterpreter, StateChangeEvent, SuccessEvent, InterpretationErrorEvent } from "../interpreter";
+import { CmppDataLinkInterpreter, StateChangeEvent, SuccessEvent, InterpretationErrorEvent } from "../core/interpreter";
 import { Byte } from "../../../core/byte";
 import { PortOpened } from "../../../serial";
 import { makeWellFormedFrame } from "../core/special-case-data-constructors";
