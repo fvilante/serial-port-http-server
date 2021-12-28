@@ -1,6 +1,6 @@
 import { Future } from "../../adts/future"
 import { Result } from "../../adts/result"
-import { calculateTimeout } from "../datalink/calculate-timeout"
+import { calculateTimeoutByBaudrate } from "../datalink/core/calculate-timeout-by-baudrate"
 import { Channel } from "../datalink/core/core-types"
 import { frameCoreToPayload, FrameInterpreted } from "../datalink/core/frame-core"
 import { RetryPolicy } from "../datalink/transactioners/retry-logic-ADT"
@@ -31,7 +31,7 @@ export const detectCmpp = (tunnel: Tunnel, timeoutMilisecs: number, retryPolicy:
 }
 
 export const detectCmppInTunnel = (tunnel: Tunnel):Future<Result<FrameInterpreted, Fail>> => {
-    const timeout = calculateTimeout(tunnel.portSpec.baudRate)
+    const timeout = calculateTimeoutByBaudrate(tunnel.portSpec.baudRate)
     const retryPolicy: RetryPolicy = {
         totalRetriesOnTimeoutError: 0,        // low because most of the attempts will return a timeout error
         totalRetriesOnInterpretationError: 15 // higher so we can deal with very noise enviroments

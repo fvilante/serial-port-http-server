@@ -8,7 +8,7 @@ import { BaudRate } from '../../serial/baudrate'
 import { PortSpec } from '../../serial/port-opener-cb'
 import { safePayloadTransact } from './transactioners/safe-payload-transact'
 import { RetryPolicy } from './transactioners/retry-logic-ADT'
-import { calculateTimeout } from './calculate-timeout'
+import { calculateTimeoutByBaudrate } from './core/calculate-timeout-by-baudrate'
 
 //TODO: os clientes desta funcao deveriam checar se resposta em frameInterpreted foi 'ACK' ou 'NACK' mas eles nao estao fazendo isto. Poderia haver uma funcao intermediaria que jogue um erro caso o frame retornado seja NACK
 //TODO: API CHANGE: Make this function ADT API, and use PortSpec as function argment. Eventually use PayloadCore instead of frame (?!)
@@ -22,7 +22,7 @@ export const sendCmpp = (
             baudRate,
         }
         const dataToSend_ = frameCoreToPayload(frame)
-        const timeout = calculateTimeout(baudRate)
+        const timeout = calculateTimeoutByBaudrate(baudRate)
         //NOTE: Very conservative policy, for robustness even in extremally noisy enviroments
         const retryPolicy: RetryPolicy = {
             totalRetriesOnInterpretationError: 10, // NOTE: this error is more common. I'm exagerating and being over conservative here with number 10, maybe number 5 is enough for most of enviroments.
