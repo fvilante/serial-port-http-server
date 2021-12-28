@@ -1,4 +1,4 @@
-import { FrameInterpreted } from ".."
+import { FrameInterpreted } from "../core/frame-core"
 import { runOnce } from "../../../core/utils"
 import { getLoopBackEmulatedSerialPort } from "../../../serial/loopback"
 import { ACK } from "../core/core-types"

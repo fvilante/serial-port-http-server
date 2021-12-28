@@ -3,7 +3,7 @@ import {
     FrameCore, 
     FrameInterpreted,
     frameCoreToPayload,
-} from './frame-core'
+} from './core/frame-core'
 import { BaudRate } from '../../serial/baudrate'
 import { PortSpec } from '../../serial/port-opener-cb'
 import { safePayloadTransact } from './transactioners/safe-payload-transact'

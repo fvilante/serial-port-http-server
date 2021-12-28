@@ -1,6 +1,5 @@
-import { frameCoreToPayload } from "../cmpp/datalink/frame-core";
+import { frameCoreToPayload } from "../cmpp/datalink/core/frame-core";
 import { payloadTransact } from "../cmpp/datalink/transactioners/payload-transact";
-import { payloadTransaction_CB } from "../cmpp/datalink/transactioners/payload-transact-cb";
 import { PortOpened, portOpener, PortSpec } from "../serial";
 
 
@@ -18,7 +17,7 @@ const main = async () => {
 
             const timeout = 1000 // miliseconds
 
-            const dataToSend = frameCoreToPayload({
+            const payloadCore = frameCoreToPayload({
                 startByte: 'STX',
                 direction: 'Solicitacao',
                 waddr: 0x00,
@@ -27,7 +26,7 @@ const main = async () => {
             })
 
             try {
-                const response = await payloadTransact(portOpened, dataToSend, timeout)
+                const response = await payloadTransact(portOpened, payloadCore, timeout)
                 console.table(response)
             } catch (err) {
                 console.log('saiu por erro')

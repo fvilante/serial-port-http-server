@@ -1,9 +1,9 @@
-import { calcChecksum } from "./core/calc-checksum";
-import { uInt16ToWord16, word16ToUint16 } from "./core/int-to-word-conversion";
-import { Direction, DirectionNum, DirectionNumToText, ESC, ETX, StartByte, StartByteNum, StartByteToText, StartByteTxt } from "./core/core-types";
-import { Payload, PayloadCore } from "./core/payload";
-import { bit_clear, bit_test } from "../../core/bit-wise-utils";
-import { Byte } from "../../core/byte";
+import { calcChecksum } from "./calc-checksum";
+import { uInt16ToWord16, word16ToUint16 } from "./int-to-word-conversion";
+import { Direction, DirectionNum, DirectionNumToText, ESC, ETX, StartByte, StartByteNum, StartByteToText, StartByteTxt } from "./core-types";
+import { Payload, PayloadCore } from "./payload";
+import { bit_clear, bit_test } from "../../../core/bit-wise-utils";
+import { Byte } from "../../../core/byte";
 
 export type FrameCore = {
     startByte: StartByteTxt
@@ -111,13 +111,14 @@ export const compileCoreFrame = (core: FrameCore): FrameSerialized => {
 
     // TODO: validate range of channel, waddr, etc.
     const payloadCore = frameCoreToPayload(core)
-    const { payload, startByte: startByteNum } = payloadCore
-    const [ dirChan, waddr, dataLow, dataHigh] = payload
     const checksum = calcChecksum(payloadCore)
+    const { payload, startByte} = payloadCore
+    const [ dirChan, waddr, dataLow, dataHigh] = payload
+    
 
     return [
         [ESC], 
-        [startByteNum], 
+        [startByte], 
         dupIfNecessary(dirChan), 
         dupIfNecessary(waddr),
         dupIfNecessary(dataLow),

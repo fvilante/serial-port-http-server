@@ -2,7 +2,7 @@ import { Future } from "../../adts/future"
 import { Result } from "../../adts/result"
 import { calculateTimeout } from "../datalink/calculate-timeout"
 import { Channel } from "../datalink/core/core-types"
-import { frameCoreToPayload, FrameInterpreted } from "../datalink/frame-core"
+import { frameCoreToPayload, FrameInterpreted } from "../datalink/core/frame-core"
 import { RetryPolicy } from "../datalink/transactioners/retry-logic-ADT"
 import { Fail, safePayloadTransact } from "../datalink/transactioners/safe-payload-transact"
 import { Tunnel } from "../transport/tunnel"
@@ -12,15 +12,13 @@ import { PayloadCore } from "../datalink/core/payload"
 //       request is given back as a valid Cmpp Frame Interpreted, then the CMPP device is present in the tunnel 
 //       connection. 
 const makeDetectionPayloadCore = (channel: Channel): PayloadCore => {
-    const dataToSend = frameCoreToPayload({
+    return frameCoreToPayload({
         startByte: 'STX',
         direction: 'Solicitacao',
         waddr: 0x00,
         channel,
         uint16: 0x00,
     })
-    return dataToSend
-
 }
 
 //NOTE: you must call this function when there is no more then one cmpp per each Tunnel connected
