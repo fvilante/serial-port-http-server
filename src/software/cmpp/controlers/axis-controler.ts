@@ -28,7 +28,7 @@ export type AxisControler = {
     goToRelative: (_: Moviment) => Promise<void>
 }
 
-export const AxisCotroler = (cmppControler: CmppControler): AxisControler => {
+export const AxisControler = (cmppControler: CmppControler): AxisControler => {
 
     type T = AxisControler
 

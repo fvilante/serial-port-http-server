@@ -3,7 +3,7 @@ import { Pulses, PulsesPerTick, PulsesPerTickSquared, Pulses_, TicksOfClock } fr
 import { makeCmppControler } from "../cmpp-controler"
 import { Moviment } from "../core"
 import { makeTunnel } from '../../transport/tunnel'
-import { AxisCotroler } from '../axis-controler'
+import { AxisControler } from '../axis-controler'
 import { delay } from '../../../core/delay'
 import { exhaustiveSwitch } from '../../../core/utils'
 import { SmartReferenceParameters } from '../utils/smart-reference'
@@ -46,7 +46,7 @@ export const run = async () => {
     spinner.text = 'resetando parametros...'
     await resetMainParameters()
     
-    const axis = AxisCotroler(cmppControler)
+    const axis = AxisControler(cmppControler)
     
     await axis.doSmartReferenceIfNecessary(config)
 

@@ -3,7 +3,7 @@ import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../..
 import { CmppControler, makeCmppControler } from "../cmpp-controler"
 import { Moviment } from "../core"
 import { makeTunnel } from '../../transport/tunnel'
-import { AxisCotroler } from '../axis-controler'
+import { AxisControler } from '../axis-controler'
 import { DetecEndOfCourseParameters } from '../utils/detect-end-of-course'
 
 
@@ -59,7 +59,7 @@ const run = async () => {
     spinner.text = 'resetando parametros...'
     await resetMainParameters()
     
-    const axis = AxisCotroler(cmppControler)
+    const axis = AxisControler(cmppControler)
     
     await axis.forceSmartReference(config.referencePhase)
 
