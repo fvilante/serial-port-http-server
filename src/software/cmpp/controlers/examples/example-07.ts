@@ -117,7 +117,8 @@ export const run = async () => {
         }
         const nextRelativePosition_adjusted = Pulses_.scale(nextRelativePosition, currentDirection)
         const nextMoviment_adjusted = { ...nextRelativeMoviment, position: nextRelativePosition_adjusted}
-        const { currentPosition, isReferenced } = await axis.goToRelative(nextMoviment_adjusted)
+        await axis.goToRelative(nextMoviment_adjusted)
+        const isReferenced = (await axis.getMovimentStatus()).isReferenced 
         if(!isReferenced) throw new Error('Equipamento desreferenciou')
         return
     }

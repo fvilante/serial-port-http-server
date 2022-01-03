@@ -11,6 +11,7 @@ import { getStatusLow, StatusL } from "./utils/get-status-low"
 export type CmppControler = {
     kind: 'CmppControler'
     start: () => Promise<void>
+    waitUntilConditionIsReached: (reducer: (_:CmppControler) => Promise<boolean>) => Promise<void>
     waitToStop: () => Promise<void>
     isReferencing: () => Promise<boolean>
     isReferenced: () => Promise<boolean>
@@ -73,6 +74,8 @@ export type CmppProgram = {
 
 export const makeCmppControler = (tunnel: Tunnel):CmppControler => {
 
+    type T = CmppControler
+
     //TODO: In future abstract the version (ie: CMPP00LG) of the microcontroler software. What is important is to 
     //      implement an particular interface. Define and implement which interface is it.
     const transportLayer = CMPP00LG(tunnel)
@@ -82,14 +85,26 @@ export const makeCmppControler = (tunnel: Tunnel):CmppControler => {
         "Aceleracao de referencia": PulsesPerTickSquared(5000),
     }
 
+    const waitUntilConditionIsReached: T['waitUntilConditionIsReached'] = async hasRechedFn => {
+        const this_ = makeCmppControler(tunnel)
+        const hasNotReched = async () => !(await hasRechedFn(this_))
+        while( await hasNotReched() ) {
+            // infinite loop
+            // TODO: introduce a timeout for this loop
+        }
+    }
+
     return {
         kind: 'CmppControler',
 
         start: async () => {
             return await start(tunnel)
         },
+        waitUntilConditionIsReached,
         waitToStop: async () => {
-            return await waitToStop(tunnel)
+            waitUntilConditionIsReached( async controler => {
+                return controler.isStoped()
+            })
         },
         isReferencing: async () => {
             return await isReferencing(tunnel) 

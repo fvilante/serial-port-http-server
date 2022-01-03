@@ -3,7 +3,7 @@ import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../..
 import { delay } from "../../../core/delay"
 import { random } from "../../../core/utils"
 import { makeCmppControler } from "../cmpp-controler"
-import { doSmartReferenceIfNecessary } from "../utils/smart-reference"
+import { doSmartReferenceIfNecessary, SmartReferenceParameters } from "../utils/smart-reference"
 import { Moviment } from "../core"
 import { goMany } from '../utils/go-many'
 import { makeTunnel } from '../../transport/tunnel'
@@ -32,34 +32,19 @@ const run = async () => {
 
     // --------------
 
-    const config = {
-        referencePhase: {
-            reference: {
-                speed: PulsesPerTick(500),
-                acceleration: PulsesPerTickSquared(5000),
-            },
-            endPosition: Pulses(500)    //NOTE: This value may be variable in function of mechanics of the axis
+    const config: SmartReferenceParameters = {
+        reference: {
+            speed: PulsesPerTick(500),
+            acceleration: PulsesPerTickSquared(5000),
         },
-        searchPhase: {
-            startAt: {
-                position: Pulses(3000),
-                speed: PulsesPerTick(3000),
-                acceleration: PulsesPerTickSquared(5000)
-            },
-            endSearchAt: Pulses(15000),
-            advancingSteps: Pulses(400), // TODO: que tal pulsos por giro aqui ? 
-            advancingKinematics: {
-                speed: PulsesPerTick(6000),
-                acceleration: PulsesPerTickSquared(12000)
-            }
-        }
+        endPosition: Pulses(500)    //NOTE: This value may be variable in function of mechanics of the axis
     }
 
     const runRoutine = async () => {
         const spinner = ora().start()
         spinner.text = 'resetando parametros...'
         await resetMainParameters()
-        await doSmartReferenceIfNecessary(cmppControler,config.referencePhase)
+        await doSmartReferenceIfNecessary(cmppControler,config)
 
         function* generator():Generator<Moviment, void, unknown> {
             let counter = 0
