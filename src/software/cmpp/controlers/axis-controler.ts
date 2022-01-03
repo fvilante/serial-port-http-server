@@ -8,24 +8,24 @@ import { castStatusLToMovimentStatus, getMovimentStatus, MovimentStatus } from "
 import { doSmartReferenceIfNecessary as doSmartReferenceIfNecessary__, forceSmartReference as forceSmartReference__, SmartReferenceParameters } from "./utils/smart-reference";
 
 export type AxisControler = {
-    kind: 'AxisControler'
+    readonly kind: 'AxisControler'
     //reference
-    forceLooseReference: () => Promise<void>
-    forceSmartReference: (_: SmartReferenceParameters) => Promise<void>
-    doSmartReferenceIfNecessary: (_: SmartReferenceParameters) => Promise<void>
+    readonly forceLooseReference: () => Promise<void>
+    readonly forceSmartReference: (_: SmartReferenceParameters) => Promise<void>
+    readonly doSmartReferenceIfNecessary: (_: SmartReferenceParameters) => Promise<void>
     //params
-    setNext: (next: Moviment) => Promise<void>
-    setNextRelative: (next: Moviment) => Promise<void>
+    readonly setNext: (next: Moviment) => Promise<void>
+    readonly setNextRelative: (next: Moviment) => Promise<void>
     //start
-    start: () => Promise<void>
+    readonly start: () => Promise<void>
     //
-    getCurrentPosition: () => Promise<Pulses>
-    getMovimentStatus: () => Promise<MovimentStatus>
+    readonly getCurrentPosition: () => Promise<Pulses>
+    readonly getMovimentStatus: () => Promise<MovimentStatus>
     //macros
-    __autodetectEndOfCourse: (args: DetecEndOfCourseParameters) => Promise<Pulses>  //TODO: Verify if this function is safe to be here
+    readonly __autodetectEndOfCourse: (args: DetecEndOfCourseParameters) => Promise<Pulses>  //TODO: Verify if this function is safe to be here
     //TODO: I'm not sure this return type is such that useful or ergonomic (ie: should be better return void or even a Monad ?!)
-    goTo: (_: Moviment) => Promise<void>
-    goToRelative: (_: Moviment) => Promise<void>
+    readonly goTo: (_: Moviment) => Promise<void>
+    readonly goToRelative: (_: Moviment) => Promise<void>
 }
 
 export const AxisControler = (cmppControler: CmppControler): AxisControler => {

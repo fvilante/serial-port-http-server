@@ -9,20 +9,20 @@ import { isStoped, start, waitToStop } from "./utils/start"
 import { getStatusLow, StatusL } from "./utils/get-status-low"
 
 export type CmppControler = {
-    kind: 'CmppControler'
-    start: () => Promise<void>
-    waitUntilConditionIsReached: (reducer: (_:CmppControler) => Promise<boolean>) => Promise<void>
-    waitToStop: () => Promise<void>
-    isReferencing: () => Promise<boolean>
-    isReferenced: () => Promise<boolean>
-    isStoped: () => Promise<boolean>
-    forceReference: (program: ReferenceParameters) => Promise<void>
-    forceLooseReference: () => Promise<void>
-    doReferenceIfNecessary: (program: ReferenceParameters) => Promise<void>
-    setParameters: (parameters: Partial<CmppProgram>) => Promise<void>
+    readonly kind: 'CmppControler'
+    readonly start: () => Promise<void>
+    readonly waitUntilConditionIsReached: (reducer: (_:CmppControler) => Promise<boolean>) => Promise<void>
+    readonly waitToStop: () => Promise<void>
+    readonly isReferencing: () => Promise<boolean>
+    readonly isReferenced: () => Promise<boolean>
+    readonly isStoped: () => Promise<boolean>
+    readonly forceReference: (program: ReferenceParameters) => Promise<void>
+    readonly forceLooseReference: () => Promise<void>
+    readonly doReferenceIfNecessary: (program: ReferenceParameters) => Promise<void>
+    readonly setParameters: (parameters: Partial<CmppProgram>) => Promise<void>
     //getMainParameters: () => Promise<MainParameters>
-    getCurrentPosition: () => Promise<Pulses>
-    getStatusL: () => Promise<StatusL>
+    readonly getCurrentPosition: () => Promise<Pulses>
+    readonly getStatusL: () => Promise<StatusL>
     // TODO: decide if the below functions should be removed
     //__set: () => void
     //__get: () => void
