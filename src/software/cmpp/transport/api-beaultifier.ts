@@ -3,6 +3,8 @@ import { setCmppParam } from "./set-param"
 import { ParamCaster } from "./memmap-caster"
 import { Tunnel } from "./tunnel"
 
+//TODO: Probably this layer of indirection may be excluded, check that and exclude or simplify if possible.
+
 export type THE_API = {
     readonly [K in string]: ParamCaster<string,any>
 }

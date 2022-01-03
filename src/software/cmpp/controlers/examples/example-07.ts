@@ -3,10 +3,10 @@ import { Pulses, PulsesPerTick, PulsesPerTickSquared, Pulses_, TicksOfClock } fr
 import { makeCmppControler } from "../cmpp-controler"
 import { Moviment } from "../core"
 import { makeTunnel } from '../../transport/tunnel'
-import { AxisCotroler } from '../axis-controler'
-import { DetecEndOfCourseParameters } from '../utils/detect-end-of-course'
+import { AxisControler } from '../axis-controler'
 import { delay } from '../../../core/delay'
 import { exhaustiveSwitch } from '../../../core/utils'
+import { SmartReferenceParameters } from '../utils/smart-reference'
 
 
 
@@ -33,27 +33,12 @@ export const run = async () => {
 
     // --------------
 
-    const config: DetecEndOfCourseParameters = {
-        referencePhase: {
-            reference: {
-                speed: PulsesPerTick(500),
-                acceleration: PulsesPerTickSquared(5000),
-            },
-            endPosition: Pulses(500)    //NOTE: This value may be variable in function of mechanics of the axis
+    const config: SmartReferenceParameters = {
+        reference: {
+            speed: PulsesPerTick(500),
+            acceleration: PulsesPerTickSquared(5000),
         },
-        searchPhase: {
-            startAt: {
-                position: Pulses(3000),
-                speed: PulsesPerTick(3000),
-                acceleration: PulsesPerTickSquared(5000)
-            },
-            endSearchAt: Pulses(15000),
-            advancingSteps: Pulses(400), // TODO: que tal pulsos por giro aqui ? 
-            advancingKinematics: {
-                speed: PulsesPerTick(6000),
-                acceleration: PulsesPerTickSquared(12000)
-            }
-        }
+        endPosition: Pulses(500)    //NOTE: This value may be variable in function of mechanics of the axis
     }
 
   
@@ -61,9 +46,9 @@ export const run = async () => {
     spinner.text = 'resetando parametros...'
     await resetMainParameters()
     
-    const axis = AxisCotroler(cmppControler)
+    const axis = AxisControler(cmppControler)
     
-    await axis.doSmartReferenceIfNecessary(config.referencePhase)
+    await axis.doSmartReferenceIfNecessary(config)
 
     const pitchShift = 1
 
@@ -76,6 +61,7 @@ export const run = async () => {
     const G4: Tone = 392 * pitchShift
     const A4: Tone = 440 * pitchShift
     const B4: Tone = 494 * pitchShift
+    const C5: Tone = (C4*2) * pitchShift
 
     type Duration = number
     type Bend = number // corresponds to acceleration
@@ -118,7 +104,7 @@ export const run = async () => {
         //TODO: Make this state more persistent
         let currentDirection: number = 1 // (+1) = forward, (-1) = reward
         const { position: nextRelativePosition } = nextRelativeMoviment
-        const MAX_POSITION = Pulses(6500)
+        const MAX_POSITION = Pulses(2300)
         const MIN_POSITION = Pulses(500)
         const currentAbsolutePosition_ = await axis.getCurrentPosition()
         const nextAbsolutePosition = Pulses_.add(currentAbsolutePosition_, nextRelativePosition)
@@ -132,7 +118,8 @@ export const run = async () => {
         }
         const nextRelativePosition_adjusted = Pulses_.scale(nextRelativePosition, currentDirection)
         const nextMoviment_adjusted = { ...nextRelativeMoviment, position: nextRelativePosition_adjusted}
-        const { currentPosition, isReferenced } = await axis.goToRelative(nextMoviment_adjusted)
+        await axis.goToRelative(nextMoviment_adjusted)
+        const isReferenced = (await axis.getMovimentStatus()).isReferenced 
         if(!isReferenced) throw new Error('Equipamento desreferenciou')
         return
     }
@@ -214,14 +201,35 @@ export const run = async () => {
         //
     ]
 
+    const musicalScale: Composition = [
+        Sound([C4, 2*tempo]),
+        Sound([D4, 2*tempo]),
+        Sound([E4, 2*tempo]),
+        Sound([F4, 2*tempo]),
+        Sound([G4, 2*tempo]),
+        Sound([A4, 2*tempo]),
+        Sound([B4, 2*tempo]),
+        Sound([C5, 4*tempo]),
+        Silence(8*tempo),
+
+    ]
+
     const initial: Moviment = {
         position: Pulses(500),
         speed: PulsesPerTick(1000),
         acceleration: PulsesPerTickSquared(5000)
     }
-    const endPosition = Pulses(6000)
+    const endPosition = Pulses(2300)
 
     await axis.goTo(initial)
+    await play(musicalScale)
+    await play(musicalScale)
+    await play(musicalScale)
+    await play(musicalScale)
+    await play(musicalScale)
+    await play(musicalScale)
+    await play(musicalScale)
+    await play(musicalScale)
     await play(doremifa)
     await play(doremifa)
     await play(dingoBells)
@@ -234,11 +242,6 @@ export const run = async () => {
     await play(doremifa)
     await play(dingoBells)
     await play(dingoBells)
-
-
-    
-    
-    
 
 }
 

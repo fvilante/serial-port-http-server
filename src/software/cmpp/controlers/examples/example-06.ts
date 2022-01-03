@@ -3,7 +3,7 @@ import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../..
 import { CmppControler, makeCmppControler } from "../cmpp-controler"
 import { Moviment } from "../core"
 import { makeTunnel } from '../../transport/tunnel'
-import { AxisCotroler } from '../axis-controler'
+import { AxisControler } from '../axis-controler'
 import { DetecEndOfCourseParameters } from '../utils/detect-end-of-course'
 
 
@@ -41,7 +41,7 @@ const run = async () => {
         },
         searchPhase: {
             startAt: {
-                position: Pulses(3000),
+                position: Pulses(500),
                 speed: PulsesPerTick(3000),
                 acceleration: PulsesPerTickSquared(5000)
             },
@@ -59,11 +59,11 @@ const run = async () => {
     spinner.text = 'resetando parametros...'
     await resetMainParameters()
     
-    const axis = AxisCotroler(cmppControler)
+    const axis = AxisControler(cmppControler)
     
     await axis.forceSmartReference(config.referencePhase)
 
-    const endOfCourse = Pulses(6500)
+    const endOfCourse = Pulses(2400)
 
     function* getNextMoviment():Generator<Moviment, void, unknown> {
         //TODO: decide when to use 'velocity' and when to use 'speed' (and vice-versa), to avoid misconception

@@ -40,7 +40,7 @@ const run = async () => {
         },
         searchPhase: {
             startAt: {
-                position: Pulses(3000),
+                position: Pulses(500),
                 speed: PulsesPerTick(3000),
                 acceleration: PulsesPerTickSquared(5000)
             },

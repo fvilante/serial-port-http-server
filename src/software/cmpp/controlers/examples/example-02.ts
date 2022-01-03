@@ -6,18 +6,17 @@ import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../..
 import { delay } from "../../../core/delay"
 import { makeTunnel } from "../../transport/tunnel"
 
-const makeTransportLayer = CMPP00LG
 
 const run = async () => {
 
     const spinner = ora().start()
 
-    const tunnel = makeTunnel('com48', 9600, 0)
+    const tunnel = makeTunnel('com50', 9600, 0)
 
 
     // perde referencia, busca referencia, da um start afastando o eixo da origem (velocidade e aceleracao de refernecia parametrizada)
     const routine = async () => {
-        const transportLayer = makeTransportLayer(tunnel)
+        const transportLayer = CMPP00LG(tunnel)
         //
         spinner.text = `Preparando eixos...`
         await doReferenceIfNecessary(tunnel,{
@@ -27,7 +26,7 @@ const run = async () => {
         //
         spinner.text = 'programando parametros de movimento'
         await transportLayer.set('Posicao inicial', Pulses(500))
-        await transportLayer.set('Posicao final', Pulses(6000))
+        await transportLayer.set('Posicao final', Pulses(2300))
         await transportLayer.set('Velocidade de avanco', PulsesPerTick(3500))
         await transportLayer.set('Velocidade de retorno', PulsesPerTick(3500))
         await transportLayer.set('Aceleracao de avanco', PulsesPerTickSquared(9000))

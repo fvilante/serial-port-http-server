@@ -8,7 +8,7 @@ import { Kinematics } from "../core"
 
 
 // VERY IMPORTANT: parameter 'endPosition' represents the position where the reference procedure will delivery the motor.
-    //                 If this number is greater than 1292 pulses, the cmpp microcnotroler will truncate it to 1292
+//                 If this number is greater than 1292 pulses, the cmpp microcnotroler will truncate it to 1292
 export const forceSmartReference = async (cmppControler: CmppControler, arg: {reference: Kinematics, endPosition: Pulses}) => {
     const { reference, endPosition } = arg
 
