@@ -102,8 +102,8 @@ export const makeCmppControler = (tunnel: Tunnel):CmppControler => {
         },
         waitUntilConditionIsReached,
         waitToStop: async () => {
-            waitUntilConditionIsReached( async controler => {
-                return controler.isStoped()
+            await waitUntilConditionIsReached( async controler => {
+                return await controler.isStoped()
             })
         },
         isReferencing: async () => {

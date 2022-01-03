@@ -56,8 +56,8 @@ export const AxisCotroler = (cmppControler: CmppControler): AxisControler => {
     const goTo: T['goTo'] = async moviment => {
         await setNext(moviment)
         await cmppControler.start()
-        await cmppControler.waitUntilConditionIsReached( controler => {
-            return controler.isStoped()
+        await cmppControler.waitUntilConditionIsReached( async controler => {
+            return await controler.isStoped()
         })
     }
 
