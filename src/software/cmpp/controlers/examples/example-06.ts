@@ -41,7 +41,7 @@ const run = async () => {
         },
         searchPhase: {
             startAt: {
-                position: Pulses(3000),
+                position: Pulses(500),
                 speed: PulsesPerTick(3000),
                 acceleration: PulsesPerTickSquared(5000)
             },
@@ -63,7 +63,7 @@ const run = async () => {
     
     await axis.forceSmartReference(config.referencePhase)
 
-    const endOfCourse = Pulses(6500)
+    const endOfCourse = Pulses(2400)
 
     function* getNextMoviment():Generator<Moviment, void, unknown> {
         //TODO: decide when to use 'velocity' and when to use 'speed' (and vice-versa), to avoid misconception

@@ -49,7 +49,7 @@ const run = async () => {
         function* generator():Generator<Moviment, void, unknown> {
             let counter = 0
             while (counter++ < 150) {
-                const nextPos = random(3000, 4000)
+                const nextPos = random(500, 2300)
                 const nextVelocity = random(859, 860)
                 const nextAcceleration = random(5500, 5501)
 

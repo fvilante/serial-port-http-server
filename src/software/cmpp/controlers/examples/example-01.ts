@@ -11,7 +11,7 @@ const run = async () => {
 
     const spinner = ora().start()
 
-    const tunnel = makeTunnel('com48', 9600, 0)
+    const tunnel = makeTunnel('com50', 9600, 0)
 
     // perde referencia, busca referencia, da um start afastando o eixo da origem 
     // (velocidade e aceleracao de refernecia parametrizada)

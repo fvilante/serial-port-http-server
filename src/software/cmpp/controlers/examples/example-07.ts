@@ -61,6 +61,7 @@ export const run = async () => {
     const G4: Tone = 392 * pitchShift
     const A4: Tone = 440 * pitchShift
     const B4: Tone = 494 * pitchShift
+    const C5: Tone = (C4*2) * pitchShift
 
     type Duration = number
     type Bend = number // corresponds to acceleration
@@ -103,7 +104,7 @@ export const run = async () => {
         //TODO: Make this state more persistent
         let currentDirection: number = 1 // (+1) = forward, (-1) = reward
         const { position: nextRelativePosition } = nextRelativeMoviment
-        const MAX_POSITION = Pulses(6500)
+        const MAX_POSITION = Pulses(2300)
         const MIN_POSITION = Pulses(500)
         const currentAbsolutePosition_ = await axis.getCurrentPosition()
         const nextAbsolutePosition = Pulses_.add(currentAbsolutePosition_, nextRelativePosition)
@@ -200,14 +201,35 @@ export const run = async () => {
         //
     ]
 
+    const musicalScale: Composition = [
+        Sound([C4, 2*tempo]),
+        Sound([D4, 2*tempo]),
+        Sound([E4, 2*tempo]),
+        Sound([F4, 2*tempo]),
+        Sound([G4, 2*tempo]),
+        Sound([A4, 2*tempo]),
+        Sound([B4, 2*tempo]),
+        Sound([C5, 4*tempo]),
+        Silence(8*tempo),
+
+    ]
+
     const initial: Moviment = {
         position: Pulses(500),
         speed: PulsesPerTick(1000),
         acceleration: PulsesPerTickSquared(5000)
     }
-    const endPosition = Pulses(6000)
+    const endPosition = Pulses(2300)
 
     await axis.goTo(initial)
+    await play(musicalScale)
+    await play(musicalScale)
+    await play(musicalScale)
+    await play(musicalScale)
+    await play(musicalScale)
+    await play(musicalScale)
+    await play(musicalScale)
+    await play(musicalScale)
     await play(doremifa)
     await play(doremifa)
     await play(dingoBells)
