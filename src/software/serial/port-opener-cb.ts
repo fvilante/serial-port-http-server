@@ -101,7 +101,10 @@ const castToLocalInterface = (portSpec: PortSpec, portOpened: SerialPort): PortO
 
   const onData: PortOpened['onData'] = f => {
     // NOTE: passing the original 'buffer' type may be more time eficient and maybe be implemented in future
-    portOpened.on('data', (buffer: Buffer) => f(buffer.toJSON().data) );
+    portOpened.on('data', (buffer: Buffer) => {
+      const data = buffer.toJSON().data
+      f(data) 
+    });
   }
 
   const close: PortOpened['close'] = () => new Promise( (resolve, reject) => {
