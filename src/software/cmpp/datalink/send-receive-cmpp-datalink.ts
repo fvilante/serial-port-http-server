@@ -25,8 +25,8 @@ export const sendCmpp = (
         const timeout = calculateTimeoutByBaudrate(baudRate)
         //NOTE: Very conservative policy, for robustness even in extremally noisy enviroments
         const retryPolicy: RetryPolicy = {
-            totalRetriesOnInterpretationError: 10, // NOTE: this error is more common. I'm exagerating and being over conservative here with number 10, maybe number 5 is enough for most of enviroments.
-            totalRetriesOnTimeoutError: 4 //NOTE: In very noise enviroments, entire responses packages can evaporate. Four is a conservative value
+            totalRetriesOnInterpretationError: 10*3, // NOTE: this error is more common. I'm exagerating and being over conservative here with number 10, maybe number 5 is enough for most of enviroments.
+            totalRetriesOnTimeoutError: 4*4 //NOTE: In very noise enviroments, entire responses packages can evaporate. Four is a conservative starting value
         }
         safePayloadTransact(portSpec,dataToSend_, timeout, retryPolicy)
             .forResult({
