@@ -129,7 +129,7 @@ export class SingleAxis {
             return !isOutOfRange
         }
 
-        const go_ = async (tolerance_: TargetPositionTolerance):Promise<Pulses> => {
+        const go_ = async (tolerance_: TargetPositionTolerance, retrial: number):Promise<Pulses> => {
             const cmpp = makeCmppControler(this.tunnel)
             const axis = AxisControler(cmpp)
             await setNext(cmpp, roundedMoviment)
@@ -146,10 +146,36 @@ export class SingleAxis {
             const isValidPosition = hasStoppedInCorrectPosition(currentPosition, expectedPosition, tolerance)
             console.log(`isValidPosition`,isValidPosition)
             if (!isValidPosition) {
-                //sconsole.log('PAROU FORA DA POSICAO !!!!!!!!!!')
-                throw new Error(`Axis '${this.axisName}': 'Goto' command stoped out of the expected position considering tolerance range (expected=${expectedPosition.value}, actual=${currentPosition.value}, range=[${tolerance[0].value, tolerance[1].value}] inclusive-inclusive). Aborting with error`)
+                //TODO: IMPROVE THE APPROUCH TO THIS ERROR CORRECTION
+                //      For example: reduce the distance of Posicao_inicial and Posicao_final
+                //                   and/or referentiate as an last attempt. Is useful to wait before retry this attempts to not make the moviment unpredictable to the operator
+                /*bugfix: first approuch to the error:
+                    when working with 3 axis simultaneously, after some minutes of working, moving to aleatory positions, the axis goes to Posicao_inicial instead of to Posicao_final.
+                    In this case we are confirming at each moving, if the stop position is equivalent to the target position. 
+                    If not new attempts to reach the position is tried before raise an fatal error.
+                */
+                if (retrial<=0) {
+                    let currentPosition__: Pulses | undefined = undefined
+                    try {
+                        currentPosition__ = await this.getCurrentPosition()
+                    } catch (err) { 
+                        // do nothing
+                    }
+                    const header = `Axis '${this.axisName}': `
+                    const msg1 = `Unsuccessfuly attempt to recovery from wrong target position error.`
+                    const msg2 = `'Goto' command stoped out of the expected position considering tolerance range (expected=${expectedPosition.value}, actual=${currentPosition.value}, range=[${tolerance[0].value}, ${tolerance[1].value}] inclusive-inclusive). Aborting with error`
+                    const msg3 = `Current position after all recovery attempts is ${currentPosition__?.value} pulses`
+                    const errmsg = header + msg1 + msg2 + msg3
+                    throw new Error(errmsg)
+                } else /*retrial > 0*/{
+                    console.log('----------------------------------------------------------------------')
+                    console.log('Nao chegou no target position: Tentando novamente !!')
+                    console.log('----------------------------------------------------------------------')
+                    await go_(tolerance, retrial-1)
+                }
             }
-            return currentPosition
+            const response = await axis.getCurrentPosition()
+            return response
         }
 
         // run
@@ -167,10 +193,10 @@ export class SingleAxis {
 
         // perform action
         if (this.isReadyToGo) {
-            return go_(tolerance)
+            return go_(tolerance,3)
         } else {
             await this.initialize()
-            return go_(tolerance)
+            return go_(tolerance,3)
         }
         
     }
