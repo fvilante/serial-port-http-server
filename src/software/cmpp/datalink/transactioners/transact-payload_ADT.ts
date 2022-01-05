@@ -30,8 +30,18 @@ export const transactPayload_ADT = (argument: TransactPayloadArgument_ADT): Futu
                 resolve(fail(err))
             },
             onSuccess: (event, header) => {
+                //TODO: Implement a better checksum error detection
                 const { frameInterpreted } = event
-                resolve(ok(frameInterpreted))
+                const expectedChecksum = frameInterpreted.expectedChecksum
+                const actualChecksum = frameInterpreted.checkSum[0]
+                const isValidChecksum = expectedChecksum === actualChecksum
+                if(isValidChecksum) {
+                    resolve(ok(frameInterpreted))
+                } else /* invalid checksum*/ {
+                    //TODO: remove this ugly throw and use 'fail' function above. 
+                    throw new Error('Invalid checksum response from slave')
+                }
+                
             },
             END: () => {},
         })
