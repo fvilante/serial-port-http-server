@@ -16,7 +16,7 @@ export type MovimentStatus = {
     isChangingVelocity: boolean // acelerating or deacelerating
     isAcelerating: boolean
     isDeacelerating: boolean
-    movimentStage: MovimentStage
+    movimentStage: 'ramp_up' | 'const_speed_and_moving' | 'ramp_down' | 'stoped'
 } & {
     // REFERENCE STATUS PART
     isReferenced: boolean
