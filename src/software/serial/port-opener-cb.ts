@@ -44,14 +44,8 @@ export type UnknownError = {
   detail: Error | unknown  // TODO: Remove this unknown type if possible, it is here because I'm 95% certain it's a Error type and 5% it may be other thing else. But type unknown absorbs all other types
 }
 
-//TODO: Not implemented!!
-export type PortCloseError = {
-  kind: 'PortCloseError'
-  portSpec: PortSpec
-  detail: Error | unknown
-}
 
-export type PortOpenError = AccessDenied | FileNotFound | UnknownError // | PortCloseError (TODO: not implemented!) */
+export type PortOpenError = AccessDenied | FileNotFound | UnknownError
 
 const removeAllListenersFromPort = (port: SerialPort): void => {
     //port.removeListener('error', onError)
@@ -123,7 +117,7 @@ const castToLocalInterface = (portSpec: PortSpec, portOpened: SerialPort): PortO
     if(alreadyOpened.has(path)) {
       alreadyOpened.delete(path)
     } else {
-      const msg = `Tentativa de fechar uma porta que nao foi aberta pela rotina oficial. Porta=${path}`
+      const msg = `Tentativa de fechar uma porta que nao esta aberta ou nãofoi aberta pela rotina oficial. Porta=${path}`
       console.log(`######################################### ${msg} `)
       throw new Error(msg)
     }
