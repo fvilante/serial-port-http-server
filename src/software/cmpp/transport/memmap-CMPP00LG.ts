@@ -583,7 +583,8 @@ const NivelSinalEmotor = paramCaster_1bit({
 
 //TODO: Cast below variable
 //NOTE: Do not forget to insert "as const" after the ending brackets. Each key must be annotated as 'readonly'
-const api = {
+export type CMPP00LG_Memmap = typeof CMPP00LG_Memmap
+export const CMPP00LG_Memmap = {
     'Posicao inicial': PosicaoInicial,
     'Posicao final': PosicaoFinal,
     'Aceleracao de avanco': AceleracaoDeAvanco,
@@ -659,7 +660,7 @@ const api = {
 // API: just used to pre-apply tunnel to set and get
 // TODO: maybe 'makeSettersAndGettersFromCmppAPI' can already do this work
 export const CMPP00LG = (tunnel: Tunnel) => {
-    const { set: internalSet, get: internalGet} = makeSettersAndGettersFromCmppAPI(api)
+    const { set: internalSet, get: internalGet} = makeSettersAndGettersFromCmppAPI(CMPP00LG_Memmap)
 
     return {
         set: internalSet(tunnel),
