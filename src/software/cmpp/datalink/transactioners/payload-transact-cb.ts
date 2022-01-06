@@ -37,14 +37,14 @@ const makeHeaderEvent = (n: StartByteNum, payload: Payload): HeaderEvent => {
 export type TransactErrorEvent = InterpretationErrorEvent | TimeoutErrorEvent
 
 export type EventHandler = {
-    BEGIN: (header: HeaderEvent) => void       // before all (garanteed that any event will be generated before this one)
-    willSend: (header: HeaderEvent) => void    // before send
-    hasSent: (header: HeaderEvent) => void     // after send
-    onDataChunk: (data: readonly Byte[], header: HeaderEvent) => void   // each chunck of data received
-    onSuccess: (event: SuccessEvent, header: HeaderEvent) => void // the result frame of the transaction
-    onError: (event: TransactErrorEvent, header: HeaderEvent) => void // errors of interpretation and others
-    onStateChange: (event: StateChangeEvent, header: HeaderEvent) => void // on each internal state of the interpreter change
-    END: (result: SuccessEvent | TransactErrorEvent, header: HeaderEvent) => void       // before all (garanteed that any event will be generated after this one)
+    BEGIN?: (header: HeaderEvent) => void       // before all (garanteed that any event will be generated before this one)
+    willSend?: (header: HeaderEvent) => void    // before send
+    hasSent?: (header: HeaderEvent) => void     // after send
+    onDataChunk?: (data: readonly Byte[], header: HeaderEvent) => void   // each chunck of data received
+    onSuccess?: (event: SuccessEvent, header: HeaderEvent) => void // the result frame of the transaction
+    onError?: (event: TransactErrorEvent, header: HeaderEvent) => void // errors of interpretation and others
+    onStateChange?: (event: StateChangeEvent, header: HeaderEvent) => void // on each internal state of the interpreter change
+    END?: (result: SuccessEvent | TransactErrorEvent, header: HeaderEvent) => void       // before all (garanteed that any event will be generated after this one)
 }
 
 //NOTE: This function WILL NOT automatically close the port
@@ -95,8 +95,8 @@ export const payloadTransaction_CB = (portOpened: PortOpened, payloadCore: Paylo
         }
         const event = [timeout, header] as const
         cleanupPortResources(portOpened) // TODO: extract all this cleanup calls to one single cleanup function
-        handler.onError(...event)
-        handler.END(...event)
+        if(handler.onError) handler.onError(...event)
+        if(handler.END) handler.END(...event)
         
     }
 
