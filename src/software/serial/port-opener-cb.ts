@@ -44,7 +44,14 @@ export type UnknownError = {
   detail: Error | unknown  // TODO: Remove this unknown type if possible, it is here because I'm 95% certain it's a Error type and 5% it may be other thing else. But type unknown absorbs all other types
 }
 
-export type PortOpenError = AccessDenied | FileNotFound | UnknownError
+//TODO: Not implemented!!
+export type PortCloseError = {
+  kind: 'PortCloseError'
+  portSpec: PortSpec
+  detail: Error | unknown
+}
+
+export type PortOpenError = AccessDenied | FileNotFound | UnknownError // | PortCloseError (TODO: not implemented!) */
 
 const removeAllListenersFromPort = (port: SerialPort): void => {
     //port.removeListener('error', onError)
