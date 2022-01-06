@@ -5,6 +5,8 @@ import SerialPort  from 'serialport'
 import { PortInfo } from './port-info'
 import { LoopBackPortA_Path, LoopBackPortB_Path, portAOpened, portBOpened } from './loopback'
 
+//TODO: Refactor Extract this logic of protection
+const alreadyOpened = new Set() // registers already opened port to prevent open same port twice
 
 export type OpenedErrorEvent = undefined
 
@@ -108,6 +110,17 @@ const castToLocalInterface = (portSpec: PortSpec, portOpened: SerialPort): PortO
   }
 
   const close: PortOpened['close'] = () => new Promise( (resolve, reject) => {
+    // validate
+    //TODO: Refactor Extract this logic of protection
+    //TODO: Improve error mechanism, avoid throwing
+    if(alreadyOpened.has(path)) {
+      alreadyOpened.delete(path)
+    } else {
+      const msg = `Tentativa de fechar uma porta que nao foi aberta pela rotina oficial. Porta=${path}`
+      console.log(`######################################### ${msg} `)
+      throw new Error(msg)
+    }
+    // action
     removeAllListenersFromPort(portOpened)
     portOpened.close( err => {
       if (err) {
@@ -204,6 +217,18 @@ export type EventHandler = {
 export const portOpener_CB = (portSpec: PortSpec, handler: EventHandler): void => {
 
   const { path, baudRate} = portSpec
+
+
+  //TODO: Refactor Extract this logic of protection
+  //TODO: Improve error mechanism, avoid throwing
+  if (alreadyOpened.has(path)) {
+    const msg = `ERRO TENTANTO ABRIR A PORTA ${path}}DUAS VEZES`
+    console.log(`*************************************  ${msg} ***************`)
+    throw new Error(msg)
+  } else {
+    alreadyOpened.add(path)
+  }
+  
 
   const run = () => {
 
