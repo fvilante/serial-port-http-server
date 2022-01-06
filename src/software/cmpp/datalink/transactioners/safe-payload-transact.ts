@@ -15,6 +15,14 @@ export type PortCloseError = {
     detail: UnsafePromiseError
 }
 
+export const castPortCloseError = (_: UnsafePromiseError, portSpec: PortSpec): PortCloseError => {
+    return {
+        kind: 'Port close error',
+        portSpec,
+        detail: _,
+    }
+}
+
 //TODO: Should we extract this function to serial lib as 'portCloser' ?
 const portCloser = (portOpened: PortOpened, portSpec: PortSpec): Future<Result<void,PortCloseError>> => {
     return Future( _yield => {
@@ -22,11 +30,8 @@ const portCloser = (portOpened: PortOpened, portSpec: PortSpec): Future<Result<v
         const closeIt = Future_.fromUnsafePromise(portOpened.close)
         closeIt.forResult({
             Error: UnsafePromiseError => {
-                return_error({
-                    kind: 'Port close error',
-                    portSpec,
-                    detail: UnsafePromiseError
-                })
+                const PortCloseError = castPortCloseError(UnsafePromiseError, portSpec)
+                return_error(PortCloseError)
             },
             Ok: () => {
                 return_ok() // port is closed
