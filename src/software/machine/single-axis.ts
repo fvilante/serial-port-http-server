@@ -26,19 +26,17 @@ export type AxisRange = {
 export type TargetPositionTolerance = readonly [lowerDelta: Pulses, upperDelta: Pulses]
 
 export class SingleAxis {
-    axisName: AxisName = 'Unamed_Axis' 
-    tunnel:Tunnel
+ 
+    // internal state
     isReadyToGo: boolean = false // indicate that axis has already been sucessfully initiated
-    reference: SmartReferenceParameters = defaultReferenceParameter
-    axisRange: AxisRange | undefined = undefined
     targetPositionTolerance: TargetPositionTolerance = [Pulses(3), Pulses(3)]
 
-    constructor(tunnel: Tunnel, name?: AxisName, axisRange?: AxisRange, ref?: SmartReferenceParameters ) {
-        this.tunnel = tunnel
-        if(ref) { this.reference = ref }
-        if(name) { this.axisName = name }
-        if(axisRange) { this.axisRange = axisRange }
-    }
+    constructor(
+        public tunnel: Tunnel, 
+        public axisName: AxisName = 'Unamed_Axis', 
+        public axisRange: AxisRange | undefined = undefined, 
+        public referenceParameters: SmartReferenceParameters = defaultReferenceParameter
+        ) { }
 
     /** assures the axis is prepered to receive new commands, returns current position after initialization */
     async initialize(ref?: SmartReferenceParameters):Promise<Pulses> {
@@ -64,7 +62,7 @@ export class SingleAxis {
             }
 
             const doReference = async () => {
-                const config = ref ?? this.reference
+                const config = ref ?? this.referenceParameters
                 await preConfig()
                 await axis.forceLooseReference()
                 await axis.forceSmartReference(config)
