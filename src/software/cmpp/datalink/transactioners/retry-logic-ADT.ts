@@ -33,6 +33,7 @@ export const transactPayloadWithRetryPolicy =
                         const kind = err.kind
                         switch (kind) {
                             case 'TimeoutErrorEvent': {
+                                console.log('**** Um pacote slave aguardado foi completamente perdido!!! *****', arg.dataToSend)
                                 const totalRetries = totalRetry.totalRetriesOnTimeoutError
                                 const retryCount = currentRetry.totalRetriesOnTimeoutError
                                 // do not retry if counter reach zero
