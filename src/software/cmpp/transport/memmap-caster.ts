@@ -23,6 +23,8 @@ export type CmppType<A,B> = {
     readonly deserialize: (_:B) => A
 }
 
+export type InferCmppType<T extends CmppType<any,any>> = T extends CmppType<infer A, infer B> ? {source: A, target: B} : never
+
 export type ParamCaster_16bits<T extends string, A> = {
     type: '16 Bits'
 } & ParamCasterCore<T,A, UInt16>
