@@ -32,6 +32,7 @@ export const transactPayload_ADT = (argument: TransactPayloadArgument_ADT): Futu
             },
             onSuccess: (event, header) => {
                 //TODO: Implement a better checksum error detection and NACK detection (REMOVE this error throwing!! )
+                //TODO: Probably the error code bellow should be transfered to payloadTransaction_CB
                 const { frameInterpreted } = event
                 const expectedChecksum = frameInterpreted.expectedChecksum
                 const actualChecksum = frameInterpreted.checkSum[0]
