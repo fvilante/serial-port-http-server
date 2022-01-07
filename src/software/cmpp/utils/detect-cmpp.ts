@@ -31,7 +31,7 @@ export const detectCmpp = (tunnel: Tunnel, timeoutMilisecs: number, retryPolicy:
 }
 
 export const detectCmppInTunnel = (tunnel: Tunnel):Future<Result<FrameInterpreted, Fail>> => {
-    const timeout = calculateTimeoutByBaudrate(tunnel.portSpec.baudRate)
+    const timeout = calculateTimeoutByBaudrate(tunnel.portSpec.baudRate)  //TODO: Maybe the timeout be shortened for cmpp detection to speed up detection accepting a very low risk of non detection
     const retryPolicy: RetryPolicy = {
         totalRetriesOnTimeoutError: 0,        // low because most of the attempts will return a timeout error
         totalRetriesOnInterpretationError: 15 // higher so we can deal with very noise enviroments

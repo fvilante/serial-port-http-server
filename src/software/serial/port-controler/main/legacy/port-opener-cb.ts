@@ -4,7 +4,7 @@
 import SerialPort  from 'serialport'
 import { LoopBackPortA_Path, LoopBackPortB_Path, getPortAOpened, getPortBOpened } from '../../loopback/loopback'
 import { AccessDenied, castPortOpenError, FileNotFound, PortOpenError, UnknownError } from '../errors-types'
-import { castToLocalInterface, PortOpened } from '../port-opened'
+import { makePortOpened, PortOpened } from '../port-opened'
 import { PortSpec } from '../../../core/port-spec'
 
 //TODO: Refactor Extract this logic of protection
@@ -97,7 +97,7 @@ export const portOpener_CB = (portSpec: PortSpec, handler: EventHandler): void =
 
     //NOTE: This cast is intended to encapsulate from the client perspective internal details
     const castSerialPort = (p: SerialPort) => {
-      return castToLocalInterface(portSpec, p)
+      return makePortOpened(portSpec, p)
     }
 
 
