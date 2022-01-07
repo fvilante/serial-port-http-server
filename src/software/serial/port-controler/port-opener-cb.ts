@@ -1,9 +1,9 @@
 // NOTE: This module is just a wrapper over the real concrete nodejs serial port module.
 //       see also: https://serialport.io/docs/guide-usage
-import { BaudRate } from './core/baudrate'
+import { BaudRate } from '../core/baudrate'
 import SerialPort  from 'serialport'
-import { PortInfo } from './core/port-info'
-import { LoopBackPortA_Path, LoopBackPortB_Path, portAOpened, portBOpened } from './port-controler/loopback/loopback'
+import { PortInfo } from '../core/port-info'
+import { LoopBackPortA_Path, LoopBackPortB_Path, portAOpened, portBOpened } from './loopback/loopback'
 
 //TODO: Refactor Extract this logic of protection
 const alreadyOpened = new Set() // registers already opened port to prevent open same port twice
