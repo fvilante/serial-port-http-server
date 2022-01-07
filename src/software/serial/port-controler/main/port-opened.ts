@@ -6,6 +6,7 @@ import { PortSpec } from "../../core/port-spec";
 
 export type PortOpened = {
     readonly kind: 'PortOpened'
+    readonly portSpec: PortSpec
     readonly write: (data: readonly number[]) => Promise<void> //fix: ??? change to Promise<number> where number is the amount of bytes written ???
     readonly onData: (f: (data: readonly number[]) => void) => void
     readonly close: () => Promise<void>
@@ -89,6 +90,7 @@ export const castToLocalInterface = (portSpec: PortSpec, portOpened: SerialPort)
   
     return {
       kind: 'PortOpened',
+      portSpec,
       write,
       onData,
       close,
