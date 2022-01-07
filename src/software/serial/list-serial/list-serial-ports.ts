@@ -1,6 +1,6 @@
 import SerialPort  from 'serialport'
 import { PortInfo } from "../port-info";
-import { LoopBackPortsInfo } from '../loopback';
+import { LoopBackPortsInfo } from '../port-controler/loopback/loopback';
 
 // NOTE: Today both PortInfo types are equals, but they may differ in future code changings
 //       this is why we preffer to not reuse SerialPort.PortInfo type

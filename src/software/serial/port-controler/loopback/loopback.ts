@@ -1,7 +1,7 @@
 // Emulates a serialport loopback where PortA is connected (cross-over) to PortB and vice-versa 
 
-import { delay } from "../core/delay"
-import { PortOpened } from "./port-opener-cb"
+import { delay } from "../../../core/delay"
+import { PortOpened } from "../../port-opener-cb"
 
 //TODO: Change below names to more mneumonic names
 export const LoopBackPortA_Path = 'LoopBackTest_PortA' //TODO: rename by a more meneumonic name

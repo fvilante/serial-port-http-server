@@ -3,7 +3,7 @@
 import { BaudRate } from './core/baudrate'
 import SerialPort  from 'serialport'
 import { PortInfo } from './port-info'
-import { LoopBackPortA_Path, LoopBackPortB_Path, portAOpened, portBOpened } from './loopback'
+import { LoopBackPortA_Path, LoopBackPortB_Path, portAOpened, portBOpened } from './port-controler/loopback/loopback'
 
 //TODO: Refactor Extract this logic of protection
 const alreadyOpened = new Set() // registers already opened port to prevent open same port twice

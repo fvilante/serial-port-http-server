@@ -1,5 +1,5 @@
 import { Bytes } from "../../core/byte"
-import { getLoopBackEmulatedSerialPort, LoopBackPortA_Path, LoopBackPortB_Path } from "../loopback"
+import { getLoopBackEmulatedSerialPort, LoopBackPortA_Path, LoopBackPortB_Path } from "../port-controler/loopback/loopback"
 import { contramapTransactioner, makeSerialTransactioner, mapTransactioner, scanTransactioner } from "./serial-transactioner"
 
 
