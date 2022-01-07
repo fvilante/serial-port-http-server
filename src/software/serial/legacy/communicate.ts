@@ -1,6 +1,11 @@
-import { BaudRate } from './core/baudrate'
-import { portOpener } from './port-opener'
-import { PortOpened, PortSpec } from './port-opener-cb'
+import { BaudRate } from '../core/baudrate'
+import { portOpener } from '../port-opener'
+import { PortOpened, PortSpec } from '../port-opener-cb'
+
+//NOTE (update: 2022) the only dependency of this function is the printers communication. 
+//TODO: Remove this file when possible 
+
+// ---------------
 
 // CRITICAL
 // Fix: When timeout hapens, communicate should return the rejection of a promise
