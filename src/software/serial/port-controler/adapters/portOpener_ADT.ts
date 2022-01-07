@@ -1,7 +1,7 @@
-import { PortOpened, PortSpec } from ".";
-import { Future, Future_ } from "../adts/future";
-import { Result, Result_ } from "../adts/result";
-import { PortOpenError, portOpener_CB } from "./port-opener-cb";
+import { PortOpened, PortSpec } from "../..";
+import { Future, Future_ } from "../../../adts/future";
+import { Result, Result_ } from "../../../adts/result";
+import { PortOpenError, portOpener_CB } from "../../port-opener-cb";
 
 
 export const portOpener_ADT = (spec: PortSpec):Future<Result<PortOpened, PortOpenError>> => {

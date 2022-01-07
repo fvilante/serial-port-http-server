@@ -1,5 +1,5 @@
 import { BaudRate } from '../core/baudrate'
-import { portOpener } from '../port-opener'
+import { portOpener } from '../port-controler/adapters/port-opener'
 import { PortOpened, PortSpec } from '../port-opener-cb'
 
 //NOTE (update: 2022) the only dependency of this function is the printers communication. 
