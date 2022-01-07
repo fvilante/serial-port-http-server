@@ -1,8 +1,7 @@
 // NOTE: This module is just a wrapper over the real concrete nodejs serial port module.
 //       see also: https://serialport.io/docs/guide-usage
-import { BaudRate } from '../../core/baudrate'
+
 import SerialPort  from 'serialport'
-import { PortInfo } from '../../core/port-info'
 import { LoopBackPortA_Path, LoopBackPortB_Path, portAOpened, portBOpened } from '../loopback/loopback'
 import { AccessDenied, castPortOpenError, FileNotFound, PortOpenError, UnknownError } from './errors-types'
 import { castToLocalInterface, PortOpened } from './port-opened'
@@ -24,12 +23,12 @@ export const removeAllListenersFromPort = (port: SerialPort): void => {
     port.removeAllListeners() // NOTE: This is the line that certainly works in pratice tests (but it may be a unnecessary huge removal)
 }
 
-const openPortUsingDriver = (portPath: PortInfo['path'], baudRate: BaudRate) => new Promise<SerialPort>( (resolve, reject) => { 
-  //see also: https://serialport.io/docs/guide-usage  
+const openPortUsingDriver = (portSpec: PortSpec) => new Promise<SerialPort>( (resolve, reject) => { 
+  const { path, baudRate} = portSpec
   
-  const port = new SerialPort(portPath, { baudRate }, hasError => {
+  const port = new SerialPort(path, { baudRate }, hasError => {
     if (hasError) {
-      const error = new Error(`SerialOpenPortError: Cannot open port ${portPath}/${baudRate}. Details: ${hasError}.`)
+      const error = new Error(`SerialOpenPortError: Cannot open port ${path}/${baudRate}. Details: ${hasError}.`)
       onError(error)
     }
   })
@@ -109,7 +108,7 @@ export const portOpener_CB = (portSpec: PortSpec, handler: EventHandler): void =
         loopBack_PortB().then(emitPortOpenedEvent)
         break
       default: 
-        openPortUsingDriver(path,baudRate)
+        openPortUsingDriver({path,baudRate})
           .then(castSerialPort)
           .then(emitPortOpenedEvent)
           .catch(emitErrorEvent)
