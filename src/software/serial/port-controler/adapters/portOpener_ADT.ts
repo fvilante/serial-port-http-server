@@ -3,7 +3,7 @@ import { Result, Result_ } from "../../../adts/result";
 import { PortSpec } from "../../core/port-spec";
 import { PortOpenError } from "../main/errors-types";
 import { PortOpened } from "../main/port-opened";
-import { portOpener_CB } from "../main/port-opener-cb";
+import { portOpener_CB } from "../main/legacy/port-opener-cb";
 
 
 export const portOpener_ADT = (spec: PortSpec):Future<Result<PortOpened, PortOpenError>> => {

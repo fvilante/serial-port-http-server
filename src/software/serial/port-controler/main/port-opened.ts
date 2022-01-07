@@ -1,6 +1,6 @@
 import SerialPort from "serialport";
 import { PortOpenError } from "./errors-types";
-import { alreadyOpened, removeAllListenersFromPort } from "./port-opener-cb";
+import { alreadyOpened, removeAllListenersFromPort } from "./legacy/port-opener-cb";
 import { PortSpec } from "../../core/port-spec";
 
 

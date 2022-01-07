@@ -2,10 +2,10 @@
 //       see also: https://serialport.io/docs/guide-usage
 
 import SerialPort  from 'serialport'
-import { LoopBackPortA_Path, LoopBackPortB_Path, portAOpened, portBOpened } from '../loopback/loopback'
-import { AccessDenied, castPortOpenError, FileNotFound, PortOpenError, UnknownError } from './errors-types'
-import { castToLocalInterface, PortOpened } from './port-opened'
-import { PortSpec } from '../../core/port-spec'
+import { LoopBackPortA_Path, LoopBackPortB_Path, portAOpened, portBOpened } from '../../loopback/loopback'
+import { AccessDenied, castPortOpenError, FileNotFound, PortOpenError, UnknownError } from '../errors-types'
+import { castToLocalInterface, PortOpened } from '../port-opened'
+import { PortSpec } from '../../../core/port-spec'
 
 //TODO: Refactor Extract this logic of protection
 export const alreadyOpened = new Set() // registers already opened port to prevent open same port twice

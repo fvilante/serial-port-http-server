@@ -1,7 +1,7 @@
 // NOTE: This module is just a wrapper over the real concrete nodejs serial port module.
 //       see also: https://serialport.io/docs/guide-usage
 
-import { portOpener_CB } from "../main/port-opener-cb"
+import { portOpener_CB } from "../main/legacy/port-opener-cb"
 import { PortSpec } from "../../core/port-spec"
 import { PortOpened } from "../main/port-opened"
 
