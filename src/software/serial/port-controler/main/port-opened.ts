@@ -21,7 +21,7 @@ export type PortOpened = {
 
 
 
-export const castToLocalInterface = (portSpec: PortSpec, portOpened: SerialPort): PortOpened => {
+export const makePortOpened = (portSpec: PortSpec, portOpened: SerialPort): PortOpened => {
 
     const { path, baudRate} = portSpec
   
