@@ -1,5 +1,6 @@
 import { getLoopBackEmulatedSerialPort } from "../loopback/loopback";
-import { portOpener_CB, PortSpec } from "../main/port-opener-cb";
+import { portOpener_CB } from "../main/port-opener-cb";
+import { PortSpec } from "../../core/port-spec";
 
 describe('Basic tests', () => {
 

@@ -1,12 +1,13 @@
 import { FrameInterpreted } from "../core/frame-core"
 import { Future, Future_, UnsafePromiseError } from "../../../adts/future"
 import { Result } from "../../../adts/result"
-import { PortSpec, PortOpened } from "../../../serial"
-import { PortOpenError } from "../../../serial/port-controler/main/port-opener-cb"
 import { portOpener_ADT } from "../../../serial/port-controler/adapters/portOpener_ADT"
 import { PayloadCore } from "../core/payload"
 import { TransactErrorEvent } from "./payload-transact-cb"
 import { RetryPolicy, transactPayloadWithRetryPolicy } from "./retry-logic-ADT"
+import { PortSpec } from "../../../serial/core/port-spec"
+import { PortOpened } from "../../../serial/port-controler/main/port-opened"
+import { PortOpenError } from "../../../serial/port-controler/main/errors-types"
 
 //TODO: Should we extract this type to serial lib as 'portCloser_ADT' ?
 export type PortCloseError = {

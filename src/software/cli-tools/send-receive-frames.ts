@@ -1,6 +1,9 @@
 import { frameCoreToPayload } from "../cmpp/datalink/core/frame-core";
 import { payloadTransact } from "../cmpp/datalink/transactioners/payload-transact";
-import { PortOpened, portOpener, PortSpec } from "../serial";
+import { PortSpec } from "../serial/core/port-spec";
+import { portOpener } from "../serial/port-controler/adapters/port-opener";
+import { PortOpened } from "../serial/port-controler/main/port-opened";
+
 
 
 const main = async () => {
