@@ -2,7 +2,7 @@
 //       see also: https://serialport.io/docs/guide-usage
 import { BaudRate } from './core/baudrate'
 import SerialPort  from 'serialport'
-import { PortInfo } from './port-info'
+import { PortInfo } from './core/port-info'
 import { LoopBackPortA_Path, LoopBackPortB_Path, portAOpened, portBOpened } from './port-controler/loopback/loopback'
 
 //TODO: Refactor Extract this logic of protection

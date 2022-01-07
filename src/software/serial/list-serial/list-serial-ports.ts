@@ -1,5 +1,5 @@
 import SerialPort  from 'serialport'
-import { PortInfo } from "../port-info";
+import { PortInfo } from "../core/port-info";
 import { LoopBackPortsInfo } from '../port-controler/loopback/loopback';
 
 // NOTE: Today both PortInfo types are equals, but they may differ in future code changings
