@@ -1,7 +1,7 @@
 import { BaudRate } from '../serial/core/baudrate'
-import { listSerialPorts } from "../serial/index"
 import { ExecuteInParalel } from "../core/promise-utils"
 import { sendPrinter2 } from "../printer/send-receive-printer"
+import { listSerialPorts } from '../serial/list-serial/list-serial-ports'
 
 type Channel = {portName: string, baudRate: BaudRate}
 type PrinterDetectionResponse = Map<Channel, {
