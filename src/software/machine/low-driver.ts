@@ -10,7 +10,7 @@ import { InferCmppType } from "../cmpp/transport/memmap-caster";
 import { CMPP00LG, CMPP00LG_Memmap } from "../cmpp/transport/memmap-CMPP00LG";
 import { Tunnel } from "../cmpp/transport/tunnel";
 import { exhaustiveSwitch } from "../core/utils";
-import { PortOpenError, portOpener_CB } from "../serial/port-controler/port-opener-cb";
+import { PortOpenError, portOpener_CB } from "../serial/port-controler/main/port-opener-cb";
 
 
 // low level cmpp driver

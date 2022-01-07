@@ -4,7 +4,7 @@ import { SuccessEvent } from '../../cmpp/datalink/core/interpreter';
 import { TransactErrorEvent } from '../../cmpp/datalink/transactioners/payload-transact-cb';
 import { PortCloseError } from '../../cmpp/datalink/transactioners/safe-payload-transact';
 import { makeTunnel } from '../../cmpp/transport/tunnel';
-import { PortOpenError } from '../../serial/port-controler/port-opener-cb';
+import { PortOpenError } from '../../serial/port-controler/main/port-opener-cb';
 import { LowDriver } from '../low-driver'
 
 const main = async () => {
