@@ -1,4 +1,4 @@
-import { BaudRate } from '../serial/baudrate'
+import { BaudRate } from '../serial/core/baudrate'
 import { FrameCore } from "../cmpp/datalink/core/frame-core";
 import { executeInSequence } from "../core/promise-utils";
 import { Address } from "../global-env/global";

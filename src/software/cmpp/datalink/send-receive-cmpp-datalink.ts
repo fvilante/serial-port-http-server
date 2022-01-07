@@ -4,8 +4,8 @@ import {
     FrameInterpreted,
     frameCoreToPayload,
 } from './core/frame-core'
-import { BaudRate } from '../../serial/baudrate'
-import { PortSpec } from '../../serial/port-opener-cb'
+import { BaudRate } from '../../serial/core/baudrate'
+import { PortSpec } from "../../serial/core/port-spec"
 import { safePayloadTransact } from './transactioners/safe-payload-transact'
 import { RetryPolicy } from './transactioners/retry-logic-ADT'
 import { calculateTimeoutByBaudrate } from './core/calculate-timeout-by-baudrate'

@@ -1,7 +1,4 @@
-// tslint:disable: no-expression-statement
-// tslint:disable: typedef
-
-import { listSerialPorts } from './../serial/index'
+import { listSerialPorts } from "../serial/list-serial/list-serial-ports";
 
 const main = async () => {
     const portsInfo = await listSerialPorts()

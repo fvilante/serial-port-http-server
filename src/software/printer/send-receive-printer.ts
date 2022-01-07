@@ -1,9 +1,10 @@
-import { BaudRate } from '../serial/baudrate'
+import { BaudRate } from '../serial/core/baudrate'
 import { delay } from '../core/delay'
-import { communicate } from '../serial/communicate'
+import { communicate } from '../serial/legacy/communicate'
 import { mkSetRemoteMessageFrame, mkSelectRemoteMessageFrame } from './printer-protocol'
+import { listSerialPorts } from '../serial/list-serial/list-serial-ports'
 //test
-import { listSerialPorts } from '../serial/index'
+
 
 const ACK = 6
 const NACK = 21

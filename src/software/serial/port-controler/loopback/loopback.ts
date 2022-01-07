@@ -1,7 +1,9 @@
 // Emulates a serialport loopback where PortA is connected (cross-over) to PortB and vice-versa 
 
-import { delay } from "../core/delay"
-import { PortOpened } from "./port-opener-cb"
+import { delay } from "../../../core/delay"
+import { PortSpec } from "../../core/port-spec"
+import { PortOpened } from "../main/port-opened"
+
 
 //TODO: Change below names to more mneumonic names
 export const LoopBackPortA_Path = 'LoopBackTest_PortA' //TODO: rename by a more meneumonic name
@@ -38,8 +40,9 @@ type Consumer = (data: readonly number[]) => void
 let portAConsumer:  Consumer | undefined = undefined 
 let portBConsumer:  Consumer | undefined = undefined 
 
-export const portAOpened:PortOpened = {
+export const getPortAOpened = (portSpec: PortSpec):PortOpened => ({
     kind: 'PortOpened',
+    portSpec,
     write: async data => {
          await delay(WRITE_DELAY).then( () => {
             if(portBConsumer) portBConsumer(data)
@@ -65,12 +68,13 @@ export const portAOpened:PortOpened = {
     __unsafeGetConcreteDriver: () => {
         throw new Error('Not implementable')
     }
-}
+})
 
 
-export const portBOpened:PortOpened = {
+export const getPortBOpened = (portSpec: PortSpec):PortOpened => ({
     kind: 'PortOpened',
-    write: async data => {
+    portSpec,
+    write: async data => {  
         await delay(WRITE_DELAY).then( () => {
             if(portAConsumer) portAConsumer(data)
         })
@@ -95,9 +99,9 @@ export const portBOpened:PortOpened = {
     __unsafeGetConcreteDriver: () => {
         throw new Error('Not implementable')
     }
-}
+})
 
 //TODO: export only this function and remove exportation of portAOpened and portBOpened variables
-export const getLoopBackEmulatedSerialPort = () => {
-    return [ portAOpened, portBOpened] as const
+export const getLoopBackEmulatedSerialPort = (a: PortSpec, b: PortSpec) => {
+    return [ getPortAOpened(a), getPortBOpened(b)] as const
 }

@@ -1,4 +1,4 @@
-import { BaudRate } from "../../../serial/baudrate"
+import { BaudRate } from "../../../serial/core/baudrate"
 
 //Here we stabilish the timeout as a function of baudRate
 //TODO: Implement 'Milisecond' as the return type instead of 'number'

@@ -2,8 +2,8 @@ import { StartByteNum, StartByteToText, StartByteTxt, STX } from "../core/core-t
 import { Payload, PayloadCore } from "../core/payload";
 import { CmppDataLinkInterpreter, StateChangeEvent, SuccessEvent, InterpretationErrorEvent } from "../core/interpreter";
 import { Byte } from "../../../core/byte";
-import { PortOpened } from "../../../serial";
 import { makeWellFormedFrame } from "../core/special-case-data-constructors";
+import { PortOpened } from "../../../serial/port-controler/main/port-opened";
 
 
 const cleanupPortResources = (p: PortOpened):void => {
