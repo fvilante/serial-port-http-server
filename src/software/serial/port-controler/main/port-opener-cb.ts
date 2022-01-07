@@ -61,6 +61,8 @@ export type EventHandler = {
   onError: (error: PortOpenError, portSpec: PortSpec) => void
 }
 
+export type PortOpener_CB = typeof portOpener_CB
+
 //TODO:  deprecate the current 'portOpener' and rename this function to 'portOpener' and
 //TODO: Should have a timeout error handling for port opening (maybe it already exists in the concrete 3rdParty library, check it or delete this comment)
 export const portOpener_CB = (portSpec: PortSpec, handler: EventHandler): void => {
