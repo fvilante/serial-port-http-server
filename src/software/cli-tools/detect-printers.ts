@@ -1,4 +1,4 @@
-import { BaudRate } from '../serial/baudrate'
+import { BaudRate } from '../serial/core/baudrate'
 import { listSerialPorts } from "../serial/index"
 import { ExecuteInParalel } from "../core/promise-utils"
 import { sendPrinter2 } from "../printer/send-receive-printer"

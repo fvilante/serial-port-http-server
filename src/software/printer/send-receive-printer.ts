@@ -1,4 +1,4 @@
-import { BaudRate } from '../serial/baudrate'
+import { BaudRate } from '../serial/core/baudrate'
 import { delay } from '../core/delay'
 import { communicate } from '../serial/communicate'
 import { mkSetRemoteMessageFrame, mkSelectRemoteMessageFrame } from './printer-protocol'

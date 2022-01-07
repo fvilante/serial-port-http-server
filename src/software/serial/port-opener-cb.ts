@@ -1,6 +1,6 @@
 // NOTE: This module is just a wrapper over the real concrete nodejs serial port module.
 //       see also: https://serialport.io/docs/guide-usage
-import { BaudRate } from './baudrate'
+import { BaudRate } from './core/baudrate'
 import SerialPort  from 'serialport'
 import { PortInfo } from './port-info'
 import { LoopBackPortA_Path, LoopBackPortB_Path, portAOpened, portBOpened } from './loopback'
@@ -82,7 +82,6 @@ const openPortUsingDriver = (portPath: PortInfo['path'], baudRate: BaudRate) => 
     resolve(port)
   }
 
-  
   port.on('open', onSuccess)
   port.on('error', onError)
 

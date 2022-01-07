@@ -1,5 +1,5 @@
 import { PortSpec } from "../../serial";
-import { BaudRate } from "../../serial/baudrate";
+import { BaudRate } from "../../serial/core/baudrate";
 import { Channel } from "../datalink/core/core-types";
 
 

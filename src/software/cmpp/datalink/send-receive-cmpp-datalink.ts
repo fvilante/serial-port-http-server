@@ -4,7 +4,7 @@ import {
     FrameInterpreted,
     frameCoreToPayload,
 } from './core/frame-core'
-import { BaudRate } from '../../serial/baudrate'
+import { BaudRate } from '../../serial/core/baudrate'
 import { PortSpec } from '../../serial/port-opener-cb'
 import { safePayloadTransact } from './transactioners/safe-payload-transact'
 import { RetryPolicy } from './transactioners/retry-logic-ADT'

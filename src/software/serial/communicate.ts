@@ -1,4 +1,4 @@
-import { BaudRate } from './baudrate'
+import { BaudRate } from './core/baudrate'
 import { portOpener } from './port-opener'
 import { PortOpened, PortSpec } from './port-opener-cb'
 

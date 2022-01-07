@@ -1,4 +1,4 @@
-import { BaudRate } from '../../../serial/baudrate'
+import { BaudRate } from '../../../serial/core/baudrate'
 import { bit_test } from "../../../core/bit-wise-utils"
 import { FrameCore } from "../../datalink/core/frame-core"
 import { sendCmpp } from "../../datalink/send-receive-cmpp-datalink"
