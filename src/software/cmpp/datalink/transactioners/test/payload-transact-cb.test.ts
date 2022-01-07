@@ -5,15 +5,19 @@ import { ACK } from "../../core/core-types"
 import { makeWellFormedFrame, makeWellFormedFrameInterpreted } from "../../core/special-case-data-constructors"
 import { Payload, PayloadCore } from "../../core/payload"
 import { EventHandler, payloadTransaction_CB } from "../payload-transact-cb"
+import { PortSpec } from "../../../../serial/core/port-spec"
 
 
 describe('basic tests', () => {
+
+    const portA: PortSpec = {path: 'Com_A_test', baudRate: 9600}
+    const portB: PortSpec = {path: 'Com_B_test', baudRate: 9600}
 
     it('can transact a simple well formed payload', async done => {
         //TODO: Should test if the port closing was adequated handled
         //prepare
         const timeout = 400
-        const [ source, target ] = getLoopBackEmulatedSerialPort()
+        const [ source, target ] = getLoopBackEmulatedSerialPort(portA, portB)
         const payload: Payload = [1, 2, 3, 4]
         const payloadCore: PayloadCore = {startByte:ACK, payload }
         const expectedResponse: FrameInterpreted = makeWellFormedFrameInterpreted(payloadCore)
@@ -85,7 +89,7 @@ describe('basic tests', () => {
     it('can transact with an timeout event', async done => {
         //prepare
         const timeout = 100
-        const [ source, target ] = getLoopBackEmulatedSerialPort()
+        const [ source, target ] = getLoopBackEmulatedSerialPort(portA, portB)
         const payload: Payload = [1, 2, 3, 4]
         const payloadCore: PayloadCore = {startByte:ACK, payload }
         //act

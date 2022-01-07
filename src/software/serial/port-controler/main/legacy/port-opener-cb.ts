@@ -2,7 +2,7 @@
 //       see also: https://serialport.io/docs/guide-usage
 
 import SerialPort  from 'serialport'
-import { LoopBackPortA_Path, LoopBackPortB_Path, portAOpened, portBOpened } from '../../loopback/loopback'
+import { LoopBackPortA_Path, LoopBackPortB_Path, getPortAOpened, getPortBOpened } from '../../loopback/loopback'
 import { AccessDenied, castPortOpenError, FileNotFound, PortOpenError, UnknownError } from '../errors-types'
 import { castToLocalInterface, PortOpened } from '../port-opened'
 import { PortSpec } from '../../../core/port-spec'
@@ -83,8 +83,8 @@ export const portOpener_CB = (portSpec: PortSpec, handler: EventHandler): void =
 
   const run = () => {
 
-    const loopBack_PortA = () => new Promise<PortOpened>( resolve => resolve(portAOpened))
-    const loopBack_PortB = () => new Promise<PortOpened>( resolve => resolve(portBOpened))
+    const loopBack_PortA = () => new Promise<PortOpened>( resolve => resolve(getPortAOpened({path: 'LoopBackPort_A', baudRate: 9600})))
+    const loopBack_PortB = () => new Promise<PortOpened>( resolve => resolve(getPortBOpened({path: 'LoopBackPort_B', baudRate: 9600})))
 
     const emitPortOpenedEvent = (p: PortOpened) => { 
       handler.onSuccess(p, portSpec)

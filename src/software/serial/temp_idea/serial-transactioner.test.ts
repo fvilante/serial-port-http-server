@@ -1,14 +1,18 @@
 import { Bytes } from "../../core/byte"
+import { PortSpec } from "../core/port-spec"
 import { getLoopBackEmulatedSerialPort, LoopBackPortA_Path, LoopBackPortB_Path } from "../port-controler/loopback/loopback"
 import { contramapTransactioner, makeSerialTransactioner, mapTransactioner, scanTransactioner } from "./serial-transactioner"
 
 
 describe('basic tests', () => {
 
+    const portA: PortSpec = {path: 'loopback_a', baudRate: 9600}
+    const portB: PortSpec = {path: 'loopback_b', baudRate: 9600}
+
     it('can run a simple transactioner constructed from a opened serial port', async () => {
         //prepare
         const expected = [1,2,3] as const
-        const [source, dest] = getLoopBackEmulatedSerialPort()
+        const [source, dest] = getLoopBackEmulatedSerialPort(portA,portB)
         const transactionerA = makeSerialTransactioner(source)
         const transactionerB = makeSerialTransactioner(dest)
         //act
@@ -26,7 +30,7 @@ describe('basic tests', () => {
         const operation = (n: number):number => n+1
         const f = (a: Bytes):Output => [...a].map(operation) 
         const expected = [...probe].map(operation)
-        const [source, dest] = getLoopBackEmulatedSerialPort()
+        const [source, dest] = getLoopBackEmulatedSerialPort(portA,portB)
         //act
         const transactionerA = makeSerialTransactioner(source)
         const transactionerB = makeSerialTransactioner(dest)
@@ -45,7 +49,7 @@ describe('basic tests', () => {
         const operation = (n: number):number => n-1
         const f = (a: Input):Bytes => a.map(operation) 
         const expected = [...probe].map(operation) 
-        const [source, dest] = getLoopBackEmulatedSerialPort()
+        const [source, dest] = getLoopBackEmulatedSerialPort(portA,portB)
         //act
         const transactionerA = makeSerialTransactioner(source)
         const transactionerB = makeSerialTransactioner(dest)
@@ -64,7 +68,7 @@ describe('basic tests', () => {
         const initialValue: Output = 0
         const expectedOutput: Output = [...input].reduce( (acc,cur) => acc+cur, initialValue)
         const f = (acc: number, cur: Bytes):number => acc+[...cur].reduce( (acc,cur) => acc+cur, initialValue) 
-        const [source, dest] = getLoopBackEmulatedSerialPort()
+        const [source, dest] = getLoopBackEmulatedSerialPort(portA,portB)
         //act
         const transactionerA = makeSerialTransactioner(source)
         const transactionerB = makeSerialTransactioner(dest)

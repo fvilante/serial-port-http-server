@@ -1,4 +1,3 @@
-import { getLoopBackEmulatedSerialPort } from "../loopback/loopback";
 import { portOpener_CB } from "../main/legacy/port-opener-cb";
 import { PortSpec } from "../../core/port-spec";
 
