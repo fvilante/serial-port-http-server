@@ -31,6 +31,8 @@ export const getStatusLow = (portName: string, baudRate: BaudRate, channel: numb
 
     new Promise( (resolve, reject) => {
 
+        //TODO: O Waddr do status é 0x49, atualizar a questao abaixo quando possivel
+
         //TODO: Get the correct waddr of Status byte, to avoid bellow indirect algorighm
         //algorigthm: I cannot resolve the waddr of statusL correctly, so I will
         //read 'posicao inicial' and write the same value to get a return packet with the statusL
