@@ -191,10 +191,10 @@ export class SingleAxis {
 
         // perform action
         if (this.isReadyToGo) {
-            return go_(tolerance,3)
+            return go_(tolerance,1)
         } else {
             await this.initialize()
-            return go_(tolerance,3)
+            return go_(tolerance,1)
         }
         
     }
