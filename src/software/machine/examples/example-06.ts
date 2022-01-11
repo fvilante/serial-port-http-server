@@ -7,20 +7,20 @@ import { ExecuteInParalel } from "../../core/promise-utils";
 import { random } from "../../core/utils";
 import { SingleAxis } from "../single-axis";
 
-let axisCounter = 0
+let axisCounter = 1
 let allCatchedErrors: readonly any[] = []
 let iterationConunter = 0
 
 //const itor = getRandomMoviment()
-const tunnel1 = makeTunnel('com48', 9600, 1)
-const tunnel2 = makeTunnel('com50', 9600, 1)
+const tunnel1 = makeTunnel('com50', 9600, 1)
+const tunnel2 = makeTunnel('com48', 9600, 1)
 const tunnel3 = makeTunnel('com51', 9600, 1)
 
 
 
 const initialize_Axis_At_Random_Parameters = async (axis: SingleAxis) => {
     //configure
-    const p1: Position = Pulses(500)
+    const p1: Position = Pulses(random(500,600))
     const k1: Kinematics = {
         speed: PulsesPerTick(500),
         acceleration: PulsesPerTickSquared(5000)
@@ -30,7 +30,9 @@ const initialize_Axis_At_Random_Parameters = async (axis: SingleAxis) => {
         await axis.shutdown()
         await axis.initialize({endPosition: p1, reference: k1})
     } catch (err) {
-        console.log('**** Error Detected *************')
+        console.log(`**** Error Detected axis=${axis.axisName}*************`)
+        console.log(`p1=`,p1.value)
+        console.log(`k1={speed=${k1.speed.value} accel=${k1.acceleration.value} `)
         console.log(err)
         allCatchedErrors = [...allCatchedErrors, err]
     }
@@ -41,6 +43,7 @@ const initialize_Axis_At_Random_Parameters = async (axis: SingleAxis) => {
 const goAnyWhere = async (axis: SingleAxis):Promise<void> => {
     const { set } = axis.transportLayer
     const p2: Position = Pulses(random(500, 2300))
+    console.log(`Eixo '${axis.axisName}': indo para a posicao final`, p2.value)
     await set('Posicao final', p2)
     await axis.startSerial()
     await axis.waitToStop()
