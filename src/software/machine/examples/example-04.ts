@@ -44,7 +44,7 @@ const main = async () => {
 
     }
      
-    await axis.powerOff()
+    await axis.shutdown()
 }
 
 

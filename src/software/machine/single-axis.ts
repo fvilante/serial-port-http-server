@@ -93,7 +93,7 @@ export class SingleAxis {
     }
 
     /** Imediately power off the axis, even if it is currently in moviment. NOTE: Take care to avoid colisions! */
-    public powerOff = async () => {
+    public shutdown = async () => {
         const { set } = this.transportLayer
         await set('Modo manual serial', 'ligado')
         await set('Stop serial', 'ligado')
@@ -178,7 +178,7 @@ export class SingleAxis {
     
 
         const runSmartReference = async (r: SmartReferenceParameters) => {
-            await this.powerOff()
+            await this.shutdown()
             await preConfig()
             await setSmartReference(r)
             await this.startSerial()

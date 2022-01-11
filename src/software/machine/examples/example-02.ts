@@ -67,7 +67,7 @@ const runTest = async (port: string) => {
 
     }
      
-    await axis.powerOff()
+    await axis.shutdown()
 }
 
 const  main = async () => {

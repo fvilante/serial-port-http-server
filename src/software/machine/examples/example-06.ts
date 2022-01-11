@@ -27,7 +27,7 @@ const initialize_Axis_At_Random_Parameters = async (axis: SingleAxis) => {
     }
     //do
     try {
-        await axis.powerOff()
+        await axis.shutdown()
         await axis.initialize({endPosition: p1, reference: k1})
     } catch (err) {
         console.log('**** Error Detected *************')

@@ -13,7 +13,7 @@ const main = async () => {
     const pos = await axis.initialize()
     console.log('pos=',pos.value)
     console.log('iniciado!')
-    await axis.powerOff()
+    await axis.shutdown()
     const pos2 = await axis.initialize()
     console.log('pos2=',pos2.value)
     const pos3 = await axis.goto({
@@ -28,7 +28,7 @@ const main = async () => {
     })
     console.log('pos4=',pos4.value)
     console.log('powering off')
-    await axis.powerOff()
+    await axis.shutdown()
     console.log('fim')
 }
 
