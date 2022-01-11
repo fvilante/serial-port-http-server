@@ -4,7 +4,7 @@ import { Moviment } from "../cmpp/controlers/core";
 import { setNext } from "../cmpp/controlers/utils/go-next";
 import { MovimentStatus } from "../cmpp/controlers/utils/moviment-status";
 import { SmartReferenceParameters } from "../cmpp/controlers/utils/smart-reference";
-import { Pulses, TicksOfClock } from "../cmpp/physical-dimensions/base";
+import { Position, Pulses, TicksOfClock } from "../cmpp/physical-dimensions/base";
 import { PulsesPerTick, PulsesPerTickSquared } from "../cmpp/physical-dimensions/physical-dimensions";
 import { CMPP00LG } from "../cmpp/transport/memmap-CMPP00LG";
 import { Tunnel } from "../cmpp/transport/tunnel";
@@ -141,7 +141,7 @@ export class SingleAxis {
             return this.waitUntilConditionIsReached( async axis => {
                 const status = await axis.getMovimentStatus()
                 return !status.isReferencing  
-                })
+            })
             
         }
 
@@ -191,6 +191,35 @@ export class SingleAxis {
         return 
 
     }
+
+    //NOTE: Will throw if axis is not initialized
+    //TODO: Improve error messages
+    goto2 = async (target: Moviment , tolerance: Tolerance = this.tolerance): Promise<void> => {
+        const { set } = this.transportLayer
+        const {position, speed, acceleration} = target
+        if(this.isReadyToGo===false) {
+            throw new Error(`Axis=${this.axisName}: Cannot perform goto moviment, because axis is not initialized`)
+        }
+        await set('Posicao final', position)
+        //
+        await set('Velocidade de avanco', speed)
+        await set('Velocidade de avanco', speed)
+        await set('Aceleracao de avanco', acceleration)
+        await set('Aceleracao de avanco', acceleration)
+        //
+        await this.startSerial()
+        await this.waitToStop()
+        const { isReferenced } = await this.getMovimentStatus()
+        if(isReferenced==false) {
+            throw new Error(`Axis=${this.axisName}: dereferentiated after attempt to perform a movimentks.`)
+        }
+        const { isActualPositionAsExpected } = await this.checkCurrentPosition(position, tolerance)
+        if(isActualPositionAsExpected) {
+            return // ok, everything goes right
+        } else {
+            throw new Error(`Axis=${this.axisName}: after attempt to perform a moviment, realized that actual position is not like expected position (including due error tolerance)`)
+        }
+    } 
 
     /** goto absolute position, returns the exact position after the moviment 
      *  NOTE: This function will call 'initialize' if it has not been executed yet.
