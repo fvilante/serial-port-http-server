@@ -157,7 +157,7 @@ export class SingleAxis {
             const status = await this.getMovimentStatus()
             const { isReferenced, isStopped, direction, isReferencing } = status
             const { isActualPositionAsExpected, currentPosition} = await this.checkCurrentPosition(r.endPosition)
-            const isStatusOk = isReferenced && isStopped && !isReferencing && direction==='Avanco'
+            const isStatusOk = isReferenced && isStopped && !isReferencing //&& direction==='Avanco'
             if (isStatusOk) {
                 if (isActualPositionAsExpected) {
                     return // Ok everything goes right, successful finish
@@ -167,7 +167,7 @@ export class SingleAxis {
                 }
             } else {
                 //TODO: Improve format of this error message
-                const actualStatus = { isReferenced, isStopped, isReferencing, direction}
+                const actualStatus = { isReferenced, isStopped, isReferencing/*, direction*/}
                 const header = `During reference of axis ${this.axisName}.`
                 const err = `'Something went wrong during referentiation proccess': Final condition expected was not attended. `
                 const detail = `Expected=${JSON.stringify(expectedStatus)} actual=${JSON.stringify(actualStatus)}. `
