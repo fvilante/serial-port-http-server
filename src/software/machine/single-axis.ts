@@ -152,7 +152,7 @@ export class SingleAxis {
                 isReferenced: true,
                 isStopped: true,
                 isReferencing: false,
-                direction: 'Avanco',
+                //direction: 'Avanco',
             }
             const status = await this.getMovimentStatus()
             const { isReferenced, isStopped, direction, isReferencing } = status
