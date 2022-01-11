@@ -136,14 +136,13 @@ export class SingleAxis {
             await set("Aceleracao de referencia", reference.acceleration)
         }
 
+        // TODO: add timeout
         const waitReferenceToConclude = ():Promise<void> =>{
-            // TODO: add timeout
-            return this.waitUntilConditionIsReached( axis => 
-                new Promise( resolve => { 
-                    axis.getMovimentStatus()
-                    .then( status => status.isReferencing ? resolve(false) : resolve(true)) 
+            return this.waitUntilConditionIsReached( async axis => {
+                const status = await axis.getMovimentStatus()
+                return !status.isReferencing  
                 })
-            )
+            
         }
 
         const checkFinalStatus = async (r: SmartReferenceParameters):Promise<void> => {
