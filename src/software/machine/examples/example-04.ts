@@ -36,7 +36,7 @@ const main = async () => {
         iterationConunter++
         // body
         try {
-            await axis.goto2(nextMoviment, tolerance)
+            await axis.goto(nextMoviment, tolerance)
             const c = await axis.getCurrentPosition()
             currentPosition_ = c.value
         } catch (err) {

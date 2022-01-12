@@ -35,7 +35,7 @@ const initialize_Axis_At_Random_Parameters = async (axis: SingleAxis) => {
     try {
         await axis.shutdown()
         await axis.initialize({endPosition: p1, reference: k1})
-        await axis.goto2(m2)
+        await axis.goto(m2)
     } catch (err) {
         console.log(`**** Error Detected axis=${axis.axisName}*************`)
         console.log(`p1=`,p1.value)

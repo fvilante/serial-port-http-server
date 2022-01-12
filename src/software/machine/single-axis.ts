@@ -215,8 +215,9 @@ export class SingleAxis {
     }
 
     //NOTE: Will throw if axis is not initialized
+    //TODO: Optimize
     //TODO: Improve error messages
-    goto2 = async (target: Moviment , tolerance: Tolerance = this.tolerance): Promise<void> => {
+    goto = async (target: Moviment , tolerance: Tolerance = this.tolerance): Promise<void> => {
         const { set, get } = this.transportLayer
         const {position, speed, acceleration} = target
         if(this.isReadyToGo===false) {

@@ -28,7 +28,7 @@ const main = async () => {
     console.log(`Janela=${janela.value} pulsos`)
     await axisX.shutdown()
     await axisX.initialize()
-    await axisX.goto2(point1)
+    await axisX.goto(point1)
     const currentPosition = await axisX.getCurrentPosition()
     const point2: Moviment = {
         ...point1,
@@ -38,7 +38,7 @@ const main = async () => {
     console.log(`Posicao atual (P1) = ${currentPosition.value}`)
     console.log(`Irei mover para (P2): ${point2.position.value}`)
     console.log('iniciando movimento...')
-    await axisX.goto2(point2)
+    await axisX.goto(point2)
     console.log(`movimento M2 finalizado!`)
     const currentPosition2 = await axisX.getCurrentPosition()
     console.log(`Posicao atual (P3) = ${currentPosition2.value}`)

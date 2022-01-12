@@ -44,7 +44,7 @@ export class Machine {
         type AxisKeys = keyof typeof this.axis
         const move = async (key: AxisKeys): Promise<void> => {
             const axis_ = axis[key]
-            await axis_.goto2(m[key])
+            await axis_.goto(m[key])
         }
 
         await move('Z')

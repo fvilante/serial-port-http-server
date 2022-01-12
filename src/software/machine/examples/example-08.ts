@@ -72,7 +72,7 @@ const main = async () => {
                 moves++
                 //console.log(`moves=${moves}`)
                 const m = getRandomMoviment()
-                await axis.goto2(m)
+                await axis.goto(m)
             }
         }
       
