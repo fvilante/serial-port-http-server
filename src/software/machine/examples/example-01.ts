@@ -10,12 +10,10 @@ const main = async () => {
     console.log('eixo criado')
     //
     console.log('iniciando')
-    const pos = await axis.initialize()
-    console.log('pos=',pos.value)
+    await axis.initialize()
     console.log('iniciado!')
     await axis.shutdown()
     const pos2 = await axis.initialize()
-    console.log('pos2=',pos2.value)
     const pos3 = await axis.goto({
         position: Pulses(2300),
         speed: PulsesPerTick(1000),
