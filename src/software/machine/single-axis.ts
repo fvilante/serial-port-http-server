@@ -283,7 +283,7 @@ export class SingleAxis {
     } 
 
     //TODO: should be better implement to reduce time interval between movimentss
-    goto3 = async (targets: Iterable<Moviment> , tolerance: Tolerance = this.tolerance): Promise<void> => {
+    gotoMany = async (targets: Iterable<Moviment> , tolerance: Tolerance = this.tolerance): Promise<void> => {
         const itor = targets[Symbol.iterator]()
         let next = itor.next()
         while(!next.done) {
