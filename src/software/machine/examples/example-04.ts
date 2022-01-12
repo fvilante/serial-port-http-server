@@ -36,7 +36,9 @@ const main = async () => {
         iterationConunter++
         // body
         try {
-            currentPosition_ = (await axis.goto(nextMoviment, tolerance)).value
+            await axis.goto2(nextMoviment, tolerance)
+            const c = await axis.getCurrentPosition()
+            currentPosition_ = c.value
         } catch (err) {
             allCatchedErrors = [...allCatchedErrors, [port, err]]
             console.log({port, err})
