@@ -363,6 +363,7 @@ export class SingleAxis {
     }
 
     async getCurrentPosition(): Promise<Pulses> {
+        //TODO: if axis has not move, why do not to use a cached value ?
         const cmpp = makeCmppControler(this.tunnel)
         const axis = AxisControler(cmpp)
         const currentPosition = await axis.getCurrentPosition()
