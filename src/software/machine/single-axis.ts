@@ -125,7 +125,7 @@ export class SingleAxis {
         const setSmartReference = async (r: SmartReferenceParameters) => {
             const {reference, endPosition}  = r
             await set("Posicao inicial", endPosition)
-            await set("Posicao final", Pulses(endPosition.value+1000)) // defined here just to assure it is a valid position and it is different of "Posicao Inicial"
+            await set("Posicao final", Pulses(endPosition.value+10)) // defined here just to assure it is a valid position and it is different of "Posicao Inicial"
             //TODO? CAN I avoid send both (avanco and retorno) given just one of them will really be necessary?
             await set("Velocidade de avanco", reference.speed)
             await set("Velocidade de retorno", reference.speed)
