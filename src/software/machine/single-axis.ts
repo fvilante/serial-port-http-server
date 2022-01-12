@@ -215,7 +215,7 @@ export class SingleAxis {
     }
 
     //NOTE: Will throw if axis is not initialized
-    //TODO: Optimize
+    //TODO: should be better implement to reduce time interval between movimentss
     //TODO: Improve error messages
     goto = async (target: Moviment , tolerance: Tolerance = this.tolerance): Promise<void> => {
         const { set, get } = this.transportLayer
@@ -282,8 +282,8 @@ export class SingleAxis {
 
     } 
 
-    gotoMany = async (targets: Iterable<Moviment> , tolerance: Tolerance = this.tolerance): Promise<void> => {
-
+    //TODO: should be better implement to reduce time interval between movimentss
+    goto3 = async (targets: Iterable<Moviment> , tolerance: Tolerance = this.tolerance): Promise<void> => {
         const itor = targets[Symbol.iterator]()
         let next = itor.next()
         while(!next.done) {
@@ -291,8 +291,6 @@ export class SingleAxis {
             await this.goto(m)
             next = itor.next();
         }
-        
-
     } 
 
 

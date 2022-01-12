@@ -52,7 +52,7 @@ const main = async () => {
     const m = new Machine({X: axisX, Y: axisY, Z: axisZ})
     
     await axisX.initialize()
-    await axisX.gotoMany([makeMoviment(), makeMoviment(), makeMoviment(), makeMoviment()])
+    await axisX.goto3([makeMoviment(), makeMoviment(), makeMoviment(), makeMoviment()])
    
 
 }
