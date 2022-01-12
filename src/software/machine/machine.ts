@@ -2,13 +2,11 @@ import { Moviment } from "../cmpp/controlers/core";
 import { ExecuteInParalel } from "../core/promise-utils";
 import { SingleAxis } from "./single-axis";
 
-type Moviment3D = {
+export type Moviment3D = {
     X: Moviment
     Y: Moviment
     Z: Moviment
 }
-
-
 
 export class Machine {
     
