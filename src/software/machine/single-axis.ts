@@ -203,9 +203,9 @@ export class SingleAxis {
         await set('Posicao final', position)
         //
         await set('Velocidade de avanco', speed)
-        await set('Velocidade de avanco', speed)
+        await set('Velocidade de retorno', speed)
         await set('Aceleracao de avanco', acceleration)
-        await set('Aceleracao de avanco', acceleration)
+        await set('Aceleracao de retorno', acceleration)
         //
         await this.startSerial()
         await this.waitToStop()
