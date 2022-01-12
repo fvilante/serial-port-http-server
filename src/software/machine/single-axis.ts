@@ -238,7 +238,7 @@ export class SingleAxis {
         await this.startSerial()
         await this.waitToStop()
         const { isReferenced } = await this.getMovimentStatus()
-        if(isReferenced==false) {
+        if(isReferenced===false) {
             throw new Error(`Axis=${this.axisName}: dereferentiated after attempt to perform a movimentks.`)
         }
         const { isActualPositionAsExpected, currentPosition, expectedPosition } = await this.checkCurrentPosition(position, tolerance)
