@@ -24,7 +24,8 @@
     "referenciar": "npx ts-node ./src/software/main/main2.ts",
     "produzir": "cd ./src/software/main/ && npx ts-node main3.ts",
     "gitclean": "cd .git && rm index.lock",
-    "gource": "gource -a 1 -s 1 -r 30 --key . "
+    "gource": "gource -a 1 -s 1 -r 30 --key . ",
+    "code": "code ."
   },
   "author": "fvilante",
   "license": "ISC",
