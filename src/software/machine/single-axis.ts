@@ -192,6 +192,23 @@ export class SingleAxis {
 
     }
 
+    //TODO: Implement a state report to be used alongside error messages and debuging
+    public report = async() => {
+        return
+        const { get } = this.transportLayer
+        const { direction } = await this.getMovimentStatus()
+        const PI = await get('Posicao inicial')
+        const PF = await get('Posicao final')
+        const PA = await this.getCurrentPosition()
+        console.table({
+            axis: this.axisName,
+            direction,
+            PI: PI.value,
+            PF: PF.value,
+            PA: PA.value,
+        })
+    }
+
     //NOTE: Will throw if axis is not initialized
     //TODO: Improve error messages
     goto2 = async (target: Moviment , tolerance: Tolerance = this.tolerance): Promise<void> => {
@@ -215,6 +232,7 @@ export class SingleAxis {
         }
         const { isActualPositionAsExpected, currentPosition, expectedPosition } = await this.checkCurrentPosition(position, tolerance)
         if(isActualPositionAsExpected) {
+            //await this.report()
             return // ok, everything goes right
         } else {
             const PI = await get('Posicao inicial')
