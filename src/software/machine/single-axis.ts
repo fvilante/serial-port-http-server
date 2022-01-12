@@ -195,7 +195,7 @@ export class SingleAxis {
     //NOTE: Will throw if axis is not initialized
     //TODO: Improve error messages
     goto2 = async (target: Moviment , tolerance: Tolerance = this.tolerance): Promise<void> => {
-        const { set } = this.transportLayer
+        const { set, get } = this.transportLayer
         const {position, speed, acceleration} = target
         if(this.isReadyToGo===false) {
             throw new Error(`Axis=${this.axisName}: Cannot perform goto moviment, because axis is not initialized`)
@@ -213,11 +213,13 @@ export class SingleAxis {
         if(isReferenced==false) {
             throw new Error(`Axis=${this.axisName}: dereferentiated after attempt to perform a movimentks.`)
         }
-        const { isActualPositionAsExpected } = await this.checkCurrentPosition(position, tolerance)
+        const { isActualPositionAsExpected, currentPosition, expectedPosition } = await this.checkCurrentPosition(position, tolerance)
         if(isActualPositionAsExpected) {
             return // ok, everything goes right
         } else {
-            throw new Error(`Axis=${this.axisName}: after attempt to perform a moviment, realized that actual position is not like expected position (including due error tolerance)`)
+            const PI = await get('Posicao inicial')
+            const PF = await get('Posicao final')
+            throw new Error(`Axis=${this.axisName}: after attempt to perform a moviment, realized that actual position is not the expected position (including error tolerance). Expected=${expectedPosition.value}, current=${currentPosition.value}, tolerance=[${tolerance[0].value},${tolerance[1].value}], PI=${PI.value}, PF=${PF.value}`)
         }
     } 
 
