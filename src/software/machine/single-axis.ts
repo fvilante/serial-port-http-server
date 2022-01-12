@@ -88,8 +88,9 @@ export class SingleAxis {
 
     public isReferenced = async () => {
         const status = await this.getMovimentStatus()
-        this.isReadyToGo = status.isReferenced
-        return 
+        const isReferenced = status.isReferenced
+        this.isReadyToGo = isReferenced
+        return isReferenced
     }
 
     /** Imediately power off the axis, even if it is currently in moviment. NOTE: Take care to avoid colisions! */
