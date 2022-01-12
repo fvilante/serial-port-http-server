@@ -53,9 +53,7 @@ export class SingleAxis {
         }
     }
 
-    public checkCurrentPosition = async (expectedPosition: Pulses, tolerance = this.tolerance): Promise< {isActualPositionAsExpected: boolean, currentPosition: Pulses, expectedPosition: Pulses}> => {
-        const currentPosition = await this.getCurrentPosition()
-        const doesPositionMatch = (currentPosition_: Pulses, expectedPosition_: Pulses, tolerance: Tolerance):boolean => {
+    private doesPositionMatch = (currentPosition_: Pulses, expectedPosition_: Pulses, tolerance: Tolerance):boolean => {
             const [a, b] = tolerance
             const lowerDelta = a.value
             const upperDelta = b.value
@@ -66,8 +64,12 @@ export class SingleAxis {
             const isOutOfRange = currentPosition < lowerBound || currentPosition > upperBound
             return !isOutOfRange
         }
-        const isActualPositionAsExpected = doesPositionMatch(currentPosition, expectedPosition, tolerance)
+    
+    public checkCurrentPosition = async (expectedPosition: Pulses,tolerance = this.tolerance): Promise< {isActualPositionAsExpected: boolean, currentPosition: Pulses, expectedPosition: Pulses}> => {
+        const currentPosition = await this.getCurrentPosition()
+        const isActualPositionAsExpected = this.doesPositionMatch(currentPosition, expectedPosition, tolerance)
         return { isActualPositionAsExpected, currentPosition, expectedPosition }
+        
     }
 
     public waitToStop = (): Promise<void> => {
