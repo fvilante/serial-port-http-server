@@ -28,7 +28,9 @@ export type TimeStamp = number
 
 export type Tolerance = readonly [lowerDelta: Pulses, upperDelta: Pulses]
 
-
+//TODO: Optimize to cache some values instead of fetch from cmpp
+//TODO: introduce an Axis Min and Max Length property, to avoid reach positions outside this range (avoid colisions). May use the autodetect length for that
+//TODO: Add milimeter to pulse ratio
 export class SingleAxis {
  
     // internal state
