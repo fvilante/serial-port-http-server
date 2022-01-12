@@ -218,6 +218,16 @@ export class SingleAxis {
         if(this.isReadyToGo===false) {
             throw new Error(`Axis=${this.axisName}: Cannot perform goto moviment, because axis is not initialized`)
         }
+        // do nothing if you already at the exactly position you got to go. Because if 'posicao_corrent'==='posicao_final' in next start it will
+        // go to 'posicao_inicial' that is what we want to prevent. Because this will raise an 'position in reached event'. Because we make 'posicao_inicial' static, and use 'posicao_final' as a dynamic target position to reach. 
+        const currentPositionBefore = (await this.getCurrentPosition()).value
+        const targetMovimentPosition = target.position.value
+        const goingToExactlySamePosition = currentPositionBefore === targetMovimentPosition
+        if(goingToExactlySamePosition) {
+            //do not perform anymoviment, we already are where we want. This prevent an undesired behavior of the physical axis
+            return     
+        }
+        // else continue...
         await set('Posicao final', position)
         //
         await set('Velocidade de avanco', speed)
