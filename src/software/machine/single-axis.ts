@@ -220,41 +220,66 @@ export class SingleAxis {
     goto = async (target: Moviment , tolerance: Tolerance = this.tolerance): Promise<void> => {
         const { set, get } = this.transportLayer
         const {position, speed, acceleration} = target
-        if(this.isReadyToGo===false) {
-            throw new Error(`Axis=${this.axisName}: Cannot perform goto moviment, because axis is not initialized`)
+
+        const throwIfNotReadyToGo = () => {
+            if(this.isReadyToGo===false) {
+                throw new Error(`Axis=${this.axisName}: Cannot perform goto moviment, because axis is not initialized`)
+            }
         }
-        // do nothing if you already at the exactly position you got to go. Because if 'posicao_corrent'==='posicao_final' in next start it will
-        // go to 'posicao_inicial' that is what we want to prevent. Because this will raise an 'position in reached event'. Because we make 'posicao_inicial' static, and use 'posicao_final' as a dynamic target position to reach. 
-        const currentPositionBefore = (await this.getCurrentPosition()).value
-        const targetMovimentPosition = target.position.value
-        const goingToExactlySamePosition = currentPositionBefore === targetMovimentPosition
-        if(goingToExactlySamePosition) {
+
+        // prevents bug
+        const isSamePosition = async (): Promise<boolean> => {
+            // do nothing if you already at the exactly position you got to go. Because if 'posicao_corrent'==='posicao_final' in next start it will
+            // go to 'posicao_inicial' that is what we want to prevent. Because this will raise an 'position in reached event'. Because we make 'posicao_inicial' static, and use 'posicao_final' as a dynamic target position to reach. 
             //do not perform anymoviment, we already are where we want. This prevent an undesired behavior of the physical axis
-            return     
+            const currentPositionBefore = (await this.getCurrentPosition()).value
+            const targetMovimentPosition = target.position.value
+            const isSamePosition__ = currentPositionBefore === targetMovimentPosition
+            return isSamePosition__
         }
-        // else continue...
-        await set('Posicao final', position)
-        //
-        await set('Velocidade de avanco', speed)
-        await set('Velocidade de retorno', speed)
-        await set('Aceleracao de avanco', acceleration)
-        await set('Aceleracao de retorno', acceleration)
-        //
-        await this.startSerial()
-        await this.waitToStop()
-        const { isReferenced } = await this.getMovimentStatus()
-        if(isReferenced===false) {
-            throw new Error(`Axis=${this.axisName}: dereferentiated after attempt to perform a movimentks.`)
+
+        const setNextMoviment = async (m: Moviment) => {
+            await set('Posicao final', m.position)
+            await set('Velocidade de avanco', m.speed)
+            await set('Velocidade de retorno', m.speed)
+            await set('Aceleracao de avanco', m.acceleration)
+            await set('Aceleracao de retorno', m.acceleration)
         }
-        const { isActualPositionAsExpected, currentPosition, expectedPosition } = await this.checkCurrentPosition(position, tolerance)
-        if(isActualPositionAsExpected) {
-            //await this.report()
-            return // ok, everything goes right
-        } else {
-            const PI = await get('Posicao inicial')
-            const PF = await get('Posicao final')
-            throw new Error(`Axis=${this.axisName}: after attempt to perform a moviment, realized that actual position is not the expected position (including error tolerance). Expected=${expectedPosition.value}, current=${currentPosition.value}, tolerance=[${tolerance[0].value},${tolerance[1].value}], PI=${PI.value}, PF=${PF.value}`)
+
+        const { startSerial, waitToStop } = this
+
+        const checkFinalStateOrThrow = async (): Promise<void> => {
+            const { isReferenced } = await this.getMovimentStatus()
+            if(isReferenced===false) {
+                throw new Error(`Axis=${this.axisName}: dereferentiated after attempt to perform a movimentks.`)
+            }
+            const { isActualPositionAsExpected, currentPosition, expectedPosition } = await this.checkCurrentPosition(position, tolerance)
+            if(isActualPositionAsExpected) {
+                //await this.report()
+                return // ok, everything goes right
+            } else {
+                const PI = await get('Posicao inicial')
+                const PF = await get('Posicao final')
+                throw new Error(`Axis=${this.axisName}: after attempt to perform a moviment, realized that actual position is not the expected position (including error tolerance). Expected=${expectedPosition.value}, current=${currentPosition.value}, tolerance=[${tolerance[0].value},${tolerance[1].value}], PI=${PI.value}, PF=${PF.value}`)
+            }
         }
+
+        const recipe = async () => {
+            throwIfNotReadyToGo();
+            if(!await isSamePosition()) {
+                await setNextMoviment(target);
+                await startSerial();
+                await waitToStop();
+                await checkFinalStateOrThrow();
+            } else {
+                return
+            }
+            
+        }
+
+        //run
+        await recipe()
+
     } 
 
 
