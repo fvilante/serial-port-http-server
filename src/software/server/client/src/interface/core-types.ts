@@ -9,6 +9,7 @@ export type ClientMetadata = {
 
 
 export type CursorPositionClientEvent = {
+    kind: 'CursorPositionClientEvent'
     x: number
     y: number
 }
@@ -17,7 +18,9 @@ export type CursorPositionServerEvent = {
     kind: 'CursorPositionServerEvent'
     sender: UUID
     color: HSV
-} & CursorPositionClientEvent
+    x: number
+    y: number
+} 
 
 export type ServerEvent = CursorPositionServerEvent
 

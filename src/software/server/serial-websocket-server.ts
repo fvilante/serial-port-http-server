@@ -25,12 +25,13 @@ const wss = new WebSocket.Server({ server })
 const clients = new Map<WebSocket,ClientMetadata>()
 
 
-const onMousePositionMessage = (message: CursorPositionClientEvent, metadata: ClientMetadata):void => {
+const broadcastCursorPosition = (message: CursorPositionClientEvent, metadata: ClientMetadata):void => {
     console.log('recebido mensagem do client')
     console.table(message)
+    const { x, y} = message
     const response: CursorPositionServerEvent = {
         kind: 'CursorPositionServerEvent',
-        ...message,
+        x,y,
         sender: metadata.id, 
         color: metadata.color,
     };
@@ -55,7 +56,7 @@ wss.on('connection', ws => {
     ws.on('message', clientMessage => {
         
         const cursorPositionMessage: CursorPositionClientEvent = JSON.parse(clientMessage.toString())
-        onMousePositionMessage(cursorPositionMessage, clientMetadata)
+        broadcastCursorPosition(cursorPositionMessage, clientMetadata)
         
 
     })

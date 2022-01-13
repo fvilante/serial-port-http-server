@@ -55,6 +55,7 @@ export const runServerCommunication = async (): Promise<void> => {
 
     const makeCursorPositionClientEvent = (x: number, y: number): CursorPositionClientEvent => {
         const message: CursorPositionClientEvent = {
+            kind: 'CursorPositionClientEvent',
             x,
             y,
         }
