@@ -1,10 +1,10 @@
 <script lang='ts'>
 
     import { runServerCommunication } from './mouse-server';
-    import Button from './components/Button.svelte'
+    import Button from './lib/Button.svelte'
     import {onMount } from 'svelte'
-    import Array from './components/Array.svelte';
-    import Hero from './components/Hero.svelte';
+    import Array from './lib/Array.svelte';
+    import Hero from './lib/Hero.svelte';
     
     
     let count: number = 0
