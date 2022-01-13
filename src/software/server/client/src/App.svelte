@@ -5,13 +5,16 @@
     import {onMount } from 'svelte'
     import Array from './lib/Array.svelte';
     import Hero from './lib/Hero.svelte';
+    import { startWebSocket } from './websocket';
 
-    
-    
+   
     let count: number = 0
 
     onMount( () => {
-        runServerCommunication();
+        startWebSocket().then( ws => {
+            runServerCommunication(ws)
+        })
+        
         const interval = setInterval(() => count++, 1000)
         return( () => {
             clearInterval(interval)
