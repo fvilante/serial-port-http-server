@@ -283,6 +283,15 @@ export class SingleAxis {
 
     } 
 
+    gotoRelative = async (target: Moviment , tolerance: Tolerance = this.tolerance): Promise<void> => {
+        const currentPosition = await this.getCurrentPosition()
+        const targetRelative: Moviment = {
+            ...target,
+            position: Pulses(currentPosition.value + target.position.value)
+        }
+        await this.goto(targetRelative, tolerance)
+    }
+
     //TODO: should be better implement to reduce time interval between movimentss
     gotoMany = async (targets: Iterable<Moviment> , tolerance: Tolerance = this.tolerance): Promise<void> => {
         const itor = targets[Symbol.iterator]()

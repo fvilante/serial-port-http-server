@@ -29,8 +29,19 @@ export type MachineInitializeClientEvent = {
     kind: 'MachineInitializeClientEvent'
 }
 
+export type PlayNoteClientEvent = {
+    kind: 'PlayNoteClientEvent'
+    duration: number
+    frequency: number
+}
 
-export type ClientEvent = CursorPositionClientEvent | MachineGotoClientEvent | MachineInitializeClientEvent | MachineStopClientEvent
+
+export type ClientEvent = 
+    | CursorPositionClientEvent 
+    | MachineGotoClientEvent 
+    | MachineInitializeClientEvent 
+    | MachineStopClientEvent
+    | PlayNoteClientEvent
 
 export type CursorPositionServerEvent = {
     kind: 'CursorPositionServerEvent'
