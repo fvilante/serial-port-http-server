@@ -2,7 +2,7 @@ import { CursorPositionClientEvent, CursorPositionServerEvent, ServerEvent } fro
 import { startWebSocket } from './websocket'
 
 
-export const runServerCommunication = async (ws: WebSocket): Promise<void> => {
+export const makeServerProxy = async (ws: WebSocket): Promise<void> => {
 
     const getOrCreateCursorFor = (serverResponse: CursorPositionServerEvent):SVGElement => {
         const { sender, color, x, y } = serverResponse

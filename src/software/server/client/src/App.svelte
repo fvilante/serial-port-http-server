@@ -1,7 +1,7 @@
 <script lang='ts'>
 
-    import { runServerCommunication } from './mouse-server';
-    import Button from './lib/Button.svelte'
+    import Button from './lib/Button.svelte';
+    import { makeServerProxy } from './server-proxy'
     import {onMount } from 'svelte'
     import Array from './lib/Array.svelte';
     import Hero from './lib/Hero.svelte';
@@ -16,7 +16,7 @@
     onMount( () => {
         startWebSocket().then( ws => {
             ws_ = ws
-            runServerCommunication(ws_)
+            makeServerProxy(ws_)
         })
         
         return( () => {
