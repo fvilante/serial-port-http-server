@@ -14,6 +14,16 @@ export type CursorPositionClientEvent = {
     y: number
 }
 
+export type MachineGotoClientEvent = {
+    kind: 'MachineGotoClientEvent'
+    x: number,
+    y: number,
+    z: number,
+}
+
+
+export type ClientEvent = CursorPositionClientEvent | MachineGotoClientEvent
+
 export type CursorPositionServerEvent = {
     kind: 'CursorPositionServerEvent'
     sender: UUID

@@ -3,7 +3,8 @@ import { v4 as uuidv4} from 'uuid'
 import http from 'http'
 import express from 'express'
 import cors from 'cors'
-import { CursorPositionClientEvent,  ClientMetadata, CursorPositionServerEvent } from './client/src/interface/core-types'
+import { CursorPositionClientEvent,  ClientMetadata, CursorPositionServerEvent, ClientEvent } from './client/src/interface/core-types'
+import { exhaustiveSwitch } from '../core/utils'
 
 const port = 7071 // TCP port
 
@@ -41,7 +42,6 @@ const broadcastCursorPosition = (message: CursorPositionClientEvent, metadata: C
     })
 }
 
-
 wss.on('connection', ws => {
     
     const id = uuidv4()
@@ -53,10 +53,26 @@ wss.on('connection', ws => {
 
     clients.set(ws, clientMetadata)
 
-    ws.on('message', clientMessage => {
+    ws.on('message', clientEventRaw => {
         
-        const cursorPositionMessage: CursorPositionClientEvent = JSON.parse(clientMessage.toString())
-        broadcastCursorPosition(cursorPositionMessage, clientMetadata)
+        const clientEvent: ClientEvent = JSON.parse(clientEventRaw.toString())
+        const { kind } = clientEvent
+        switch (kind) {
+            case 'CursorPositionClientEvent': {
+                broadcastCursorPosition(clientEvent, clientMetadata)
+                break;
+            }
+
+            case 'MachineGotoClientEvent': {
+                console.table(clientEvent)
+                break;
+            }
+
+            default: {
+                exhaustiveSwitch(kind);
+            }
+        }
+        
         
 
     })
