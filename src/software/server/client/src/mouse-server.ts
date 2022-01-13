@@ -1,4 +1,4 @@
-import { CursorPositionServerEvent, ServerEvent } from './interface/core-types'
+import { CursorPositionClientEvent, CursorPositionServerEvent, ServerEvent } from './interface/core-types'
 import { startWebSocket } from './websocket'
 
 
@@ -53,24 +53,32 @@ export const runServerCommunication = async (): Promise<void> => {
 
     }  
 
-    const handleMouseMove = (event: MouseEvent) => {
-        const message = {
-            x: event.pageX,
-            y: event.pageY,
+    const makeCursorPositionClientEvent = (x: number, y: number): CursorPositionClientEvent => {
+        const message: CursorPositionClientEvent = {
+            x,
+            y,
         }
-        const dataToSend = JSON.stringify(message)
+        return message
+    }
+
+    const sendEvent = (ws: WebSocket, event: CursorPositionClientEvent) => {
+        const dataToSend = JSON.stringify(event)
         ws.send(dataToSend);
     }
 
+    const handleMouseMove = (event: MouseEvent) => {
+        event.preventDefault();
+        const { pageX, pageY } = event
+        const clientEvent = makeCursorPositionClientEvent(pageX, pageY)
+        sendEvent(ws, clientEvent)
+    }
+
     const handleTouchStart = (event: TouchEvent) => {
-        console.table(event)
         event.preventDefault();
         const touch = event.touches[0];
-        const x = touch.pageX
-        const y = touch.pageY
-        const message = {x, y}
-        const dataToSend = JSON.stringify(message)
-        ws.send(dataToSend);
+        const { pageX, pageY } = touch
+        const clientEvent = makeCursorPositionClientEvent(pageX, pageY)
+        sendEvent(ws, clientEvent)
     }
 
     document.body.onmousemove = handleMouseMove
