@@ -266,7 +266,8 @@ export class SingleAxis {
 
         const recipe = async () => {
             throwIfNotReadyToGo();
-            if(!await isSamePosition()) {
+            const isSame = await isSamePosition() 
+            if(isSame===false) {
                 await setNextMoviment(target);
                 await startSerial();
                 await waitToStop();
