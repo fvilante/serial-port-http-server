@@ -2,22 +2,24 @@ type UUID = string
 
 type HSV = number
 
-export type Metadata = {
+export type ClientMetadata = {
     id: UUID;
     color: HSV;
 }
 
 
-export type CursorPosition = {
+export type CursorPositionClientEvent = {
     x: number
     y: number
 }
 
-export type Response = {
+export type CursorPositionServerEvent = {
+    kind: 'CursorPositionServerEvent'
     sender: UUID
     color: HSV
-} & CursorPosition
+} & CursorPositionClientEvent
 
+export type ServerEvent = CursorPositionServerEvent
 
 //
 
