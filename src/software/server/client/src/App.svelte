@@ -1,10 +1,7 @@
 <script lang='ts'>
 
-    import Button from './lib/Button.svelte';
     import { makeServerProxy } from './server-proxy'
-    import {onMount } from 'svelte'
-    import Array from './lib/Array.svelte';
-    import Hero from './lib/Hero.svelte';
+    import { onMount } from 'svelte'
     import { startWebSocket } from './websocket';
 
     let ws_: WebSocket | undefined = undefined
@@ -28,9 +25,7 @@
 
 
 <div class='flex'> 
-    <Button> 
-        <h1> olha vamos colocar algo aqui? </h1>
-    </Button>
+    
 </div>
 
 
