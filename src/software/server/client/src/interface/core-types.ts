@@ -21,8 +21,16 @@ export type MachineGotoClientEvent = {
     z: number,
 }
 
+export type MachineStopClientEvent = {
+    kind: 'MachineStopClientEvent'
+}
 
-export type ClientEvent = CursorPositionClientEvent | MachineGotoClientEvent
+export type MachineInitializeClientEvent = {
+    kind: 'MachineInitializeClientEvent'
+}
+
+
+export type ClientEvent = CursorPositionClientEvent | MachineGotoClientEvent | MachineInitializeClientEvent | MachineStopClientEvent
 
 export type CursorPositionServerEvent = {
     kind: 'CursorPositionServerEvent'

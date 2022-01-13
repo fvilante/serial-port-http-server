@@ -4,7 +4,31 @@ import http from 'http'
 import express from 'express'
 import cors from 'cors'
 import { CursorPositionClientEvent,  ClientMetadata, CursorPositionServerEvent, ClientEvent } from './client/src/interface/core-types'
-import { exhaustiveSwitch } from '../core/utils'
+import { exhaustiveSwitch, random } from '../core/utils'
+import { SingleAxis } from '../machine/single-axis'
+import { makeTunnel } from '../cmpp/transport/tunnel'
+import { Machine } from '../machine/machine'
+import { Pulses } from '../cmpp/physical-dimensions/base'
+import { Moviment } from '../cmpp/controlers/core'
+import { PulsesPerTick, PulsesPerTickSquared } from '../cmpp/physical-dimensions/physical-dimensions'
+
+//
+const axisX = new SingleAxis(makeTunnel('com50', 9600, 1),`Eixo_X`)
+const axisY = new SingleAxis(makeTunnel('com51', 9600, 1),`Eixo_Y`)
+const axisZ = new SingleAxis(makeTunnel('com48', 9600, 1),`Eixo_Z`)
+
+const machine = new Machine({X: axisX, Y: axisY, Z: axisZ})
+
+const makeRandomMoviment = ():Moviment => {
+    return {
+        position: Pulses(random(500,2200)),
+        speed:  PulsesPerTick(random(2000,5000)),
+        acceleration: PulsesPerTickSquared(random(5000,15000)),
+    }
+}
+
+
+//
 
 const port = 7071 // TCP port
 
@@ -65,6 +89,24 @@ wss.on('connection', ws => {
 
             case 'MachineGotoClientEvent': {
                 console.table(clientEvent)
+                const { x, y, z} = clientEvent
+                machine.goto({
+                    X: makeRandomMoviment(),
+                    Y: makeRandomMoviment(),
+                    Z: makeRandomMoviment(),
+                })
+                break;
+            }
+
+            case 'MachineStopClientEvent': {
+                console.table(clientEvent)
+                machine.shutdown();
+                break;
+            }
+
+            case 'MachineInitializeClientEvent': {
+                console.table(clientEvent)
+                machine.initialize();
                 break;
             }
 

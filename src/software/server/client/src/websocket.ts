@@ -10,6 +10,6 @@ const port = 7071
                 clearInterval(timer);
                 resolve(ws)
             }
-        }, 10);
+        }, 100);
     })
 }

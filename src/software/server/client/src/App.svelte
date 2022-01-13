@@ -3,7 +3,7 @@
     import { makeServerProxy } from './server-proxy'
     import { onMount } from 'svelte'
     import { startWebSocket } from './websocket';
-    import { ClientEvent, MachineGotoClientEvent } from './interface/core-types';
+    import { ClientEvent, MachineGotoClientEvent, MachineInitializeClientEvent, MachineStopClientEvent } from './interface/core-types';
 
     const sendEvent = (event: ClientEvent, ws: WebSocket) => {
         const data = JSON.stringify(event)
@@ -33,6 +33,20 @@
             x: 1000,
             y: 1000,
             z: 1000,
+        }
+        if (ws_) sendEvent(event, ws_)
+    }
+
+    const onStop = () => {
+        const event: MachineStopClientEvent = {
+            kind: 'MachineStopClientEvent',
+        }
+        if (ws_) sendEvent(event, ws_)
+    }
+
+    const onReference = () => {
+        const event: MachineInitializeClientEvent = {
+            kind: 'MachineInitializeClientEvent',
         }
         if (ws_) sendEvent(event, ws_)
     }
@@ -72,8 +86,8 @@
 
 <div class='flex'> 
     <button class='start' on:click="{onStart}">start</button>
-    <button class='stop'>stop</button>
-    <button class='reference'>reference</button>
+    <button class='stop' on:click="{onStop}">stop</button>
+    <button class='reference' on:click={onReference}>reference</button>
     
 </div>
 
