@@ -7,17 +7,20 @@
     import Hero from './lib/Hero.svelte';
     import { startWebSocket } from './websocket';
 
-   
-    let count: number = 0
+    let ws_: WebSocket | undefined = undefined
+
+    const cleanup = () => {
+        ws_?.close()
+    }
 
     onMount( () => {
         startWebSocket().then( ws => {
-            runServerCommunication(ws)
+            ws_ = ws
+            runServerCommunication(ws_)
         })
         
-        const interval = setInterval(() => count++, 1000)
         return( () => {
-            clearInterval(interval)
+            cleanup()
         })
     })
 
