@@ -2,22 +2,63 @@ type UUID = string
 
 type HSV = number
 
-export type Metadata = {
+export type ClientMetadata = {
     id: UUID;
     color: HSV;
 }
 
 
-export type CursorPosition = {
+export type CursorPositionClientEvent = {
+    kind: 'CursorPositionClientEvent'
     x: number
     y: number
 }
 
-export type Response = {
+export type MachineGotoClientEvent = {
+    kind: 'MachineGotoClientEvent'
+    x: number,
+    y: number,
+    z: number,
+}
+
+export type MachineStopClientEvent = {
+    kind: 'MachineStopClientEvent'
+}
+
+export type MachineInitializeClientEvent = {
+    kind: 'MachineInitializeClientEvent'
+}
+
+export type PlayNoteClientEvent = {
+    kind: 'PlayNoteClientEvent'
+    duration: number
+    frequency: number
+}
+
+
+export type ClientEvent = 
+    | CursorPositionClientEvent 
+    | MachineGotoClientEvent 
+    | MachineInitializeClientEvent 
+    | MachineStopClientEvent
+    | PlayNoteClientEvent
+
+export type CursorPositionServerEvent = {
+    kind: 'CursorPositionServerEvent'
     sender: UUID
     color: HSV
-} & CursorPosition
+    x: number
+    y: number
+} 
 
+export type ReadyStateServerEvent = {
+    kind: 'ReadyStateServerEvent'
+    isReady: boolean
+}
+
+export type ServerEvent = 
+    | CursorPositionServerEvent
+    | ReadyStateServerEvent
 
 //
 

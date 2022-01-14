@@ -54,4 +54,13 @@ export class Machine {
         ])
     }
 
+    public shutdown = async (): Promise<void> => {
+        const { X, Y, Z} = this.axis
+        await ExecuteInParalel([
+            () => X.shutdown(),
+            () => Y.shutdown(),
+            () => Z.shutdown(),
+        ]) 
+    }
+
 }

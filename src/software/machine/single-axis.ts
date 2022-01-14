@@ -266,7 +266,8 @@ export class SingleAxis {
 
         const recipe = async () => {
             throwIfNotReadyToGo();
-            if(!await isSamePosition()) {
+            const isSame = await isSamePosition() 
+            if(isSame===false) {
                 await setNextMoviment(target);
                 await startSerial();
                 await waitToStop();
@@ -281,6 +282,15 @@ export class SingleAxis {
         await recipe()
 
     } 
+
+    gotoRelative = async (target: Moviment , tolerance: Tolerance = this.tolerance): Promise<void> => {
+        const currentPosition = await this.getCurrentPosition()
+        const targetRelative: Moviment = {
+            ...target,
+            position: Pulses(currentPosition.value + target.position.value)
+        }
+        await this.goto(targetRelative, tolerance)
+    }
 
     //TODO: should be better implement to reduce time interval between movimentss
     gotoMany = async (targets: Iterable<Moviment> , tolerance: Tolerance = this.tolerance): Promise<void> => {
