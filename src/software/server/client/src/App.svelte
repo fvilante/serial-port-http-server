@@ -192,9 +192,14 @@
         border: 1px solid black
     }
 
+    h1 {
+        font-size:xx-large;
+    }
+
 </style>
 
 
+<h1> Opções: </h1>
 <div class='flex'> 
     <button class='start' on:click="{onStart}">start</button>
     <button class='stop' on:click="{onStop}">stop</button>
@@ -222,8 +227,7 @@
     </p>
 </div>
 
-<div class='flex'>
-    juca
+<div class='flex log-container'>
     {#each log as message, i} 
         <p>{message}</p>
     {/each}
