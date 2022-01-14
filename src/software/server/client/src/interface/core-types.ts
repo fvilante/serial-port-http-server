@@ -51,7 +51,14 @@ export type CursorPositionServerEvent = {
     y: number
 } 
 
-export type ServerEvent = CursorPositionServerEvent
+export type ReadyStateServerEvent = {
+    kind: 'ReadyStateServerEvent'
+    isReady: boolean
+}
+
+export type ServerEvent = 
+    | CursorPositionServerEvent
+    | ReadyStateServerEvent
 
 //
 

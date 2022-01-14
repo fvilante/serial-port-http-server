@@ -1,8 +1,11 @@
 import { CursorPositionClientEvent, CursorPositionServerEvent, ServerEvent } from './interface/core-types'
 import { startWebSocket } from './websocket'
 
+export function exhaustiveSwitch(x: never): never {
+    throw new Error("Didn't expect to get here");
+}
 
-export const makeServerProxy = async (ws: WebSocket): Promise<void> => {
+export const makeServerProxy = async (ws: WebSocket, setIsReady: (isReady: boolean) => void): Promise<void> => {
 
     const getOrCreateCursorFor = (serverResponse: CursorPositionServerEvent):SVGElement => {
         const { sender, color, x, y } = serverResponse
@@ -37,15 +40,23 @@ export const makeServerProxy = async (ws: WebSocket): Promise<void> => {
         console.log(`Recebido mensagem do servidor`)
 
         
-
-        switch (serverEvent.kind) {
+        const { kind } = serverEvent
+        switch (kind) {
             case 'CursorPositionServerEvent': {
                 onCursorPositionServerEvent(serverEvent)
                 break;
             }
 
-            default:
-                
+            case 'ReadyStateServerEvent': {
+                const { isReady } = serverEvent
+                setIsReady(isReady)
+                break;
+            }
+
+            default: {
+                exhaustiveSwitch(kind)
+            }
+
         }
 
 

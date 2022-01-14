@@ -4,7 +4,32 @@
     import { onMount } from 'svelte'
     import { startWebSocket } from './websocket';
     import { ClientEvent, MachineGotoClientEvent, MachineInitializeClientEvent, MachineStopClientEvent, PlayNoteClientEvent } from './interface/core-types';
-    //
+    
+    
+    // Ready
+
+    let isReady: boolean | 'offline' = 'offline'
+    let disconectedTimeout: NodeJS.Timeout | undefined= undefined
+    let log: string[] = ['']
+    disconectedTimeout = setTimeout(() => {
+            //log = [...log, "->timeout1"]
+            isReady = 'offline'
+        }, 1000)
+    const setIsReady = (isReady_: boolean):void => {
+        if (disconectedTimeout) {
+            clearTimeout(disconectedTimeout)
+        }
+        isReady = isReady_
+        //log = [...log, "->isReady"]
+        disconectedTimeout = setTimeout(() => {
+            //log = [...log, "->timeout2"]
+            isReady = 'offline'
+        }, 1000)
+    }
+    
+
+
+    // Music
     const pitchShift = 1
 
     type Frequency = number  // the numbe represents a frequency in hertz 
@@ -59,7 +84,7 @@
     onMount( () => {
         startWebSocket().then( ws => {
             ws_ = ws
-            makeServerProxy(ws_)
+            makeServerProxy(ws_, setIsReady)
         })
         
         return( () => {
@@ -140,6 +165,33 @@
         background-color: black;
     }
 
+    div.machine-state p {
+        display: inline;
+    }
+
+    div.machine-state p.ready {
+        display: inline;
+        font-size: xx-large;
+        background-color: chartreuse;
+        border: 1px solid black
+    }
+
+    div.machine-state p.busy {
+        display: inline;
+        color: white;
+        font-size: xx-large;
+        background-color: crimson;
+        border: 1px solid black
+    }
+
+    div.machine-state p.nosignal {
+        display: inline;
+        color: white;
+        font-size: xx-large;
+        background-color: darkorange;
+        border: 1px solid black
+    }
+
 </style>
 
 
@@ -156,5 +208,25 @@
         <button class='sound' on:click="{() => onSound({frequency, duration:1000})}">{name}</button>
     
     {/each} 
-   
 </div>
+
+<div class="machine-state">
+    <p> Estado da maquina: 
+    {#if isReady==='offline'}
+        <p class='nosignal'> off-line </p> 
+    {:else if isReady===true}
+        <p class='ready'> pronto </p>
+    {:else if isReady===false}
+        <p class='busy'> ocupado </p>
+    {/if}
+    </p>
+</div>
+
+<div class='flex'>
+    juca
+    {#each log as message, i} 
+        <p>{message}</p>
+    {/each}
+</div>
+
+

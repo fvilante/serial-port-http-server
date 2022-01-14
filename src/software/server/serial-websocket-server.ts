@@ -3,7 +3,7 @@ import { v4 as uuidv4} from 'uuid'
 import http from 'http'
 import express from 'express'
 import cors from 'cors'
-import { CursorPositionClientEvent,  ClientMetadata, CursorPositionServerEvent, ClientEvent } from './client/src/interface/core-types'
+import { CursorPositionClientEvent,  ClientMetadata, CursorPositionServerEvent, ClientEvent, ReadyStateServerEvent, ServerEvent } from './client/src/interface/core-types'
 import { exhaustiveSwitch, random } from '../core/utils'
 import { SingleAxis } from '../machine/single-axis'
 import { makeTunnel } from '../cmpp/transport/tunnel'
@@ -11,6 +11,11 @@ import { Machine } from '../machine/machine'
 import { Pulses } from '../cmpp/physical-dimensions/base'
 import { Moviment } from '../cmpp/controlers/core'
 import { PulsesPerTick, PulsesPerTickSquared, Pulses_ } from '../cmpp/physical-dimensions/physical-dimensions'
+
+// lock
+
+let isLocked = false
+
 
 // machine
 const axisX = new SingleAxis(makeTunnel('com50', 9600, 1),`Eixo_X`)
@@ -137,6 +142,23 @@ const broadcastCursorPosition = (message: CursorPositionClientEvent, metadata: C
     })
 }
 
+const broadCastEvent = (event: ServerEvent):void => {
+    const jsonEvent = JSON.stringify(event);
+    clients.forEach( (metadata, client) => {
+        client.send(jsonEvent)
+    })
+}
+
+
+setInterval(() => {
+    const readyState: ReadyStateServerEvent = {
+        kind: 'ReadyStateServerEvent',
+        isReady: isLocked ? false : true,
+    }
+    console.log('isReady=',readyState.isReady)
+    broadCastEvent(readyState)
+}, 500)
+
 wss.on('connection', ws => {
     
     const id = uuidv4()
@@ -161,7 +183,8 @@ wss.on('connection', ws => {
             case 'MachineGotoClientEvent': {
                 console.table(clientEvent)
                 const { x, y, z} = clientEvent
-                
+                if(isLocked) return
+                isLocked = true
                 machine
                     .goto({
                         X: makeRandomMoviment(),
@@ -169,32 +192,40 @@ wss.on('connection', ws => {
                         Z: makeRandomMoviment(),
                     })
                     .catch( err => console.log(err))
-            
-                
+                    .finally( () => isLocked = false)    
                 break;
             }
 
             case 'MachineStopClientEvent': {
                 console.table(clientEvent)
+                if(isLocked) return
+                isLocked = true
                 machine
                     .shutdown()
                     .catch( err => console.log(err))
+                    .finally( () => isLocked = false) 
                 break;
             }
 
             case 'MachineInitializeClientEvent': {
                 console.table(clientEvent)
+                if(isLocked) return
+                isLocked = true
                 machine
                     .initialize()
                     .catch( err => console.log(err))
+                    .finally( () => isLocked = false) 
                 break;
             }
 
             case 'PlayNoteClientEvent': {
                 console.table(clientEvent)
+                if(isLocked) return
                 const { duration, frequency} = clientEvent
+                isLocked = true
                 playNote(frequency, duration)
                     .catch( err => console.log(err))
+                    .finally( () => isLocked = false) 
                 break;
             }
 
