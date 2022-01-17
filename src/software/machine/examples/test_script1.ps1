@@ -10,11 +10,17 @@ $job = Start-job {
 }
 Write-Host 'Ok'
 Write-Host 'Aguardando a finalizacao do job...'
-Wait-Job -Job $job
-$r = Receive-Job -Job $job -Keep | Select-Object -Last 30
+try {
+    Wait-Job -Job $job
+}
+finally {
+    $r = Receive-Job -Job $job -Keep | Select-Object -Last 30    
+} 
+
+
 Write-Host $r
 Write-Host '-------------'
-Write-Host 'Para o resultado das ultimas 30 linhas, digite: $r'
+Write-Host 'Para o resultado das ultimas 30 linhas, digite: $r e/ou Get-Error'
 
 
 
