@@ -1,3 +1,4 @@
+
 import { AxisControler } from "../cmpp/controlers/axis-controler";
 import { CmppControler, makeCmppControler } from "../cmpp/controlers/cmpp-controler";
 import { Moviment } from "../cmpp/controlers/core";
@@ -8,6 +9,16 @@ import { Position, Pulses, TicksOfClock } from "../cmpp/physical-dimensions/base
 import { PulsesPerTick, PulsesPerTickSquared } from "../cmpp/physical-dimensions/physical-dimensions";
 import { CMPP00LG } from "../cmpp/transport/memmap-CMPP00LG";
 import { Tunnel } from "../cmpp/transport/tunnel";
+
+//TODO: Deprecate PrintingPositions, and rename PrintingPositions2 to PrintingPositions, the difference is only the type cast
+export type PrintingPositions2 = {
+    readonly numeroDeMensagensNoAvanco: number;
+    readonly numeroDeMensagensNoRetorno: number;
+    readonly posicaoDaPrimeiraMensagemNoAvanco: Pulses;
+    readonly posicaoDaUltimaMensagemNoAvanco: Pulses;
+    readonly posicaoDaPrimeiraMensagemNoRetorno: Pulses;
+    readonly posicaoDaUltimaMensagemNoRetorno: Pulses;
+}
 
 export const defaultReferenceParameter: SmartReferenceParameters = {
     endPosition: Pulses(500),
@@ -81,6 +92,31 @@ export class SingleAxis {
                 .then( status => status.isStopped ? resolve(true) : resolve(false)) 
             })
         )
+    }
+
+    public setPrintings = async (data: PrintingPositions2) => {
+        const { 
+            numeroDeMensagensNoAvanco,
+            numeroDeMensagensNoRetorno,
+            posicaoDaPrimeiraMensagemNoAvanco,
+            posicaoDaPrimeiraMensagemNoRetorno,
+            posicaoDaUltimaMensagemNoAvanco,
+            posicaoDaUltimaMensagemNoRetorno,
+        } = data
+        const { set } = this.transportLayer
+        await set('Numero de mensagem no avanco',numeroDeMensagensNoAvanco)
+        await set('Numero de mensagem no retorno', numeroDeMensagensNoRetorno)
+        await set('Posicao da primeira impressao no avanco', posicaoDaPrimeiraMensagemNoAvanco)
+        await set('Posicao da primeira impressao no retorno', posicaoDaPrimeiraMensagemNoRetorno)
+        await set('Posicao da ultima mensagem no avanco', posicaoDaUltimaMensagemNoAvanco)
+        await set('Posicao da ultima mensagem no retorno', posicaoDaUltimaMensagemNoRetorno)
+    }
+
+    public resetPrintings = async () => {
+        const { set } = this.transportLayer
+        await set('Numero de mensagem no avanco', 0)
+        await set('Numero de mensagem no retorno', 0)
+        
     }
 
     public startSerial = async () => {
