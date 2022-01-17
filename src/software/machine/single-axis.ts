@@ -32,16 +32,19 @@ export type InitialConfig = {
     //
     defaultKinematics: Kinematics
     //
-    'Start externo habilitado': LigadoDesligado
-    'Entrada de start entre eixo habilitado': LigadoDesligado
-    'Saida de start no avanco': LigadoDesligado
-    'Saida de start no retorno': LigadoDesligado
-    'Start automatico no avanco': LigadoDesligado
-    'Start automatico no retorno': LigadoDesligado
-    'Reducao da corrente em repouso': LigadoDesligado
-    'Giro com funcao de protecao': LigadoDesligado
-    'Giro com funcao de correcao': LigadoDesligado
-    'Pausa serial': LigadoDesligado
+    nativeParameters: {
+        'Start externo habilitado': LigadoDesligado
+        'Entrada de start entre eixo habilitado': LigadoDesligado
+        'Saida de start no avanco': LigadoDesligado
+        'Saida de start no retorno': LigadoDesligado
+        'Start automatico no avanco': LigadoDesligado
+        'Start automatico no retorno': LigadoDesligado
+        'Reducao da corrente em repouso': LigadoDesligado
+        'Giro com funcao de protecao': LigadoDesligado
+        'Giro com funcao de correcao': LigadoDesligado
+        'Pausa serial': LigadoDesligado
+    }
+    
 }
 
 const z: InitialConfig = {
@@ -65,16 +68,18 @@ const z: InitialConfig = {
         acceleration: PulsesPerTickSquared(5000)
     },
     //
-    'Start externo habilitado': "desligado",
-    'Entrada de start entre eixo habilitado': "desligado",
-    'Saida de start no avanco': "desligado",
-    'Saida de start no retorno': "desligado",
-    'Start automatico no avanco': "desligado",
-    'Start automatico no retorno': "desligado",
-    'Reducao da corrente em repouso': "desligado",
-    'Giro com funcao de protecao': "ligado",
-    'Giro com funcao de correcao': "desligado",
-    'Pausa serial': "desligado",
+    nativeParameters: {
+        'Start externo habilitado': "desligado",
+        'Entrada de start entre eixo habilitado': "desligado",
+        'Saida de start no avanco': "desligado",
+        'Saida de start no retorno': "desligado",
+        'Start automatico no avanco': "desligado",
+        'Start automatico no retorno': "desligado",
+        'Reducao da corrente em repouso': "desligado",
+        'Giro com funcao de protecao': "ligado",
+        'Giro com funcao de correcao': "desligado",
+        'Pausa serial': "desligado",
+    }
 
 }
 
@@ -99,16 +104,18 @@ const x: InitialConfig = {
         acceleration: PulsesPerTickSquared(4000)
     },
     //
-    'Start externo habilitado': "desligado",
-    'Entrada de start entre eixo habilitado': "desligado",
-    'Saida de start no avanco': "desligado",
-    'Saida de start no retorno': "desligado",
-    'Start automatico no avanco': "desligado",
-    'Start automatico no retorno': "desligado",
-    'Reducao da corrente em repouso': "desligado",
-    'Giro com funcao de protecao': "ligado",
-    'Giro com funcao de correcao': "desligado",
-    'Pausa serial': "desligado",
+    nativeParameters: {
+        'Start externo habilitado': "desligado",
+        'Entrada de start entre eixo habilitado': "desligado",
+        'Saida de start no avanco': "desligado",
+        'Saida de start no retorno': "desligado",
+        'Start automatico no avanco': "desligado",
+        'Start automatico no retorno': "desligado",
+        'Reducao da corrente em repouso': "desligado",
+        'Giro com funcao de protecao': "ligado",
+        'Giro com funcao de correcao': "desligado",
+        'Pausa serial': "desligado",
+    }
 
 }
 
@@ -133,16 +140,18 @@ const y: InitialConfig = {
         acceleration: PulsesPerTickSquared(1500)
     },
     //
-    'Start externo habilitado': "desligado",
-    'Entrada de start entre eixo habilitado': "desligado",
-    'Saida de start no avanco': "desligado",
-    'Saida de start no retorno': "desligado",
-    'Start automatico no avanco': "desligado",
-    'Start automatico no retorno': "desligado",
-    'Reducao da corrente em repouso': "desligado",
-    'Giro com funcao de protecao': "ligado",
-    'Giro com funcao de correcao': "desligado",
-    'Pausa serial': "desligado",
+    nativeParameters: {
+        'Start externo habilitado': "desligado",
+        'Entrada de start entre eixo habilitado': "desligado",
+        'Saida de start no avanco': "desligado",
+        'Saida de start no retorno': "desligado",
+        'Start automatico no avanco': "desligado",
+        'Start automatico no retorno': "desligado",
+        'Reducao da corrente em repouso': "desligado",
+        'Giro com funcao de protecao': "ligado",
+        'Giro com funcao de correcao': "desligado",
+        'Pausa serial': "desligado",
+    }
 
 }
 
