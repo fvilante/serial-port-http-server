@@ -1,13 +1,13 @@
 
 import { AxisControler } from "../cmpp/controlers/axis-controler";
 import { CmppControler, makeCmppControler } from "../cmpp/controlers/cmpp-controler";
-import { Moviment } from "../cmpp/controlers/core";
+import { Kinematics, Moviment } from "../cmpp/controlers/core";
 import { setNext } from "../cmpp/controlers/utils/go-next";
 import { MovimentStatus } from "../cmpp/controlers/utils/moviment-status";
 import { SmartReferenceParameters } from "../cmpp/controlers/utils/smart-reference";
 import { Position, Pulses, TicksOfClock } from "../cmpp/physical-dimensions/base";
 import { PulsesPerTick, PulsesPerTickSquared } from "../cmpp/physical-dimensions/physical-dimensions";
-import { CMPP00LG } from "../cmpp/transport/memmap-CMPP00LG";
+import { CMPP00LG, LigadoDesligado } from "../cmpp/transport/memmap-CMPP00LG";
 import { Tunnel } from "../cmpp/transport/tunnel";
 
 //TODO: Deprecate PrintingPositions, and rename PrintingPositions2 to PrintingPositions, the difference is only the type cast
@@ -19,6 +19,142 @@ export type PrintingPositions2 = {
     readonly posicaoDaPrimeiraMensagemNoRetorno: Pulses;
     readonly posicaoDaUltimaMensagemNoRetorno: Pulses;
 }
+
+export type InitialConfig = {
+    axisName: string
+    //
+    absoluteRange: {
+        min: Pulses
+        max: Pulses
+    },
+    milimeterToPulseRatio: number
+    smartReferenceParameters: SmartReferenceParameters
+    //
+    defaultKinematics: Kinematics
+    //
+    nativeParameters: {
+        'Start externo habilitado': LigadoDesligado
+        'Entrada de start entre eixo habilitado': LigadoDesligado
+        'Saida de start no avanco': LigadoDesligado
+        'Saida de start no retorno': LigadoDesligado
+        'Start automatico no avanco': LigadoDesligado
+        'Start automatico no retorno': LigadoDesligado
+        'Reducao da corrente em repouso': LigadoDesligado
+        'Giro com funcao de protecao': LigadoDesligado
+        'Giro com funcao de correcao': LigadoDesligado
+        'Pausa serial': LigadoDesligado
+    }
+    
+}
+
+const z: InitialConfig = {
+    axisName: 'Z-Axis',
+    absoluteRange: {
+        min: Pulses(610),
+        max: Pulses(2610),
+    },
+    milimeterToPulseRatio: ((12.97+12.32)/2)/100,
+    smartReferenceParameters: {
+        endPosition: Pulses(800),
+        reference: {
+            // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
+            speed: PulsesPerTick(350),
+            acceleration: PulsesPerTickSquared(3000)
+        }
+    },
+    //
+    defaultKinematics: {
+        speed: PulsesPerTick(400),
+        acceleration: PulsesPerTickSquared(5000)
+    },
+    //
+    nativeParameters: {
+        'Start externo habilitado': "desligado",
+        'Entrada de start entre eixo habilitado': "desligado",
+        'Saida de start no avanco': "desligado",
+        'Saida de start no retorno': "desligado",
+        'Start automatico no avanco': "desligado",
+        'Start automatico no retorno': "desligado",
+        'Reducao da corrente em repouso': "desligado",
+        'Giro com funcao de protecao': "ligado",
+        'Giro com funcao de correcao': "desligado",
+        'Pausa serial': "desligado",
+    }
+
+}
+
+const x: InitialConfig = {
+    axisName: 'X-Axis',
+    absoluteRange: {
+        min: Pulses(610),
+        max: Pulses(8355+25),
+    },
+    milimeterToPulseRatio: (152.87/1000),
+    smartReferenceParameters: {
+        endPosition: Pulses(800),
+        reference: {
+            // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
+            speed: PulsesPerTick(350),
+            acceleration: PulsesPerTickSquared(3000)
+        }
+    },
+    //
+    defaultKinematics: {
+        speed: PulsesPerTick(2000),
+        acceleration: PulsesPerTickSquared(4000)
+    },
+    //
+    nativeParameters: {
+        'Start externo habilitado': "desligado",
+        'Entrada de start entre eixo habilitado': "desligado",
+        'Saida de start no avanco': "desligado",
+        'Saida de start no retorno': "desligado",
+        'Start automatico no avanco': "desligado",
+        'Start automatico no retorno': "desligado",
+        'Reducao da corrente em repouso': "desligado",
+        'Giro com funcao de protecao': "ligado",
+        'Giro com funcao de correcao': "desligado",
+        'Pausa serial': "desligado",
+    }
+
+}
+
+const y: InitialConfig = {
+    axisName: 'Y-Axis',
+    absoluteRange: {
+        min: Pulses(610),
+        max: Pulses(7310),
+    },
+    milimeterToPulseRatio: (69.82*0.9936/0.9984523)/1000,
+    smartReferenceParameters: {
+        endPosition: Pulses(800),
+        reference: {
+            // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
+            speed: PulsesPerTick(350),
+            acceleration: PulsesPerTickSquared(3000)
+        }
+    },
+    //
+    defaultKinematics: {
+        speed: PulsesPerTick(1000),
+        acceleration: PulsesPerTickSquared(1500)
+    },
+    //
+    nativeParameters: {
+        'Start externo habilitado': "desligado",
+        'Entrada de start entre eixo habilitado': "desligado",
+        'Saida de start no avanco': "desligado",
+        'Saida de start no retorno': "desligado",
+        'Start automatico no avanco': "desligado",
+        'Start automatico no retorno': "desligado",
+        'Reducao da corrente em repouso': "desligado",
+        'Giro com funcao de protecao': "ligado",
+        'Giro com funcao de correcao': "desligado",
+        'Pausa serial': "desligado",
+    }
+
+}
+
 
 export const defaultReferenceParameter: SmartReferenceParameters = {
     endPosition: Pulses(500),
@@ -149,7 +285,11 @@ export class SingleAxis {
 
         const { set } = this.transportLayer
 
-        const preConfig = async () => {
+        const preConfig = async () => {         
+            await set('Numero de mensagem no avanco', 0),
+            await set('Numero de mensagem no retorno', 0),
+            await set('Modo continuo/passo a passo', 'continuo'),
+            //
             await set("Start automatico no avanco", 'desligado')
             await set("Start automatico no retorno", 'desligado')
             await set("Modo continuo/passo a passo", 'continuo')
