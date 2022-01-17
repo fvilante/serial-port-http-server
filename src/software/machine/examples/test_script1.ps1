@@ -8,14 +8,19 @@ $job = Start-job {
     npx ts-node .\mexample-03.ts
     Write-Host "Job finalizado"
 }
-Write-Host Ok
-Write-Host Aguardando a finalizacao do job...
+Write-Host 'Ok'
+Write-Host 'Aguardando a finalizacao do job...'
 try {
     Wait-Job -Job $job
 }
 finally {
     $r = Receive-Job -Job $job -Keep | Select-Object -Last 30    
 } 
+
+
+Write-Host $r
+Write-Host '-------------'
+Write-Host 'Para o resultado das ultimas 30 linhas, digite: $r e/ou Get-Error'
 
 
 Write-Host $r
