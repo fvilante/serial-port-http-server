@@ -26,7 +26,8 @@ const makeTransportLayer = CMPP00LG
 // Hides and wrap the CMPP-classic PCBoard API
 // ***********************************************************
 
-type PrintingPositions = {
+//TODO: deprecate this in favor of PrintingPositions2
+export type PrintingPositions = {
     readonly numeroDeMensagensNoAvanco: number;
     readonly numeroDeMensagensNoRetorno: number;
     readonly posicaoDaPrimeiraMensagemNoAvanco: number;
