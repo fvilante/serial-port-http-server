@@ -21,10 +21,6 @@ export type PrintingPositions2 = {
 }
 
 export type InitialConfig = {
-    //TODO: ASSURE BELOW ARE INITIALIZED IN STATIC CODE INITIALIZATION
-    //() => axis.set('Numero de mensagem no avanco', 0),
-    //() => axis.set('Numero de mensagem no retorno', 0),
-    //() => axis.set('Modo continuo/passo a passo', 'continuo'),
     axisName: string
     //
     absoluteRange: {
@@ -280,7 +276,11 @@ export class SingleAxis {
 
         const { set } = this.transportLayer
 
-        const preConfig = async () => {
+        const preConfig = async () => {         
+            await set('Numero de mensagem no avanco', 0),
+            await set('Numero de mensagem no retorno', 0),
+            await set('Modo continuo/passo a passo', 'continuo'),
+            //
             await set("Start automatico no avanco", 'desligado')
             await set("Start automatico no retorno", 'desligado')
             await set("Modo continuo/passo a passo", 'continuo')
