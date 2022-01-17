@@ -40,7 +40,7 @@ export class SingleAxis {
     constructor(
         public tunnel: Tunnel, 
         public axisName: AxisName = 'Unamed_Axis', 
-        public tolerance: readonly [lowerBound: Pulses, upperBound: Pulses] = [Pulses(3), Pulses(3)] as const,
+        public tolerance: readonly [lowerBound: Pulses, upperBound: Pulses] = [Pulses(4), Pulses(4)] as const,
         public axisRange: AxisRange | undefined = undefined, 
         public referenceParameters: SmartReferenceParameters = defaultReferenceParameter,
         public transportLayer = CMPP00LG(tunnel)
