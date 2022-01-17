@@ -8,6 +8,10 @@ export type Moviment3D = {
     Z: Moviment
 }
 
+//NOTE: This machine is specialize for Leon aplication
+//      features:
+//          - when Z axis (the only vertical axis) move, all other axis (horizontal) stay static to avoid colision
+//          - the printing axis is the X axis.
 export class Machine {
     
 
