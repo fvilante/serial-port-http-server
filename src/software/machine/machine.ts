@@ -1,6 +1,6 @@
 import { Moviment } from "../cmpp/controlers/core";
 import { ExecuteInParalel } from "../core/promise-utils";
-import { SingleAxis } from "./single-axis";
+import { PrintingPositions2, SingleAxis } from "./single-axis";
 
 export type Moviment3D = {
     X: Moviment
@@ -12,6 +12,9 @@ export type Moviment3D = {
 //      features:
 //          - when Z axis (the only vertical axis) move, all other axis (horizontal) stay static to avoid colision
 //          - the printing axis is the X axis.
+//          - axis XY moves in paralel, and Z move alone while X is set with printing messages
+//
+//TODO: Make some caching to avoid resend already sent data
 export class Machine {
     
 
@@ -42,7 +45,7 @@ export class Machine {
 
     }
 
-    public goto = async (m: Moviment3D): Promise<void> => {
+    public goto = async (m: Moviment3D, printings?: PrintingPositions2): Promise<void> => {
         // to avoid collision when  axis Z (vertical axis) is moving, NO other axis are moving together!
         const { axis } = this
         type AxisKeys = keyof typeof this.axis
@@ -51,7 +54,18 @@ export class Machine {
             await axis_.goto(m[key])
         }
 
-        await move('Z')
+        const sendPrintings = async () => {
+            if(printings) {
+                await axis.X.setPrintings(printings)
+            } else {
+                return
+            }
+        }
+
+        await ExecuteInParalel([
+            () => move('Z'),
+            () => sendPrintings(),
+        ])
         await ExecuteInParalel([
             () => move('X'), 
             () => move('Y'),
