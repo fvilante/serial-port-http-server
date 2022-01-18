@@ -58,7 +58,7 @@ const trimSpacesFromData = (barCode: BarCode): BarCode => {
 }
 
 // Get barcode, validate low level barcode aginst the structure of data expected, but not do other checks
-export const GetBarCodeFromSignal = (input: KeyboardEventEmitter): Push<Maybe<BarCode>> => {
+export const makeBarcodeStream = (input: KeyboardEventEmitter): Push<Maybe<BarCode>> => {
     
     const input_ = Push<KeyboardEvent>( yield_ => input(yield_))
     
@@ -93,7 +93,7 @@ const Test2 = () => {
 
     console.log('iniciando varredura de teclado...')
 
-    GetBarCodeFromSignal(keyboardEventEmiter)
+    makeBarcodeStream(keyboardEventEmiter)
         .unsafeRun( mb => {
 
             mb.forEach( barCode => {

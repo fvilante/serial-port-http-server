@@ -1,5 +1,5 @@
 import { keyboardEventEmiter, KeyboardEventEmitter } from "../keyboard/read-keyboard-async"
-import { BarCode, GetBarCodeFromSignal } from '../barcode-reader/parse-barcode'
+import { BarCode, makeBarcodeStream } from '../barcode-reader/parse-barcode'
 import { makeMovimentKit, MovimentKit } from "../machine-controler"
 import { performMatriz } from "../matriz-router"
 import { fetchMatrizByBarcodeRaw } from "../matrix-reader/matriz-cadastro-geral-reader"
@@ -75,7 +75,7 @@ const main3 = () => {
 
     //TODO: Improve the method of keyboard reading from user, because if it hits 'backspace' key, for example, they will not capture the matrix register 
 
-    GetBarCodeFromSignal(keyboardEventEmiter__)
+    makeBarcodeStream(keyboardEventEmiter__)
         .unsafeRun( maybeBarCode => {
 
             maybeBarCode.forEach( barCode => {
