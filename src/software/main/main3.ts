@@ -23,17 +23,13 @@ const desambiguateSingleBarCodeMultipleRegistries = async (ms: readonly Matriz[]
             resolve(ms[0])
         } else if(length>1) {
             // has many items
-            const opts = ms.map( (m, index) => `${index+1}) PN=${m.partNumber} / MSG=${m.msg} (${m.printer} / @${m.remoteFieldId})`)
-            //TODO: make an alternative to below code, de dependency (npm terminal) was removed.
-            /*term.singleColumnMenu(opts, (err, response) => {
-                const index = response.selectedIndex
-                const choosed = ms[index]
-                resolve(choosed)
-            })*/
+            const err = 'Existe mais de uma matriz cadastrada para o mesmo codigo de barras. O programa será encerrado.'
+            console.log(err)
+            await delay(5000)
+            reject(err)
+            
         } else {
-            // FIX: We should show to user something like this : 'The nearest registry I found is this: ....'
-            // has no item
-            const err = 'A matriz lida nao esta cadastrada, o programa sera terminado.'
+            const err = 'A matriz lida nao esta cadastrada, o programa será encerrado.'
             console.log(err)
             await delay(5000)
             reject(err)
