@@ -1,5 +1,5 @@
 import readline from 'readline'
-import { Push } from '../adts/push-stream'
+
 
 export type KeyboardEvent = {
     sequence: string,   // utf-8 etc
@@ -9,22 +9,23 @@ export type KeyboardEvent = {
     shift: false,
 }
 
-// Represents a stream of all keystrokes pressed (ctrl+c stops the stream and finish the proccess)
-export const readKeyboardAsync = (): Push<KeyboardEvent> => Push( yield_ => {
 
+export type KeyboardEventEmitter = (consumer: (f: KeyboardEvent) => void) => void
+// Represents a stream of all keystrokes pressed (ctrl+c stops the stream and finish the proccess)
+export const keyboardEventEmiter:KeyboardEventEmitter = (consumer: (_:KeyboardEvent) => void):void => {
     readline.emitKeypressEvents(process.stdin);
     process.stdin.setRawMode(true);
 
     process.stdin.on('keypress', (str , key) => {
         //ctrl-c ( end of text )
         if ( key.sequence === '\u0003' ) {
+            console.log('Finalizando programa... ok!')
             process.exit();
         } else {
-            yield_(key)
+            consumer(key)
         }
 
     })
-
-})
+}
 
 

@@ -1,4 +1,4 @@
-import { readKeyboardAsync } from "../keyboard/read-keyboard-async"
+import { keyboardEventEmiter, KeyboardEventEmitter } from "../keyboard/read-keyboard-async"
 import { BarCode, GetBarCodeFromSignal } from '../barcode-reader/parse-barcode'
 import { makeMovimentKit, MovimentKit } from "../machine-controler"
 import { performMatriz } from "../matriz-router"
@@ -40,14 +40,27 @@ const desambiguateSingleBarCodeMultipleRegistries = async (ms: readonly Matriz[]
         }
      })
         
-    
+
+const showKeyStrokesOnScreen = (f: KeyboardEventEmitter): KeyboardEventEmitter => {
+    type Args =  Parameters<typeof f>
+    type Response = ReturnType<typeof f>
+    return (...args: Args):Response => {
+        const consumer = args[0]
+        const keyboardEventEmiter = f
+        keyboardEventEmiter( keyboardEvent => {
+            const { sequence } = keyboardEvent
+            console.log(sequence)
+            consumer(keyboardEvent)
+        })
+
+    } 
+}
+
 
 const main3 = () => {
-   
-    const input = () => 
-        readKeyboardAsync()
-        .tap( k => console.log(`${k.sequence}`) )
 
+    const keyboardEventEmiter__ = showKeyStrokesOnScreen(keyboardEventEmiter)
+    
     console.log('-------------------------')
     console.log('PROGRAMA INICIADO')
     console.log('-------------------------')
@@ -62,7 +75,7 @@ const main3 = () => {
 
     //TODO: Improve the method of keyboard reading from user, because if it hits 'backspace' key, for example, they will not capture the matrix register 
 
-    GetBarCodeFromSignal(input)
+    GetBarCodeFromSignal(keyboardEventEmiter__)
         .unsafeRun( maybeBarCode => {
 
             maybeBarCode.forEach( barCode => {

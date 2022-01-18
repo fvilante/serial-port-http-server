@@ -1,6 +1,6 @@
-import { readKeyboardAsync, KeyboardEvent } from '../keyboard/read-keyboard-async'
+import { keyboardEventEmiter, KeyboardEvent, KeyboardEventEmitter } from '../keyboard/read-keyboard-async'
 import { Maybe, Just } from "../adts/maybe"
-import { Push } from "../adts/push-stream"
+import { Push, Push_ } from "../adts/push-stream"
 import { performMatrizByItsMsg, } from "../matriz-router"
 import { makeMovimentKit } from "../machine-controler"
 
@@ -49,8 +49,11 @@ const trimSpacesFromData = (barCode: BarCode): BarCode => {
 }
 
 // Get barcode, validate low level barcode aginst the structure of data expected, but not do other checks
-export const GetBarCodeFromSignal = (input: () => Push<KeyboardEvent>): Push<Maybe<BarCode>> => {
-    return input()
+export const GetBarCodeFromSignal = (input: KeyboardEventEmitter): Push<Maybe<BarCode>> => {
+    
+    const input_ = Push<KeyboardEvent>( yield_ => input(yield_))
+    
+    return input_
         .dropletWith( keyEvent => keyEvent.name==='return') // if 'enter' split stream
         .map(convertKeyEventsToString)
         .map(parseBarCode)
@@ -88,13 +91,9 @@ const Test1 = () => {
 
 const Test2 = () => {
 
-    const input = () => 
-        readKeyboardAsync()
-        //.tap( k => console.log(`tecla precioanda ${k.sequence}`) )
-
     console.log('iniciando varredura de teclado...')
 
-    GetBarCodeFromSignal(input)
+    GetBarCodeFromSignal(keyboardEventEmiter)
         .unsafeRun( mb => {
 
             mb.forEach( barCode => {
