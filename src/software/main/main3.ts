@@ -8,10 +8,16 @@ import { Matriz } from "../matrix-reader/matrizes-conhecidas"
 import { delay } from "../core/delay"
 
 
-// helper
-const performMatriz_ = async (barcode: Barcode, movimentKit: MovimentKit): Promise<void> => {
+const getMatrizFromDB = async (barcode: Barcode): Promise<Matriz> => {
     const matrizMatches = await fetchMatrizByBarcodeRaw(barcode)
     const matriz = await throwIfNotJustOneMatrizWasFound__(matrizMatches)
+    return matriz
+}
+
+
+// helper
+const performMatriz_ = async (barcode: Barcode, movimentKit: MovimentKit): Promise<void> => {
+    const matriz = await getMatrizFromDB(barcode)
     return performMatriz(matriz, movimentKit)
 }
 
