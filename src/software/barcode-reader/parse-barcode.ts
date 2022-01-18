@@ -18,7 +18,7 @@ import { makeMovimentKit } from "../machine-controler"
 //Fix: used Result instead of Maybe 
 const parseBarCode = (barCode:string): Maybe<BarCode> => {
     const mSharp = "M#"
-    const minus = '-' //fix (im place of minus we should accept also ' ' and '_' even something else)
+    const minus = '-' //fix (in place of minus we should accept also ' ' and '_' even something else)
     const hasMSharp = barCode.startsWith(mSharp)
     const hasMinus = barCode.includes(minus)
     const barCodeWithoutMSharp = barCode.slice(2,barCode.length)
