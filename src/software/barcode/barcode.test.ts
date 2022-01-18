@@ -1,12 +1,12 @@
-import { BarCode } from './barcode-core'
-import { parseBarCode } from './barcode-stream'
+import { Barcode } from './Barcode-core'
+import { parseBarcode } from './Barcode-stream'
 
 
-type TestCase = { input: string, output: BarCode}
+type TestCase = { input: string, output: Barcode}
 const runTest = (testCases: readonly TestCase[]):void => {
     const expected = testCases.map( x => x.output)
     //act
-    const actual = testCases.map( data => parseBarCode(data.input)) 
+    const actual = testCases.map( data => parseBarcode(data.input)) 
     //check
     expect(actual).toEqual(expected)
 }
@@ -15,10 +15,10 @@ describe('basic tests', () => {
     it('Can parse valid well formed values', async () => {
         //prepare
         const validValues: readonly TestCase[] = [
-            { input: 'M#123-abc', output: { kind: 'BarCode', data: 'M#123-abc'} },
-            { input: '123-abc', output: { kind: 'BarCode', data: '123-abc'} },
-            { input: '123abc', output: { kind: 'BarCode', data: '123abc'} },
-            { input: 'AnythingCanBeABarCode', output: { kind: 'BarCode', data: 'AnythingCanBeABarCode'} },
+            { input: 'M#123-abc', output: { kind: 'Barcode', data: 'M#123-abc'} },
+            { input: '123-abc', output: { kind: 'Barcode', data: '123-abc'} },
+            { input: '123abc', output: { kind: 'Barcode', data: '123abc'} },
+            { input: 'AnythingCanBeABarcode', output: { kind: 'Barcode', data: 'AnythingCanBeABarcode'} },
             
         ]
         runTest(validValues)
@@ -26,9 +26,9 @@ describe('basic tests', () => {
 
     it('Can trim spaces before and after input', async () => {
         //prepare
-        const wellFormedInput: string = '___AnythingCanBeABarCode____'
-        const output: BarCode = {
-            kind: 'BarCode',
+        const wellFormedInput: string = '___AnythingCanBeABarcode____'
+        const output: Barcode = {
+            kind: 'Barcode',
             data: wellFormedInput,
         }
         const validValues: readonly TestCase[] = [

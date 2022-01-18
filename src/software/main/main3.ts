@@ -1,5 +1,5 @@
 import { keyboardEventEmiter, KeyboardEventEmitter } from "../keyboard/read-keyboard-async"
-import { BarCode } from "../barcode/barcode-core"
+import { Barcode } from "../barcode/barcode-core"
 import { makeBarcodeStream } from '../barcode/barcode-stream'
 import { makeMovimentKit, MovimentKit } from "../machine-controler"
 import { performMatriz } from "../matriz-router"
@@ -8,14 +8,13 @@ import { Matriz } from "../matrix-reader/matrizes-conhecidas"
 import { delay } from "../core/delay"
 
 
-// helper
-const performMatrizByItsBarCode = async (barcode: BarCode, movimentKit: MovimentKit): Promise<void> => {
+const getMatrizFromDB = async (barcode: Barcode): Promise<Matriz> => {
     const matrizMatches = await fetchMatrizByBarcodeRaw(barcode)
-    const matriz = await desambiguateSingleBarCodeMultipleRegistries(matrizMatches)
-    return performMatriz(matriz, movimentKit)
+    const matriz = await throwIfNotJustOneMatrizWasFound__(matrizMatches)
+    return matriz
 }
 
-const desambiguateSingleBarCodeMultipleRegistries = async (ms: readonly Matriz[]): Promise<Matriz> => 
+const throwIfNotJustOneMatrizWasFound__ = async (ms: readonly Matriz[]): Promise<Matriz> => 
     new Promise( async (resolve, reject) => {
         const length = ms.length
         if(length===1) {
@@ -23,17 +22,13 @@ const desambiguateSingleBarCodeMultipleRegistries = async (ms: readonly Matriz[]
             resolve(ms[0])
         } else if(length>1) {
             // has many items
-            const opts = ms.map( (m, index) => `${index+1}) PN=${m.partNumber} / MSG=${m.msg} (${m.printer} / @${m.remoteFieldId})`)
-            //TODO: make an alternative to below code, de dependency (npm terminal) was removed.
-            /*term.singleColumnMenu(opts, (err, response) => {
-                const index = response.selectedIndex
-                const choosed = ms[index]
-                resolve(choosed)
-            })*/
+            const err = 'Existe mais de uma matriz cadastrada para o mesmo codigo de barras. O programa será encerrado.'
+            console.log(err)
+            await delay(5000)
+            reject(err)
+            
         } else {
-            // FIX: We should show to user something like this : 'The nearest registry I found is this: ....'
-            // has no item
-            const err = 'A matriz lida nao esta cadastrada, o programa sera terminado.'
+            const err = 'A matriz lida nao esta cadastrada, o programa será encerrado.'
             console.log(err)
             await delay(5000)
             reject(err)
@@ -75,14 +70,16 @@ const main3 = () => {
     printHeadText();
     //TODO: Improve the method of keyboard reading from user, because if it hits 'backspace' key, for example, they will not capture the matrix register 
     makeBarcodeStream(keyboardEventEmiter__)
-        .unsafeRun( barCode => {
-            console.log(`Identificado bar-code:`, barCode)
-            console.log(`localizando programacao correspondente`)
-            console.log(`Iniciando realizacao do trabalho`)
-            makeMovimentKit()
-                .then( async movimentKit => {
-                    await performMatrizByItsBarCode(barCode, movimentKit)
-                })  
+        .unsafeRun( barcode => {
+
+            const runProgram = async () => {
+                const matriz = await getMatrizFromDB(barcode)
+                const movimentKit = await  makeMovimentKit()
+                return performMatriz(matriz, movimentKit)
+            }
+
+            runProgram()
+
         })
 }
 
