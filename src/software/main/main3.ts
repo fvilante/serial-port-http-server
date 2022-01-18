@@ -73,12 +73,8 @@ const main3 = () => {
         .unsafeRun( barcode => {
 
             const runProgram = async () => {
-                console.log(`Identificado barcode:`, barcode)
-                console.log(`Localizando registro no banco de dados de cadastro geral...`)
                 const matriz = await getMatrizFromDB(barcode)
-                console.log('Obtendo kit de movimento...')
                 const movimentKit = await  makeMovimentKit()
-                console.log(`Iniciando execução do trabalho`)
                 return performMatriz(matriz, movimentKit)
             }
 
