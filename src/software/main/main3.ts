@@ -14,13 +14,6 @@ const getMatrizFromDB = async (barcode: Barcode): Promise<Matriz> => {
     return matriz
 }
 
-
-// helper
-const performMatriz_ = async (barcode: Barcode, movimentKit: MovimentKit): Promise<void> => {
-    const matriz = await getMatrizFromDB(barcode)
-    return performMatriz(matriz, movimentKit)
-}
-
 const throwIfNotJustOneMatrizWasFound__ = async (ms: readonly Matriz[]): Promise<Matriz> => 
     new Promise( async (resolve, reject) => {
         const length = ms.length
@@ -77,14 +70,20 @@ const main3 = () => {
     printHeadText();
     //TODO: Improve the method of keyboard reading from user, because if it hits 'backspace' key, for example, they will not capture the matrix register 
     makeBarcodeStream(keyboardEventEmiter__)
-        .unsafeRun( barCode => {
-            console.log(`Identificado bar-code:`, barCode)
-            console.log(`localizando programacao correspondente`)
-            console.log(`Iniciando realizacao do trabalho`)
-            makeMovimentKit()
-                .then( async movimentKit => {
-                    await performMatriz_(barCode, movimentKit)
-                })  
+        .unsafeRun( barcode => {
+
+            const runProgram = async () => {
+                console.log(`Identificado barcode:`, barcode)
+                console.log(`Localizando registro no banco de dados de cadastro geral...`)
+                const matriz = await getMatrizFromDB(barcode)
+                console.log('Obtendo kit de movimento...')
+                const movimentKit = await  makeMovimentKit()
+                console.log(`Iniciando execução do trabalho`)
+                return performMatriz(matriz, movimentKit)
+            }
+
+            runProgram()
+
         })
 }
 
