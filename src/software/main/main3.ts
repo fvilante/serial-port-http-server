@@ -1,11 +1,11 @@
 import { keyboardEventEmiter, KeyboardEventEmitter } from "../keyboard/read-keyboard-async"
-import { BarCode, makeBarcodeStream } from '../barcode/barcode-stream'
+import { BarCode } from "../barcode/barcode-core"
+import { makeBarcodeStream } from '../barcode/barcode-stream'
 import { makeMovimentKit, MovimentKit } from "../machine-controler"
 import { performMatriz } from "../matriz-router"
 import { fetchMatrizByBarcodeRaw } from "../matrix-reader/matriz-cadastro-geral-reader"
 import { Matriz } from "../matrix-reader/matrizes-conhecidas"
 import { delay } from "../core/delay"
-
 
 
 // helper
