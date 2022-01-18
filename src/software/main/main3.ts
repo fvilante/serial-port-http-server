@@ -9,8 +9,8 @@ import { delay } from "../core/delay"
 
 
 // helper
-const performMatrizByItsBarCode = async (barCodeRaw: BarCode['raw'], movimentKit: MovimentKit): Promise<void> => {
-    const matrizMatches = await fetchMatrizByBarcodeRaw(barCodeRaw)
+const performMatrizByItsBarCode = async (barcode: BarCode, movimentKit: MovimentKit): Promise<void> => {
+    const matrizMatches = await fetchMatrizByBarcodeRaw(barcode)
     const matriz = await desambiguateSingleBarCodeMultipleRegistries(matrizMatches)
     return performMatriz(matriz, movimentKit)
 }
@@ -76,22 +76,17 @@ const main3 = () => {
     //TODO: Improve the method of keyboard reading from user, because if it hits 'backspace' key, for example, they will not capture the matrix register 
 
     makeBarcodeStream(keyboardEventEmiter__)
-        .unsafeRun( maybeBarCode => {
+        .unsafeRun( barCode => {
 
-            maybeBarCode.forEach( barCode => {
 
                 console.log(`Identificado bar-code:`, barCode)
                 console.log(`localizando programacao correspondente`)
-                
-                const msg = barCode.messageText
-                const partNumber = barCode.partNumber
                 console.log(`Iniciando realizacao do trabalho`)
                 makeMovimentKit()
                     .then( async movimentKit => {
-                        const barCodeRaw = barCode.raw.trim()
-                        await performMatrizByItsBarCode(barCodeRaw, movimentKit)
+                        await performMatrizByItsBarCode(barCode, movimentKit)
                     })  
-            })
+            
 
         })
 
