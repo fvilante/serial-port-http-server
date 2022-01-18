@@ -44,11 +44,18 @@ const desambiguateSingleBarCodeMultipleRegistries = async (ms: readonly Matriz[]
 
 const main3 = () => {
    
-    const input = () => readKeyboardAsync()
+    const input = () => 
+        readKeyboardAsync()
         .tap( k => console.log(`${k.sequence}`) )
 
+    console.log('-------------------------')
     console.log('PROGRAMA INICIADO.')
-    console.log('Pronto para ler o barcode (voce também pode digitar manualmente o barcode a pressionar a tecla <Enter> em seguida)...')
+    console.log('-------------------------')
+    console.log()
+    console.log('Leia o barcode com o leitor ou digite o codigo equivalente pressione a tecla <enter>:')
+    console.log('-')
+
+    //TODO: Improve the method of keyboard reading from user, because if it hits 'backspace' key, for example, they will not capture the matrix register 
 
     GetBarCodeFromSignal(input)
         .unsafeRun( maybeBarCode => {
