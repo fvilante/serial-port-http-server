@@ -1,5 +1,5 @@
 import { keyboardEventEmiter, KeyboardEventEmitter } from "../keyboard/read-keyboard-async"
-import { BarCode } from "../barcode/barcode-core"
+import { Barcode } from "../barcode/barcode-core"
 import { makeBarcodeStream } from '../barcode/barcode-stream'
 import { makeMovimentKit, MovimentKit } from "../machine-controler"
 import { performMatriz } from "../matriz-router"
@@ -9,13 +9,13 @@ import { delay } from "../core/delay"
 
 
 // helper
-const performMatrizByItsBarCode = async (barcode: BarCode, movimentKit: MovimentKit): Promise<void> => {
+const performMatriz_ = async (barcode: Barcode, movimentKit: MovimentKit): Promise<void> => {
     const matrizMatches = await fetchMatrizByBarcodeRaw(barcode)
-    const matriz = await desambiguateSingleBarCodeMultipleRegistries(matrizMatches)
+    const matriz = await throwIfNotJustOneMatrizWasFound__(matrizMatches)
     return performMatriz(matriz, movimentKit)
 }
 
-const desambiguateSingleBarCodeMultipleRegistries = async (ms: readonly Matriz[]): Promise<Matriz> => 
+const throwIfNotJustOneMatrizWasFound__ = async (ms: readonly Matriz[]): Promise<Matriz> => 
     new Promise( async (resolve, reject) => {
         const length = ms.length
         if(length===1) {
@@ -77,7 +77,7 @@ const main3 = () => {
             console.log(`Iniciando realizacao do trabalho`)
             makeMovimentKit()
                 .then( async movimentKit => {
-                    await performMatrizByItsBarCode(barCode, movimentKit)
+                    await performMatriz_(barCode, movimentKit)
                 })  
         })
 }

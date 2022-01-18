@@ -1,5 +1,5 @@
 
-export type BarCode = {
-    readonly kind: 'BarCode'
+export type Barcode = {
+    readonly kind: 'Barcode'
     readonly data: string
 }
