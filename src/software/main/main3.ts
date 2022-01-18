@@ -49,10 +49,15 @@ const main3 = () => {
         .tap( k => console.log(`${k.sequence}`) )
 
     console.log('-------------------------')
-    console.log('PROGRAMA INICIADO.')
+    console.log('PROGRAMA INICIADO')
     console.log('-------------------------')
     console.log()
-    console.log('Leia o barcode com o leitor ou digite o codigo equivalente pressione a tecla <enter>:')
+    console.log('Para iniciar a impressao da matriz execute uma das duas operações abaixo:')
+    console.log()
+    console.log('NOTA: Para finalizar o programa, a qualquer momento, pressione as teclas "ctrl+c" 3 vezes consecutivas.')
+    console.log()
+    console.log('1) Leia o barcode com o leitor de codigo de barras, ou;')
+    console.log('2) Digite o codigo de barras manualmente e em seguida pressione a tecla <enter>.')
     console.log('-')
 
     //TODO: Improve the method of keyboard reading from user, because if it hits 'backspace' key, for example, they will not capture the matrix register 
