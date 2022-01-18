@@ -1,4 +1,4 @@
-import { readKeyboardAsync, KeyEvent } from '../keyboard/read-keyboard-async'
+import { readKeyboardAsync, KeyboardEvent } from '../keyboard/read-keyboard-async'
 import { Maybe, Just } from "../adts/maybe"
 import { Push } from "../adts/push-stream"
 import { performMatrizByItsMsg, } from "../matriz-router"
@@ -38,7 +38,7 @@ const parseBarCode = (barCode:string): Maybe<BarCode> => {
         })
 }
 
-const convertKeyEventsToString = (ks: readonly KeyEvent[]): string => (ks.map( k => k.sequence)).join('')
+const convertKeyEventsToString = (ks: readonly KeyboardEvent[]): string => (ks.map( k => k.sequence)).join('')
 
 const trimSpacesFromData = (barCode: BarCode): BarCode => {
     return {
@@ -49,7 +49,7 @@ const trimSpacesFromData = (barCode: BarCode): BarCode => {
 }
 
 // Get barcode, validate low level barcode aginst the structure of data expected, but not do other checks
-export const GetBarCodeFromSignal = (input: () => Push<KeyEvent>): Push<Maybe<BarCode>> => {
+export const GetBarCodeFromSignal = (input: () => Push<KeyboardEvent>): Push<Maybe<BarCode>> => {
     return input()
         .dropletWith( keyEvent => keyEvent.name==='return') // if 'enter' split stream
         .map(convertKeyEventsToString)
