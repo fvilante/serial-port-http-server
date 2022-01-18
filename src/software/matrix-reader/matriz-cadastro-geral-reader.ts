@@ -1,7 +1,7 @@
 import { readFile,  } from 'fs'
 import { Matriz } from './matrizes-conhecidas'
 import { Matriz3, matrizConverter_3_1 } from './matrizes-conhecidas-converter'
-import { BarCode } from '../barcode-reader/parse-barcode'
+import { BarCode } from '../barcode/barcode-core'
 
 const CurrentDirectory = process.cwd()
 const FILE = 'cadastro_geral.json'
@@ -39,9 +39,25 @@ const readCadastroGeralMatrizes_asMatriz1 = async (): Promise<readonly Matriz[]>
     return cadastro1
 }
 
-export const fetchMatrizByBarcodeRaw = async (barCodeRaw: BarCode['raw']): Promise<readonly Matriz[]> => {
+//NOTE: For convenience both barcodes (from_DB and from_Scaner) are being normalized with the Trim function
+//      No other normalization are being applied
+const normalizeBarCode = (barcodeFromDB_: Matriz['barCode'], barcodeFromScaner_: BarCode['data']) => {
+    const barcodeFromDB = barcodeFromDB_.trim()
+    const barcodeFromScaner = barcodeFromScaner_.trim()
+    return {
+        barcodeFromDB,
+        barcodeFromScaner,
+    }
+}
+
+export const fetchMatrizByBarcodeRaw = async (barcode: BarCode): Promise<readonly Matriz[]> => {
     const matrices = await readCadastroGeralMatrizes_asMatriz1()
-    const matches = matrices.filter( _matrix => _matrix.barCode === barCodeRaw.trim())
+    const matches = matrices.filter( _matrix =>{
+        const barcodeFromMatrix_ = _matrix.barCode
+        const barcodeFromScanner = barcode.data
+        const normalized = normalizeBarCode(barcodeFromMatrix_, barcodeFromScanner)
+        return normalized.barcodeFromDB === normalized.barcodeFromScaner
+    })
     return matches
 }
 

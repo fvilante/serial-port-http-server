@@ -1,17 +1,16 @@
-import { readKeyboardAsync } from "../keyboard/read-keyboard-async"
-import { BarCode, GetBarCodeFromSignal } from '../barcode-reader/parse-barcode'
+import { keyboardEventEmiter, KeyboardEventEmitter } from "../keyboard/read-keyboard-async"
+import { BarCode } from "../barcode/barcode-core"
+import { makeBarcodeStream } from '../barcode/barcode-stream'
 import { makeMovimentKit, MovimentKit } from "../machine-controler"
 import { performMatriz } from "../matriz-router"
 import { fetchMatrizByBarcodeRaw } from "../matrix-reader/matriz-cadastro-geral-reader"
-import { createTerminal } from 'terminal-kit'
 import { Matriz } from "../matrix-reader/matrizes-conhecidas"
 import { delay } from "../core/delay"
 
-const term = createTerminal()
 
 // helper
-const performMatrizByItsBarCode = async (barCodeRaw: BarCode['raw'], movimentKit: MovimentKit): Promise<void> => {
-    const matrizMatches = await fetchMatrizByBarcodeRaw(barCodeRaw)
+const performMatrizByItsBarCode = async (barcode: BarCode, movimentKit: MovimentKit): Promise<void> => {
+    const matrizMatches = await fetchMatrizByBarcodeRaw(barcode)
     const matriz = await desambiguateSingleBarCodeMultipleRegistries(matrizMatches)
     return performMatriz(matriz, movimentKit)
 }
@@ -25,11 +24,12 @@ const desambiguateSingleBarCodeMultipleRegistries = async (ms: readonly Matriz[]
         } else if(length>1) {
             // has many items
             const opts = ms.map( (m, index) => `${index+1}) PN=${m.partNumber} / MSG=${m.msg} (${m.printer} / @${m.remoteFieldId})`)
-            term.singleColumnMenu(opts, (err, response) => {
+            //TODO: make an alternative to below code, de dependency (npm terminal) was removed.
+            /*term.singleColumnMenu(opts, (err, response) => {
                 const index = response.selectedIndex
                 const choosed = ms[index]
                 resolve(choosed)
-            })
+            })*/
         } else {
             // FIX: We should show to user something like this : 'The nearest registry I found is this: ....'
             // has no item
@@ -40,36 +40,50 @@ const desambiguateSingleBarCodeMultipleRegistries = async (ms: readonly Matriz[]
         }
      })
         
-    
 
-const main3 = () => {
-   
-    const input = () => readKeyboardAsync()
-        .tap( k => console.log(`${k.sequence}`) )
-
-    console.log('PROGRAMA INICIADO.')
-    console.log('Pronto para ler o barcode (voce também pode digitar manualmente o barcode a pressionar a tecla <Enter> em seguida)...')
-
-    GetBarCodeFromSignal(input)
-        .unsafeRun( maybeBarCode => {
-
-            maybeBarCode.forEach( barCode => {
-
-                console.log(`Identificado bar-code:`, barCode)
-                console.log(`localizando programacao correspondente`)
-                
-                const msg = barCode.messageText
-                const partNumber = barCode.partNumber
-                console.log(`Iniciando realizacao do trabalho`)
-                makeMovimentKit()
-                    .then( async movimentKit => {
-                        const barCodeRaw = barCode.raw.trim()
-                        await performMatrizByItsBarCode(barCodeRaw, movimentKit)
-                    })  
-            })
-
+const showKeyStrokesOnScreen = (f: KeyboardEventEmitter): KeyboardEventEmitter => {
+    type Args =  Parameters<typeof f>
+    type Response = ReturnType<typeof f>
+    return (...args: Args):Response => {
+        const consumer = args[0]
+        const keyboardEventEmiter = f
+        keyboardEventEmiter( keyboardEvent => {
+            const { sequence } = keyboardEvent
+            console.log(sequence)
+            consumer(keyboardEvent)
         })
 
+    } 
+}
+
+const printHeadText = () => {
+    console.log('-------------------------')
+    console.log('PROGRAMA INICIADO')
+    console.log('-------------------------')
+    console.log()
+    console.log('Para iniciar a impressao da matriz execute uma das duas operações abaixo:')
+    console.log()
+    console.log('NOTA: Para finalizar o programa, a qualquer momento, pressione as teclas "ctrl+c" 3 vezes consecutivas.')
+    console.log()
+    console.log('1) Leia o barcode com o leitor de codigo de barras, ou;')
+    console.log('2) Digite o codigo de barras manualmente e em seguida pressione a tecla <enter>. O texto digitado deve estar exatamente igual ao campo cadastrado no cadastro geral. (OBS: Nao utilize as teclas "setas direcionais", "backspace", durante a edição)')
+    console.log('-')
+}
+
+const main3 = () => {
+    const keyboardEventEmiter__ = showKeyStrokesOnScreen(keyboardEventEmiter)
+    printHeadText();
+    //TODO: Improve the method of keyboard reading from user, because if it hits 'backspace' key, for example, they will not capture the matrix register 
+    makeBarcodeStream(keyboardEventEmiter__)
+        .unsafeRun( barCode => {
+            console.log(`Identificado bar-code:`, barCode)
+            console.log(`localizando programacao correspondente`)
+            console.log(`Iniciando realizacao do trabalho`)
+            makeMovimentKit()
+                .then( async movimentKit => {
+                    await performMatrizByItsBarCode(barCode, movimentKit)
+                })  
+        })
 }
 
 main3();
