@@ -3,11 +3,10 @@ import { BarCode, GetBarCodeFromSignal } from '../barcode-reader/parse-barcode'
 import { makeMovimentKit, MovimentKit } from "../machine-controler"
 import { performMatriz } from "../matriz-router"
 import { fetchMatrizByBarcodeRaw } from "../matrix-reader/matriz-cadastro-geral-reader"
-import { createTerminal } from 'terminal-kit'
 import { Matriz } from "../matrix-reader/matrizes-conhecidas"
 import { delay } from "../core/delay"
 
-const term = createTerminal()
+
 
 // helper
 const performMatrizByItsBarCode = async (barCodeRaw: BarCode['raw'], movimentKit: MovimentKit): Promise<void> => {
@@ -25,11 +24,12 @@ const desambiguateSingleBarCodeMultipleRegistries = async (ms: readonly Matriz[]
         } else if(length>1) {
             // has many items
             const opts = ms.map( (m, index) => `${index+1}) PN=${m.partNumber} / MSG=${m.msg} (${m.printer} / @${m.remoteFieldId})`)
-            term.singleColumnMenu(opts, (err, response) => {
+            //TODO: make an alternative to below code, de dependency (npm terminal) was removed.
+            /*term.singleColumnMenu(opts, (err, response) => {
                 const index = response.selectedIndex
                 const choosed = ms[index]
                 resolve(choosed)
-            })
+            })*/
         } else {
             // FIX: We should show to user something like this : 'The nearest registry I found is this: ....'
             // has no item
