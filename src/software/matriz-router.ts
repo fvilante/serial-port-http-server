@@ -66,7 +66,7 @@ export const ImprimeLinhaSomenteNoAvancoEInterpolando = async (
 }
 
 
-export const performMatriz = async (matriz: Matriz, axisKit: AxisKit): Promise<void> => {
+export const startRouting = async (matriz: Matriz, axisKit: AxisKit): Promise<void> => {
         
     const {
         printer,
@@ -182,7 +182,7 @@ export const performMatriz = async (matriz: Matriz, axisKit: AxisKit): Promise<v
 // helper
 export const performMatrizByItsMsg = async (matrizMessage: MatrizesConhecidasKeys, movimentKit: MovimentKit): Promise<void> => {
     const matriz = getMatrizesConhecidas()[matrizMessage]()
-    return performMatriz(matriz, movimentKit)
+    return startRouting(matriz, movimentKit)
 }
 
 // drawer work concept
