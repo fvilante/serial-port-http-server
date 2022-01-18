@@ -4,8 +4,7 @@ import { Push, Push_ } from "../adts/push-stream"
 import { performMatrizByItsMsg, } from "../matriz-router"
 import { makeMovimentKit } from "../machine-controler"
 
-
-// FIX: You can filter keystroks of barcode reader to differentiate to normal typing doing this:
+// NOTE: You can filter keystroks of barcode reader to differentiate to normal typing doing this:
 //      I verified inclusive in the LEONI_MACHINE computer what follows below: 
 //          - normal typing: even when I type as fast as possible rarely the keystrokes interval
 //            is less then 50ms (would say that certainly more than 90% of my typing is more than 50ms)
@@ -14,18 +13,28 @@ import { makeMovimentKit } from "../machine-controler"
 //      conclusion, if the reading evolve some characters, it is possible to use average mean to
 //      calculate the probability of a sequence be typed by human or barcode reader.  
 
-//if string is not a valid barcode return Nothing
-//Fix: used Result instead of Maybe 
-const parseBarCode = (barCode:string): Maybe<BarCode> => {
-    const mSharp = "M#"
-    const minus = '-' //fix (in place of minus we should accept also ' ' and '_' even something else)
-    const hasMSharp = barCode.startsWith(mSharp)
-    const hasMinus = barCode.includes(minus)
-    const barCodeWithoutMSharp = barCode.slice(2,barCode.length)
-    const isBarCodeStructureOk = hasMSharp && hasMinus
-    const [partNumber, messageText] = barCodeWithoutMSharp.split(minus)
+export type BarCode = {
+    readonly raw: string
+    readonly partNumber: string
+    readonly messageText: string
+    //TODO: include a field named (is barcode structured identified=boolean)
+}
 
-    return isBarCodeStructureOk===false // fIX: I'm not saving this lack of infrastructure
+//if string is not a valid barcode return Nothing
+//TODO: used Result instead of Maybe 
+//TODO: Write a document to be a format specification for the barcode (put this document in the manual)
+//TODO: Decide if the format should be permissive or restritive (ie: Trim spaces? Undiferentiate lower and upper cases?, etc)
+const parseBarCode = (barCode:string): Maybe<BarCode> => {
+    //TODO: Improve algorithm to trim white spaces and be more 'typo robust'
+    const mSharp = "M#"
+    const separatorElement = '-' //TODO: (in place of minus we should accept also ' ' and '_' even something else)
+    const hasMSharp = barCode.startsWith(mSharp)
+    const hasSeparator = barCode.includes(separatorElement)
+    const barCodeWithoutMSharp = barCode.slice(2,barCode.length)
+    const isBarCodeStructureOk = hasMSharp && hasSeparator
+    const [partNumber, messageText] = barCodeWithoutMSharp.split(separatorElement)
+
+    return isBarCodeStructureOk===false // TODO: I'm not saving this lack of infrastructure
         ? Just({
             raw: barCode, 
             partNumber,
@@ -59,15 +68,6 @@ export const GetBarCodeFromSignal = (input: KeyboardEventEmitter): Push<Maybe<Ba
         .map(parseBarCode)
         .map( ma => ma.map(trimSpacesFromData))
 }
-
-
-export type BarCode = {
-    readonly raw: string
-    readonly partNumber: string
-    readonly messageText: string
-    //fix: include a field named (is barcode structured identified=boolean)
-}
-
 
 const Test1 = () => {
 
