@@ -23,7 +23,7 @@ export const parseBarCode = (barCode_: string): Maybe<BarCode> => {
     const barCodeWithoutMSharp = barCode.slice(2, barCode.length);
     const isBarCodeStructureOk = hasMSharp && hasSeparator;
     const [partNumber_, messageText_] = barCodeWithoutMSharp.split(separatorElement);
-    const [partNumber, messageText] = [partNumber_.trim(), messageText_.trim()] 
+    const [partNumber, messageText] = [partNumber_?.trim() ?? 'Indefinido', messageText_?.trim() ?? 'Indefinido'] 
 
     return isBarCodeStructureOk === false // TODO: I'm not saving this lack of infrastructure
         ? Just({
