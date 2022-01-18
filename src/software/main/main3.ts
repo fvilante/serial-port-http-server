@@ -56,11 +56,7 @@ const showKeyStrokesOnScreen = (f: KeyboardEventEmitter): KeyboardEventEmitter =
     } 
 }
 
-
-const main3 = () => {
-
-    const keyboardEventEmiter__ = showKeyStrokesOnScreen(keyboardEventEmiter)
-    
+const printHeadText = () => {
     console.log('-------------------------')
     console.log('PROGRAMA INICIADO')
     console.log('-------------------------')
@@ -70,26 +66,24 @@ const main3 = () => {
     console.log('NOTA: Para finalizar o programa, a qualquer momento, pressione as teclas "ctrl+c" 3 vezes consecutivas.')
     console.log()
     console.log('1) Leia o barcode com o leitor de codigo de barras, ou;')
-    console.log('2) Digite o codigo de barras manualmente e em seguida pressione a tecla <enter>.')
+    console.log('2) Digite o codigo de barras manualmente e em seguida pressione a tecla <enter>. O texto digitado deve estar exatamente igual ao campo cadastrado no cadastro geral. (OBS: Nao utilize as teclas "setas direcionais", "backspace", durante a edição)')
     console.log('-')
+}
 
+const main3 = () => {
+    const keyboardEventEmiter__ = showKeyStrokesOnScreen(keyboardEventEmiter)
+    printHeadText();
     //TODO: Improve the method of keyboard reading from user, because if it hits 'backspace' key, for example, they will not capture the matrix register 
-
     makeBarcodeStream(keyboardEventEmiter__)
         .unsafeRun( barCode => {
-
-
-                console.log(`Identificado bar-code:`, barCode)
-                console.log(`localizando programacao correspondente`)
-                console.log(`Iniciando realizacao do trabalho`)
-                makeMovimentKit()
-                    .then( async movimentKit => {
-                        await performMatrizByItsBarCode(barCode, movimentKit)
-                    })  
-            
-
+            console.log(`Identificado bar-code:`, barCode)
+            console.log(`localizando programacao correspondente`)
+            console.log(`Iniciando realizacao do trabalho`)
+            makeMovimentKit()
+                .then( async movimentKit => {
+                    await performMatrizByItsBarCode(barCode, movimentKit)
+                })  
         })
-
 }
 
 main3();
