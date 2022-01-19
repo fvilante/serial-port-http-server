@@ -13,7 +13,6 @@ import { Tunnel } from "../cmpp/transport/tunnel";
 //TODO: - Implement Milimeter cast
 //      - Implement InitialConfig
 //      - Implement Calculo da rampa
-//      - Solve 'same-position' bug
 //      - add timeout where applicable
 //      - create stop method (it differentiate from 'shutdown method' because stop does not make axis not energized)
 //      - optimize commnication
