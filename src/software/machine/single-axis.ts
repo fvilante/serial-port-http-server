@@ -14,6 +14,9 @@ import { Tunnel } from "../cmpp/transport/tunnel";
 //      - Implement InitialConfig
 //      - Implement Calculo da rampa
 //      - Solve 'same-position' bug
+//      - add timeout where applicable
+//      - create stop method (it differentiate from 'shutdown method' because stop does not make axis not energized)
+//      - optimize commnication
 
 //TODO: Deprecate PrintingPositions, and rename PrintingPositions2 to PrintingPositions, the difference is only the type cast
 export type PrintingPositions2 = {
@@ -27,7 +30,7 @@ export type PrintingPositions2 = {
 
 export type InitialConfig = {
     axisName: string
-    absoluteRange: {  // it will throw an error for target position outside this range
+    absoluteRange: {  // it will throw an error if target position gets outside this range
         min: Pulses
         max: Pulses
     },
@@ -45,8 +48,7 @@ export type InitialConfig = {
         'Giro com funcao de protecao': LigadoDesligado
         'Giro com funcao de correcao': LigadoDesligado
         'Pausa serial': LigadoDesligado
-    }
-    
+    },
 }
 
 export const defaultReferenceParameter: SmartReferenceParameters = {
@@ -94,7 +96,7 @@ export class SingleAxis {
         }
     }
 
-    private doesPositionMatch = (currentPosition_: Pulses, expectedPosition_: Pulses, tolerance: Tolerance):boolean => {
+    private __doesPositionMatch = (currentPosition_: Pulses, expectedPosition_: Pulses, tolerance: Tolerance):boolean => {
             const [a, b] = tolerance
             const lowerDelta = a.value
             const upperDelta = b.value
@@ -108,7 +110,7 @@ export class SingleAxis {
     
     public checkCurrentPosition = async (expectedPosition: Pulses,tolerance = this.tolerance): Promise< {isActualPositionAsExpected: boolean, currentPosition: Pulses, expectedPosition: Pulses}> => {
         const currentPosition = await this.getCurrentPosition()
-        const isActualPositionAsExpected = this.doesPositionMatch(currentPosition, expectedPosition, tolerance)
+        const isActualPositionAsExpected = this.__doesPositionMatch(currentPosition, expectedPosition, tolerance)
         return { isActualPositionAsExpected, currentPosition, expectedPosition }
         
     }
@@ -297,17 +299,6 @@ export class SingleAxis {
             }
         }
 
-        // prevents bug
-        const isSamePosition = async (): Promise<boolean> => {
-            // do nothing if you already at the exactly position you got to go. Because if 'posicao_corrent'==='posicao_final' in next start it will
-            // go to 'posicao_inicial' that is what we want to prevent. Because this will raise an 'position in reached event'. Because we make 'posicao_inicial' static, and use 'posicao_final' as a dynamic target position to reach. 
-            //do not perform anymoviment, we already are where we want. This prevent an undesired behavior of the physical axis
-            const currentPositionBefore = (await this.getCurrentPosition()).value
-            const targetMovimentPosition = target.position.value
-            const isSamePosition__ = currentPositionBefore === targetMovimentPosition
-            return isSamePosition__
-        }
-
         const setNextMoviment = async (m: Moviment) => {
             await set('Posicao final', m.position)
             await set('Velocidade de avanco', m.speed)
@@ -336,13 +327,18 @@ export class SingleAxis {
 
         const recipe = async () => {
             throwIfNotReadyToGo();
-            const isSame = await isSamePosition() 
-            if(isSame===false) {
+            // do nothing if you already at the exactly position you got to go. Because if 'posicao_corrent'==='posicao_final' in next start it will
+            // go to 'posicao_inicial' that is what we want to prevent. Because this will raise an 'position in reached event'. Because we make 'posicao_inicial' static, and use 'posicao_final' as a dynamic target position to reach. 
+            //do not perform anymoviment, we already are where we want. This prevent an undesired behavior of the physical axis
+            const { isActualPositionAsExpected: isAlreadyInTargetPosition } = await this.checkCurrentPosition(target.position, this.tolerance) 
+            if(isAlreadyInTargetPosition===false) {
+                //perform the moviment
                 await setNextMoviment(target);
                 await startSerial();
                 await waitToStop();
                 await checkFinalStateOrThrow();
             } else {
+                // do nothing
                 return
             }
             
