@@ -1,36 +1,7 @@
-import { Moviment } from "../../cmpp/controlers/core"
-import { Pulses } from "../../cmpp/physical-dimensions/base"
-import { PulsesPerTick, PulsesPerTickSquared } from "../../cmpp/physical-dimensions/physical-dimensions"
 import { makeTunnel } from "../../cmpp/transport/tunnel"
-import { random } from "../../core/utils"
-import { Machine, Moviment3D } from "../machine"
+import { Machine} from "../machine"
 import { SingleAxis } from "../single-axis"
-
-
-
-function* makeMoviment3D():Generator<Moviment3D> {
-    while(true) {
-        const m: Moviment3D = {
-            X: {
-                position: Pulses(random(500,2200)),
-                speed: PulsesPerTick(random(2000,5000)),
-                acceleration: PulsesPerTickSquared(random(5000,15000)),
-            },
-            Y: {
-                position: Pulses(random(500,2200)),
-                speed: PulsesPerTick(random(2000,5000)),
-                acceleration: PulsesPerTickSquared(random(5000,15000)),
-            },
-            Z: {
-                position: Pulses(random(500,2200)),
-                speed:  PulsesPerTick(random(2000,5000)),
-                acceleration: PulsesPerTickSquared(random(5000,15000)),
-            },
-        }
-        yield(m)
-    }
-    
-}
+import { makeRamdomMoviment3D } from "./comom"
 
 
 
@@ -44,7 +15,7 @@ const main = async () => {
     const m = new Machine({X: axisX, Y: axisY, Z: axisZ})
     
     await m.initialize()
-    const it = makeMoviment3D()
+    const it = makeRamdomMoviment3D()
     let r = it.next()
     let c = 0
     while(!r.done) {
@@ -56,7 +27,7 @@ const main = async () => {
         }
         console.log(`c=${++c}, going to position -> [x=${report.x}, y=${report.y}, z=${report.z}]`)
         await m.goto(point)
-        r = it.next()
+        //r = it.next()
     }
    
 
