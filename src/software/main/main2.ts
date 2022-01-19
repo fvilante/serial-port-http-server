@@ -12,6 +12,7 @@ const main2 = async () => {
     const [minX, maxX] = x._getAbsolutePositionRange()
     const [minY, maxY] = y._getAbsolutePositionRange()
     const [minZ, maxZ] = z._getAbsolutePositionRange()
+    await m.safelyReferenceSystemIfNecessary()
 
    
     const repeticoesDeLote = 10
@@ -46,7 +47,7 @@ const main2 = async () => {
     //await m.safeMoveAbsoluteAndParalelXY(Milimeter(550),Milimeter(200))
     
 
-    await doBatchWork(E44B6, tempoDeAbastecimento, repeticoesDeLote, movimentKit)
+    //await doBatchWork(E44B6, tempoDeAbastecimento, repeticoesDeLote, movimentKit)
     //await m.goToMaintenanceFrontDoingAllPossible()
 
     //const [minX] = x._getAbsolutePositionRange()
