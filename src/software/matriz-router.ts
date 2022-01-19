@@ -174,48 +174,9 @@ export const startRouting = async (matriz: Matriz, axisKit: AxisKit): Promise<vo
 
 }
 
-// helper
-export const performMatrizByItsMsg = async (matrizMessage: MatrizesConhecidasKeys, movimentKit: MovimentKit): Promise<void> => {
-    const matriz = getMatrizesConhecidas()[matrizMessage]()
-    return startRouting(matriz, movimentKit)
-}
 
-// drawer work concept
+// TODO: Implement the drawer (1 or 2) work concept
 
-type Drawer = 'Drawer1' | 'Drawer2'
-export type DrawerWork = MatrizesConhecidasKeys[]
-
-const doSingleDrawerWork = async (drawer: Drawer, matrizes: readonly MatrizesConhecidasKeys[], movimentKit: MovimentKit): Promise<void> => {
-    const {x,y,z,m} = movimentKit
-    
-    await m.safelyReferenceSystemIfNecessary()
-    const allMatrizesForSingleDrawer = matrizes.map( matriz => () => {
-        return performMatrizByItsMsg(matriz, movimentKit)
-    })
-    await executeInSequence(allMatrizesForSingleDrawer)
-
-}
-
-// batch work concept
-// Fix: Develop and extract the concept of "batch"
+// TODO: Develop and extract the concept of "batch work". Perfom same job multiples times (?!?!) (Maybe this comment should be ignore and deleted in the future!)
 //      Maybe you expose the concept to the CLI with the intention to provide an "Excetion-Mode" for
 //      the Machine
-
-export type Batch = DrawerWork[]
-export const doBatchWork = (batch: Batch, intervalMS: number, repetition: number, movimentKit: MovimentKit) => {
-    const arr = batch.map( drawerWork => async () => {
-        return await doSingleDrawerWork('Drawer1',drawerWork, movimentKit)
-            .then( async () => { 
-                console.log(`contando tempo... ${intervalMS}ms`)
-                await delay(intervalMS) 
-                console.log(`tempo esgotado.`)
-            })
-    })
-    const oneBatch = () => executeInSequence(arr)
-    const run = () => repeatPromiseWithInterval(
-        oneBatch,
-        repetition,
-        intervalMS,
-    )
-    return run()
-}
