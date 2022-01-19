@@ -10,6 +10,12 @@ import { PulsesPerTick, PulsesPerTickSquared } from "../cmpp/physical-dimensions
 import { CMPP00LG, LigadoDesligado } from "../cmpp/transport/memmap-CMPP00LG";
 import { Tunnel } from "../cmpp/transport/tunnel";
 
+
+//TODO: - Implement Milimeter cast
+//      - Implement InitialConfig
+//      - Implement Calculo da rampa
+//      - Solve 'same-position' bug
+
 //TODO: Deprecate PrintingPositions, and rename PrintingPositions2 to PrintingPositions, the difference is only the type cast
 export type PrintingPositions2 = {
     readonly numeroDeMensagensNoAvanco: number;
