@@ -1,11 +1,10 @@
 
 import { AxisControler } from "../cmpp/controlers/axis-controler";
-import { CmppControler, makeCmppControler } from "../cmpp/controlers/cmpp-controler";
+import {  makeCmppControler } from "../cmpp/controlers/cmpp-controler";
 import { Kinematics, Moviment } from "../cmpp/controlers/core";
-import { setNext } from "../cmpp/controlers/utils/go-next";
 import { MovimentStatus } from "../cmpp/controlers/utils/moviment-status";
 import { SmartReferenceParameters } from "../cmpp/controlers/utils/smart-reference";
-import { Position, Pulses, TicksOfClock } from "../cmpp/physical-dimensions/base";
+import { Pulses, TicksOfClock } from "../cmpp/physical-dimensions/base";
 import { PulsesPerTick, PulsesPerTickSquared } from "../cmpp/physical-dimensions/physical-dimensions";
 import { CMPP00LG, LigadoDesligado } from "../cmpp/transport/memmap-CMPP00LG";
 import { Tunnel } from "../cmpp/transport/tunnel";
@@ -28,17 +27,14 @@ export type PrintingPositions2 = {
 
 export type InitialConfig = {
     axisName: string
-    //
-    absoluteRange: {
+    absoluteRange: {  // it will throw an error for target position outside this range
         min: Pulses
         max: Pulses
     },
     milimeterToPulseRatio: number
     smartReferenceParameters: SmartReferenceParameters
-    //
-    defaultKinematics: Kinematics
-    //
-    nativeParameters: {
+    defaultKinematics: Kinematics // velocity adopted if no kinematics is given for the target moviment
+    nativeParameters: {     // after the reference this parameters is assured to be settled
         'Start externo habilitado': LigadoDesligado
         'Entrada de start entre eixo habilitado': LigadoDesligado
         'Saida de start no avanco': LigadoDesligado
