@@ -1,4 +1,5 @@
 
+import { Milimeter } from "../axis-controler";
 import { AxisControler } from "../cmpp/controlers/axis-controler";
 import {  makeCmppControler } from "../cmpp/controlers/cmpp-controler";
 import { Kinematics, Moviment } from "../cmpp/controlers/core";
@@ -8,14 +9,16 @@ import { Pulses, TicksOfClock } from "../cmpp/physical-dimensions/base";
 import { PulsesPerTick, PulsesPerTickSquared } from "../cmpp/physical-dimensions/physical-dimensions";
 import { CMPP00LG, LigadoDesligado } from "../cmpp/transport/memmap-CMPP00LG";
 import { Tunnel } from "../cmpp/transport/tunnel";
+import { exhaustiveSwitch } from "../core/utils";
 
 
-//TODO: - Implement Milimeter cast
-//      - Implement InitialConfig
+//TODO: 
+//      - Implement InitialConfig and range protection
 //      - Implement Calculo da rampa
 //      - add timeout where applicable
 //      - create stop method (it differentiate from 'shutdown method' because stop does not make axis not energized)
 //      - optimize commnication
+//      - Make Speed and Acceleration unit as mm/s and mm/s2
 
 //TODO: Deprecate PrintingPositions, and rename PrintingPositions2 to PrintingPositions, the difference is only the type cast
 export type PrintingPositions2 = {
@@ -80,12 +83,34 @@ export class SingleAxis {
 
     constructor(
         public tunnel: Tunnel, 
-        public axisName: AxisName = 'Unamed_Axis', 
+        public axisName: AxisName = 'Unamed_Axis',
+        public milimeterToPulseRatio: number = 1, //TODO: This default value may be a wrong design decision (verify it, and update) 
         public tolerance: readonly [lowerBound: Pulses, upperBound: Pulses] = [Pulses(4), Pulses(4)] as const,
         public axisRange: AxisRange | undefined = undefined, 
         public referenceParameters: SmartReferenceParameters = defaultReferenceParameter,
-        public transportLayer = CMPP00LG(tunnel)
+        public transportLayer = CMPP00LG(tunnel),
         ) { }
+
+    protected __convertMilimetersToPulse = (_: Milimeter): Pulses => {
+        const milimeter = _.value
+        const pulses = milimeter / this.milimeterToPulseRatio
+        return Pulses(pulses)
+    }
+
+    protected __convertMovimentPositionToPulses = (_: Moviment): Pulses => {
+        const { position } = _
+        const kind = _.position.kind
+        switch (kind) {
+            case 'Milimeter': {
+                return this.__convertMilimetersToPulse(_.position)
+            }
+            case 'Pulses': {
+                return _.position
+            }
+            default:
+                return exhaustiveSwitch(kind)
+        }
+    }
 
     public waitUntilConditionIsReached = async (hasReached: (_:SingleAxis) => Promise<boolean>): Promise<void> => {
         const hasNotReched = async () => !(await hasReached(this))
@@ -291,6 +316,7 @@ export class SingleAxis {
     goto = async (target: Moviment , tolerance: Tolerance = this.tolerance): Promise<void> => {
         const { set, get } = this.transportLayer
         const {position, speed, acceleration} = target
+        const positionInPulses = this.__convertMovimentPositionToPulses(target)
 
         const throwIfNotReadyToGo = () => {
             if(this.isReadyToGo===false) {
@@ -299,7 +325,7 @@ export class SingleAxis {
         }
 
         const setNextMoviment = async (m: Moviment) => {
-            await set('Posicao final', m.position)
+            await set('Posicao final', positionInPulses)
             await set('Velocidade de avanco', m.speed)
             await set('Velocidade de retorno', m.speed)
             await set('Aceleracao de avanco', m.acceleration)
@@ -313,7 +339,7 @@ export class SingleAxis {
             if(isReferenced===false) {
                 throw new Error(`Axis=${this.axisName}: dereferentiated after attempt to perform a movimentks.`)
             }
-            const { isActualPositionAsExpected, currentPosition, expectedPosition } = await this.checkCurrentPosition(position, tolerance)
+            const { isActualPositionAsExpected, currentPosition, expectedPosition } = await this.checkCurrentPosition(positionInPulses, tolerance)
             if(isActualPositionAsExpected) {
                 //await this.report()
                 return // ok, everything goes right
@@ -329,7 +355,7 @@ export class SingleAxis {
             // do nothing if you already at the exactly position you got to go. Because if 'posicao_corrent'==='posicao_final' in next start it will
             // go to 'posicao_inicial' that is what we want to prevent. Because this will raise an 'position in reached event'. Because we make 'posicao_inicial' static, and use 'posicao_final' as a dynamic target position to reach. 
             //do not perform anymoviment, we already are where we want. This prevent an undesired behavior of the physical axis
-            const { isActualPositionAsExpected: isAlreadyInTargetPosition } = await this.checkCurrentPosition(target.position, this.tolerance) 
+            const { isActualPositionAsExpected: isAlreadyInTargetPosition } = await this.checkCurrentPosition(positionInPulses, this.tolerance) 
             if(isAlreadyInTargetPosition===false) {
                 //perform the moviment
                 await setNextMoviment(target);
