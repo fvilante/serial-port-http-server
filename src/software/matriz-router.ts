@@ -13,16 +13,19 @@ import { executeInSequence, repeatPromiseWithInterval } from "./core/promise-uti
 
 // ----------
 
-// Fix: reduce number of parameters extracting it to types
-export const ImprimeLinhaSomenteNoAvancoEInterpolando = async (
-    primeiraMensagem: Milimeter, 
-    ultimaMensagem: Milimeter, 
-    velocidadeDeImpressaoStepsPerSecond: number, 
-    rampaInSteps: number,
-    numeroDeMensagens: number, 
-    xControler: AxisControler
-    ): Promise<void> => {
+type PrintLineArgument = { 
+    primeiraMensagem: Milimeter; 
+    ultimaMensagem: Milimeter; 
+    velocidadeDeImpressaoStepsPerSecond: number; 
+    rampaInSteps: number; 
+    numeroDeMensagens: number; 
+    xControler: AxisControler 
+}   
 
+// TODO: reduce number of parameters extracting it to types
+// NOTE: Algorithm => Imprime Linha Somente No Avanco E Interpolando
+export const PrintLine = async ( arg: PrintLineArgument ): Promise<void> => {
+    const { primeiraMensagem, ultimaMensagem, velocidadeDeImpressaoStepsPerSecond, rampaInSteps, numeroDeMensagens, xControler } = arg
     const defaults = { // in pulses
         acAv: 6000,
         acRet: 3000,
@@ -53,9 +56,6 @@ export const ImprimeLinhaSomenteNoAvancoEInterpolando = async (
     const POSFIN = xf_InPulses+rampaInSteps
     const safePOSINI = POSINI < minX ? minX : POSINI
     const safePOSFIM = POSFIN > maxX ? maxX : POSFIN
-
-    //console.log(`POSINI=${POSINI}`)
-    //console.log(`POSFIN=${POSFIN}`)
 
     await x.goToAbsolutePosition(safePOSFIM, (v,a) =>[velocidadeDeImpressaoStepsPerSecond,acAv] )
     await x.goToAbsolutePosition(safePOSINI, (v,a) => [velRet,acRet])
@@ -95,13 +95,8 @@ export const startRouting = async (matriz: Matriz, axisKit: AxisKit): Promise<vo
             const numberOfMessages = impressoes.length
             const velocidadeDeImpressaoStepsPerSecond = matriz.printVelocity
             const rampa = 640
-            await ImprimeLinhaSomenteNoAvancoEInterpolando(
-                positionFirstMessage, 
-                positionLastMessage, 
-                velocidadeDeImpressaoStepsPerSecond,
-                rampa,
-                numberOfMessages,
-                x)
+            await PrintLine(
+                { primeiraMensagem: positionFirstMessage, ultimaMensagem: positionLastMessage, velocidadeDeImpressaoStepsPerSecond, rampaInSteps: rampa, numeroDeMensagens: numberOfMessages, xControler: x })
             await x.goToAbsolutePosition(minX)            
             return
                     
