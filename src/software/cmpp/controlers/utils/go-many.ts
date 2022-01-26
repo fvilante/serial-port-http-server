@@ -1,9 +1,9 @@
 import { CmppControler } from "../cmpp-controler"
-import { Kinematics, Moviment, PositionInPulses } from "../core"
+import { Kinematics, Moviment, Moviment_, PositionInPulses } from "../core"
 import { setNext } from "./go-next"
 
 
-export const goMany = async (cmppControler: CmppControler, many: Iterable<PositionInPulses & Kinematics>) => {
+export const goMany = async (cmppControler: CmppControler, many: Iterable<Moviment_>) => {
     const iter = many[Symbol.iterator]()
     let next = iter.next()
     while(!next.done) {
@@ -17,7 +17,7 @@ export const goMany = async (cmppControler: CmppControler, many: Iterable<Positi
 
 }
 
-export const goManyFast = async (cmppControler: CmppControler, many: Iterable<PositionInPulses & Kinematics>) => {
+export const goManyFast = async (cmppControler: CmppControler, many: Iterable<Moviment_>) => {
     const iter = many[Symbol.iterator]()
     let next = iter.next()
     while(!next.done) {

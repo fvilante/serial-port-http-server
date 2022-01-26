@@ -1,7 +1,7 @@
 import ora, { Spinner } from 'ora'
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../physical-dimensions/physical-dimensions"
 import { CmppControler, makeCmppControler } from "../cmpp-controler"
-import { Kinematics, Moviment, PositionInPulses } from "../core"
+import { Kinematics, Moviment, Moviment_, PositionInPulses } from "../core"
 import { makeTunnel } from '../../transport/tunnel'
 import { AxisControler } from '../axis-controler'
 import { DetecEndOfCourseParameters } from '../utils/detect-end-of-course'
@@ -66,7 +66,7 @@ const run = async () => {
 
     const endOfCourse = Pulses(2400)
 
-    function* getNextMoviment():Generator<PositionInPulses & Kinematics, void, unknown> {
+    function* getNextMoviment():Generator<Moviment_, void, unknown> {
         //TODO: decide when to use 'velocity' and when to use 'speed' (and vice-versa), to avoid misconception
         const VERY_HIGH_SPEED = PulsesPerTick(10000)
         const INITIAL_ACCELERATION = PulsesPerTickSquared(9000)
@@ -87,7 +87,7 @@ const run = async () => {
         
     }  
 
-    const checkMoviment = async (cmppControler: CmppControler, many: Iterable<PositionInPulses & Kinematics>) => {
+    const checkMoviment = async (cmppControler: CmppControler, many: Iterable<Moviment_>) => {
         const iter = many[Symbol.iterator]()
         let next = iter.next()
 

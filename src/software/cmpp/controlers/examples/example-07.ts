@@ -1,7 +1,7 @@
 import ora, { Spinner } from 'ora'
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, Pulses_, TicksOfClock } from "../../physical-dimensions/physical-dimensions"
 import { makeCmppControler } from "../cmpp-controler"
-import { Kinematics, Moviment, PositionInPulses } from "../core"
+import { Kinematics, Moviment, Moviment_, PositionInPulses } from "../core"
 import { makeTunnel } from '../../transport/tunnel'
 import { AxisControler } from '../axis-controler'
 import { delay } from '../../../core/delay'
@@ -85,7 +85,7 @@ export const run = async () => {
     const Sound = (note: Omit<Sound, 'kind'>['note']):Sound => ({ kind: 'Sound', note })
     const Silence = (duration: Omit<Silence, 'kind'>['duration']):Silence => ({ kind: 'Silence', duration })
 
-    const soundToMoviment = (sound: Sound): PositionInPulses & Kinematics => {
+    const soundToMoviment = (sound: Sound): Moviment_ => {
         const [frequency, duration, bend] = sound.note
         const stepPerPulse = 1
         const stepsPerSecond = frequency * stepPerPulse
@@ -100,7 +100,7 @@ export const run = async () => {
     }
 
 
-    const playMoviment = async (nextRelativeMoviment: PositionInPulses & Kinematics): Promise<void> => {
+    const playMoviment = async (nextRelativeMoviment: Moviment_): Promise<void> => {
         //TODO: Make the moviment more symetric in relation to axis length
         //TODO: Make this state more persistent
         let currentDirection: number = 1 // (+1) = forward, (-1) = reward
@@ -215,7 +215,7 @@ export const run = async () => {
 
     ]
 
-    const initial: PositionInPulses & Kinematics = {
+    const initial: Moviment_ = {
         position: Pulses(500),
         speed: PulsesPerTick(1000),
         acceleration: PulsesPerTickSquared(5000)

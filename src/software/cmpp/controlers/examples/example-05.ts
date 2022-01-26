@@ -4,7 +4,7 @@ import { delay } from "../../../core/delay"
 import { random } from "../../../core/utils"
 import { makeCmppControler } from "../cmpp-controler"
 import { doSmartReferenceIfNecessary, SmartReferenceParameters } from "../utils/smart-reference"
-import { Kinematics, Moviment, PositionInPulses } from "../core"
+import { Kinematics, Moviment, Moviment_, PositionInPulses } from "../core"
 import { goMany } from '../utils/go-many'
 import { makeTunnel } from '../../transport/tunnel'
 import { COMM_Port } from '../../../enviroment'
@@ -47,7 +47,7 @@ const run = async () => {
         await resetMainParameters()
         await doSmartReferenceIfNecessary(cmppControler,config)
 
-        function* generator():Generator<PositionInPulses & Kinematics, void, unknown> {
+        function* generator():Generator<Moviment_, void, unknown> {
             let counter = 0
             while (counter++ < 150) {
                 const nextPos = random(500, 2300)

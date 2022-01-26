@@ -9,7 +9,7 @@ import { SingleAxis } from '../machine/single-axis'
 import { makeTunnel } from '../cmpp/transport/tunnel'
 import { Machine } from '../machine/machine'
 import { Pulses } from '../cmpp/physical-dimensions/base'
-import { Kinematics, Moviment, PositionInPulses } from '../cmpp/controlers/core'
+import { Kinematics, Moviment, Moviment_, PositionInPulses } from '../cmpp/controlers/core'
 import { PulsesPerTick, PulsesPerTickSquared, Pulses_ } from '../cmpp/physical-dimensions/physical-dimensions'
 import { COMM_Port } from '../enviroment'
 
@@ -57,7 +57,7 @@ const C5: Frequency = (C4*2) * pitchShift
         bend?: Bend
     }
 
-const soundToRelativeMoviment = (sound: Sound): PositionInPulses & Kinematics => {
+const soundToRelativeMoviment = (sound: Sound): Moviment_ => {
     const {frequency, duration, bend} = sound
     const stepPerPulse = 1
     const stepsPerSecond = frequency * stepPerPulse
@@ -71,7 +71,7 @@ const soundToRelativeMoviment = (sound: Sound): PositionInPulses & Kinematics =>
     }
 }
 
-const playRelativeMoviment = async (nextRelativeMoviment: PositionInPulses & Kinematics): Promise<void> => {
+const playRelativeMoviment = async (nextRelativeMoviment: Moviment_): Promise<void> => {
     //TODO: Make the moviment more symetric in relation to axis length
     //TODO: Make this state more persistent
     let currentDirection: number = 1 // (+1) = forward, (-1) = reward
