@@ -5,12 +5,13 @@ import { forceSmartReference } from "../utils/smart-reference"
 import { detectEndOfCourse } from '../utils/detect-end-of-course'
 import { goNext } from '../utils/go-next'
 import { makeTunnel } from '../../transport/tunnel'
+import { COMM_Port } from '../../../enviroment'
 
 
 const run = async () => {
 
     // config
-    const tunnel = makeTunnel('com50', 9600, 0)
+    const tunnel = makeTunnel(COMM_Port.z, 9600, 0)
     const cmppControler = makeCmppControler(tunnel)
 
     const resetMainParameters = async () => {

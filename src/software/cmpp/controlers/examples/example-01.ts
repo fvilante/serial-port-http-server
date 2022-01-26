@@ -5,13 +5,14 @@ import { forceReference, isReferenced } from "../utils/reference"
 import { start, waitToStopThenStart } from "../utils/start"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared, TicksOfClock } from "../../physical-dimensions/physical-dimensions"
 import { makeTunnel } from "../../transport/tunnel"
+import { COMM_Port } from "../../../enviroment"
 
 
 const run = async () => {
 
     const spinner = ora().start()
 
-    const tunnel = makeTunnel('com50', 9600, 0)
+    const tunnel = makeTunnel(COMM_Port.z, 9600, 0)
 
     // perde referencia, busca referencia, da um start afastando o eixo da origem 
     // (velocidade e aceleracao de refernecia parametrizada)

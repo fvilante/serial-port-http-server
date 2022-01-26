@@ -1,4 +1,5 @@
 import { makeTunnel } from "../../cmpp/transport/tunnel"
+import { COMM_Port } from "../../enviroment"
 import { Machine} from "../machine"
 import { SingleAxis } from "../single-axis"
 import { makeRamdomMoviment3D } from "./comom"
@@ -8,9 +9,9 @@ import { makeRamdomMoviment3D } from "./comom"
 const main = async () => {
 
     console.log('iniciado...')
-    const axisX = new SingleAxis(makeTunnel('com50', 9600, 1),`Eixo_X`)
-    const axisY = new SingleAxis(makeTunnel('com51', 9600, 1),`Eixo_Y`)
-    const axisZ = new SingleAxis(makeTunnel('com48', 9600, 1),`Eixo_Z`)
+    const axisX = new SingleAxis(makeTunnel(COMM_Port.x, 9600, 1),`Eixo_X`)
+    const axisY = new SingleAxis(makeTunnel(COMM_Port.y, 9600, 1),`Eixo_Y`)
+    const axisZ = new SingleAxis(makeTunnel(COMM_Port.z, 9600, 1),`Eixo_Z`)
 
     const m = new Machine({X: axisX, Y: axisY, Z: axisZ})
     

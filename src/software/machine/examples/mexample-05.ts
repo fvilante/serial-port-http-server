@@ -1,13 +1,9 @@
 import { makeTunnel } from "../../cmpp/transport/tunnel"
+import { COMM_Port } from "../../enviroment"
 import { Machine} from "../machine"
 import { SingleAxis } from "../single-axis"
 import { makeRamdomMoviment3D } from "./comom"
 
-const COMM_Port = {
-    x: 'com53',
-    y: 'com50',
-    z: 'com48',
-} as const
 
 const main = async () => {
 

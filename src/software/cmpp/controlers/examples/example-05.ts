@@ -7,12 +7,13 @@ import { doSmartReferenceIfNecessary, SmartReferenceParameters } from "../utils/
 import { Kinematics, Moviment, PositionInPulses } from "../core"
 import { goMany } from '../utils/go-many'
 import { makeTunnel } from '../../transport/tunnel'
+import { COMM_Port } from '../../../enviroment'
 
 
 const run = async () => {
 
     // config
-    const tunnel = makeTunnel('com50', 9600, 0)
+    const tunnel = makeTunnel(COMM_Port.z, 9600, 0)
     const cmppControler = makeCmppControler(tunnel)
 
     const resetMainParameters = async () => {

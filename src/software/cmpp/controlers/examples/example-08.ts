@@ -1,4 +1,5 @@
 import { ExecuteInParalel } from "../../../core/promise-utils"
+import { COMM_Port } from "../../../enviroment"
 import { PulsesPerTick, PulsesPerTickSquared, Pulses } from "../../physical-dimensions/physical-dimensions"
 import { makeTunnel } from "../../transport/tunnel"
 import { AxisControler } from "../axis-controler"
@@ -11,9 +12,9 @@ import { SmartReferenceParameters } from "../utils/smart-reference"
 
 const main = async () => {
 
-    const tx = makeTunnel('com48', 9600, 0)
-    const tz = makeTunnel('com50', 9600, 0)
-    const ty = makeTunnel('com51', 9600, 0)
+    const tx = makeTunnel(COMM_Port.x, 9600, 0)
+    const tz = makeTunnel(COMM_Port.z, 9600, 0)
+    const ty = makeTunnel(COMM_Port.y, 9600, 0)
 
     const cx = makeCmppControler(tx)
     const cy = makeCmppControler(ty)

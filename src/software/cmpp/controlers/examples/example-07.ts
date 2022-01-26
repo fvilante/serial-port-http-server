@@ -7,13 +7,14 @@ import { AxisControler } from '../axis-controler'
 import { delay } from '../../../core/delay'
 import { exhaustiveSwitch } from '../../../core/utils'
 import { SmartReferenceParameters } from '../utils/smart-reference'
+import { COMM_Port } from '../../../enviroment'
 
 
 
 export const run = async () => {
 
     // config
-    const tunnel = makeTunnel('com50', 9600, 0)
+    const tunnel = makeTunnel(COMM_Port.z, 9600, 0)
     const cmppControler = makeCmppControler(tunnel)
 
     const resetMainParameters = async () => {

@@ -5,13 +5,14 @@ import { Kinematics, Moviment, PositionInPulses } from "../core"
 import { makeTunnel } from '../../transport/tunnel'
 import { AxisControler } from '../axis-controler'
 import { DetecEndOfCourseParameters } from '../utils/detect-end-of-course'
+import { COMM_Port } from '../../../enviroment'
 
 
 
 const run = async () => {
 
     // config
-    const tunnel = makeTunnel('com50', 9600, 0)
+    const tunnel = makeTunnel(COMM_Port.z, 9600, 0)
     const cmppControler = makeCmppControler(tunnel)
 
     const resetMainParameters = async () => {
