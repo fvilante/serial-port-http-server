@@ -12,4 +12,8 @@ export type Position = {
     position: Pulses | Milimeter
 }
 
+export type PositionInPulses = {
+    position: Pulses
+}
+
 export type Moviment = Position & Kinematics          
