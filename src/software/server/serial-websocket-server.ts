@@ -19,9 +19,9 @@ let isLocked = false
 
 
 // machine
-const axisX = new SingleAxis(makeTunnel(COMM_Port.x, 9600, 1),`Eixo_X`)
-const axisY = new SingleAxis(makeTunnel(COMM_Port.y, 9600, 1),`Eixo_Y`)
-const axisZ = new SingleAxis(makeTunnel(COMM_Port.z, 9600, 1),`Eixo_Z`)
+const axisX = new SingleAxis(makeTunnel(COMM_Port.z, 9600, 1),`Eixo_X`)
+const axisY = new SingleAxis(makeTunnel(COMM_Port.x, 9600, 1),`Eixo_Y`)
+const axisZ = new SingleAxis(makeTunnel(COMM_Port.y, 9600, 1),`Eixo_Z`)
 
 const machine = new Machine({X: axisX, Y: axisY, Z: axisZ})
 
