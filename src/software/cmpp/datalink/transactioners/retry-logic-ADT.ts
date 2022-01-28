@@ -14,6 +14,7 @@ export type RetryPolicy = {
 // TODO: Improve this API when possible,
 //       It shold be in such way that client of function can receive intermediarry attemps statys
 // Applies a retry policy over the transactionPayload API
+// TODO: Altough this algorithm seems to work, probably it will not pass a complete unit test.
 export const transactPayloadWithRetryPolicy = 
     (totalRetry: RetryPolicy) => 
     (arg: TransactPayloadArgument_ADT): Future<Result<FrameInterpreted,TransactErrorEvent>>  => {
