@@ -311,10 +311,17 @@ export class SingleAxis {
     //NOTE: Will throw if axis is not initialized
     //TODO: should be better implement to reduce time interval between movimentss
     //TODO: Improve error messages
-    goto = async (target: Moviment , tolerance: Tolerance = this.axisSetup.tolerance): Promise<void> => {
+    goto = async (target: Moviment | Position, tolerance: Tolerance = this.axisSetup.tolerance): Promise<void> => {
+        let target__: Moviment
+        if (isMoviment(target)) {
+            target__ = target
+        } else /* isPosition */{
+            target__ = { ...target, ...this.axisSetup.defaultKinematics }
+        }
+
         const { set, get } = this.transportLayer
-        const {position, speed, acceleration} = target
-        const positionInPulses = this.__convertMovimentPositionToPulses(target)
+
+        const positionInPulses = this.__convertMovimentPositionToPulses(target__)
 
         const throwIfNotReadyToGo = () => {
             if(this.isReadyToGo===false) {
@@ -356,7 +363,7 @@ export class SingleAxis {
             const { isActualPositionAsExpected: isAlreadyInTargetPosition } = await this.checkCurrentPosition(positionInPulses, this.axisSetup.tolerance) 
             if(isAlreadyInTargetPosition===false) {
                 //perform the moviment
-                await setNextMoviment(target);
+                await setNextMoviment(target__);
                 await startSerial();
                 await waitToStop();
                 await checkFinalStateOrThrow();
