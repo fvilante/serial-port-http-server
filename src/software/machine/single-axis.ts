@@ -2,7 +2,7 @@
 import { Milimeter } from "../axis-controler";
 import { AxisControler } from "../cmpp/controlers/axis-controler";
 import {  makeCmppControler } from "../cmpp/controlers/cmpp-controler";
-import { Kinematics, Moviment } from "../cmpp/controlers/core";
+import { isMoviment, isPosition, Kinematics, Moviment, Position } from "../cmpp/controlers/core";
 import { MovimentStatus } from "../cmpp/controlers/utils/moviment-status";
 import { SmartReferenceParameters } from "../cmpp/controlers/utils/smart-reference";
 import { Pulses, TicksOfClock } from "../cmpp/physical-dimensions/base";
@@ -19,6 +19,7 @@ import { exhaustiveSwitch } from "../core/utils";
 //      - create stop method (it differentiate from 'shutdown method' because stop does not make axis not energized)
 //      - optimize commnication
 //      - Make Speed and Acceleration unit as mm/s and mm/s2
+//      - Implement 'absoluteRange'
 
 //TODO: Deprecate PrintingPositions, and rename PrintingPositions2 to PrintingPositions, the difference is only the type cast
 export type PrintingPositions2 = {
@@ -32,7 +33,7 @@ export type PrintingPositions2 = {
 
 export type SingleAxisSetup = {
     axisName: string
-    absoluteRange: {  // it will throw an error if target position gets outside this range
+    absoluteRange: {  // TODO: Not implemented. It will throw an error if target position gets outside this range
         min: Pulses
         max: Pulses
     },
