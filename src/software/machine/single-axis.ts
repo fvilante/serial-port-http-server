@@ -87,7 +87,6 @@ export class SingleAxis {
     constructor(
         public tunnel: Tunnel, 
         public axisSetup: SingleAxisSetup,
-        public axisName: AxisName = 'Unamed_Axis',
         public milimeterToPulseRatio: number = 1, //TODO: This default value may be a wrong design decision (verify it, and update) 
         public tolerance: readonly [lowerBound: Pulses, upperBound: Pulses] = [Pulses(4), Pulses(4)] as const,
         public axisRange: AxisRange | undefined = undefined, 
@@ -269,12 +268,12 @@ export class SingleAxis {
                     return // Ok everything goes right, successful finish
                 }
                 else {
-                    throw new Error(`Posicao ao final da referencia nao corresponde a desejada. Esperada=${r.endPosition.value}, atual=${currentPosition.value}.`)
+                    throw new Error(`Eixo='${this.axisSetup.axisName}'. Posicao ao final da referencia nao corresponde a desejada. Esperada=${r.endPosition.value}, atual=${currentPosition.value}.`)
                 }
             } else {
                 //TODO: Improve format of this error message
                 const actualStatus = { isReferenced, isStopped, isReferencing/*, direction*/}
-                const header = `During reference of axis ${this.axisName}.`
+                const header = `During reference of axis ${this.axisSetup.axisName}.`
                 const err = `'Something went wrong during referentiation proccess': Final condition expected was not attended. `
                 const detail = `Expected=${JSON.stringify(expectedStatus)} actual=${JSON.stringify(actualStatus)}. `
                 const msg = header + err + detail
@@ -308,7 +307,7 @@ export class SingleAxis {
         const PF = await get('Posicao final')
         const PA = await this.getCurrentPosition()
         console.table({
-            axis: this.axisName,
+            axis: this.axisSetup.axisName,
             direction,
             PI: PI.value,
             PF: PF.value,
@@ -326,7 +325,7 @@ export class SingleAxis {
 
         const throwIfNotReadyToGo = () => {
             if(this.isReadyToGo===false) {
-                throw new Error(`Axis=${this.axisName}: Cannot perform goto moviment, because axis is not initialized`)
+                throw new Error(`Axis=${this.axisSetup.axisName}: Cannot perform goto moviment, because axis is not initialized`)
             }
         }
 
@@ -343,7 +342,7 @@ export class SingleAxis {
         const checkFinalStateOrThrow = async (): Promise<void> => {
             const { isReferenced } = await this.getMovimentStatus()
             if(isReferenced===false) {
-                throw new Error(`Axis=${this.axisName}: dereferentiated after attempt to perform a movimentks.`)
+                throw new Error(`Axis=${this.axisSetup.axisName}: dereferentiated after attempt to perform a movimentks.`)
             }
             const { isActualPositionAsExpected, currentPosition, expectedPosition } = await this.checkCurrentPosition(positionInPulses, tolerance)
             if(isActualPositionAsExpected) {
@@ -352,7 +351,7 @@ export class SingleAxis {
             } else {
                 const PI = await get('Posicao inicial')
                 const PF = await get('Posicao final')
-                throw new Error(`Axis=${this.axisName}: after attempt to perform a moviment, realized that actual position is not the expected position (including error tolerance). Expected=${expectedPosition.value}, current=${currentPosition.value}, tolerance=[${tolerance[0].value},${tolerance[1].value}], PI=${PI.value}, PF=${PF.value}`)
+                throw new Error(`Axis=${this.axisSetup.axisName}: after attempt to perform a moviment, realized that actual position is not the expected position (including error tolerance). Expected=${expectedPosition.value}, current=${currentPosition.value}, tolerance=[${tolerance[0].value},${tolerance[1].value}], PI=${PI.value}, PF=${PF.value}`)
             }
         }
 
