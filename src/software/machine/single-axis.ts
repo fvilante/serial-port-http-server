@@ -39,7 +39,7 @@ export type SingleAxisSetup = {
     milimeterToPulseRatio: number
     smartReferenceParameters: SmartReferenceParameters
     defaultKinematics: Kinematics // velocity adopted if no kinematics is given for the target moviment
-    nativeParameters: {     // after the reference this parameters is assured to be settled
+    preReferenceSetup: {     // before the reference this parameters is assured to be settled
         'Start externo habilitado': LigadoDesligado
         'Entrada de start entre eixo habilitado': LigadoDesligado
         'Saida de start no avanco': LigadoDesligado

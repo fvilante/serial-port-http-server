@@ -26,7 +26,7 @@ export const z_axis_setup: SingleAxisSetup = {
     },
     tolerance: defaultTolerance,
     //
-    nativeParameters: {
+    preReferenceSetup: {
         'Start externo habilitado': "desligado",
         'Entrada de start entre eixo habilitado': "desligado",
         'Saida de start no avanco': "desligado",
@@ -63,7 +63,7 @@ export const y_axis_setup: SingleAxisSetup = {
     },
     tolerance: defaultTolerance,
     //
-    nativeParameters: {
+    preReferenceSetup: {
         'Start externo habilitado': "desligado",
         'Entrada de start entre eixo habilitado': "desligado",
         'Saida de start no avanco': "desligado",
@@ -101,7 +101,7 @@ export const x_axis_setup: SingleAxisSetup = {
     },
     tolerance: defaultTolerance,
     //
-    nativeParameters: {
+    preReferenceSetup: {
         'Start externo habilitado': "desligado",
         'Entrada de start entre eixo habilitado': "desligado",
         'Saida de start no avanco': "desligado",
