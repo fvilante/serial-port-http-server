@@ -1,7 +1,7 @@
 import { Pulses } from "../physical-dimensions/base";
 import { Pulses_ } from "../physical-dimensions/physical-dimensions";
 import { CmppControler } from "./cmpp-controler";
-import { Moviment } from "./core";
+import { Kinematics, Moviment, Moviment_, PositionInPulses } from "./core";
 import { DetecEndOfCourseParameters, detectEndOfCourse } from "./utils/detect-end-of-course";
 import { setNext as setNext__, setNextRelative as setNextRelative__} from "./utils/go-next";
 import { castStatusLToMovimentStatus, getMovimentStatus, MovimentStatus } from "./utils/moviment-status";
@@ -14,8 +14,8 @@ export type AxisControler = {
     readonly forceSmartReference: (_: SmartReferenceParameters) => Promise<void>
     readonly doSmartReferenceIfNecessary: (_: SmartReferenceParameters) => Promise<void>
     //params
-    readonly setNext: (next: Moviment) => Promise<void>
-    readonly setNextRelative: (next: Moviment) => Promise<void>
+    readonly setNext: (next: Moviment_) => Promise<void>
+    readonly setNextRelative: (next: Moviment_) => Promise<void>
     //start
     readonly start: () => Promise<void>
     //
@@ -24,8 +24,8 @@ export type AxisControler = {
     //macros
     readonly __autodetectEndOfCourse: (args: DetecEndOfCourseParameters) => Promise<Pulses>  //TODO: Verify if this function is safe to be here
     //TODO: I'm not sure this return type is such that useful or ergonomic (ie: should be better return void or even a Monad ?!)
-    readonly goTo: (_: Moviment) => Promise<void>
-    readonly goToRelative: (_: Moviment) => Promise<void>
+    readonly goTo: (_: Moviment_) => Promise<void>
+    readonly goToRelative: (_: Moviment_) => Promise<void>
 }
 
 export const AxisControler = (cmppControler: CmppControler): AxisControler => {

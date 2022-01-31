@@ -13,16 +13,19 @@ import { executeInSequence, repeatPromiseWithInterval } from "./core/promise-uti
 
 // ----------
 
-// Fix: reduce number of parameters extracting it to types
-export const ImprimeLinhaSomenteNoAvancoEInterpolando = async (
-    primeiraMensagem: Milimeter, 
-    ultimaMensagem: Milimeter, 
-    velocidadeDeImpressaoStepsPerSecond: number, 
-    rampaInSteps: number,
-    numeroDeMensagens: number, 
-    xControler: AxisControler
-    ): Promise<void> => {
+type PrintLineArgument = { 
+    primeiraMensagem: Milimeter; 
+    ultimaMensagem: Milimeter; 
+    velocidadeDeImpressaoStepsPerSecond: number; 
+    rampaInSteps: number; 
+    numeroDeMensagens: number; 
+    xControler: AxisControler 
+}   
 
+// TODO: reduce number of parameters extracting it to types
+// NOTE: Algorithm => Imprime Linha Somente No Avanco E Interpolando
+export const PrintLine = async ( arg: PrintLineArgument ): Promise<void> => {
+    const { primeiraMensagem, ultimaMensagem, velocidadeDeImpressaoStepsPerSecond, rampaInSteps, numeroDeMensagens, xControler } = arg
     const defaults = { // in pulses
         acAv: 6000,
         acRet: 3000,
@@ -54,9 +57,6 @@ export const ImprimeLinhaSomenteNoAvancoEInterpolando = async (
     const safePOSINI = POSINI < minX ? minX : POSINI
     const safePOSFIM = POSFIN > maxX ? maxX : POSFIN
 
-    //console.log(`POSINI=${POSINI}`)
-    //console.log(`POSFIN=${POSFIN}`)
-
     await x.goToAbsolutePosition(safePOSFIM, (v,a) =>[velocidadeDeImpressaoStepsPerSecond,acAv] )
     await x.goToAbsolutePosition(safePOSINI, (v,a) => [velRet,acRet])
     await x._clearPrintingMessages() //FIX: should be unnecessary
@@ -66,7 +66,7 @@ export const ImprimeLinhaSomenteNoAvancoEInterpolando = async (
 }
 
 
-export const performMatriz = async (matriz: Matriz, axisKit: AxisKit): Promise<void> => {
+export const startRouting = async (matriz: Matriz, axisKit: AxisKit): Promise<void> => {
         
     const {
         printer,
@@ -95,13 +95,8 @@ export const performMatriz = async (matriz: Matriz, axisKit: AxisKit): Promise<v
             const numberOfMessages = impressoes.length
             const velocidadeDeImpressaoStepsPerSecond = matriz.printVelocity
             const rampa = 640
-            await ImprimeLinhaSomenteNoAvancoEInterpolando(
-                positionFirstMessage, 
-                positionLastMessage, 
-                velocidadeDeImpressaoStepsPerSecond,
-                rampa,
-                numberOfMessages,
-                x)
+            await PrintLine(
+                { primeiraMensagem: positionFirstMessage, ultimaMensagem: positionLastMessage, velocidadeDeImpressaoStepsPerSecond, rampaInSteps: rampa, numeroDeMensagens: numberOfMessages, xControler: x })
             await x.goToAbsolutePosition(minX)            
             return
                     
@@ -179,48 +174,9 @@ export const performMatriz = async (matriz: Matriz, axisKit: AxisKit): Promise<v
 
 }
 
-// helper
-export const performMatrizByItsMsg = async (matrizMessage: MatrizesConhecidasKeys, movimentKit: MovimentKit): Promise<void> => {
-    const matriz = getMatrizesConhecidas()[matrizMessage]()
-    return performMatriz(matriz, movimentKit)
-}
 
-// drawer work concept
+// TODO: Implement the drawer (1 or 2) work concept
 
-type Drawer = 'Drawer1' | 'Drawer2'
-export type DrawerWork = MatrizesConhecidasKeys[]
-
-const doSingleDrawerWork = async (drawer: Drawer, matrizes: readonly MatrizesConhecidasKeys[], movimentKit: MovimentKit): Promise<void> => {
-    const {x,y,z,m} = movimentKit
-    
-    await m.safelyReferenceSystemIfNecessary()
-    const allMatrizesForSingleDrawer = matrizes.map( matriz => () => {
-        return performMatrizByItsMsg(matriz, movimentKit)
-    })
-    await executeInSequence(allMatrizesForSingleDrawer)
-
-}
-
-// batch work concept
-// Fix: Develop and extract the concept of "batch"
+// TODO: Develop and extract the concept of "batch work". Perfom same job multiples times (?!?!) (Maybe this comment should be ignore and deleted in the future!)
 //      Maybe you expose the concept to the CLI with the intention to provide an "Excetion-Mode" for
 //      the Machine
-
-export type Batch = DrawerWork[]
-export const doBatchWork = (batch: Batch, intervalMS: number, repetition: number, movimentKit: MovimentKit) => {
-    const arr = batch.map( drawerWork => async () => {
-        return await doSingleDrawerWork('Drawer1',drawerWork, movimentKit)
-            .then( async () => { 
-                console.log(`contando tempo... ${intervalMS}ms`)
-                await delay(intervalMS) 
-                console.log(`tempo esgotado.`)
-            })
-    })
-    const oneBatch = () => executeInSequence(arr)
-    const run = () => repeatPromiseWithInterval(
-        oneBatch,
-        repetition,
-        intervalMS,
-    )
-    return run()
-}

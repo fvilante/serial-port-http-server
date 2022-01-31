@@ -2,7 +2,7 @@ import { keyboardEventEmiter, KeyboardEventEmitter } from "../keyboard/read-keyb
 import { Barcode } from "../barcode/barcode-core"
 import { makeBarcodeStream } from '../barcode/barcode-stream'
 import { makeMovimentKit, MovimentKit } from "../machine-controler"
-import { performMatriz } from "../matriz-router"
+import { startRouting } from "../matriz-router"
 import { fetchMatrizByBarcodeRaw } from "../matrix-reader/matriz-cadastro-geral-reader"
 import { Matriz } from "../matrix-reader/matrizes-conhecidas"
 import { delay } from "../core/delay"
@@ -75,7 +75,7 @@ const main3 = () => {
             const runProgram = async () => {
                 const matriz = await getMatrizFromDB(barcode)
                 const movimentKit = await  makeMovimentKit()
-                return performMatriz(matriz, movimentKit)
+                return startRouting(matriz, movimentKit)
             }
 
             runProgram()

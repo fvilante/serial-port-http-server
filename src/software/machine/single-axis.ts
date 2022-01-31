@@ -1,14 +1,24 @@
 
+import { Milimeter } from "../axis-controler";
 import { AxisControler } from "../cmpp/controlers/axis-controler";
-import { CmppControler, makeCmppControler } from "../cmpp/controlers/cmpp-controler";
+import {  makeCmppControler } from "../cmpp/controlers/cmpp-controler";
 import { Kinematics, Moviment } from "../cmpp/controlers/core";
-import { setNext } from "../cmpp/controlers/utils/go-next";
 import { MovimentStatus } from "../cmpp/controlers/utils/moviment-status";
 import { SmartReferenceParameters } from "../cmpp/controlers/utils/smart-reference";
-import { Position, Pulses, TicksOfClock } from "../cmpp/physical-dimensions/base";
+import { Pulses, TicksOfClock } from "../cmpp/physical-dimensions/base";
 import { PulsesPerTick, PulsesPerTickSquared } from "../cmpp/physical-dimensions/physical-dimensions";
 import { CMPP00LG, LigadoDesligado } from "../cmpp/transport/memmap-CMPP00LG";
 import { Tunnel } from "../cmpp/transport/tunnel";
+import { exhaustiveSwitch } from "../core/utils";
+
+
+//TODO: 
+//      - Implement InitialConfig and range protection
+//      - Implement Calculo da rampa
+//      - add timeout where applicable
+//      - create stop method (it differentiate from 'shutdown method' because stop does not make axis not energized)
+//      - optimize commnication
+//      - Make Speed and Acceleration unit as mm/s and mm/s2
 
 //TODO: Deprecate PrintingPositions, and rename PrintingPositions2 to PrintingPositions, the difference is only the type cast
 export type PrintingPositions2 = {
@@ -22,17 +32,14 @@ export type PrintingPositions2 = {
 
 export type InitialConfig = {
     axisName: string
-    //
-    absoluteRange: {
+    absoluteRange: {  // it will throw an error if target position gets outside this range
         min: Pulses
         max: Pulses
     },
     milimeterToPulseRatio: number
     smartReferenceParameters: SmartReferenceParameters
-    //
-    defaultKinematics: Kinematics
-    //
-    nativeParameters: {
+    defaultKinematics: Kinematics // velocity adopted if no kinematics is given for the target moviment
+    nativeParameters: {     // after the reference this parameters is assured to be settled
         'Start externo habilitado': LigadoDesligado
         'Entrada de start entre eixo habilitado': LigadoDesligado
         'Saida de start no avanco': LigadoDesligado
@@ -43,118 +50,8 @@ export type InitialConfig = {
         'Giro com funcao de protecao': LigadoDesligado
         'Giro com funcao de correcao': LigadoDesligado
         'Pausa serial': LigadoDesligado
-    }
-    
+    },
 }
-
-const z: InitialConfig = {
-    axisName: 'Z-Axis',
-    absoluteRange: {
-        min: Pulses(610),
-        max: Pulses(2610),
-    },
-    milimeterToPulseRatio: ((12.97+12.32)/2)/100,
-    smartReferenceParameters: {
-        endPosition: Pulses(800),
-        reference: {
-            // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
-            speed: PulsesPerTick(350),
-            acceleration: PulsesPerTickSquared(3000)
-        }
-    },
-    //
-    defaultKinematics: {
-        speed: PulsesPerTick(400),
-        acceleration: PulsesPerTickSquared(5000)
-    },
-    //
-    nativeParameters: {
-        'Start externo habilitado': "desligado",
-        'Entrada de start entre eixo habilitado': "desligado",
-        'Saida de start no avanco': "desligado",
-        'Saida de start no retorno': "desligado",
-        'Start automatico no avanco': "desligado",
-        'Start automatico no retorno': "desligado",
-        'Reducao da corrente em repouso': "desligado",
-        'Giro com funcao de protecao': "ligado",
-        'Giro com funcao de correcao': "desligado",
-        'Pausa serial': "desligado",
-    }
-
-}
-
-const x: InitialConfig = {
-    axisName: 'X-Axis',
-    absoluteRange: {
-        min: Pulses(610),
-        max: Pulses(8355+25),
-    },
-    milimeterToPulseRatio: (152.87/1000),
-    smartReferenceParameters: {
-        endPosition: Pulses(800),
-        reference: {
-            // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
-            speed: PulsesPerTick(350),
-            acceleration: PulsesPerTickSquared(3000)
-        }
-    },
-    //
-    defaultKinematics: {
-        speed: PulsesPerTick(2000),
-        acceleration: PulsesPerTickSquared(4000)
-    },
-    //
-    nativeParameters: {
-        'Start externo habilitado': "desligado",
-        'Entrada de start entre eixo habilitado': "desligado",
-        'Saida de start no avanco': "desligado",
-        'Saida de start no retorno': "desligado",
-        'Start automatico no avanco': "desligado",
-        'Start automatico no retorno': "desligado",
-        'Reducao da corrente em repouso': "desligado",
-        'Giro com funcao de protecao': "ligado",
-        'Giro com funcao de correcao': "desligado",
-        'Pausa serial': "desligado",
-    }
-
-}
-
-const y: InitialConfig = {
-    axisName: 'Y-Axis',
-    absoluteRange: {
-        min: Pulses(610),
-        max: Pulses(7310),
-    },
-    milimeterToPulseRatio: (69.82*0.9936/0.9984523)/1000,
-    smartReferenceParameters: {
-        endPosition: Pulses(800),
-        reference: {
-            // uma velocidade de referencia nao muito alta por se tratar do eixo vertical
-            speed: PulsesPerTick(350),
-            acceleration: PulsesPerTickSquared(3000)
-        }
-    },
-    //
-    defaultKinematics: {
-        speed: PulsesPerTick(1000),
-        acceleration: PulsesPerTickSquared(1500)
-    },
-    //
-    nativeParameters: {
-        'Start externo habilitado': "desligado",
-        'Entrada de start entre eixo habilitado': "desligado",
-        'Saida de start no avanco': "desligado",
-        'Saida de start no retorno': "desligado",
-        'Start automatico no avanco': "desligado",
-        'Start automatico no retorno': "desligado",
-        'Reducao da corrente em repouso': "desligado",
-        'Giro com funcao de protecao': "ligado",
-        'Giro com funcao de correcao': "desligado",
-        'Pausa serial': "desligado",
-    }
-
-}
-
 
 export const defaultReferenceParameter: SmartReferenceParameters = {
     endPosition: Pulses(500),
@@ -186,12 +83,34 @@ export class SingleAxis {
 
     constructor(
         public tunnel: Tunnel, 
-        public axisName: AxisName = 'Unamed_Axis', 
+        public axisName: AxisName = 'Unamed_Axis',
+        public milimeterToPulseRatio: number = 1, //TODO: This default value may be a wrong design decision (verify it, and update) 
         public tolerance: readonly [lowerBound: Pulses, upperBound: Pulses] = [Pulses(4), Pulses(4)] as const,
         public axisRange: AxisRange | undefined = undefined, 
         public referenceParameters: SmartReferenceParameters = defaultReferenceParameter,
-        public transportLayer = CMPP00LG(tunnel)
+        public transportLayer = CMPP00LG(tunnel),
         ) { }
+
+    protected __convertMilimetersToPulse = (_: Milimeter): Pulses => {
+        const milimeter = _.value
+        const pulses = milimeter / this.milimeterToPulseRatio
+        return Pulses(pulses)
+    }
+
+    protected __convertMovimentPositionToPulses = (_: Moviment): Pulses => {
+        const { position } = _
+        const kind = _.position.kind
+        switch (kind) {
+            case 'Milimeter': {
+                return this.__convertMilimetersToPulse(_.position)
+            }
+            case 'Pulses': {
+                return _.position
+            }
+            default:
+                return exhaustiveSwitch(kind)
+        }
+    }
 
     public waitUntilConditionIsReached = async (hasReached: (_:SingleAxis) => Promise<boolean>): Promise<void> => {
         const hasNotReched = async () => !(await hasReached(this))
@@ -201,21 +120,21 @@ export class SingleAxis {
         }
     }
 
-    private doesPositionMatch = (currentPosition_: Pulses, expectedPosition_: Pulses, tolerance: Tolerance):boolean => {
-            const [a, b] = tolerance
-            const lowerDelta = a.value
-            const upperDelta = b.value
-            const expectedPosition = expectedPosition_.value
-            const lowerBound = expectedPosition - lowerDelta
-            const upperBound = expectedPosition + upperDelta
-            const currentPosition = currentPosition_.value 
-            const isOutOfRange = currentPosition < lowerBound || currentPosition > upperBound
-            return !isOutOfRange
-        }
+    private __doesPositionMatch = (currentPosition_: Pulses, expectedPosition_: Pulses, tolerance: Tolerance):boolean => {
+        const [a, b] = tolerance
+        const lowerDelta = a.value
+        const upperDelta = b.value
+        const expectedPosition = expectedPosition_.value
+        const lowerBound = expectedPosition - lowerDelta
+        const upperBound = expectedPosition + upperDelta
+        const currentPosition = currentPosition_.value 
+        const isOutOfRange = currentPosition < lowerBound || currentPosition > upperBound
+        return !isOutOfRange
+    }
     
     public checkCurrentPosition = async (expectedPosition: Pulses,tolerance = this.tolerance): Promise< {isActualPositionAsExpected: boolean, currentPosition: Pulses, expectedPosition: Pulses}> => {
         const currentPosition = await this.getCurrentPosition()
-        const isActualPositionAsExpected = this.doesPositionMatch(currentPosition, expectedPosition, tolerance)
+        const isActualPositionAsExpected = this.__doesPositionMatch(currentPosition, expectedPosition, tolerance)
         return { isActualPositionAsExpected, currentPosition, expectedPosition }
         
     }
@@ -397,6 +316,7 @@ export class SingleAxis {
     goto = async (target: Moviment , tolerance: Tolerance = this.tolerance): Promise<void> => {
         const { set, get } = this.transportLayer
         const {position, speed, acceleration} = target
+        const positionInPulses = this.__convertMovimentPositionToPulses(target)
 
         const throwIfNotReadyToGo = () => {
             if(this.isReadyToGo===false) {
@@ -404,19 +324,8 @@ export class SingleAxis {
             }
         }
 
-        // prevents bug
-        const isSamePosition = async (): Promise<boolean> => {
-            // do nothing if you already at the exactly position you got to go. Because if 'posicao_corrent'==='posicao_final' in next start it will
-            // go to 'posicao_inicial' that is what we want to prevent. Because this will raise an 'position in reached event'. Because we make 'posicao_inicial' static, and use 'posicao_final' as a dynamic target position to reach. 
-            //do not perform anymoviment, we already are where we want. This prevent an undesired behavior of the physical axis
-            const currentPositionBefore = (await this.getCurrentPosition()).value
-            const targetMovimentPosition = target.position.value
-            const isSamePosition__ = currentPositionBefore === targetMovimentPosition
-            return isSamePosition__
-        }
-
         const setNextMoviment = async (m: Moviment) => {
-            await set('Posicao final', m.position)
+            await set('Posicao final', positionInPulses)
             await set('Velocidade de avanco', m.speed)
             await set('Velocidade de retorno', m.speed)
             await set('Aceleracao de avanco', m.acceleration)
@@ -430,7 +339,7 @@ export class SingleAxis {
             if(isReferenced===false) {
                 throw new Error(`Axis=${this.axisName}: dereferentiated after attempt to perform a movimentks.`)
             }
-            const { isActualPositionAsExpected, currentPosition, expectedPosition } = await this.checkCurrentPosition(position, tolerance)
+            const { isActualPositionAsExpected, currentPosition, expectedPosition } = await this.checkCurrentPosition(positionInPulses, tolerance)
             if(isActualPositionAsExpected) {
                 //await this.report()
                 return // ok, everything goes right
@@ -443,13 +352,18 @@ export class SingleAxis {
 
         const recipe = async () => {
             throwIfNotReadyToGo();
-            const isSame = await isSamePosition() 
-            if(isSame===false) {
+            // do nothing if you already at the exactly position you got to go. Because if 'posicao_corrent'==='posicao_final' in next start it will
+            // go to 'posicao_inicial' that is what we want to prevent. Because this will raise an 'position in reached event'. Because we make 'posicao_inicial' static, and use 'posicao_final' as a dynamic target position to reach. 
+            //do not perform anymoviment, we already are where we want. This prevent an undesired behavior of the physical axis
+            const { isActualPositionAsExpected: isAlreadyInTargetPosition } = await this.checkCurrentPosition(positionInPulses, this.tolerance) 
+            if(isAlreadyInTargetPosition===false) {
+                //perform the moviment
                 await setNextMoviment(target);
                 await startSerial();
                 await waitToStop();
                 await checkFinalStateOrThrow();
             } else {
+                // do nothing
                 return
             }
             
