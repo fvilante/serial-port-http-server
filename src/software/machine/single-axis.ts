@@ -30,7 +30,7 @@ export type PrintingPositions2 = {
     readonly posicaoDaUltimaMensagemNoRetorno: Pulses;
 }
 
-export type InitialConfig = {
+export type SingleAxisSetup = {
     axisName: string
     absoluteRange: {  // it will throw an error if target position gets outside this range
         min: Pulses

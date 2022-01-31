@@ -1,10 +1,10 @@
 import { Pulses } from "../cmpp/physical-dimensions/base"
 import { PulsesPerTick, PulsesPerTickSquared } from "../cmpp/physical-dimensions/physical-dimensions"
-import { InitialConfig, Tolerance } from "./single-axis"
+import { SingleAxisSetup, Tolerance } from "./single-axis"
 
 const defaultTolerance: Tolerance = [Pulses(4), Pulses(4)]
 
-export const z_axis_config: InitialConfig = {
+export const z_axis_setup: SingleAxisSetup = {
     axisName: 'Z-Axis',//
     absoluteRange: {
         min: Pulses(610),
@@ -41,7 +41,7 @@ export const z_axis_config: InitialConfig = {
 
 }
 
-export const y_axis_config: InitialConfig = {
+export const y_axis_setup: SingleAxisSetup = {
     axisName: 'Y-Axis',
     absoluteRange: {
         min: Pulses(610),
@@ -79,7 +79,7 @@ export const y_axis_config: InitialConfig = {
 }
 
 
-export const x_axis_config: InitialConfig = {
+export const x_axis_setup: SingleAxisSetup = {
     axisName: 'X-Axis',
     absoluteRange: {
         min: Pulses(610),
