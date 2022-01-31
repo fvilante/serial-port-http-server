@@ -81,6 +81,7 @@ export class SingleAxis {
  
     // internal state
     isReadyToGo: boolean = false // indicate that axis has already been sucessfully initialized
+    public transportLayer = CMPP00LG(this.tunnel)
 
     constructor(
         public tunnel: Tunnel, 
@@ -89,7 +90,7 @@ export class SingleAxis {
         public tolerance: readonly [lowerBound: Pulses, upperBound: Pulses] = [Pulses(4), Pulses(4)] as const,
         public axisRange: AxisRange | undefined = undefined, 
         public referenceParameters: SmartReferenceParameters = defaultReferenceParameter,
-        public transportLayer = CMPP00LG(tunnel),
+        
         //public initialConfig: InitialConfig
         ) { }
 
