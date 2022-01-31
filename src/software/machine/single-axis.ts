@@ -87,7 +87,6 @@ export class SingleAxis {
     constructor(
         public tunnel: Tunnel, 
         public axisSetup: SingleAxisSetup,
-        public axisRange: AxisRange | undefined = undefined, 
         public referenceParameters: SmartReferenceParameters = defaultReferenceParameter,
         
         //public initialConfig: InitialConfig
