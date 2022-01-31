@@ -19,6 +19,7 @@ import { exhaustiveSwitch } from "../core/utils";
 //      - create stop method (it differentiate from 'shutdown method' because stop does not make axis not energized)
 //      - optimize commnication
 //      - Make Speed and Acceleration unit as mm/s and mm/s2
+//      - Implement 'absoluteRange'
 
 //TODO: Deprecate PrintingPositions, and rename PrintingPositions2 to PrintingPositions, the difference is only the type cast
 export type PrintingPositions2 = {
@@ -32,7 +33,7 @@ export type PrintingPositions2 = {
 
 export type SingleAxisSetup = {
     axisName: string
-    absoluteRange: {  // it will throw an error if target position gets outside this range
+    absoluteRange: {  // TODO: Not implemented. It will throw an error if target position gets outside this range
         min: Pulses
         max: Pulses
     },
@@ -255,18 +256,18 @@ export class SingleAxis {
             const { isReferenced, isStopped, direction, isReferencing } = status
             const { isActualPositionAsExpected, currentPosition} = await this.checkCurrentPosition(r.endPosition)
             const isStatusOk = isReferenced && isStopped && !isReferencing //&& direction==='Avanco'
+            const { axisName } = this.axisSetup
             if (isStatusOk) {
                 if (isActualPositionAsExpected) {
                     return // Ok everything goes right, successful finish
                 }
                 else {
-                    const { axisName } = this.axisSetup
                     throw new Error(`Eixto='${axisName}'. Posicao ao final da referencia nao corresponde a desejada. Esperada=${r.endPosition.value}, atual=${currentPosition.value}.`)
                 }
             } else {
                 //TODO: Improve format of this error message
                 const actualStatus = { isReferenced, isStopped, isReferencing/*, direction*/}
-                const header = `During reference of axis ${this.axisSetup.axisName}.`
+                const header = `During reference of axis ${axisName}.`
                 const err = `'Something went wrong during referentiation proccess': Final condition expected was not attended. `
                 const detail = `Expected=${JSON.stringify(expectedStatus)} actual=${JSON.stringify(actualStatus)}. `
                 const msg = header + err + detail
