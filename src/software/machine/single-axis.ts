@@ -245,7 +245,8 @@ export class SingleAxis {
         const waitReferenceToConclude = ():Promise<void> =>{
             return this.waitUntilConditionIsReached( async axis => {
                 const status = await axis.getMovimentStatus()
-                return !status.isReferencing  
+                const hasFinished = status.isReferenced && !status.isReferencing && status.isStopped
+                return hasFinished  
             })
             
         }
