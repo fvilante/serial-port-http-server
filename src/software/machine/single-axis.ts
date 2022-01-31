@@ -55,14 +55,6 @@ export type SingleAxisSetup = {
     },
 }
 
-export const defaultReferenceParameter: SmartReferenceParameters = {
-    endPosition: Pulses(500),
-    reference: {
-        speed: PulsesPerTick(500),
-        acceleration: PulsesPerTickSquared(5000)
-    }
-} 
-
 export type AxisName = string
 
 export type AxisRange = {
@@ -87,9 +79,6 @@ export class SingleAxis {
     constructor(
         public tunnel: Tunnel, 
         public axisSetup: SingleAxisSetup,
-        public referenceParameters: SmartReferenceParameters = defaultReferenceParameter,
-        
-        //public initialConfig: InitialConfig
         ) { }
 
     protected __convertMilimetersToPulse = (_: Milimeter): Pulses => {
@@ -201,7 +190,7 @@ export class SingleAxis {
     }
 
     /** assures the axis is prepered to receive new commands, returns current position after initialization */
-    async initialize(referenceParameters: SmartReferenceParameters = this.referenceParameters):Promise<void> {
+    async initialize(referenceParameters: SmartReferenceParameters = this.axisSetup.smartReferenceParameters):Promise<void> {
 
         const { set } = this.transportLayer
 
