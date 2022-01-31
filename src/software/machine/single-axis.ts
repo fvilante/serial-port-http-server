@@ -86,6 +86,7 @@ export class SingleAxis {
 
     constructor(
         public tunnel: Tunnel, 
+        public axisSetup: SingleAxisSetup,
         public axisName: AxisName = 'Unamed_Axis',
         public milimeterToPulseRatio: number = 1, //TODO: This default value may be a wrong design decision (verify it, and update) 
         public tolerance: readonly [lowerBound: Pulses, upperBound: Pulses] = [Pulses(4), Pulses(4)] as const,
