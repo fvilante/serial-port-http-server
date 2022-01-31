@@ -2,7 +2,7 @@
 import { Milimeter } from "../axis-controler";
 import { AxisControler } from "../cmpp/controlers/axis-controler";
 import {  makeCmppControler } from "../cmpp/controlers/cmpp-controler";
-import { Kinematics, Moviment } from "../cmpp/controlers/core";
+import { isMoviment, isPosition, Kinematics, Moviment, Position } from "../cmpp/controlers/core";
 import { MovimentStatus } from "../cmpp/controlers/utils/moviment-status";
 import { SmartReferenceParameters } from "../cmpp/controlers/utils/smart-reference";
 import { Pulses, TicksOfClock } from "../cmpp/physical-dimensions/base";
@@ -86,14 +86,6 @@ export class SingleAxis {
     constructor(
         public tunnel: Tunnel, 
         public axisSetup: SingleAxisSetup, 
-        //public axisName: AxisName = 'Unamed_Axis',
-        //public absoluteRange: AxisRange | undefined = undefined, 
-        //public milimeterToPulseRatio: number = 1, //TODO: This default value may be a wrong design decision (verify it, and update) 
-        //public smartReferenceParameters: SmartReferenceParameters = defaultReferenceParameter,
-        //**defaultKinematics
-        //public tolerance: readonly [lowerBound: Pulses, upperBound: Pulses] = [Pulses(4), Pulses(4)] as const,
-        //** native parameters
-        //public initialConfig: InitialConfig
         ) { }
 
     protected __convertMilimetersToPulse = (_: Milimeter): Pulses => {
@@ -219,10 +211,11 @@ export class SingleAxis {
             await set("Tempo para o start automatico", TicksOfClock(10))
             await set("Tempo para o start externo",  TicksOfClock(10))
             //
-            type Key = keyof typeof this.axisSetup.preReferenceSetup
-            const keys =  Object.keys(this.axisSetup.preReferenceSetup) as readonly Key[]
+            const { preReferenceSetup } = this.axisSetup
+            type Key = keyof typeof preReferenceSetup
+            const keys =  Object.keys(preReferenceSetup) as readonly Key[]
             for (let key of keys) {
-                await set(key, this.axisSetup.preReferenceSetup[key])
+                await set(key, preReferenceSetup[key])
             }
         }
 
@@ -244,7 +237,8 @@ export class SingleAxis {
         const waitReferenceToConclude = ():Promise<void> =>{
             return this.waitUntilConditionIsReached( async axis => {
                 const status = await axis.getMovimentStatus()
-                return !status.isReferencing  
+                const hasFinished = status.isReferenced && !status.isReferencing && status.isStopped
+                return hasFinished  
             })
             
         }
@@ -266,7 +260,8 @@ export class SingleAxis {
                     return // Ok everything goes right, successful finish
                 }
                 else {
-                    throw new Error(`Posicao ao final da referencia nao corresponde a desejada. Esperada=${r.endPosition.value}, atual=${currentPosition.value}.`)
+                    const { axisName } = this.axisSetup
+                    throw new Error(`Eixto='${axisName}'. Posicao ao final da referencia nao corresponde a desejada. Esperada=${r.endPosition.value}, atual=${currentPosition.value}.`)
                 }
             } else {
                 //TODO: Improve format of this error message
