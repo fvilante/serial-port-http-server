@@ -51,6 +51,7 @@ export type InitialConfig = {
         'Giro com funcao de correcao': LigadoDesligado
         'Pausa serial': LigadoDesligado
     },
+    tolerance: Tolerance // accepted max tolerance on stop position.
 }
 
 export const defaultReferenceParameter: SmartReferenceParameters = {
@@ -70,7 +71,7 @@ export type AxisRange = {
 
 export type TimeStamp = number
 
-export type Tolerance = readonly [lowerDelta: Pulses, upperDelta: Pulses]
+export type Tolerance = readonly [lowerBound: Pulses, upperBound: Pulses]
 
 //TODO: Solve this errors: 1) When you use this.goto to the same position consecutively, the programs get fatal error
 //TODO: Optimize to cache some values instead of fetch from cmpp
@@ -89,6 +90,7 @@ export class SingleAxis {
         public axisRange: AxisRange | undefined = undefined, 
         public referenceParameters: SmartReferenceParameters = defaultReferenceParameter,
         public transportLayer = CMPP00LG(tunnel),
+        //public initialConfig: InitialConfig
         ) { }
 
     protected __convertMilimetersToPulse = (_: Milimeter): Pulses => {

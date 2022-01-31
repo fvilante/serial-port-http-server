@@ -1,9 +1,11 @@
 import { Pulses } from "../cmpp/physical-dimensions/base"
 import { PulsesPerTick, PulsesPerTickSquared } from "../cmpp/physical-dimensions/physical-dimensions"
-import { InitialConfig } from "./single-axis"
+import { InitialConfig, Tolerance } from "./single-axis"
+
+const defaultTolerance: Tolerance = [Pulses(4), Pulses(4)]
 
 export const z_axis_config: InitialConfig = {
-    axisName: 'Z-Axis',
+    axisName: 'Z-Axis',//
     absoluteRange: {
         min: Pulses(610),
         max: Pulses(2610),
@@ -22,6 +24,7 @@ export const z_axis_config: InitialConfig = {
         speed: PulsesPerTick(400),
         acceleration: PulsesPerTickSquared(5000)
     },
+    tolerance: defaultTolerance,
     //
     nativeParameters: {
         'Start externo habilitado': "desligado",
@@ -58,6 +61,7 @@ export const y_axis_config: InitialConfig = {
         speed: PulsesPerTick(1000),
         acceleration: PulsesPerTickSquared(1500)
     },
+    tolerance: defaultTolerance,
     //
     nativeParameters: {
         'Start externo habilitado': "desligado",
@@ -95,6 +99,7 @@ export const x_axis_config: InitialConfig = {
         speed: PulsesPerTick(2000),
         acceleration: PulsesPerTickSquared(4000)
     },
+    tolerance: defaultTolerance,
     //
     nativeParameters: {
         'Start externo habilitado': "desligado",
