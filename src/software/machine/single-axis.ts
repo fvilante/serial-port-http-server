@@ -198,19 +198,18 @@ export class SingleAxis {
             await set('Numero de mensagem no avanco', 0),
             await set('Numero de mensagem no retorno', 0),
             await set('Modo continuo/passo a passo', 'continuo'),
-            //
-            await set("Start automatico no avanco", 'desligado')
-            await set("Start automatico no retorno", 'desligado')
-            await set("Modo continuo/passo a passo", 'continuo')
-            await set("Saida de start no avanco", 'desligado')
-            await set("Saida de start no retorno", 'desligado')
-            await set("Start externo habilitado", 'desligado') // TODO: Not sure this option should be on or off
+            await set('Pausa serial', 'desligado')
             await set("Entrada de start entre eixo habilitado", 'desligado')
+            //
             await set("Tempo para o start automatico", TicksOfClock(10))
             await set("Tempo para o start externo",  TicksOfClock(10))
-            await set("Referencia pelo start externo", 'desligado') // TODO: Not sure this option should be on or off
-            await set('Giro com funcao de correcao', 'desligado')
-            await set('Giro com funcao de protecao', 'ligado')
+            //
+            const { preReferenceSetup } = this.axisSetup
+            type Key = keyof typeof preReferenceSetup
+            const keys =  Object.keys(preReferenceSetup) as readonly Key[]
+            for (let key of keys) {
+                await set(key, preReferenceSetup[key])
+            }
         }
 
         const setSmartReference = async (r: SmartReferenceParameters) => {
