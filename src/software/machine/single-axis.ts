@@ -2,7 +2,7 @@
 import { Milimeter } from "../axis-controler";
 import { AxisControler } from "../cmpp/controlers/axis-controler";
 import {  makeCmppControler } from "../cmpp/controlers/cmpp-controler";
-import { Kinematics, Moviment } from "../cmpp/controlers/core";
+import { isMoviment, isPosition, Kinematics, Moviment, Position } from "../cmpp/controlers/core";
 import { MovimentStatus } from "../cmpp/controlers/utils/moviment-status";
 import { SmartReferenceParameters } from "../cmpp/controlers/utils/smart-reference";
 import { Pulses, TicksOfClock } from "../cmpp/physical-dimensions/base";
@@ -19,6 +19,7 @@ import { exhaustiveSwitch } from "../core/utils";
 //      - create stop method (it differentiate from 'shutdown method' because stop does not make axis not energized)
 //      - optimize commnication
 //      - Make Speed and Acceleration unit as mm/s and mm/s2
+//      - Implement 'absoluteRange'
 
 //TODO: Deprecate PrintingPositions, and rename PrintingPositions2 to PrintingPositions, the difference is only the type cast
 export type PrintingPositions2 = {
@@ -30,16 +31,17 @@ export type PrintingPositions2 = {
     readonly posicaoDaUltimaMensagemNoRetorno: Pulses;
 }
 
-export type InitialConfig = {
+export type SingleAxisSetup = {
     axisName: string
-    absoluteRange: {  // it will throw an error if target position gets outside this range
+    absoluteRange: {  // TODO: Not implemented. It will throw an error if target position gets outside this range
         min: Pulses
         max: Pulses
     },
     milimeterToPulseRatio: number
     smartReferenceParameters: SmartReferenceParameters
     defaultKinematics: Kinematics // velocity adopted if no kinematics is given for the target moviment
-    nativeParameters: {     // after the reference this parameters is assured to be settled
+    tolerance: Tolerance // accepted max tolerance on stop position.
+    preReferenceSetup: {     // before the reference this parameters is assured to be settled
         'Start externo habilitado': LigadoDesligado
         'Entrada de start entre eixo habilitado': LigadoDesligado
         'Saida de start no avanco': LigadoDesligado
@@ -53,14 +55,6 @@ export type InitialConfig = {
     },
 }
 
-export const defaultReferenceParameter: SmartReferenceParameters = {
-    endPosition: Pulses(500),
-    reference: {
-        speed: PulsesPerTick(500),
-        acceleration: PulsesPerTickSquared(5000)
-    }
-} 
-
 export type AxisName = string
 
 export type AxisRange = {
@@ -70,7 +64,7 @@ export type AxisRange = {
 
 export type TimeStamp = number
 
-export type Tolerance = readonly [lowerDelta: Pulses, upperDelta: Pulses]
+export type Tolerance = readonly [lowerBound: Pulses, upperBound: Pulses]
 
 //TODO: Solve this errors: 1) When you use this.goto to the same position consecutively, the programs get fatal error
 //TODO: Optimize to cache some values instead of fetch from cmpp
@@ -80,20 +74,16 @@ export class SingleAxis {
  
     // internal state
     isReadyToGo: boolean = false // indicate that axis has already been sucessfully initialized
+    public transportLayer = CMPP00LG(this.tunnel)
 
     constructor(
         public tunnel: Tunnel, 
-        public axisName: AxisName = 'Unamed_Axis',
-        public milimeterToPulseRatio: number = 1, //TODO: This default value may be a wrong design decision (verify it, and update) 
-        public tolerance: readonly [lowerBound: Pulses, upperBound: Pulses] = [Pulses(4), Pulses(4)] as const,
-        public axisRange: AxisRange | undefined = undefined, 
-        public referenceParameters: SmartReferenceParameters = defaultReferenceParameter,
-        public transportLayer = CMPP00LG(tunnel),
+        public axisSetup: SingleAxisSetup,
         ) { }
 
     protected __convertMilimetersToPulse = (_: Milimeter): Pulses => {
         const milimeter = _.value
-        const pulses = milimeter / this.milimeterToPulseRatio
+        const pulses = milimeter / this.axisSetup.milimeterToPulseRatio
         return Pulses(pulses)
     }
 
@@ -132,7 +122,7 @@ export class SingleAxis {
         return !isOutOfRange
     }
     
-    public checkCurrentPosition = async (expectedPosition: Pulses,tolerance = this.tolerance): Promise< {isActualPositionAsExpected: boolean, currentPosition: Pulses, expectedPosition: Pulses}> => {
+    public checkCurrentPosition = async (expectedPosition: Pulses,tolerance = this.axisSetup.tolerance): Promise< {isActualPositionAsExpected: boolean, currentPosition: Pulses, expectedPosition: Pulses}> => {
         const currentPosition = await this.getCurrentPosition()
         const isActualPositionAsExpected = this.__doesPositionMatch(currentPosition, expectedPosition, tolerance)
         return { isActualPositionAsExpected, currentPosition, expectedPosition }
@@ -200,7 +190,7 @@ export class SingleAxis {
     }
 
     /** assures the axis is prepered to receive new commands, returns current position after initialization */
-    async initialize(referenceParameters: SmartReferenceParameters = this.referenceParameters):Promise<void> {
+    async initialize(referenceParameters: SmartReferenceParameters = this.axisSetup.smartReferenceParameters):Promise<void> {
 
         const { set } = this.transportLayer
 
@@ -208,19 +198,18 @@ export class SingleAxis {
             await set('Numero de mensagem no avanco', 0),
             await set('Numero de mensagem no retorno', 0),
             await set('Modo continuo/passo a passo', 'continuo'),
-            //
-            await set("Start automatico no avanco", 'desligado')
-            await set("Start automatico no retorno", 'desligado')
-            await set("Modo continuo/passo a passo", 'continuo')
-            await set("Saida de start no avanco", 'desligado')
-            await set("Saida de start no retorno", 'desligado')
-            await set("Start externo habilitado", 'desligado') // TODO: Not sure this option should be on or off
+            await set('Pausa serial', 'desligado')
             await set("Entrada de start entre eixo habilitado", 'desligado')
+            //
             await set("Tempo para o start automatico", TicksOfClock(10))
             await set("Tempo para o start externo",  TicksOfClock(10))
-            await set("Referencia pelo start externo", 'desligado') // TODO: Not sure this option should be on or off
-            await set('Giro com funcao de correcao', 'desligado')
-            await set('Giro com funcao de protecao', 'ligado')
+            //
+            const { preReferenceSetup } = this.axisSetup
+            type Key = keyof typeof preReferenceSetup
+            const keys =  Object.keys(preReferenceSetup) as readonly Key[]
+            for (let key of keys) {
+                await set(key, preReferenceSetup[key])
+            }
         }
 
         const setSmartReference = async (r: SmartReferenceParameters) => {
@@ -241,7 +230,8 @@ export class SingleAxis {
         const waitReferenceToConclude = ():Promise<void> =>{
             return this.waitUntilConditionIsReached( async axis => {
                 const status = await axis.getMovimentStatus()
-                return !status.isReferencing  
+                const hasFinished = status.isReferenced && !status.isReferencing && status.isStopped
+                return hasFinished  
             })
             
         }
@@ -263,12 +253,12 @@ export class SingleAxis {
                     return // Ok everything goes right, successful finish
                 }
                 else {
-                    throw new Error(`Posicao ao final da referencia nao corresponde a desejada. Esperada=${r.endPosition.value}, atual=${currentPosition.value}.`)
+                    throw new Error(`Eixo='${this.axisSetup.axisName}'. Posicao ao final da referencia nao corresponde a desejada. Esperada=${r.endPosition.value}, atual=${currentPosition.value}.`)
                 }
             } else {
                 //TODO: Improve format of this error message
                 const actualStatus = { isReferenced, isStopped, isReferencing/*, direction*/}
-                const header = `During reference of axis ${this.axisName}.`
+                const header = `During reference of axis ${this.axisSetup.axisName}.`
                 const err = `'Something went wrong during referentiation proccess': Final condition expected was not attended. `
                 const detail = `Expected=${JSON.stringify(expectedStatus)} actual=${JSON.stringify(actualStatus)}. `
                 const msg = header + err + detail
@@ -302,7 +292,7 @@ export class SingleAxis {
         const PF = await get('Posicao final')
         const PA = await this.getCurrentPosition()
         console.table({
-            axis: this.axisName,
+            axis: this.axisSetup.axisName,
             direction,
             PI: PI.value,
             PF: PF.value,
@@ -313,14 +303,14 @@ export class SingleAxis {
     //NOTE: Will throw if axis is not initialized
     //TODO: should be better implement to reduce time interval between movimentss
     //TODO: Improve error messages
-    goto = async (target: Moviment , tolerance: Tolerance = this.tolerance): Promise<void> => {
+    goto = async (target: Moviment , tolerance: Tolerance = this.axisSetup.tolerance): Promise<void> => {
         const { set, get } = this.transportLayer
         const {position, speed, acceleration} = target
         const positionInPulses = this.__convertMovimentPositionToPulses(target)
 
         const throwIfNotReadyToGo = () => {
             if(this.isReadyToGo===false) {
-                throw new Error(`Axis=${this.axisName}: Cannot perform goto moviment, because axis is not initialized`)
+                throw new Error(`Axis=${this.axisSetup.axisName}: Cannot perform goto moviment, because axis is not initialized`)
             }
         }
 
@@ -337,7 +327,7 @@ export class SingleAxis {
         const checkFinalStateOrThrow = async (): Promise<void> => {
             const { isReferenced } = await this.getMovimentStatus()
             if(isReferenced===false) {
-                throw new Error(`Axis=${this.axisName}: dereferentiated after attempt to perform a movimentks.`)
+                throw new Error(`Axis=${this.axisSetup.axisName}: dereferentiated after attempt to perform a movimentks.`)
             }
             const { isActualPositionAsExpected, currentPosition, expectedPosition } = await this.checkCurrentPosition(positionInPulses, tolerance)
             if(isActualPositionAsExpected) {
@@ -346,7 +336,7 @@ export class SingleAxis {
             } else {
                 const PI = await get('Posicao inicial')
                 const PF = await get('Posicao final')
-                throw new Error(`Axis=${this.axisName}: after attempt to perform a moviment, realized that actual position is not the expected position (including error tolerance). Expected=${expectedPosition.value}, current=${currentPosition.value}, tolerance=[${tolerance[0].value},${tolerance[1].value}], PI=${PI.value}, PF=${PF.value}`)
+                throw new Error(`Axis=${this.axisSetup.axisName}: after attempt to perform a moviment, realized that actual position is not the expected position (including error tolerance). Expected=${expectedPosition.value}, current=${currentPosition.value}, tolerance=[${tolerance[0].value},${tolerance[1].value}], PI=${PI.value}, PF=${PF.value}`)
             }
         }
 
@@ -355,7 +345,7 @@ export class SingleAxis {
             // do nothing if you already at the exactly position you got to go. Because if 'posicao_corrent'==='posicao_final' in next start it will
             // go to 'posicao_inicial' that is what we want to prevent. Because this will raise an 'position in reached event'. Because we make 'posicao_inicial' static, and use 'posicao_final' as a dynamic target position to reach. 
             //do not perform anymoviment, we already are where we want. This prevent an undesired behavior of the physical axis
-            const { isActualPositionAsExpected: isAlreadyInTargetPosition } = await this.checkCurrentPosition(positionInPulses, this.tolerance) 
+            const { isActualPositionAsExpected: isAlreadyInTargetPosition } = await this.checkCurrentPosition(positionInPulses, this.axisSetup.tolerance) 
             if(isAlreadyInTargetPosition===false) {
                 //perform the moviment
                 await setNextMoviment(target);
@@ -374,7 +364,7 @@ export class SingleAxis {
 
     } 
 
-    gotoRelative = async (target: Moviment , tolerance: Tolerance = this.tolerance): Promise<void> => {
+    gotoRelative = async (target: Moviment , tolerance: Tolerance = this.axisSetup.tolerance): Promise<void> => {
         const currentPosition = await this.getCurrentPosition()
         const targetRelative: Moviment = {
             ...target,
@@ -384,7 +374,7 @@ export class SingleAxis {
     }
 
     //TODO: should be better implement to reduce time interval between movimentss
-    gotoMany = async (targets: Iterable<Moviment> , tolerance: Tolerance = this.tolerance): Promise<void> => {
+    gotoMany = async (targets: Iterable<Moviment> , tolerance: Tolerance = this.axisSetup.tolerance): Promise<void> => {
         const itor = targets[Symbol.iterator]()
         let next = itor.next()
         while(!next.done) {

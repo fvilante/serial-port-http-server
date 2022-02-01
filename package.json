@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile": "npx tsc",
+    "compileDryRun": "npm run compile && npm run clean",
     "format:source": "npx prettier --write \"src/**/*.ts\"",
     "test": "jest",
     "clear_test": "jest --clearCache",

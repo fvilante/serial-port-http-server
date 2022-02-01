@@ -4,6 +4,7 @@ import { Position, Pulses } from "../../cmpp/physical-dimensions/base"
 import { PulsesPerTick, PulsesPerTickSquared } from "../../cmpp/physical-dimensions/physical-dimensions"
 import { makeTunnel } from "../../cmpp/transport/tunnel"
 import { random } from "../../core/utils"
+import { x_axis_setup, y_axis_setup, z_axis_setup } from "../axes-setup"
 import { Moviment3D } from "../machine"
 import { SingleAxis } from "../single-axis"
 
@@ -38,9 +39,9 @@ export const tunnel_X = makeTunnel('com50', 9600, 1)
 export const tunnel_Y = makeTunnel('com48', 9600, 1)
 export const tunnel_Z = makeTunnel('com51', 9600, 1)
 //
-export const axisX = new SingleAxis(tunnel_X)
-export const axisY = new SingleAxis(tunnel_Y)
-export const axisZ = new SingleAxis(tunnel_Z)
+export const axisX = new SingleAxis(tunnel_X, x_axis_setup)
+export const axisY = new SingleAxis(tunnel_Y, y_axis_setup)
+export const axisZ = new SingleAxis(tunnel_Z, z_axis_setup)
 export const axis = axisX
 
 //

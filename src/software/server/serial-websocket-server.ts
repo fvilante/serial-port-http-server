@@ -12,6 +12,7 @@ import { Pulses } from '../cmpp/physical-dimensions/base'
 import { Kinematics, Moviment, Moviment_, PositionInPulses } from '../cmpp/controlers/core'
 import { PulsesPerTick, PulsesPerTickSquared, Pulses_ } from '../cmpp/physical-dimensions/physical-dimensions'
 import { COMM_Port } from '../enviroment'
+import { x_axis_setup, y_axis_setup, z_axis_setup } from '../machine/axes-setup'
 
 // lock
 
@@ -19,9 +20,9 @@ let isLocked = false
 
 
 // machine
-const axisX = new SingleAxis(makeTunnel(COMM_Port.z, 9600, 1),`Eixo_X`)
-const axisY = new SingleAxis(makeTunnel(COMM_Port.x, 9600, 1),`Eixo_Y`)
-const axisZ = new SingleAxis(makeTunnel(COMM_Port.y, 9600, 1),`Eixo_Z`)
+const axisX = new SingleAxis(makeTunnel(COMM_Port.x, 9600, 1),x_axis_setup)
+const axisY = new SingleAxis(makeTunnel(COMM_Port.y, 9600, 1),y_axis_setup)
+const axisZ = new SingleAxis(makeTunnel(COMM_Port.z, 9600, 1),z_axis_setup)
 
 const machine = new Machine({X: axisX, Y: axisY, Z: axisZ})
 
