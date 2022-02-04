@@ -1,7 +1,8 @@
 import { Reduce_ } from "../adts/reduce"
 import { Milimeter } from "../axis-controler"
 import { Printers } from "../global-env/global"
-import { getMatrizesConhecidas, Matriz } from "./matrizes-conhecidas"
+import { getMatrizesConhecidas } from "./matrizes-conhecidas"
+import { Matriz } from "./Matriz"
 import { mapObject, Range } from '../core/utils'
 
 // Isomorphism between matrizes conhecidas

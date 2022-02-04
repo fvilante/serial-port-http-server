@@ -4,7 +4,7 @@ import { makeBarcodeStream } from '../barcode/barcode-stream'
 import { makeMovimentKit, MovimentKit } from "../machine-controler"
 import { startRouting } from "../matriz-router"
 import { fetchMatrizByBarcodeRaw } from "../matrix-reader/matriz-cadastro-geral-reader"
-import { Matriz } from "../matrix-reader/matrizes-conhecidas"
+import { Matriz } from "../matrix-reader/Matriz"
 import { delay } from "../core/delay"
 
 

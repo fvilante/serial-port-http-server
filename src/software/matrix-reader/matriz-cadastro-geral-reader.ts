@@ -1,5 +1,5 @@
 import { readFile,  } from 'fs'
-import { Matriz } from './matrizes-conhecidas'
+import { Matriz } from "./Matriz"
 import { Matriz3, matrizConverter_3_1 } from './matrizes-conhecidas-converter'
 import { Barcode } from '../barcode/barcode-core'
 

@@ -2,7 +2,7 @@ import { AxisControler, getAxisControler } from "./axis-controler"
 import { Milimeter } from "./axis-controler"
 import { X_AxisStarterKit, Y_AxisStarterKit, Z_AxisStarterKit } from "./axis-starter-kit"
 import { Printers } from "./global-env/global"
-import { Matriz } from "./matrix-reader/matrizes-conhecidas"
+import { Matriz } from "./matrix-reader/Matriz"
 import { ExecuteInParalel as executeInSerie, executeInSequence } from "./core/promise-utils"
 import { isInsideRange, Range } from "./core/utils"
 
