@@ -1,9 +1,8 @@
 import { Reduce_ } from "../adts/reduce"
 import { Milimeter } from "../axis-controler"
 import { Printers } from "../global-env/global"
-import { getMatrizesConhecidas } from "./matrizes-conhecidas"
 import { Matriz } from "./Matriz"
-import { mapObject, Range } from '../core/utils'
+import { Range } from '../core/utils'
 
 // Isomorphism between matrizes conhecidas
 // This file introduces the type used inside "CADASTRO_GERAL.JSON" (Matriz2), and the many forms
@@ -229,6 +228,7 @@ export const matrizConverter_3_2 = (ref: Matriz3): Matriz2 => {
 
 // Test --------------------------------------------------------------------
 
+/*
 const convertAll = (): readonly Matriz3[] => {
     let res: readonly Matriz3[] = []
     const r = getMatrizesConhecidas()
@@ -243,7 +243,6 @@ const convertAll = (): readonly Matriz3[] => {
 }
 
 
-
 const Test1 = () => {
 
     const r = convertAll();
@@ -253,4 +252,5 @@ const Test1 = () => {
     
 }
 
-//Test1();
+Test1()
+*/
