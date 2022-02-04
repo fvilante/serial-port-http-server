@@ -22,12 +22,6 @@ export type MovimentKit = {
     m: MachineControler,
 }
 
-export type AxisKit = {
-    x: AxisControler,
-    y: AxisControler,
-    z: AxisControler,
-} 
-
 // Fix: remove this job and substitute by the other
 type Job = {
     readonly remoteFieldIndex: number

@@ -1,11 +1,13 @@
 import { keyboardEventEmiter, KeyboardEventEmitter } from "../keyboard/read-keyboard-async"
 import { Barcode } from "../barcode/barcode-core"
 import { makeBarcodeStream } from '../barcode/barcode-stream'
-import { makeMovimentKit, MovimentKit } from "../machine-controler"
 import { startRouting } from "../matriz-router"
 import { fetchMatrizByBarcodeRaw } from "../matriz/matriz-cadastro-geral-reader"
 import { Matriz } from "../matriz/matriz"
 import { delay } from "../core/delay"
+import { getAxisControler } from "../axis-controler"
+import { X_AxisStarterKit, Y_AxisStarterKit, Z_AxisStarterKit } from "../axis-starter-kit"
+import { AxisControler } from "../axis-controler"
 
 
 const getMatrizFromDB = async (barcode: Barcode): Promise<Matriz> => {
@@ -65,6 +67,21 @@ const printHeadText = () => {
     console.log('-')
 }
 
+
+export type AxisKit = {
+    x: AxisControler,
+    y: AxisControler,
+    z: AxisControler,
+} 
+
+// Fix: I'd like not to have to import AxisStartKit. I would not use this 'starter kit strategy' at all
+const __makeMovimentKit = async ():Promise<AxisKit> => {
+    const z = getAxisControler(Z_AxisStarterKit)
+    const x = getAxisControler(X_AxisStarterKit)
+    const y = getAxisControler(Y_AxisStarterKit)
+    return { x, y, z }
+}
+
 const main3 = () => {
     const keyboardEventEmiter__ = showKeyStrokesOnScreen(keyboardEventEmiter)
     printHeadText();
@@ -74,7 +91,7 @@ const main3 = () => {
 
             const runProgram = async () => {
                 const matriz = await getMatrizFromDB(barcode)
-                const movimentKit = await  makeMovimentKit()
+                const movimentKit = await  __makeMovimentKit()
                 return startRouting(matriz, movimentKit)
             }
 
