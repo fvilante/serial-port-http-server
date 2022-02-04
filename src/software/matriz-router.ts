@@ -2,7 +2,7 @@ import { AxisControler } from "./axis-controler"
 import { Milimeter } from "./axis-controler"
 import { Printers } from "./global-env/global"
 import { AxisKit, MovimentKit } from "./machine-controler"
-import { Matriz } from "./matrix-reader/Matriz"
+import { Matriz } from "./matriz/matriz"
 import { programMessage } from "./printer/program-message"
 import { executeInSequence, repeatPromiseWithInterval } from "./core/promise-utils"
 

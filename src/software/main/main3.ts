@@ -3,8 +3,8 @@ import { Barcode } from "../barcode/barcode-core"
 import { makeBarcodeStream } from '../barcode/barcode-stream'
 import { makeMovimentKit, MovimentKit } from "../machine-controler"
 import { startRouting } from "../matriz-router"
-import { fetchMatrizByBarcodeRaw } from "../matrix-reader/matriz-cadastro-geral-reader"
-import { Matriz } from "../matrix-reader/Matriz"
+import { fetchMatrizByBarcodeRaw } from "../matriz/matriz-cadastro-geral-reader"
+import { Matriz } from "../matriz/matriz"
 import { delay } from "../core/delay"
 
 
