@@ -1,9 +1,9 @@
-import { bit_test } from "./core/bit-wise-utils"
-import { Address, Axis } from "./global-env/global"
-import { sendCmpp } from "./cmpp/datalink/send-receive-cmpp-datalink"
-import { Range } from "./core/utils"
-import { executeInSequence } from "./core/promise-utils"
-import { FrameCore } from "./cmpp/datalink/core/frame-core"
+import { bit_test } from "../../software/core/bit-wise-utils"
+import { Address, Axis } from "../../software/global-env/global"
+import { sendCmpp } from "../../software/cmpp/datalink/send-receive-cmpp-datalink"
+import { Range } from "../../software/core/utils"
+import { executeInSequence } from "../../software/core/promise-utils"
+import { FrameCore } from "../../software/cmpp/datalink/core/frame-core"
 
 //FIX:
 //  this module is not being used by others
