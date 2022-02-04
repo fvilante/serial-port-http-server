@@ -97,8 +97,8 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
 
 
     const { portName, baudRate, channel} = Address[`Axis`][axisName]
-        const tunnel = makeTunnel(portName, baudRate, channel)
-        const transportLayer = makeTransportLayer(tunnel)
+    const tunnel = makeTunnel(portName, baudRate, channel)
+    const transportLayer = makeTransportLayer(tunnel)
 
 
     const isReferenced: T['isReferenced'] = async () => {
