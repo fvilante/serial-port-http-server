@@ -1,6 +1,6 @@
 import { readFile,  } from 'fs'
-import { Matriz } from "./Matriz"
-import { Matriz3, matrizConverter_3_1 } from './matrizes-conhecidas-converter'
+import { Matriz, Matriz3 } from "./Matriz"
+import { matrizConverter_3_1 } from './matrizes-conhecidas-converter'
 import { Barcode } from '../barcode/barcode-core'
 
 const CurrentDirectory = process.cwd()
@@ -25,7 +25,7 @@ const readTextFile = (file:string): Promise<Buffer> => new Promise( (resolve, re
 //      Matriz3 = is the raw type read from path above
 const readCadastroGeralMatrizes_asMatriz3 = async (path: string):Promise<readonly Matriz3[]> => {
     const buf = (await readTextFile(path)).toString()
-    const r = JSON.parse(buf) as readonly Matriz3[] //Fix: validate this casting!!!
+    const r = JSON.parse(buf) as readonly Matriz3   [] //Fix: validate this casting!!!
     return r
 } 
 
