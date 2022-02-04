@@ -3,26 +3,47 @@ import { Printers } from "../global-env/global";
 
 //TODO: refactor, removed unused code (ie: Matriz, or Matriz2 or Matriz3), or explain/document why you not all them.
 
-export type Matriz = {
-    // Proxy
+type MatrizHeader = {
     partNumber: string;
     barCode: string;
-    // Message
+}
+
+type MatrizMessage = {
     printer: Printers;
     msg: string;
     passes?: number;
     remoteFieldId: number; // selection of remote field -> normally 1 to 4 (inclusive-both-sides) but theoretically any number between 1 and 99
+}
 
-    // Message kinematics
+type MatrizKinematics = {
     printVelocity: number; // in pulses per 1024 milisec  // fix: Not implemented
+}
 
-
+/** @deprecated remove the use of this type in the code, use V2 instead */
+type MatrizPrintPositions_V1 = {
     // Print positions
     zLevel: Milimeter; // mm in relation to MinZ //Fix: Should be safe move (and give back an clear error msg if user try to access an physically impossible position)
     impressoesX: readonly Milimeter[]; // in relation to machine 0 -> FIX: Should be safe to use 0, not is the case, because it will collide carrier at FC- direction
     linhasY: readonly Milimeter[]; // in relation to machine 0 -> FIX: Should be safe to use 0, not is the case, because it will collide carrier at FC- direction 
+}
 
-};
+type MatrizPrintPositions_V2 = {
+    // Print positions
+    zLevel: Milimeter // mm in relation to MinZ //Fix: Should be safe move (and give back an clear error msg if user try to access an physically impossible position)
+    xPos: Milimeter
+    xStep: Milimeter
+    xQuantity: number
+    yPos: Milimeter
+    yStep: Milimeter
+    yQuantity: number
+}
+
+/** @deprecated use Matriz2 instead */
+export type Matriz = 
+    & MatrizHeader 
+    & MatrizMessage
+    & MatrizKinematics
+    & MatrizPrintPositions_V1
 
 // Isomorphism between matrizes conhecidas
 // This file introduces the type used inside "CADASTRO_GERAL.JSON" (Matriz2), and the many forms
@@ -33,27 +54,12 @@ export type Matriz = {
 // Matriz3 has the positions casted from 'Milimeter' to 'number' because this makes
 // 'CADASTRO_GERAL' more easy the edit directly. 
 // FIX: extract to a better place (and also: 'Matriz' and 'Matriz3')
-export type Matriz2 = {
-    // Proxy
-    partNumber: string
-    barCode: string
-    // Message
-    printer: Printers
-    msg: string
-    passes?: number
-    remoteFieldId: number // selection of remote field -> normally 1 to 4 (inclusive-both-sides) but theoretically any number between 1 and 99
-    // Message kinematics
-    printVelocity: number // in pulses per 1024 milisec  // fix: Not implemented
+export type Matriz2 = 
+    & MatrizHeader 
+    & MatrizMessage
+    & MatrizKinematics
+    & MatrizPrintPositions_V2
 
-    // Print positions
-    zLevel: Milimeter // mm in relation to MinZ //Fix: Should be safe move (and give back an clear error msg if user try to access an physically impossible position)
-    xPos: Milimeter
-    xStep: Milimeter
-    xQuantity: number
-    yPos: Milimeter
-    yStep: Milimeter
-    yQuantity: number
-}
 
 // convert type 'Milimeter' to type 'number' 
 type UnCastMilimeter<T> = {
