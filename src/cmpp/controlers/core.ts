@@ -1,4 +1,4 @@
-import { Milimeter } from "../../milimeter"
+import { Milimeter } from "../physical-dimensions/milimeter"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared } from "../physical-dimensions/physical-dimensions"
 
 //

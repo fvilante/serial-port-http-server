@@ -7,7 +7,7 @@ import { isInsideRange, now } from "./core/utils"
 import { CMPP00LG } from "./cmpp/transport/memmap-CMPP00LG"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared } from "./cmpp/physical-dimensions/physical-dimensions"
 import { makeTunnel } from "./cmpp/transport/tunnel"
-import { Milimeter } from "./milimeter"
+import { Milimeter } from "./cmpp/physical-dimensions/milimeter"
 const makeTransportLayer = CMPP00LG
 
 // ***********************************************************

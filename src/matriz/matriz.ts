@@ -1,4 +1,4 @@
-import { Milimeter } from "../milimeter";
+import { Milimeter } from "../cmpp/physical-dimensions/milimeter";
 import { Printers } from "../global-env/global";
 
 //TODO: refactor, removed unused code (ie: Matriz, or Matriz2 or Matriz3), or explain/document why you not all them.

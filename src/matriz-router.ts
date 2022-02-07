@@ -1,5 +1,5 @@
 import { AxisControler } from "./axis-controler"
-import { Milimeter } from "./milimeter"
+import { Milimeter } from "./cmpp/physical-dimensions/milimeter"
 import { AxisKit } from "./main/main3"
 import { Matriz } from "./matriz/matriz"
 import { programMessage } from "./printer/program-message"

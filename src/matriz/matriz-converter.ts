@@ -1,5 +1,5 @@
 import { Reduce_ } from "../adts/reduce"
-import { Milimeter } from "../milimeter"
+import { Milimeter } from "../cmpp/physical-dimensions/milimeter"
 import { Matriz, Matriz2, Matriz3 } from "./matriz"
 import { Range } from '../core/utils'
 
