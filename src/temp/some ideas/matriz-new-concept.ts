@@ -1,4 +1,4 @@
-import { Milimeter } from "../../software/axis-controler"
+import { Milimeter } from "../../software/milimeter"
 import { Printers } from "../../software/global-env/global"
 
 // FIX: Implement

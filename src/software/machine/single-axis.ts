@@ -1,5 +1,5 @@
 
-import { Milimeter } from "../axis-controler";
+import { Milimeter } from "../milimeter";
 import { AxisControler } from "../cmpp/controlers/axis-controler";
 import {  makeCmppControler } from "../cmpp/controlers/cmpp-controler";
 import { Kinematics, Moviment } from "../cmpp/controlers/core";
