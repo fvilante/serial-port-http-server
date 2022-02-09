@@ -1,5 +1,3 @@
-import { assertUnreachable } from "../../core/utils"
-
 export type BaseMeasure<K extends string, D extends string> = {
     kind: K
     value: number
@@ -49,8 +47,10 @@ export const TicksOfClock = (value: number): TicksOfClock => BaseMeasure(value, 
 export type Pulses = BaseMeasure<'Pulses', 'Position'>
 export const Pulses = (value: number): Pulses => BaseMeasure(value, 'Pulses', 'Position')
 //
-export type Milimeters = BaseMeasure<'Milimeters', 'Position'>
-export const Milimeters = (value: number): Milimeters => BaseMeasure(value, 'Milimeters', 'Position')
+// NOTE: Removed because there was already other Milimeter type being used
+// TODO: Implement a more generic Milimeter type
+//export type Milimeters = BaseMeasure<'Milimeters', 'Position'>
+//export const Milimeters = (value: number): Milimeters => BaseMeasure(value, 'Milimeters', 'Position')
 //
 
 
