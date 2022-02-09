@@ -55,11 +55,7 @@ export class Machine {
         }
 
         const sendPrintings = async () => {
-            if(printings) {
-                await axis.X.setPrintings(printings)
-            } else {
-                return
-            }
+            if(printings) await axis.X.setPrintings(printings)
         }
 
         await ExecuteInParalel([
