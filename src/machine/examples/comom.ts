@@ -1,6 +1,7 @@
 import { Kinematics, Moviment } from "../../cmpp/controlers/core"
 import { SmartReferenceParameters } from "../../cmpp/controlers/utils/smart-reference"
 import { Pulses } from "../../cmpp/physical-dimensions/base"
+import { Milimeter } from "../../cmpp/physical-dimensions/milimeter"
 import { PulsesPerTick, PulsesPerTickSquared } from "../../cmpp/physical-dimensions/physical-dimensions"
 import { makeTunnel } from "../../cmpp/transport/tunnel"
 import { random } from "../../core/utils"
@@ -23,7 +24,7 @@ export function* makeRamdomMoviment3D():Generator<Moviment3D> {
                 acceleration: PulsesPerTickSquared(random(5000,15000)),
             },
             Z: {
-                position: Pulses(random(500,2200)),
+                position: Milimeter(random(100,300)),
                 speed:  PulsesPerTick(random(2000,5000)),
                 acceleration: PulsesPerTickSquared(random(5000,15000)),
             },
