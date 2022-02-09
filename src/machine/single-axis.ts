@@ -85,7 +85,8 @@ export class SingleAxis {
     protected __convertMilimetersToPulse = (_: Milimeter): Pulses => {
         const milimeter = _.value
         const pulses = milimeter / this.axisSetup.milimeterToPulseRatio
-        return Pulses(pulses)
+        const pulsesRounded = Math.round(pulses) //NOTE: this round breaks isomorphism
+        return Pulses(pulsesRounded)
     }
 
     protected __convertMovimentPositionToPulses = (_: Moviment): Pulses => {
