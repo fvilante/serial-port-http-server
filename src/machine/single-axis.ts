@@ -1,12 +1,11 @@
 
-import { Milimeter } from "../axis-controler";
+import { Milimeter } from "../cmpp/physical-dimensions/milimeter";
 import { AxisControler } from "../cmpp/controlers/axis-controler";
 import {  makeCmppControler } from "../cmpp/controlers/cmpp-controler";
-import { isMoviment, isPosition, Kinematics, Moviment, Position } from "../cmpp/controlers/core";
+import { Kinematics, Moviment } from "../cmpp/controlers/core";
 import { MovimentStatus } from "../cmpp/controlers/utils/moviment-status";
 import { SmartReferenceParameters } from "../cmpp/controlers/utils/smart-reference";
 import { Pulses, TicksOfClock } from "../cmpp/physical-dimensions/base";
-import { PulsesPerTick, PulsesPerTickSquared } from "../cmpp/physical-dimensions/physical-dimensions";
 import { CMPP00LG, LigadoDesligado } from "../cmpp/transport/memmap-CMPP00LG";
 import { Tunnel } from "../cmpp/transport/tunnel";
 import { exhaustiveSwitch } from "../core/utils";
@@ -65,6 +64,8 @@ export type AxisRange = {
 export type TimeStamp = number
 
 export type Tolerance = readonly [lowerBound: Pulses, upperBound: Pulses]
+
+
 
 //TODO: Solve this errors: 1) When you use this.goto to the same position consecutively, the programs get fatal error
 //TODO: Optimize to cache some values instead of fetch from cmpp
@@ -303,7 +304,7 @@ export class SingleAxis {
     //NOTE: Will throw if axis is not initialized
     //TODO: should be better implement to reduce time interval between movimentss
     //TODO: Improve error messages
-    goto = async (target: Moviment , tolerance: Tolerance = this.axisSetup.tolerance): Promise<void> => {
+    public goto = async (target: Moviment , tolerance: Tolerance = this.axisSetup.tolerance): Promise<void> => {
         const { set, get } = this.transportLayer
         const {position, speed, acceleration} = target
         const positionInPulses = this.__convertMovimentPositionToPulses(target)
@@ -385,14 +386,14 @@ export class SingleAxis {
     } 
 
 
-    async getMovimentStatus(): Promise<MovimentStatus> {
+    public async getMovimentStatus(): Promise<MovimentStatus> {
         const cmpp = makeCmppControler(this.tunnel)
         const axis = AxisControler(cmpp)
         const status = await axis.getMovimentStatus()
         return status
     }
 
-    async getCurrentPosition(): Promise<Pulses> {
+    public async getCurrentPosition(): Promise<Pulses> {
         //TODO: if axis has not move, why do not to use a cached value ?
         const cmpp = makeCmppControler(this.tunnel)
         const axis = AxisControler(cmpp)

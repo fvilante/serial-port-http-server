@@ -1,6 +1,6 @@
 import { Kinematics, Moviment } from "../../cmpp/controlers/core"
 import { SmartReferenceParameters } from "../../cmpp/controlers/utils/smart-reference"
-import { Position, Pulses } from "../../cmpp/physical-dimensions/base"
+import { Pulses } from "../../cmpp/physical-dimensions/base"
 import { PulsesPerTick, PulsesPerTickSquared } from "../../cmpp/physical-dimensions/physical-dimensions"
 import { makeTunnel } from "../../cmpp/transport/tunnel"
 import { random } from "../../core/utils"
@@ -60,7 +60,7 @@ function* randomMoviment():Generator<Moviment>  {
 
 function* randomReference():Generator<SmartReferenceParameters> {
     while(true) {
-        const p1: Position = Pulses(random(500,600))
+        const p1: Pulses = Pulses(random(500,600))
         const k1: Kinematics = {
             speed: PulsesPerTick(random(500,1000)),
             acceleration: PulsesPerTickSquared(5000)

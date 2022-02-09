@@ -7,17 +7,7 @@ import { isInsideRange, now } from "./core/utils"
 import { CMPP00LG } from "./cmpp/transport/memmap-CMPP00LG"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared } from "./cmpp/physical-dimensions/physical-dimensions"
 import { makeTunnel } from "./cmpp/transport/tunnel"
-//import { PrintingPositions } from "./cmpp-controler"
-
-
-//TODO: Move below type to appropriate file
-export type Milimeter = {
-    kind: 'Milimeter'
-    value: number
-}
-export const Milimeter = (value: number): Milimeter => ({kind: 'Milimeter', value})
-
-
+import { Milimeter } from "./cmpp/physical-dimensions/milimeter"
 const makeTransportLayer = CMPP00LG
 
 // ***********************************************************
@@ -97,8 +87,8 @@ export const getAxisControler = (starterKit: AxisStarterKit): AxisControler => {
 
 
     const { portName, baudRate, channel} = Address[`Axis`][axisName]
-        const tunnel = makeTunnel(portName, baudRate, channel)
-        const transportLayer = makeTransportLayer(tunnel)
+    const tunnel = makeTunnel(portName, baudRate, channel)
+    const transportLayer = makeTransportLayer(tunnel)
 
 
     const isReferenced: T['isReferenced'] = async () => {

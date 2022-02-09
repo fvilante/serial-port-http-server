@@ -17,7 +17,6 @@ export type Moviment3D = {
 //TODO: Make some caching to avoid resend already sent data
 export class Machine {
     
-
     constructor(
         public axis: { 
             X: SingleAxis,  // horizontal and printing axis
@@ -26,6 +25,7 @@ export class Machine {
         }
     ) { }
 
+    //TODO: 1. rename to doReferenceIfNecessary. 2. Maybe some parameter must be passed to the function like (smartReferenece parameter?)
     public initialize = async () => {
         //assure all axis are referentiated, but first do not referentiate other axis until 'Z' (vertical axis) is fully referentiated
         const { axis } = this
@@ -72,6 +72,7 @@ export class Machine {
         ])
     }
 
+    //TODO: This shutdown should not deenergize Z axis (vertical axis) to avoid print head colisions
     public shutdown = async (): Promise<void> => {
         const { X, Y, Z} = this.axis
         await ExecuteInParalel([

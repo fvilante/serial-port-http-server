@@ -1,4 +1,4 @@
-import { Milimeter } from "../../axis-controler"
+import { Milimeter } from "../physical-dimensions/milimeter"
 import { Pulses, PulsesPerTick, PulsesPerTickSquared } from "../physical-dimensions/physical-dimensions"
 
 //

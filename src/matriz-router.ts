@@ -1,11 +1,9 @@
-import { delay } from "./core/delay"
 import { AxisControler } from "./axis-controler"
-import { Milimeter } from "./axis-controler"
-import { Printers } from "./global-env/global"
-import { AxisKit, MovimentKit } from "./machine-controler"
-import { getMatrizesConhecidas, Matriz, MatrizesConhecidasKeys } from "./matrix-reader/matrizes-conhecidas"
+import { Milimeter } from "./cmpp/physical-dimensions/milimeter"
+import { AxisKit } from "./main/main3"
+import { Matriz } from "./matriz/matriz"
 import { programMessage } from "./printer/program-message"
-import { executeInSequence, repeatPromiseWithInterval } from "./core/promise-utils"
+import { executeInSequence } from "./core/promise-utils"
 
 //  Responsible to create and execute the routing for perform the printing
 //  work over the Matriz
@@ -84,7 +82,7 @@ export const startRouting = async (matriz: Matriz, axisKit: AxisKit): Promise<vo
         const {x,y,z} = axisKit
 
         // Fix: Velocity must not be a constant
-        const fazLinhaXUmaVezInteira = async (axisKit: AxisKit, impressoes: Matriz['impressoesX']):Promise<void> => {
+        const fazLinhaXUmaVezInteira = async (impressoes: Matriz['impressoesX']):Promise<void> => {
 
             const [minX, maxX] = x._getAbsolutePositionRange()
             await x.goToAbsolutePosition(minX)
@@ -102,31 +100,18 @@ export const startRouting = async (matriz: Matriz, axisKit: AxisKit): Promise<vo
                     
         }
 
-        
-        const fazLinhaXPreta = async (axisKit: AxisKit, impressoes: Matriz['impressoesX']):Promise<void> => {
-            await fazLinhaXUmaVezInteira(axisKit, impressoes)
-        }
-        
-        const fazLinhaXBranca = async (axisKit: AxisKit, impressoes: Matriz['impressoesX']):Promise<void> => {
-            await fazLinhaXUmaVezInteira(axisKit, impressoes)
-            await fazLinhaXUmaVezInteira(axisKit, impressoes)          
-        }
-
-        const printAtAParticularYanXLinInAnyColor = async (printer: Printers, modelo: Matriz['impressoesX']): Promise<void> => {
-            if (printer==='printerWhite') {
-                await fazLinhaXBranca(axisKit,modelo)
-            } else {
-                // printer==='printerBlack'
-                await fazLinhaXPreta(axisKit, modelo)
-            }
-            return
-        }
-
-        //position y
+        //prepare y position
         await y.goToAbsolutePosition(yPos)
         //do the line
-        //const iInPulses = convertImpressoesMM2Pulse(impressoesX)
-        await printAtAParticularYanXLinInAnyColor(printer,impressoesX)
+        if (printer==='printerWhite') {
+            // white ink requires two print pass to obtain adequate color contrast
+            await fazLinhaXUmaVezInteira(impressoesX)
+            await fazLinhaXUmaVezInteira(impressoesX)    
+        } else /*printer==='printerBlack'*/ {
+            // black ink just one print pass
+            await fazLinhaXUmaVezInteira(impressoesX)
+        }
+        return
 
     }
 
