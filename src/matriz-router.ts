@@ -65,13 +65,20 @@ export const PrintLine = async ( arg: PrintLineArgument ): Promise<void> => {
     const safePOSINI = POSINI < minX ? minX : POSINI
     const safePOSFIM = POSFIN > maxX ? maxX : POSFIN
 
-    // avança X
+    // assegura X esta no inicio do curso
+    await x.goto({
+        position: safePOSINI,
+        speed: defaults.velocidadeDeRetorno,
+        acceleration: defaults.aceleracaoDeRetorno,
+    }) 
+
+    // avança X imprimindo
     await x.goto({
         position: safePOSFIM,
         speed: velocidadeDeImpressao,
         acceleration: defaults.aceleracaoDeAvanco,
     }) 
-    // retorna X
+    // retorna X nao imprimindo
     await x.goto({
         position: safePOSINI,
         speed: defaults.velocidadeDeRetorno,
@@ -116,18 +123,19 @@ export const startRouting = async (matriz: Matriz, machine: Machine): Promise<vo
 
     const doASingleXLine = async (yPos: Milimeter, impressoesX: Matriz['impressoesX']): Promise<void> => {
 
+        const minX = machine.axis.X.axisSetup.absoluteRange.min //NOTE: Represents the minimum clear position (in pulses) that can be reached by x Axis
+
         // Fix: Velocity must not be a constant
         const fazLinhaXUmaVezInteira = async (impressoes: Matriz['impressoesX']):Promise<void> => {
 
             // put x at the begining position
-            const minX = machine.axis.X.axisSetup.absoluteRange.min //NOTE: Represents the minimum clear position (in pulses) that can be reached by x Axis
-            await machine.goto({
+            /*await machine.goto({
                 X: {
                     position: minX,
                     speed: PulsesPerTick(legacyParameters.x.speed),
                     acceleration: PulsesPerTickSquared(legacyParameters.x.acceleration),
                 }
-            })
+            })*/
             //
             const PRIMEIRA = 0
             const ULTIMA = impressoes.length-1
@@ -140,18 +148,18 @@ export const startRouting = async (matriz: Matriz, machine: Machine): Promise<vo
                 primeiraMensagem, 
                 ultimaMensagem, 
                 velocidadeDeImpressao, 
-                rampa: rampa, 
+                rampa, 
                 numeroDeMensagens, 
                 xControler: machine.axis.X
             })
             // return carrige of the x to the begining position
-            await machine.goto({
+            /*await machine.goto({
                 X: {
                     position: minX,
                     speed: PulsesPerTick(legacyParameters.x.speed),
                     acceleration: PulsesPerTickSquared(legacyParameters.x.acceleration),
                 }
-            })  
+            })  */
             return
                     
         }
@@ -178,7 +186,7 @@ export const startRouting = async (matriz: Matriz, machine: Machine): Promise<vo
 
     }
 
-    const doAllYLinesIncludingItsXLine = async (matriz: Matriz): Promise<void> => {
+    const doAllPlanarRouting = async (matriz: Matriz): Promise<void> => {
 
         // esta funcao é importante, ela compensa a falta de ortogonalidade entre a mecanica do eixo X e Y, 
         // possivelmente será necessário uma funcao desta por gaveta
@@ -239,7 +247,7 @@ export const startRouting = async (matriz: Matriz, machine: Machine): Promise<vo
     // desce Z
     await moveDownZAxis()
     // performa toda a matriz
-    await doAllYLinesIncludingItsXLine(matriz)
+    await doAllPlanarRouting(matriz)
     // sobe Z
     await moveUpZAxis()
 }
