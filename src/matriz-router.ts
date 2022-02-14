@@ -140,7 +140,7 @@ export const startRouting = async (matriz: Matriz, machine: Machine): Promise<vo
                 primeiraMensagem, 
                 ultimaMensagem, 
                 velocidadeDeImpressao, 
-                rampa: rampa, 
+                rampa, 
                 numeroDeMensagens, 
                 xControler: machine.axis.X
             })
