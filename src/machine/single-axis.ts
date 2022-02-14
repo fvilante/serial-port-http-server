@@ -82,7 +82,8 @@ export class SingleAxis {
         public axisSetup: SingleAxisSetup,
         ) { }
 
-    protected __convertMilimetersToPulse = (_: Milimeter): Pulses => {
+    //TODO: Verify if this method should be 'public' or 'private/protected'
+    public __convertMilimetersToPulse = (_: Milimeter): Pulses => {
         const milimeter = _.value
         const pulses = milimeter / this.axisSetup.milimeterToPulseRatio
         const pulsesRounded = Math.round(pulses) //NOTE: this round breaks isomorphism
