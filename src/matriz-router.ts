@@ -178,7 +178,7 @@ export const startRouting = async (matriz: Matriz, machine: Machine): Promise<vo
 
     }
 
-    const doAllYLinesIncludingItsXLine = async (matriz: Matriz): Promise<void> => {
+    const doAllPlanarRouting = async (matriz: Matriz): Promise<void> => {
 
         // esta funcao é importante, ela compensa a falta de ortogonalidade entre a mecanica do eixo X e Y, 
         // possivelmente será necessário uma funcao desta por gaveta
@@ -239,7 +239,7 @@ export const startRouting = async (matriz: Matriz, machine: Machine): Promise<vo
     // desce Z
     await moveDownZAxis()
     // performa toda a matriz
-    await doAllYLinesIncludingItsXLine(matriz)
+    await doAllPlanarRouting(matriz)
     // sobe Z
     await moveUpZAxis()
 }
