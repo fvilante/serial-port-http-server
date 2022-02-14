@@ -8,6 +8,25 @@ import { delay } from "../core/delay"
 import { getAxisControler } from "../axis-controler"
 import { X_AxisStarterKit, Y_AxisStarterKit, Z_AxisStarterKit } from "../axis-starter-kit"
 import { AxisControler } from "../axis-controler"
+import { makeTunnel, Tunnel } from "../cmpp/transport/tunnel"
+import { Address } from "../global-env/global"
+import { Machine } from "../machine/machine"
+import { SingleAxis } from "../machine/single-axis"
+import { x_axis_setup, y_axis_setup, z_axis_setup } from "../machine/axes-setup"
+
+
+const getMachine = (): Machine => {
+    const getTunnelFromAxis = (axisName: keyof Address['Axis']): Tunnel => {
+        const { portName, baudRate, channel} = Address[`Axis`][axisName]
+        const tunnel = makeTunnel(portName, baudRate, channel)
+        return tunnel
+    } 
+    const X = new SingleAxis(getTunnelFromAxis('XAxis'),x_axis_setup)
+    const Y = new SingleAxis(getTunnelFromAxis('YAxis'),y_axis_setup)
+    const Z = new SingleAxis(getTunnelFromAxis('ZAxis'),z_axis_setup)
+    const machine = new Machine({X,Y,Z})
+    return machine
+}
 
 
 const getMatrizFromDB = async (barcode: Barcode): Promise<Matriz> => {
@@ -74,14 +93,6 @@ export type AxisKit = {
     z: AxisControler,
 } 
 
-// Fix: I'd like not to have to import AxisStartKit. I would not use this 'starter kit strategy' at all
-const __makeMovimentKit = async ():Promise<AxisKit> => {
-    const z = getAxisControler(Z_AxisStarterKit)
-    const x = getAxisControler(X_AxisStarterKit)
-    const y = getAxisControler(Y_AxisStarterKit)
-    return { x, y, z }
-}
-
 const main3 = () => {
     const keyboardEventEmiter__ = showKeyStrokesOnScreen(keyboardEventEmiter)
     printHeadText();
@@ -91,8 +102,9 @@ const main3 = () => {
 
             const runProgram = async () => {
                 const matriz = await getMatrizFromDB(barcode)
-                const movimentKit = await  __makeMovimentKit()
-                return startRouting(matriz, movimentKit)
+                const machine = getMachine()
+                await machine.initialize()
+                return startRouting(matriz, machine)
             }
 
             runProgram()
@@ -100,4 +112,5 @@ const main3 = () => {
         })
 }
 
+//run
 main3();
