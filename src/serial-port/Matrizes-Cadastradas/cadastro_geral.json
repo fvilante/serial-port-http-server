@@ -1,4 +1,19 @@
 [
+   {
+      "partNumber":"P00171172",
+      "barCode":"test",
+      "printer":"printerWhite",
+      "msg":"25400",
+      "remoteFieldId":2,
+      "printVelocity":1700,
+      "zLevel":0,
+      "xPos":144.3,
+      "xStep":70,
+      "xQuantity":6,
+      "yPos":57,
+      "yStep":70,
+      "yQuantity":7
+   },
   {
      "partNumber":"P00171172",
      "barCode":"M#P00171172-25400",
