@@ -45,13 +45,14 @@ export class Machine {
 
     }
 
-    public goto = async (m: Moviment3D, printings?: PrintingPositions2): Promise<void> => {
+    public goto = async (m: Partial<Moviment3D>, printings?: PrintingPositions2): Promise<void> => {
         // to avoid collision when  axis Z (vertical axis) is moving, NO other axis are moving together!
         const { axis } = this
         type AxisKeys = keyof typeof this.axis
         const move = async (key: AxisKeys): Promise<void> => {
             const axis_ = axis[key]
-            await axis_.goto(m[key])
+            const nextMoviment = key in m ? m[key] : undefined 
+            if (nextMoviment!==undefined) await axis_.goto(nextMoviment)
         }
 
         const sendPrintings = async () => {
