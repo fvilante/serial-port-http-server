@@ -12,6 +12,8 @@ import { SingleAxis } from "./machine/single-axis"
 //  Responsible to create and execute the routing for perform the printing
 //  work over the Matriz
 
+//TODO: The 'test' barcode is being performed in 3m25sec. But the target is less then 2m44s
+
 
 // ----------
 
