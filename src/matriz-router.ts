@@ -1,12 +1,11 @@
-import { AxisControler } from "./axis-controler"
+
 import { Milimeter } from "./cmpp/physical-dimensions/milimeter"
 import { Matriz } from "./matriz/matriz"
 import { programMessage } from "./printer/program-message"
 import { executeInSequence } from "./core/promise-utils"
 import { Machine } from "./machine/machine"
 import { Pulses } from "./cmpp/physical-dimensions/base"
-import { PulsesPerTick, PulsesPerTickSquared, Pulses_ } from "./cmpp/physical-dimensions/physical-dimensions"
-import { Kinematics } from "./cmpp/controlers/core"
+import { PulsesPerTick, PulsesPerTickSquared } from "./cmpp/physical-dimensions/physical-dimensions"
 import { SingleAxis } from "./machine/single-axis"
 
 //  Responsible to create and execute the routing for perform the printing
