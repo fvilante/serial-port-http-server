@@ -4,25 +4,56 @@
   "description": "Http server for local serial ports.",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "compile": "npx tsc",
+    "compileDryRun": "npm run compile && npm run clean",
+    "format:source": "npx prettier --write \"src/**/*.ts\"",
+    "test": "jest",
+    "clear_test": "jest --clearCache",
+    "coverage": "jest --coverage",
+    "clean": "npx rimraf ts-output",
+    "build": "echo to be done!",
+    "start": "npx ts-node .\\src\\server\\serial-websocket-server.ts",
+    "watch": "nodemon -L .\\src\\server\\serial-websocket-server.ts",
+    "moveCmpp": "npx ts-node .\\src\\serial-port\\cmpp\\temp\\moveAxisTo.ts",
+    "updateDependencyGraph1": "npx dependency-cruiser --include-only '^src' --output-type dot src | dot -T svg > dependencygraph1All.svg",
+    "updateDependencyGraph2": "npx ts_dependency_graph --start ./src/main/main3.ts  | dot -T svg > dependencygraph2Main3.svg",
+    "updateDependencyGraph2Main2": "npx ts_dependency_graph --start ./src/main/main2.ts  | dot -T svg > dependencygraph2Main2.svg",
+    "dep1": "npm run updateDependencyGraph1",
+    "dep2": "npm run updateDependencyGraph2",
+    "dep3": "npm run updateDependencyGraph2Main2",
+    "dep": "npm run dep1 && npm run dep2 && npm run dep3",
+    "referenciar": "npx ts-node ./src/main/main2.ts",
+    "produzir": "cd ./src/main/ && npx ts-node main3.ts",
+    "gitclean": "cd .git && rm index.lock",
+    "gource": "gource -a 1 -s 1 -r 30 --key . ",
+    "code": "code ."
   },
   "author": "fvilante",
   "license": "ISC",
   "devDependencies": {
     "@types/serialport": "^8.0.1",
-    "@types/ws": "7.2.6",
+    "dependency-cruiser": "^10.0.4",
     "jest": "^26.4.2",
     "ts-jest": "^26.4.0",
-    "typescript": "^4.0.2"
+    "typescript": "^4.2.3"
   },
   "dependencies": {
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
     "@types/jest": "^26.0.14",
     "@types/node": "^14.14.31",
-    "@types/terminal-kit": "^1.28.2",
-    "npx": "^10.2.2",
+    "@types/uuid": "^8.3.3",
+    "@types/ws": "^8.2.2",
+    "control-terminal": "^1.0.0-alpha.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.2",
+    "fastify": "^3.25.0",
+    "nodemon": "^2.0.15",
+    "ora": "^5.4.1",
+    "rambda": "^7.0.1",
     "serialport": "^9.0.1",
-    "terminal-kit": "^2.0.3",
     "ts-node": "^9.0.0",
-    "ws": "7.3.1"
+    "uuid": "^8.3.2",
+    "ws": "^8.3.0"
   }
 }

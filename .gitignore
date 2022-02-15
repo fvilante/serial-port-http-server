@@ -4,4 +4,9 @@ npm-debug.log
 packages/*/lib
 .idea
 .vscode/
+src/serial-port/front-end/build/
+dependencygraph*.svg
+/coverage/
+ts-output/
 
+src/software/server/client/build
