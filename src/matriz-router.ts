@@ -28,13 +28,12 @@ type PrintLineArgument = {
 
 // TODO: reduce number of parameters extracting it to types
 // NOTE: Algorithm => Imprime Linha Somente No Avanco E Interpolando
-export const PrintLine = async ( arg: PrintLineArgument ): Promise<void> => {
+export const printLine = async ( arg: PrintLineArgument ): Promise<void> => {
     const { 
         primeiraMensagem, 
         ultimaMensagem, 
         velocidadeDeImpressao, 
         rampa, 
-        numeroDeMensagens, 
         xControler 
     } = arg
 
@@ -50,15 +49,6 @@ export const PrintLine = async ( arg: PrintLineArgument ): Promise<void> => {
 
     const xi_InPulses = x.__convertMilimetersToPulse(primeiraMensagem)
     const xf_InPulses = x.__convertMilimetersToPulse(ultimaMensagem)
-
-    await x.setPrintings({
-        numeroDeMensagensNoAvanco: numeroDeMensagens,
-        posicaoDaPrimeiraMensagemNoAvanco: xi_InPulses,
-        posicaoDaUltimaMensagemNoAvanco: xf_InPulses,
-        numeroDeMensagensNoRetorno: 0,
-        posicaoDaPrimeiraMensagemNoRetorno: Pulses(500), //NOTE: not unused, there is not "printing on return" in the current routing method
-        posicaoDaUltimaMensagemNoRetorno: Pulses(500), //NOTE: not unused, there is not "printing on return" in the current routing method
-    })
 
     const { min: minX, max: maxX } = x.axisSetup.absoluteRange
 
@@ -86,8 +76,6 @@ export const PrintLine = async ( arg: PrintLineArgument ): Promise<void> => {
         speed: defaults.velocidadeDeRetorno,
         acceleration: defaults.aceleracaoDeRetorno,
     }) 
-    // reseta impressao
-    await x.resetPrintings() //TODO: for performance reason this line may be performed in paralel with y axis moviment
 
     return
 
@@ -128,7 +116,11 @@ export const startRouting = async (matriz: Matriz, machine: Machine): Promise<vo
         const minX = machine.axis.X.axisSetup.absoluteRange.min //NOTE: Represents the minimum clear position (in pulses) that can be reached by x Axis
 
         // Fix: Velocity must not be a constant
-        const fazLinhaXUmaVezInteira = async (impressoes: Matriz['impressoesX']):Promise<void> => {
+        const lineTools = (impressoes: Matriz['impressoesX']):{
+            setPrintings: () => Promise<void>,
+            resetPrintings: () => Promise<void>,
+            performLineMoviment: () => Promise<void>,
+        } => {
 
             // put x at the begining position
             /*await machine.goto({
@@ -146,7 +138,27 @@ export const startRouting = async (matriz: Matriz, machine: Machine): Promise<vo
             const numeroDeMensagens = impressoes.length
             const velocidadeDeImpressao = PulsesPerTick(matriz.printVelocity)
             const rampa = Pulses(640)
-            await PrintLine({ 
+
+            const setPrintings = async () => {
+                const x = machine.axis.X
+                const xi_InPulses = x.__convertMilimetersToPulse(primeiraMensagem)
+                const xf_InPulses = x.__convertMilimetersToPulse(ultimaMensagem)
+                await x.setPrintings({
+                    numeroDeMensagensNoAvanco: numeroDeMensagens,
+                    posicaoDaPrimeiraMensagemNoAvanco: xi_InPulses,
+                    posicaoDaUltimaMensagemNoAvanco: xf_InPulses,
+                    numeroDeMensagensNoRetorno: 0,
+                    posicaoDaPrimeiraMensagemNoRetorno: Pulses(500), //NOTE: not unused, there is not "printing on return" in the current routing method
+                    posicaoDaUltimaMensagemNoRetorno: Pulses(500), //NOTE: not unused, there is not "printing on return" in the current routing method
+                })
+            }
+
+            const resetPrintings = async () => {
+                const x = machine.axis.X
+                await x.resetPrintings()
+            }
+
+            const performLineMoviment = async () => printLine({ 
                 primeiraMensagem, 
                 ultimaMensagem, 
                 velocidadeDeImpressao, 
@@ -154,15 +166,12 @@ export const startRouting = async (matriz: Matriz, machine: Machine): Promise<vo
                 numeroDeMensagens, 
                 xControler: machine.axis.X
             })
-            // return carrige of the x to the begining position
-            /*await machine.goto({
-                X: {
-                    position: minX,
-                    speed: PulsesPerTick(legacyParameters.x.speed),
-                    acceleration: PulsesPerTickSquared(legacyParameters.x.acceleration),
-                }
-            })  */
-            return
+            
+            return {
+                setPrintings,
+                resetPrintings,
+                performLineMoviment,
+            }
                     
         }
 
@@ -174,16 +183,21 @@ export const startRouting = async (matriz: Matriz, machine: Machine): Promise<vo
                 acceleration: PulsesPerTickSquared(legacyParameters.y.acceleration),
             }
         })
+
+        const tools = lineTools(impressoesX)
         
+        await tools.setPrintings()
         //do the line
         if (printer==='printerWhite') {
             // the white ink requires two print pass to obtain adequate color contrast
-            await fazLinhaXUmaVezInteira(impressoesX)
-            await fazLinhaXUmaVezInteira(impressoesX)    
+            await tools.performLineMoviment()
+            await tools.performLineMoviment()    
         } else /*printer==='printerBlack'*/ {
             // black ink just one print pass
-            await fazLinhaXUmaVezInteira(impressoesX)
+            await tools.performLineMoviment()
         }
+        await tools.resetPrintings() //TODO: To improve performance would be better to move Y axis while in parallel reset printings in X axis.
+        
         return
 
     }
