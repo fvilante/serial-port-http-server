@@ -5,9 +5,6 @@ import { startRouting } from "../router/matriz-router"
 import { fetchMatrizByBarcodeRaw } from "../matriz/matriz-cadastro-geral-reader"
 import { Matriz } from "../matriz/matriz"
 import { delay } from "../core/delay"
-import { getAxisControler } from "../axis-controler"
-import { X_AxisStarterKit, Y_AxisStarterKit, Z_AxisStarterKit } from "../axis-starter-kit"
-import { AxisControler } from "../axis-controler"
 import { makeTunnel, Tunnel } from "../cmpp/transport/tunnel"
 import { Address } from "../global-env/global"
 import { Machine } from "../machine/machine"
@@ -85,13 +82,6 @@ const printHeadText = () => {
     console.log('2) Digite o codigo de barras manualmente e em seguida pressione a tecla <enter>. O texto digitado deve estar exatamente igual ao campo cadastrado no cadastro geral. (OBS: Nao utilize as teclas "setas direcionais", "backspace", durante a edição)')
     console.log('-')
 }
-
-
-export type AxisKit = {
-    x: AxisControler,
-    y: AxisControler,
-    z: AxisControler,
-} 
 
 const main3 = () => {
     const keyboardEventEmiter__ = showKeyStrokesOnScreen(keyboardEventEmiter)
