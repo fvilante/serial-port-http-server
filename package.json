@@ -2,6 +2,7 @@
   "name": "julia_desktop",
   "version": "1.2.1",
   "description": "Julia for Desktop",
+  "private": true, 
   "main": "index.js",
   "scripts": {
     "compile": "npx tsc",
@@ -28,8 +29,8 @@
     "gource": "gource -a 1 -s 1 -r 30 --key . ",
     "code": "code ."
   },
-  "author": "fvilante",
-  "license": "ISC",
+  "author": "flavio vilante",
+  "license": "UNLICENSED",
   "devDependencies": {
     "@types/serialport": "^8.0.1",
     "dependency-cruiser": "^10.0.4",
