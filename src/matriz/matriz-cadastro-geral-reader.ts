@@ -1,7 +1,7 @@
 import { readFile,  } from 'fs'
 import { Matriz, Matriz3 } from "./matriz"
 import { matrizConverter_3_1 } from './matriz-converter'
-import { Barcode } from '../barcode/barcode-core'
+import { Barcode } from '../barcode/barcode-type'
 
 const CurrentDirectory = process.cwd()
 const FILE = 'cadastro_geral.json'

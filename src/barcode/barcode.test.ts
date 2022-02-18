@@ -1,4 +1,4 @@
-import { Barcode } from './Barcode-core'
+import { Barcode } from './barcode-type'
 import { parseBarcode } from './Barcode-stream'
 
 

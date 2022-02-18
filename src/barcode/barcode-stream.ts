@@ -1,6 +1,6 @@
 import { KeyboardEvent, KeyboardEventEmitter } from '../keyboard/read-keyboard-async'
 import { Push  } from "../adts/push-stream"
-import { Barcode } from './barcode-core'
+import { Barcode } from './barcode-type'
 
 // NOTE: You can filter keystroks of barcode reader to differentiate to normal typing doing this:
 //      I verified inclusive in the LEONI_MACHINE computer what follows below: 

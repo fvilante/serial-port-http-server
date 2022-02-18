@@ -1,5 +1,5 @@
 import { keyboardEventEmiter, KeyboardEventEmitter } from "../keyboard/read-keyboard-async"
-import { Barcode } from "../barcode/barcode-core"
+import { Barcode } from "../barcode/barcode-type"
 import { makeBarcodeStream } from '../barcode/barcode-stream'
 import { startRouting } from "../router/matriz-router"
 import { fetchMatrizByBarcodeRaw } from "../matriz/matriz-cadastro-geral-reader"
